@@ -7,101 +7,118 @@
 
 [![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![730 graded runs, all correct](https://img.shields.io/badge/graded%20runs-730%2C%20all%20correct-0ca30c?style=flat-square)](benchmarks/delegate-bench/SUITE.md) [![6 mods](https://img.shields.io/badge/mods-6-555555?style=flat-square)](#the-mods-in-depth)
 
-Six mods that get more done per request in Claude Code, and show you what it's doing.<br>
-Every claim below was measured, and a mod that measured no gain stays quiet.
+### Claude Code with fewer wasted steps, and a clear view of what it's doing.
+
+Six free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
+Every number on this page was measured, including the one place where it doesn't help.
+
+[Install](#install) · [What you get](#what-you-get) · [Honest numbers](#honest-numbers) · [Questions](#questions)
 
 </div>
 
 <br>
 
-## What changes when you install it
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <img alt="26% less per task in a long session; 21% fewer steps for the same work; 27% less on a feature a cheaper model builds from your plan; 116 of 116 results correct, with the pack and without." src="assets/hero-light.svg" width="880">
+</picture>
 
-### Edits and their check in one step, still real diffs (cells)
+## Why it saves
 
-Claude writes several edits and the command that checks them as a few lines of code, and they run as one step. Each edit goes through the real Edit tool, so you see a diff and `/rewind` still works. This is the card of a finished cell in the terminal:
+Every time Claude takes a step (reads a file, makes an edit, runs the tests), it reads your whole conversation again. That re-reading is most of what a session costs, and it grows the longer you work. So the cheapest step is the one Claude never has to take.
+
+The pack takes out steps that need no thinking. Several edits and their test run as one step. A search for a name in your code comes back with the exact answer. And when you approve a plan, a cheaper model does the building while Claude checks the result. The work comes out the same; Claude just gets there in fewer round trips.
+
+## What you get
+
+### Always know where your plan stands
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/screen-band-dark.svg">
+  <img alt="Above the prompt, two rows: a background pytest run at 55% finishing in 21 minutes and a running hand-off with its requests, cost and latest action; below the prompt, the status line: auto mode on, Opus 5.5 xhigh, context 412k, 5h 34%, 7d 12%, and ready, cold in 44m." src="assets/screen-band-light.svg" width="880">
+</picture>
+
+One line under the prompt: the model, how full the conversation is, and how much of your plan's 5-hour and weekly limits you have used, with when each one resets. Long jobs get a progress bar and a finish time above the prompt. And when you step away, your session is kept ready, or tidied up before it goes cold, whichever costs less; the line tells you which.
+<sub>statusline · eta · smart-compact</sub>
+
+### Several changes in one step, and you can still undo them
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screen-cells-dark.svg">
   <img alt="A running cell card in the terminal: a rounded orange card with the three lines of code the cell runs, the read and edit rows done and the pytest row still running with its elapsed time, and the closing line: running, a scanner, 3 calls, 1.0 s." src="assets/screen-cells-light.svg" width="880">
 </picture>
 
-### Big work handed to a cheaper worker, by itself after you approve a plan (delegate)
+Claude makes several edits and runs the tests as one step, and you watch each part happen in a live card. Every edit still goes through Claude Code's own edit tool: you see each change, and `/rewind` undoes it.
+<sub>cells</sub>
 
-Approve a plan of 20 lines or more and Claude hands it to a Sonnet worker, which builds it and runs the check. The card shows the worker live, in the same style as a cell: orange while it runs, grey once it is done. `/delegate` opens a pane with every step. This is how a hand-off card draws, running and then done:
+### A cheaper model builds what you approved
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screen-delegate-dark.svg">
   <img alt="Two hand-off cards: one with an orange border while the Sonnet worker runs (the task, five worker actions with the last one still turning, the state running with a scanner, 41s, 6 req, $0.05, watch), and the same card in grey when done (1:14, 9 req, $0.14, +48 -2 in 2 files, check passed, view)." src="assets/screen-delegate-light.svg" width="880">
 </picture>
 
-### Symbol searches answered by the language server (lsp-plus)
+When you approve a plan, Claude hands the building to Sonnet, a cheaper model, and checks its work before reporting back. In our tests that made a feature 27% cheaper and new tests 33% cheaper, with every result correct. You can watch the helper work in its card, and `/delegate` shows every step it took.
+<sub>delegate</sub>
 
-A grep for a code symbol comes back with the language server's answer attached: the callers of a function, or the references of anything else. Claude needs no further step to find them. `/lsp-plus:setup` sets the servers up. This is the answer attached to a grep:
+### Straight answers about your code
 
-```text
-`format_filename` per the language server: called from 4 functions in 3 files (code only: strings, comments, docs and namesakes are in the grep above):
-src/click/exceptions.py: FileError.__init__ (353)
-src/click/types.py: File.convert (1013), Path.convert (1168, 1177, 1185, 1194, 1203, 1212)
-src/click/utils.py: _LazyFile.__repr__ (163)
-```
+When Claude searches your code for a name, it gets the exact list of places that use it, from the same engine your editor uses, instead of reading through search results. Renames and "who calls this?" questions take fewer steps. Run `/lsp-plus:setup` once in your project to turn it on.
+<sub>lsp-plus</sub>
 
-### Your jobs and workers above the prompt (eta)
+### You stay in control
 
-A background job shows above the prompt with a percentage and an estimated finish time, read live from its output. A running hand-off is a row there too. The rows draw above the prompt, as shown below under the statusline.
-
-### One line with what matters, and a warm cache (statusline, smart-compact)
-
-One line under the prompt: the model and its effort, how full the context is, the plan's 5-hour and 7-day use with their resets. smart-compact adds whether the next prompt finds the cache ready or cold, and keeps it warm or compacts just before it expires, whichever is cheaper. In the desktop app the line shows only the cache's state, and only when it needs you. This is the line in the terminal, under the prompt, with the eta rows above it:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/screen-band-dark.svg">
-  <img alt="Above the prompt, two rows: a background pytest run at 55% finishing in 21 minutes and a running hand-off with its requests, cost and latest action; below the prompt, the status line: auto mode on, Opus 5.5 xhigh, context 412k, 5h 34%, 7d 12%, and smart-compact's ready, cold in 44m." src="assets/screen-band-light.svg" width="880">
-</picture>
-
-### It looks after itself
-
-At session start a mod says what it cannot do fully on your machine, with the command that fixes it: `/lsp-plus:setup` or `/cells:setup`. `/mods` shows each mod and turns it on or off, live. The pack checks for a new release once a day and installs it in the background (`updates: notify` or `off` in the modpack plugin's settings; `/modpack:update` updates now).
+`/mods` lists the six and turns any of them on or off, right away. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. It keeps itself up to date (or only lets you know, if you prefer).
+<sub>modpack</sub>
 
 ## Install
+
+In Claude Code, type:
 
 ```
 /plugin install modpack --marketplace HarzerHeribert/claude-modpack
 ```
 
-That installs all six: the `modpack` plugin lists them as its dependencies. Answer `y` to add the marketplace, then pick a scope. One mod alone works the same way:
-
-```
-/plugin install smart-compact --marketplace HarzerHeribert/claude-modpack
-```
-
-Then, in the repository you work in:
+Answer `y` to add the marketplace, then pick where to install it. That installs all six. Then, in the project you work in:
 
 ```
 /lsp-plus:setup
 ```
 
-lsp-plus, delegate and cells build on Claude Code's LSP tool, which needs a language server for each language. The setup finds the repository's languages, checks which plugins and servers are missing, asks once, installs them, and confirms each after a restart. The same by hand: [Language servers](#language-servers).
+It finds the languages your project uses, installs what is missing for the code answers (it asks first), and checks they work after a restart. Done. `/mods` shows what's on.
 
-Then `/mods` to see the six and switch any of them.
+<details>
+<summary>One mod alone, or setting the language servers up by hand</summary>
+<br>
 
-## Does it pay?
+Each mod installs on its own the same way, for example `/plugin install smart-compact --marketplace HarzerHeribert/claude-modpack`. lsp-plus, delegate and cells build on Claude Code's LSP tool, which needs a language server for each language: [Language servers](#language-servers) lists them.
+</details>
 
-Claude Opus 5.5 at xhigh effort on seven real tasks in the [click](https://github.com/pallets/click) repository, each graded by hidden tests or a fixed rule. Plain Claude Code against the pack, at list prices.
+## Honest numbers
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-  <img alt="116 of 116 graded runs correct with the pack and without it; 26% lower cost in a session already holding 216k tokens; 5.5 instead of 6.9 model requests per task; 27% lower cost on feature work handed to a worker after your plan." src="assets/hero-light.svg" width="880">
-</picture>
+We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source project ([click](https://github.com/pallets/click)), from a one-line lookup to building a feature. Every result was checked by hidden tests. The same jobs ran with the pack and without it, and we compared what they cost at API prices.
 
-- **In a session already holding 216k tokens:** the average task cost 26% less [95% interval −31% to −21%], multi-step work 29% less. 3.5 model requests per task instead of 5.4.
-- **In a fresh session:** the average task cost 5% less [−10% to −0.5%], multi-step work 11% less and 18% faster. On tasks of one to five requests the pack costs about 5% more [+1% to +10%], its tools and guidance riding along in every request: there it can't help.
-- **A plan you approve, handed to a worker:** feature work 27% less, tests 33% less, every run correct.
-- **116 graded runs** for these numbers, every one correct; 730 in all in `benchmarks/`, every one correct.
+| Cost per job | Without | With the pack | |
+| --- | --- | --- | --- |
+| In a long session (Claude has already read the whole project) | $0.42 | $0.31 | **−26%** |
+| Bigger jobs in a long session (a feature, tests, a rename) | $0.87 | $0.62 | **−29%** |
+| In a fresh session | $0.38 | $0.36 | −5% |
+| Bigger jobs in a fresh session | $0.58 | $0.52 | −11%, and 18% faster |
+| Quick questions in a fresh session | $0.23 | $0.24 | **+5%** |
+
+- **Where it doesn't help:** a quick question in a brand-new session costs about 5% more, because the pack's tools come along with every step. It pays off on real work and in long sessions.
+- **Nothing got worse:** all 116 runs behind this table produced a correct result, with the pack and without.
+- **The 95% ranges:** long session −31% to −21%; fresh −10% to −0.5%; quick questions +1% to +10%.
+- **A plan handed to a cheaper model:** −27% on a feature, −33% on tests, against Opus doing it alone with the pack (16 runs, all correct).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/cost-dark.svg">
   <img alt="Cost per task, plain Claude Code against the modpack, in a fresh session and in a session already holding 216k tokens." src="assets/cost-light.svg" width="880">
 </picture>
+
+<details>
+<summary>Steps per job, and the hand-off chart</summary>
+<br>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/requests-dark.svg">
@@ -112,10 +129,29 @@ Claude Opus 5.5 at xhigh effort on seven real tasks in the [click](https://githu
   <source media="(prefers-color-scheme: dark)" srcset="assets/delegate-dark.svg">
   <img alt="Cost per task, Opus alone against a plan handed to a worker: feature work 27% less, tests 33% less." src="assets/delegate-light.svg" width="880">
 </picture>
+</details>
 
-The method, every run's record and the harness to rerun it are in [`benchmarks/`](benchmarks/), starting with [SUITE.md](benchmarks/delegate-bench/SUITE.md).
+How we measured, every run's record, and the scripts to run it all again are in [`benchmarks/`](benchmarks/), starting with [SUITE.md](benchmarks/delegate-bench/SUITE.md). Not measured: what smart-compact saves you while you're away (worked out from prices, not tested) and Windows.
 
-Not measured: smart-compact's savings (priced from list prices) and Windows. In the desktop app, auto mode refuses the workers a mod starts; there hand-offs run in manual mode, or from the terminal.
+## Questions
+
+**Will Claude's work get worse?**
+No. In every run we graded, 730 in all, the result was correct with the pack and without, and every one was graded again for this release. The pack changes how many steps Claude takes to get there, and in our tests the results came out the same.
+
+**Is it safe?**
+It's open source (MIT), so every line is here to read. Code that Claude runs inside a cell runs in a sandbox with no network access. Edits go through Claude Code's own edit tool, so your usual permission prompts and `/rewind` still apply. The only thing the pack ever sends anywhere is a once-a-day check on GitHub for a new release, which you can turn off.
+
+**I'm on a Pro or Max plan. Does this help me?**
+You don't pay per job, but every step counts against your 5-hour and weekly limits. We measured cost at API prices, not plan usage, so we can't promise a number. Fewer, lighter steps should leave more of your limits, and the status line shows exactly where you stand.
+
+**Does it work in the desktop app?**
+Yes, cards, progress and the status line included. One limit: in auto mode the desktop app doesn't let an add-on start a helper model, so plans aren't handed off there; in manual mode, or in the terminal, they are. Windows hasn't been tested yet.
+
+**How do I turn it off?**
+`/mods` switches each part off or on, right away. `/plugin` removes them.
+
+**What does it cost?**
+Nothing. It's free and open source.
 
 ## The mods in depth
 

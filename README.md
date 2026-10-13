@@ -39,7 +39,8 @@ The pack takes out steps that need no thinking. Several edits and their test run
 </picture>
 
 One line under the prompt: the model, how full the conversation is, and how much of your plan's 5-hour and weekly limits you have used, with when each one resets. Long jobs get a progress bar and a finish time above the prompt. And when you step away, your session is kept ready, or tidied up before it goes cold, whichever costs less; the line tells you which.
-<sub>statusline · eta · smart-compact</sub>
+
+These are the **statusline**, **eta** and **smart-compact** mods.
 
 ### Several changes in one step, and you can still undo them
 
@@ -49,7 +50,8 @@ One line under the prompt: the model, how full the conversation is, and how much
 </picture>
 
 Claude makes several edits and runs the tests as one step, and you watch each part happen in a live card. Every edit still goes through Claude Code's own edit tool: you see each change, and `/rewind` undoes it.
-<sub>cells</sub>
+
+That's the **cells** mod.
 
 ### A cheaper model builds what you approved
 
@@ -59,17 +61,20 @@ Claude makes several edits and runs the tests as one step, and you watch each pa
 </picture>
 
 When you approve a plan, Claude hands the building to Sonnet, a cheaper model, and checks its work before reporting back. In our tests that made a feature 27% cheaper and new tests 33% cheaper, with every result correct. You can watch the helper work in its card, and `/delegate` shows every step it took.
-<sub>delegate</sub>
+
+That's the **delegate** mod.
 
 ### Straight answers about your code
 
 When Claude searches your code for a name, it gets the exact list of places that use it, from the same engine your editor uses, instead of reading through search results. Renames and "who calls this?" questions take fewer steps. Run `/lsp-plus:setup` once in your project to turn it on.
-<sub>lsp-plus</sub>
+
+That's the **lsp-plus** mod.
 
 ### You stay in control
 
 `/mods` lists the six and turns any of them on or off, right away. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. It keeps itself up to date (or only lets you know, if you prefer).
-<sub>modpack</sub>
+
+That's the **modpack** plugin, which installs the other six.
 
 ## Install
 

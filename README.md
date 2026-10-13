@@ -5,7 +5,7 @@
   <img alt="claude-modpack: six Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, lsp-plus, cells, eta." src="assets/banner-light.svg" width="880">
 </picture>
 
-[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![329 graded runs, all correct](https://img.shields.io/badge/graded%20runs-329%2C%20all%20correct-0ca30c?style=flat-square)](benchmarks/delegate-bench/SUITE.md) [![6 mods](https://img.shields.io/badge/mods-6-555555?style=flat-square)](#the-mods)
+[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![485 graded runs, all correct](https://img.shields.io/badge/graded%20runs-485%2C%20all%20correct-0ca30c?style=flat-square)](benchmarks/delegate-bench/SUITE.md) [![6 mods](https://img.shields.io/badge/mods-6-555555?style=flat-square)](#the-mods)
 
 Plugins built from Claude Code's function hooks that change how it works and what it shows.<br>
 Each one stays quiet where it has no proof, and every claim below links to the runs behind it.
@@ -33,7 +33,15 @@ That installs all six: the `modpack` plugin lists them as its dependencies. Answ
 /plugin install smart-compact --marketplace HarzerHeribert/claude-modpack
 ```
 
-lsp-plus, delegate and cells build on Claude Code's LSP tool; to give them a language server, see [Language servers](#language-servers).
+Then, in the repository you work in:
+
+```
+/lsp-plus:setup
+```
+
+lsp-plus, delegate and cells build on Claude Code's LSP tool, which needs a language server for each language. The setup finds the repository's languages, checks which plugins and servers are missing, asks once, installs them, and confirms each after a restart. The same by hand: [Language servers](#language-servers).
+
+Where a mod cannot do all it could on your machine, it says so when the session starts, with the command that fixes it: `/lsp-plus:setup` for a language without a server, `/cells:setup` where nothing can sandbox cells (Linux without bubblewrap on Node 22, Windows below Node 25). Claude is told as well, and offers the fix once.
 
 ## The mods
 
@@ -42,13 +50,13 @@ lsp-plus, delegate and cells build on Claude Code's LSP tool; to give them a lan
 | **[statusline](#statusline)**<br><sub>interface</sub> | One line under the prompt: the model and its effort, how full the context is, the plan's 5-hour and 7-day use with their resets, and what other mods put on it. | Interface only. |
 | **[smart-compact](#smart-compact)**<br><sub>cost</sub> | Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the line whether the next prompt is ready or cold. | Priced from the cache's list prices; not benchmarked. |
 | **[delegate](#delegate)**<br><sub>cost</sub> | A `hand_off` tool: Claude gives a self-contained task to a Haiku or Sonnet worker and gets back the diff, a check the tool runs itself, and what it cost. | A feature or tests: **27–37% cheaper**, fresh and at 233k tokens. Smaller work costs more. Opus hands off only when told to. |
-| **[lsp-plus](#lsp-plus)**<br><sub>code intelligence</sub> | A grep for a code symbol comes back with the language server's exact answer; references name the docs that use a symbol; edits that leave the docs behind say so; `/refs` finds stale names and dead links. | Rename: **25% fewer requests**; trace: cost even. Never dearer. |
-| **[cells](#cells)**<br><sub>flow</sub> | A `run_cell` tool: several edits and their check in one step through the real Edit tool, the language server's references, definitions and renames, background runs. | All runs correct; fewer requests on three of four tasks. |
+| **[lsp-plus](#lsp-plus)**<br><sub>code intelligence</sub> | A grep for a code symbol comes back with the language server's exact answer; references name the docs that use a symbol; edits that leave the docs behind say so; `/refs` finds stale names and dead links. | Rename: 3.2 requests instead of 5.0 without it. Even on the whole: it answers better, cells saves. |
+| **[cells](#cells)**<br><sub>flow</sub> | A `run_cell` tool: several edits and their check in one step through the real Edit tool, the language server's references, definitions and renames, background runs. | **Earns the pack's savings**: without it the pack's −11% shrinks to −3%. |
 | **[eta](#eta)**<br><sub>interface</sub> | Long-running and background jobs with a percentage and an estimated finish time above the prompt. | Interface only. |
 
 ## Results
 
-Claude Opus 5.5 at xhigh effort on seven real tasks in the [click](https://github.com/pallets/click) repository, from a one-step lookup to a feature built from a spec, each graded by hidden tests or a fixed rule. **329 runs, every one correct.** Costs are list prices.
+Claude Opus 5.5 at xhigh effort on seven real tasks in the [click](https://github.com/pallets/click) repository, from a one-step lookup to a feature built from a spec, each graded by hidden tests or a fixed rule. **485 runs, every one correct.** Costs are list prices.
 
 ### The pack against plain Claude Code
 
@@ -115,6 +123,7 @@ Means of two runs each, all correct. Fresh: the best hand-off that waits in the 
 
 ### What else the runs showed
 
+- **cells earns the savings.** Taken out of the pack one at a time (156 runs, all correct, 95% intervals): the pack cost −11% [−17%, −5%] against plain Claude Code; without cells −3% [−9%, +2%]; without lsp-plus about the same as with it. Without cells the feature took 14.2 requests instead of 9.8, the rename 7.8 instead of 3.2. lsp-plus answers better (a rename in 3.2 requests instead of 5.0) without saving on the whole. [SUITE.md](benchmarks/delegate-bench/SUITE.md#which-mod-earns-it-the-ablation-z)
 - **Opus never hands off by itself.** Offered the tool, given a routing rule, even told "Delegate where you see fit" by the person: 0 hand-offs in 70 runs. Told "do this through hand_off", every time. The hand-off is yours to ask for.
 - **The language server, asked by the hook, saves steps.** With lsp-plus attaching the server's answer to a symbol grep, a rename took 3.4 requests instead of 4.6. A note *telling* Claude to ask the server was followed 0 times in 45, so it is off.
 - **Unused connectors cost more than any mod saves.** With 378 deferred connector tools loaded and never used, fresh small tasks cost **34% more**: every session pays to cache their names and instructions. Turn off what Claude Code does not use.
@@ -153,7 +162,7 @@ One line under the prompt, drawn in Claude Code's own hint row so the mode indic
 - **Other mods' segments:** a mod calls `$.statusline.set({ id, priority, parts, short?, side? })` and lists `statusline` among its dependencies. A part is text, a countdown (`{ until, prefix?, warnMs? }`, counted by the line) or a spinner (`{ spin: true }`), so a mod sends a segment when it changes, not every second. `$.statusline.remove({ id })` takes it off.
 - **Narrow terminals** drop the least important first: the model, then the windows' resets, the windows, the gauge, and another mod's countdown before its own words.
 - **Published pages:** a pill on the left lists the pages this session published with the Artifact tool.
-- **Phone and IDE:** where no line is drawn, the same line is the session's status text.
+- **Phone and IDE:** where no line is drawn, the same line is the session's status text, in a session the phone or IDE hosts. A terminal session watched over Remote Control (`/rc`) from the desktop app, the web or the phone gets no mod drawing and no status text as of Claude Code 2.1.296.
 
 | Option | Default | |
 | --- | --- | --- |
@@ -216,13 +225,14 @@ Measured on 120 Opus runs, all correct: a feature or tests cost 27–37% less ha
 ### lsp-plus
 
 - **The language server's answer to a symbol grep.** When grep, rg, git grep and the like look for a code symbol, lsp-plus asks the language server itself and attaches its answer to the grep's result: for a function the functions that call it, each named as it is nested (`Command.invoke (1412)`), otherwise its references, by file. Grep's own output stays for strings, comments and docs. A server still indexing gets up to 3 s, and without a whole answer there is none.
-- **Servers warm from the start.** At session start each language the repository has gets one question, so its server has the project open before the first real one: about 1 s for Python, 4 s for TypeScript, saved later. A server costs memory (pyright about 440 MB, the TypeScript server up to 2 GB on a large repository) and runs until the session ends.
+- **Servers warm from the start.** At session start each language the repository has gets one question, about its smallest tracked file, so its server has the project open before the first real one: about 1 s for Python, 4 s for TypeScript, saved later. The smallest file because Claude Code adds the problems a server reports about any file it has open to the conversation, and a near-empty file has none. A server costs memory (pyright about 440 MB, the TypeScript server up to 2 GB on a large repository) and runs until the session ends.
 - **Docs in references.** `findReferences`, `goToDefinition` and `incomingCalls` also name the doc lines that use the symbol as code, which no language server indexes.
 - **Docs that drift.** After an Edit or Write removes a name from the code that the docs still mention, Claude is told where, with the likely new name when it looks like a rename.
 - **`/refs`** checks every doc in the repository for code names no file in the code has any more, and for links to files that do not exist.
+- **A missing server said once.** Where the repository has five or more files of a language whose server does not answer, you see a line naming it, and Claude is told to offer `/lsp-plus:setup` once.
 - **Markdown and SQL servers.** marksman for `.md`, postgres-language-server for `.sql`.
 
-Measured: the grep answer cut a rename from 4.6 to 3.4 requests (−6.5% cost) and a trace from 4.3 to 3.9 (cost even), 7 runs each way, all correct; on tasks without a symbol grep it never spoke. Options `answer`, `warm`, `docs` and `drift` turn those off; `nudge` turns on an older note that only told Claude which LSP call to make (never followed in 45 notes).
+Measured: the grep answer cut a rename from 4.6 to 3.4 requests (−6.5% cost) and a trace from 4.3 to 3.9 (cost even), 7 runs each way, all correct; on tasks without a symbol grep it never spoke. Taken out of the pack, renames took 5.0 requests instead of 3.2 and the whole cost the same. Its warm-up once asked about click's `docs/conf.py`, whose diagnostics then reached every conversation (+4.5% on small tasks); it now asks about the smallest file of each kind, and costs nothing there. Options `answer`, `warm`, `docs` and `drift` turn those off; `nudge` turns on an older note that only told Claude which LSP call to make (never followed in 45 notes).
 
 ### cells
 
@@ -235,6 +245,7 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 - **Background.** `run_cell({ code, background: true })` returns at once and the report arrives as a message when the cell ends; ctrl+enter on a running cell moves it to the background the same way, Esc stops it after the call that is running. Inside a cell, `sh(command, { background: true })` starts Claude Code's own background task.
 - **The chaining guidance**, a system-prompt section: what you already need in one call, known edits in one response with their check after them. In a [pilot](benchmarks/cells-pilot/) it cut Haiku's requests by 18% on small tasks.
 - **Notes after the fact.** When a request did no more than a check right after edits, a second single edit in a row, or the same command again, the tool result gets one line: what the request re-read and how to save it. At most four per kind, spaced apart. Nothing is blocked.
+- **Where it runs.** A cell acts only through Claude Code's tools, which your permissions and auto mode judge one call at a time; its runner is shut in so it has no other way out. On macOS that is Seatbelt, on Linux bubblewrap, and anywhere else Node 25 or later, whose permission model closes the network by itself (signals stay open there, and each cell's report says so on its first line). Where none of them is there, Linux on Node 22 without bubblewrap for one, cells does not run: you see a line saying why and what would fix it, Claude is told to offer the fix once, and `/cells:setup` does it with you. Tested on macOS and in Linux containers (bubblewrap on Node 22; Node 25 without it); Windows is untested.
 
 | Option | Default | |
 | --- | --- | --- |
@@ -247,11 +258,11 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 - **Background shell jobs** show above the prompt with how long they have run, as soon as Claude starts one.
 - **`track_progress`** adds a percentage and an estimated finish time, read live from the job's output: a pattern counted against a total, a progress line, or the common bars (tqdm, pytest, cargo, `[3/10]`) without one. Before the progress is measurable, Claude's own guess stands in, marked as such.
 - **What has run is done with.** A finished job shows its full gauge for a beat and leaves; a failure stays in red until you write again. Columns keep their widths while the numbers change.
-- **Phone and IDE** get the same news as status text.
+- **Phone and IDE** get the same news as status text, and the tool's reply stays readable there. A terminal session watched over Remote Control (`/rc`) shows only that reply, as of Claude Code 2.1.296.
 
 ## Language servers
 
-Claude Code's LSP tool, which lsp-plus, delegate and cells build on, needs the official LSP plugins (`claude plugin install <plugin>@claude-plugins-official --scope user`) and their servers on the `PATH`:
+`/lsp-plus:setup` does this for the repository you are in. By hand: Claude Code's LSP tool, which lsp-plus, delegate and cells build on, needs the official LSP plugins (`claude plugin install <plugin>@claude-plugins-official --scope user`) and their servers on the `PATH`:
 
 | Languages | Plugin (`@claude-plugins-official`) | Server |
 | --- | --- | --- |

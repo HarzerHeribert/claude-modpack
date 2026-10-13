@@ -25,6 +25,9 @@ Arms (lsp-plus is loaded in all three, from CLAUDE_CODE_PLUGIN_DIRS):
   (V, P, R and H name what loads for each run; the arms before them took it from the person's settings)
   K  as A, with the cells mod 0.2 loaded (run_cell with refs/defn/rename, the chaining guidance, the notes);
      run with BENCH_RESULTS=results-cells.jsonl so the delegate record stays as it was
+  Z  the pack as shipped in 0.1.1, all six mods with their defaults (lsp-plus answering symbol greps)
+  Z-cells, Z-lsp  Z without cells, Z without lsp-plus: which mod earns the pack's savings (the ablation;
+     run with BENCH_RESULTS=results-ablation.jsonl and BENCH_PACK_ROOT on a worktree of the commit, beside V)
 
 Each run: a fresh copy of click, `claude -p` on Opus with the person's own
 settings, the task graded by a fixed rule, and its cost priced from the
@@ -62,6 +65,10 @@ FORCE = "Do this task through the hand_off tool: write the task for the worker s
 # The modpack as shipped: its five mods, named for each run so the person's own settings never decide what loads.
 PACK_ROOT = Path(os.environ.get("BENCH_PACK_ROOT", HERE.parent.parent))
 PACK = ":".join(str(PACK_ROOT / m) for m in ("smart-compact", "lsp-plus", "delegate", "cells", "eta"))
+
+# The ablation: the pack as shipped, and the same pack without one mod.
+SHIPPED = ("statusline", "smart-compact", "lsp-plus", "delegate", "cells", "eta")
+ABLATION = {"Z": SHIPPED, "Z-cells": tuple(m for m in SHIPPED if m != "cells"), "Z-lsp": tuple(m for m in SHIPPED if m != "lsp-plus")}
 
 # A routing rule for the pack: Opus never handed off unasked (0 of 24 runs), so the pack says when to.
 # The person's own words, at the end of their prompt: permission to delegate, not an order.
@@ -309,6 +316,8 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         # Asks for the claude.ai connectors to stay on, as in every run before the person turned them off on 13 Oct
         # (378 deferred tools); the person's own setting wins, so runs from then on (DF, DL, Y, results-noconn) have 15.
         cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}, "disableClaudeAiConnectors": False})]
+    if arm in ABLATION:
+        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": ":".join(str(PACK_ROOT / m) for m in ABLATION[arm])}})]
     if arm == "R":
         cmd += ["--append-system-prompt", ROUTING]
     if arm == "X":

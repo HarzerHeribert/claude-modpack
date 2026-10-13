@@ -4,4 +4,5 @@
 (deny file-write*)
 (allow file-write* (literal "/dev/null"))
 (deny process-fork)
-(deny signal (target others))
+(deny signal)
+(allow signal (target self))

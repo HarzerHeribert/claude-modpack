@@ -1,6 +1,6 @@
 {
   "name": "cells",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Lets Claude make several edits and their check, or a language-server lookup or rename, in one step through the real tools; guidance on chaining; and a short note when a step cost a model request of its own for nothing.",
   "author": {
     "name": "HarzerHeribert"

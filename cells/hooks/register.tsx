@@ -7,6 +7,8 @@ import type { CellsLive } from '../types'
 import { MAX_IN_FLIGHT, absolute, exitCode, labelOf, lines, report, tidy } from './bridge'
 import type { CallRecord, Done, Need, Reply } from './bridge'
 import { NUDGE, NUDGE_CELLS, TOOL_DESCRIPTION, TOOL_NAME } from './guide'
+import { PROBE_SCRIPT, bwrapArgv, choose, offLine, offNote, parseProbe, runnerArgv, weakness } from './isolation'
+import type { Bwrap, Isolation } from './isolation'
 import { Budget, costOf, kindOf, missed, noteFor } from './nudge'
 import type { Step } from './nudge'
 import { cellCard, parseReport, resultBody, seconds, stateOf } from './view'
@@ -27,6 +29,9 @@ let frames: Timer | undefined
 const FRAME_MS = 125
 let made = 0
 let nodePath = 'node'
+let platform = ''
+// How the runner is shut in on this machine; a sandbox of undefined means cells cannot run here.
+let isolation: Isolation | undefined
 let dir = ''
 // The runner's real folder: node --permission resolves symlinks, so a mod loaded
 // through a link must name the folder the link points to.
@@ -69,15 +74,61 @@ function outputText(output: unknown): string | undefined {
   return undefined
 }
 
+/** True where the run_cell tool exists: the mode asks for it and something closes the network to the runner. */
+function cellsOn(): boolean {
+  return mode === 'cells' && isolation?.sandbox !== undefined
+}
+
+/** Why the mode asks for the tool but this machine cannot have it, and what would let it; undefined where it can. */
+function offReason(): { why: string; fix: string } | undefined {
+  if (mode !== 'cells' || cellsOn()) return undefined
+  return isolation?.sandbox === undefined && isolation ? { why: isolation.why, fix: isolation.fix } : { why: 'its runner could not be set up', fix: 'run /cells:setup' }
+}
+
 async function setup($: Engine) {
-  const tmp = (await $.env.get('TMPDIR')) ?? '/tmp/'
-  dir = `${tmp.replace(/\/$/, '')}/claude-cells/${await $.session.id()}`
-  await $.process.run(['mkdir', '-p', dir])
-  const which = await $.process.run(['/usr/bin/which', 'node']).catch(() => undefined)
-  if (which && which.exitCode === 0 && which.stdout.trim()) nodePath = which.stdout.trim()
+  // The node that will run the cells says where it is, which platform, which version, and its temp folder.
+  const probed = await $.process.run(['node', '-p', PROBE_SCRIPT]).catch(() => undefined)
+  const probe = probed?.exitCode === 0 ? parseProbe(probed.stdout.trim()) : undefined
+  if (!probe) {
+    isolation = { sandbox: undefined, why: 'no node on the PATH Claude Code runs with', fix: 'install Node 25 or later' }
+    return
+  }
+  nodePath = probe.nodePath
+  platform = probe.platform
+  dir = `${probe.tmpdir.replace(/[\\/]$/, '')}/claude-cells/${await $.session.id()}`
+  await $.process.run([nodePath, '-e', 'require("fs").mkdirSync(process.argv[1], { recursive: true })', dir])
   const linked = `${$.plugin.root}/runner`
   const stat = await $.fs.stat(linked, { resolve: true }).catch(() => undefined)
   runnerDir = stat?.realPath ?? linked
+  isolation = choose(probe, probe.platform === 'linux' ? await tryBwrap($, runnerDir) : { works: false })
+}
+
+/** Whether bubblewrap starts node in the sandbox the runner would get: installed is not enough where user namespaces are off. */
+async function tryBwrap($: Engine, runner: string): Promise<Bwrap> {
+  const r = await $.process
+    .run(bwrapArgv(nodePath, runner, dir, [nodePath, '-e', '0']), { timeoutMs: 8000 })
+    .catch((err: unknown) => ({ exitCode: -1, stdout: '', stderr: err instanceof Error ? err.message : String(err) }))
+  if (r.exitCode === 0) return { works: true }
+  const said = r.stderr.split('\n').find(l => l.trim() !== '')?.replace(/^bwrap:\s*/, '').trim() ?? ''
+  return { works: false, why: said === '' || /ENOENT|not found|No such file/i.test(said) ? undefined : said.slice(0, 160) }
+}
+
+// The few file chores of the host's side, with POSIX tools where they are and node where not (Windows).
+const CLEAN = 'const fs = require("fs"); const [d, id] = process.argv.slice(1); for (const f of fs.readdirSync(d)) if (f.startsWith(id + ".")) fs.rmSync(d + "/" + f)'
+const WAIT = 'const fs = require("fs"); let i = 0; const t = setInterval(() => { if (fs.existsSync(process.argv[1]) || ++i >= 10) clearInterval(t) }, 200)'
+
+function cleanArgv(id: string): string[] {
+  return platform === 'win32' ? [nodePath, '-e', CLEAN, dir, id] : ['/bin/sh', '-c', 'rm -f "$1"/"$2".*', 'sh', dir, id]
+}
+
+function waitArgv(marker: string): string[] {
+  return platform === 'win32'
+    ? [nodePath, '-e', WAIT, marker]
+    : ['/bin/sh', '-c', 'i=0; while [ ! -e "$1" ] && [ $i -lt 10 ]; do sleep 0.2; i=$((i+1)); done', 'sh', marker]
+}
+
+function pauseArgv(seconds: number): string[] {
+  return platform === 'win32' ? [nodePath, '-e', `setTimeout(() => {}, ${seconds * 1000})`] : ['sleep', String(seconds)]
 }
 
 type BashRecord = { stdout?: string; stderr?: string; persistedOutputPath?: string; interrupted?: boolean }
@@ -121,7 +172,7 @@ async function serveLsp($: Engine, i: Record<string, unknown>, sink: string[]): 
   const enough =
     operation === 'findReferences' ? await mentionsOf($, cwd, String(i.name ?? ''), kind) : operation === 'goToDefinition' ? 1 : 0
   while ((best.places?.length ?? 0) < enough && (await $.clock.now()) - started < COLD_MS) {
-    await $.process.run(['sleep', '1.5'])
+    await $.process.run(pauseArgv(1.5))
     const again = await ask()
     if (!again.ok) break
     if ((again.places?.length ?? 0) >= (best.places?.length ?? 0)) best = again
@@ -269,20 +320,14 @@ async function runCell($: Engine, code: string, useId: string | undefined, job?:
   running.add(id)
   animate($)
 
-  const stream = $.process.spawn({
-    argv: [
-      '/usr/bin/sandbox-exec',
-      '-f',
-      `${runner}/profile.sb`,
-      nodePath,
-      '--permission',
-      `--allow-fs-read=${runner}`,
-      `--allow-fs-read=${dir}`,
-      '--no-warnings',
-      `${runner}/runner.mjs`,
-    ],
-    input: JSON.stringify({ code, handles, dir, id }),
-  })
+  const argv = isolation ? runnerArgv(isolation, nodePath, runner, dir) : undefined
+  if (!argv || !isolation) {
+    running.delete(id)
+    animate($)
+    const off = isolation && isolation.sandbox === undefined ? isolation : undefined
+    return `cell · not run: ${off ? `${off.why}. To turn it on, ${off.fix}, or the person runs /cells:setup.` : 'the runner has no sandbox here.'}`
+  }
+  const stream = $.process.spawn({ argv, input: JSON.stringify({ code, handles, dir, id }) })
 
   let buffer = ''
   let stderr = ''
@@ -307,7 +352,7 @@ async function runCell($: Engine, code: string, useId: string | undefined, job?:
     }
   }
   await Promise.all(inFlight)
-  await $.process.run(['/bin/sh', '-c', 'rm -f "$1"/"$2".*', 'sh', dir, id]).catch(() => undefined)
+  await $.process.run(cleanArgv(id)).catch(() => undefined)
 
   if (done) handles = done.handles
   // A program that did not parse, or threw before its first call, ran nothing: a fix can redo it safely.
@@ -322,7 +367,9 @@ async function runCell($: Engine, code: string, useId: string | undefined, job?:
       return cell ? { ...l, [useId]: { ...cell, endedAt, error: done?.error ?? (done ? undefined : 'the runner ended') } } : l
     })
   }
-  return report(calls, done, ms, stderr, notes)
+  const text = report(calls, done, ms, stderr, notes)
+  const weak = weakness(isolation)
+  return weak ? text.replace(/^[^\n]*/, head => `${head} · ${weak}`) : text
 }
 
 /**
@@ -366,7 +413,7 @@ async function deliver($: Engine, job: Job) {
 async function waitFor($: Engine, job: Job, signal: AbortSignal): Promise<boolean> {
   while (!job.finished && !signal.aborted) {
     await $.process
-      .run(['/bin/sh', '-c', 'i=0; while [ ! -e "$1" ] && [ $i -lt 10 ]; do sleep 0.2; i=$((i+1)); done', 'sh', job.marker], { timeoutMs: 5000 })
+      .run(waitArgv(job.marker), { timeoutMs: 5000 })
       .catch(() => undefined)
   }
   return job.finished
@@ -413,6 +460,7 @@ export const register: Register = (on, options) => {
   readOptions(options)
   dir = ''
   runnerDir = ''
+  isolation = undefined
   handles = '{}'
   steps = []
   stepCount = 0
@@ -422,7 +470,11 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     if (mode === 'off') return next(e)
     await setup($).catch(() => undefined)
-    if (mode === 'cells') {
+    // Where nothing closes the network to the runner, there is no tool: the person sees why and the fix, and
+    // Claude, told in the system prompt, offers it once.
+    const off = offReason()
+    if (off) $.ui.log(offLine(off.why, off.fix))
+    if (cellsOn()) {
       await $.tool.register({
         name: TOOL_NAME,
         description: TOOL_DESCRIPTION,
@@ -448,8 +500,10 @@ export const register: Register = (on, options) => {
   on('prompt.compose', async ($, e, next) => {
     const composed = await next(e)
     if (mode === 'off') return composed
-    const text = mode === 'cells' ? NUDGE_CELLS : NUDGE
-    return { sections: [...composed.sections, { id: 'cells-chaining', text, scope: 'session' as const }] }
+    const text = cellsOn() ? NUDGE_CELLS : NUDGE
+    const off = isolation ? offReason() : undefined
+    const offSection = off ? [{ id: 'cells-off', text: offNote(off.why, off.fix), scope: 'session' as const }] : []
+    return { sections: [...composed.sections, { id: 'cells-chaining', text, scope: 'session' as const }, ...offSection] }
   }).catch(($, e, next) => next(e))
 
   // Handles live for one prompt, as sterna's do.
@@ -544,10 +598,10 @@ export const register: Register = (on, options) => {
       current.ok.push(ok)
       if (!ok || r.deny !== undefined) return r
       const mine = { tool: e.tool, kind: kindOf(e.tool, e), command: e.tool === 'Bash' ? e.command : undefined }
-      const pattern = missed(steps.at(-2), current, mine, mode === 'cells')
+      const pattern = missed(steps.at(-2), current, mine, cellsOn())
       const size = pattern === undefined ? undefined : budget.take(pattern, stepCount)
       if (pattern === undefined || size === undefined) return r
-      return { ...r, context: [...(r.context ?? []), noteFor(pattern, size, costOf(current), mode === 'cells')] }
+      return { ...r, context: [...(r.context ?? []), noteFor(pattern, size, costOf(current), cellsOn())] }
     } catch {
       return r
     }

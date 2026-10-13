@@ -4,6 +4,8 @@ export type Job = {
   label: string
   source: 'background' | 'claude'
   file?: string
+  /** A background task's command line: a log it writes is that task's progress, not another job. */
+  command?: string
   /** Each output line this matches counts one unit done. */
   donePattern?: string
   /** A progress line: groups (done)(total), or one group holding a percentage. */

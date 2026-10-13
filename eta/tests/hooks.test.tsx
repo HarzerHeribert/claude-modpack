@@ -24,6 +24,11 @@ function host(on: On, surfaces: string[]) {
     const { Box } = $.ui.resolve(e)
     return <Box key="engine" />
   })
+  // Claude Code's own drawing of a tool's reply: its text.
+  on('ui.render', { component: 'ToolResult' }, ($, e) => {
+    const { Text } = $.ui.resolve(e)
+    return <Text>{String(e.props.output ?? '')}</Text>
+  })
   on('prompt.submit', ($, e) => ({ text: e.text }))
   on('tool.call', { tool: 'Bash' }, () => ({
     result: { stdout: '', stderr: '', interrupted: false, backgroundTaskId: 'bg1' },
@@ -50,7 +55,7 @@ test('a background job, once Claude says how to read it, shows its progress abov
   expect(h.status()).toBe(undefined)
 })
 
-test('web and mobile, which have no band, get the same news on the status line', async ($, on) => {
+test('mobile and VS Code, which have no band, get the same news on the status line', async ($, on) => {
   const h = host(on, ['terminal', 'mobile'])
   await $.tool.call({ tool: 'Bash', command: 'python3 swe.py out', run_in_background: true, description: 'SWE run' })
   await h.clock.advance(20 * 60_000)
@@ -103,4 +108,26 @@ test('its own tool call reads as one line, and its reply draws nothing', async (
   const result = await $.ui.mount({ plugin: 'eta', surface: 'terminal', component: 'ToolResult', props: { tool_use_id: 'toolu_e1', tool: 'mcp__eta__track_progress', input, output: 'Showing "Re-grading runs" to the person: ETA ~15:12.', isErrored: false }, viewport: { columns: 100, rows: 40 } } as never)
   expect(await result.find({ type: 'Text' })).toBe(undefined)
   await result.unmount()
+  // Where no band is drawn, the reply is the only news, so it stays.
+  const phone = await $.ui.mount({ plugin: 'eta', surface: 'mobile', component: 'ToolResult', props: { tool_use_id: 'toolu_e1', tool: 'mcp__eta__track_progress', input, output: 'Showing "Re-grading runs" to the person: ETA ~15:12.', isErrored: false }, viewport: { columns: 100, rows: 40 } } as never)
+  expect(await phone.find({ type: 'Text', text: /Showing "Re-grading runs"/ })).toBeDefined()
+  await phone.unmount()
+})
+
+test('a log a background command writes, tracked under its own name, stays one row', async ($, on) => {
+  const h = host(on, ['terminal'])
+  await $.tool.call({ tool: 'Bash', command: 'cd /tmp/x && python3 bench.py run > run-ablation.log 2>&1', run_in_background: true, description: 'Run the ablation' })
+  await h.clock.advance(60_000)
+  const r = await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'ablation', label: 'ablation: 90 runs', file: '/tmp/x/run-ablation.log', done_pattern: ' (RESOLVED|no) ', total: 90 } as never)
+  expect(String(r.result)).toContain('as background task bg1')
+  const ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /ablation: 90 runs/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /Run the ablation/ })).toBe(undefined)
+  await ui.unmount()
+  // Its notification ends the one row.
+  await $.prompt.submit({ text: '<task-notification><task-id>bg1</task-id><status>completed</status></task-notification>', origin: { kind: 'task-notification' } } as never)
+  await h.clock.advance(6000)
+  const after = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await after.find({ type: 'Text', text: /ablation/ })).toBe(undefined)
+  await after.unmount()
 })

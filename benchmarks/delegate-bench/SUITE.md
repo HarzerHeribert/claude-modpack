@@ -141,11 +141,48 @@ Measured again on the four small tasks, plain (V, six runs each) against the qui
 
 In the quiet-pack runs of these tasks the pack added nothing to the conversation: 0 notes in 16 runs. What is left is the cached prompt, $0.001 a request. In the long session (PL against VL) the same tasks came out between −2% and +2%. The earlier +11% for the trace (P, two runs) was one run's spread and the grep note it ignored.
 
+## Which mod earns it: the ablation (Z)
+
+128 graded runs, all correct. The pack as shipped in 0.1.1 (Z: all six mods, lsp-plus answering symbol greps), the same pack without cells (Z-cells) and without lsp-plus (Z-lsp), and plain Claude Code (V) run again beside them; connectors off in all four, so these costs compare with each other only. The mods loaded from a worktree of `d7ac954`. Four runs per condition on the three multi-step tasks; on the four small ones six for V, Z and Z-lsp, two for Z-cells. The average task is the mean over tasks of each task's mean; intervals are 95% bootstrap intervals over the runs (`ablation.py`). Three runs began cold (the first feature run of each pack condition); leaving them out moves no figure by more than 2 points.
+
+| Task | Plain (V) | Pack (Z) | Pack without cells | Pack without lsp-plus |
+| --- | --- | --- | --- | --- |
+| l1-feature | $0.69 · 14.2 req | $0.59 · 9.8 | $0.72 · 14.2 | $0.60 · 8.8 |
+| l2-coverage | $0.72 · 10.5 | $0.59 · 7.0 | $0.59 · 8.2 | $0.58 · 7.0 |
+| t2-rename | $0.29 · 8.0 | $0.21 · 3.2 | $0.30 · 7.8 | $0.25 · 5.0 |
+| t1-trace | $0.24 · 5.0 | $0.23 · 3.8 | $0.23 · 4.0 | $0.22 · 4.2 |
+| t3-explain | $0.32 · 4.5 | $0.32 · 4.5 | $0.31 · 4.5 | $0.31 · 4.2 |
+| t4-lookup | $0.17 · 3.2 | $0.17 · 3.0 | $0.16 · 3.0 | $0.17 · 2.7 |
+| t5-types | $0.20 · 3.7 | $0.21 · 3.7 | $0.21 · 3.5 | $0.20 · 3.3 |
+| **Average task** | **$0.375 · 7.0** | **$0.333 · 5.0** | **$0.363 · 6.5** | **$0.332 · 5.0** |
+
+Against plain, the pack: −11.2% [−16.6%, −5.4%] on the average task, −17.7% [−25.6%, −9.3%] on the three multi-step tasks, +0.7% [−2.4%, +4.2%] on the four small ones; the first measurement of the pack whose interval stays clear of zero. Without cells: −3.3% [−8.7%, +2.4%]. Without lsp-plus: −11.7% [−16.9%, −6.2%].
+
+- **cells earns the savings.** Taking it out costs the pack +8.9% [+2.1%, +16.4%], and +16.3% [+5.4%, +29.5%] on the multi-step work: the feature takes 14.2 requests instead of 9.8, the rename 7.8 instead of 3.2. Opus used `run_cell` in every pack run. Its tool and the chaining guidance are about 1,900 tokens of cached prompt (the first request holds 30.6k tokens with it, 28.7k without). The earlier "cells alone 12% dearer" (8 runs, cells 0.2, connectors on) does not hold for the pack as shipped.
+- **lsp-plus shows no net effect on the whole**: −0.6% [−7.2%, +6.7%] taking it out. It adds no prompt (the first request is the same size with and without it). On the rename the pack without it took 5.0 requests instead of 3.2 (+17% cost), in line with Y; four runs.
+- **On the small tasks it cost 4.5%, through its warm-up** (taking it out: −4.5% [−7.1%, −1.7%]), although its answer spoke in none of t3, t4 and t5. The warm-up asks each language's server about one file at session start, and the first tracked `.py` file in click is `docs/conf.py`. Pyright reports that file's unresolved `pallets_sphinx_themes` import, and Claude Code adds the diagnostics of every file a server has open to the conversation: in 24 of 24 pack runs on these tasks, in none without lsp-plus. Per task that came to about 800 more tokens written to the cache and 130 more output tokens, the whole of the difference. Asking through `workspaceSymbol` instead leaks the same way (the LSP tool opens the file it is given).
+
+### The warm-up fixed (Zfix)
+
+The warm-up now asks about the smallest tracked file of each kind (click: an empty `__init__.py`), which gives its server nothing to report. A probe session with the fix had no diagnostics, against one with `docs/conf.py` before. 28 graded runs of the fixed pack, all correct (`results-warmfix.jsonl`, recorded as arm Z), against the same baselines:
+
+| Task | Plain (V) | Pack (Z) | Pack, warm-up fixed | Pack without lsp-plus |
+| --- | --- | --- | --- | --- |
+| t1-trace | $0.240 · 5.0 | $0.232 · 3.8 | $0.228 · 3.5 | $0.222 · 4.2 |
+| t3-explain | $0.319 · 4.5 | $0.320 · 4.5 | $0.312 · 4.2 | $0.307 · 4.2 |
+| t4-lookup | $0.171 · 3.2 | $0.173 · 3.0 | $0.172 · 3.0 | $0.167 · 2.7 |
+| t5-types | $0.203 · 3.7 | $0.214 · 3.7 | $0.201 · 3.5 | $0.201 · 3.3 |
+| t2-rename | $0.293 · 8.0 | $0.215 · 3.2 | $0.237 · 4.2 | $0.252 · 5.0 |
+
+- On the small tasks the fixed pack costs −2.2% [−5.6%, +1.5%] against plain, and +1.7% [−1.5%, +4.9%] against the pack without lsp-plus: the gap is gone. `docs/conf.py`'s diagnostics came up in none of the 28 runs.
+- The answer still speaks: 16 answers in the 10 trace and rename runs. The rename came to −19% [−32%, −4%] against plain; against the unfixed pack +10% [−4%, +27%], within the runs' spread.
+- What is left: the files lsp-plus asks about to answer a grep (the definition, the callers' outlines) are open too, so their diagnostics reach the conversation (21 attachments in the 28 runs: every lookup run's `core.py`, the trace's callers). Those are files Claude's grep had already matched. A mod cannot keep its own LSP calls out of Claude Code's diagnostics: that needs Claude Code.
+
 ## Limits
 
 - Two runs per task and condition, one repository, tasks every condition solves fully: the per-task differences are within the runs' own spread; the request counts move the same way in six of seven tasks.
-- Which mod saved the requests is not separated here. The chaining guidance and the notes of cells are the likeliest (they are the part that speaks to how many steps Claude takes), but cells alone (`results-cells.jsonl`, 8 runs) came out 12% dearer in fresh sessions.
+- Which mod saved the requests was not separated in the first runs; the ablation (Z) separates it: cells.
 - The long session is one prepared history about the same code the tasks touch; a long session about something else would read differently.
 - The first run of each condition writes that condition's prompt prefix to the cache; later runs read it. That is how a long session looks from its second turn on, and it is part of the counted costs.
 
-Files: `results-suite.jsonl` (V, P, R), `results-suite-long.jsonl` (VL, RL, PL, HL), `results-sonnet.jsonl` (W), `results-quiet.jsonl` (V and Q on the small tasks), `results-prompt.jsonl` (X), `results-fit.jsonl` (DF, DL), `results-answer.jsonl` (Y), `results-noconn.jsonl` (the quiet pack without connectors), `results-handoff-deferred.jsonl` (the hand-off runs whose instruction never arrived, kept for the record), one patch per edit run in `patches/`, the conditions and the long-session runner in `bench.py`.
+Files: `results-suite.jsonl` (V, P, R), `results-suite-long.jsonl` (VL, RL, PL, HL), `results-sonnet.jsonl` (W), `results-quiet.jsonl` (V and Q on the small tasks), `results-prompt.jsonl` (X), `results-fit.jsonl` (DF, DL), `results-answer.jsonl` (Y), `results-noconn.jsonl` (the quiet pack without connectors), `results-handoff-deferred.jsonl` (the hand-off runs whose instruction never arrived, kept for the record), `results-ablation.jsonl` (V, Z, Z-cells, Z-lsp; analysed by `ablation.py`), `results-warmfix.jsonl` (Zfix), one patch per edit run in `patches/`, the conditions and the long-session runner in `bench.py`.

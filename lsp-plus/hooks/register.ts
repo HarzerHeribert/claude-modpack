@@ -34,6 +34,8 @@ let drift = true
 let nudging = true
 let answering = false
 let warming = false
+// The languages the repository has enough of whose server did not answer the warm-up, as the person reads them.
+let missing: string[] = []
 // Symbols already nudged about this session: the next note is one line.
 const nudged = new Set<string>()
 // Names already reported as drifted this session: each is said once.
@@ -218,20 +220,76 @@ async function symbolAnswer($: Engine, search: SymbolSearch, out: string): Promi
 /**
  * Starts the language servers the repository will need, before anyone asks: one question about
  * one tracked file of each kind a server reads. A server opens the project on its first
- * question and answers whole from the second on.
+ * question and answers whole from the second on. The file asked about is the smallest of its
+ * kind: the server reports that file's problems and Claude Code puts them into the conversation
+ * (measured: click's docs/conf.py and its missing theme import, in every run, +4.5% on small
+ * tasks), and a near-empty file has nothing to report.
  */
 async function warmUp($: Engine) {
   const cwd = await $.session.cwd()
-  const listed = await git($, cwd, ['ls-files'])
+  // Each tracked file under cwd with its size: "<mode> blob <hash> <size>\t<path>", NUL-separated.
+  const listed = await git($, cwd, ['ls-tree', '-r', '-l', '-z', 'HEAD'])
   if (!listed) return
-  const first = new Map<string, string>()
-  for (const f of listed.split('\n')) {
+  const found = new Map<string, { file: string; size: number; count: number; name: string }>()
+  for (const entry of listed.split('\0')) {
+    const m = /^\d+ blob \w+\s+(\d+)\t(.+)$/.exec(entry)
+    if (!m) continue
+    const f = m[2] as string
+    const size = Number(m[1])
     const ext = /\.([^./]+)$/.exec(f)?.[1]
-    if (!ext || !LSP_FILES.test(f) || /(^|\/)(node_modules|vendor|dist|build)\//.test(f)) continue
-    const kind = /^(tsx?|jsx?|mjs|cjs|mts|cts)$/.test(ext) ? 'ts' : ext
-    if (!first.has(kind)) first.set(kind, f)
+    const language = ext ? languageOf(ext) : undefined
+    if (!language || !LSP_FILES.test(f) || /(^|\/)(node_modules|vendor|dist|build)\//.test(f)) continue
+    const had = found.get(language.kind)
+    const count = (had?.count ?? 0) + 1
+    found.set(language.kind, !had || size < had.size ? { file: f, size, count, name: language.name } : { ...had, count })
   }
-  await Promise.all([...first.values()].map(f => lsp($, { operation: 'documentSymbol', filePath: join(cwd, f), line: 1, character: 1 })))
+  const answers = await Promise.all(
+    [...found.values()].map(async l => ({ l, text: await lspText($, { operation: 'documentSymbol', filePath: join(cwd, l.file), line: 1, character: 1 }) })),
+  )
+  missing = answers.filter(a => a.l.count >= MIN_FILES && a.text !== undefined && NO_SERVER.test(a.text)).map(a => `${a.l.name} (${a.l.count} files)`)
+  if (missing.length > 0) $.ui.log(missingLine(missing))
+}
+
+/** Which server a file's extension needs, and the language's name as the person knows it. */
+const LANGUAGES: Array<[RegExp, string, string]> = [
+  [/^(tsx?|jsx?|mjs|cjs|mts|cts)$/, 'ts', 'TypeScript/JavaScript'],
+  [/^pyi?$/, 'py', 'Python'],
+  [/^(c|h|cc|cpp|cxx|hpp|hh)$/, 'c', 'C/C++'],
+  [/^rs$/, 'rs', 'Rust'],
+  [/^swift$/, 'swift', 'Swift'],
+  [/^java$/, 'java', 'Java'],
+  [/^cs$/, 'cs', 'C#'],
+  [/^php$/, 'php', 'PHP'],
+  [/^lua$/, 'lua', 'Lua'],
+]
+
+function languageOf(ext: string): { kind: string; name: string } | undefined {
+  const hit = LANGUAGES.find(([pattern]) => pattern.test(ext))
+  return hit ? { kind: hit[1], name: hit[2] } : undefined
+}
+
+/** A language with fewer files than this (a build script, a fixture) is not worth a server, nor a word. */
+const MIN_FILES = 5
+/** What the LSP tool answers where no plugin names a server for the file, or the server is not on the PATH. */
+const NO_SERVER = /^No LSP server|^Error performing.*(ENOENT|spawn|not found|failed to start)/is
+
+/** One LSP call's text as the tool gave it, failures included; undefined where the call was refused or threw. */
+async function lspText($: Engine, input: Record<string, unknown>): Promise<string | undefined> {
+  const r = await $.tool.call({ tool: 'LSP', ...input } as never).catch(() => undefined)
+  if (r === undefined || r.deny !== undefined) return undefined
+  return r.text ?? ''
+}
+
+/** The line the person sees where a language of theirs has no server. */
+export function missingLine(languages: readonly string[]): string {
+  return `lsp-plus: no language server answers for ${languages.join(', ')} in this repository, so symbol searches fall back to grep, and lsp-plus, cells and delegate answer less well. Run /lsp-plus:setup to set one up.`
+}
+
+/** The system-prompt section where a language has no server: Claude offers the setup once, the person decides. */
+export function missingNote(languages: readonly string[]): string {
+  return `# Language servers missing
+
+lsp-plus found no working language server for ${languages.join(', ')} in this repository: symbol searches fall back to grep, without the server's exact references, definitions and callers. Where those would have helped the person, tell them once and offer /lsp-plus:setup, which installs the servers with them. Don't bring it up again after that.`
 }
 
 export const register: Register = (on, options) => {
@@ -240,12 +298,21 @@ export const register: Register = (on, options) => {
   nudging = options.nudge === true // off unless asked for: never acted on in 45 benchmark notes
   answering = options.answer !== false // measured: 25% fewer requests on a rename, even on a trace
   warming = options.warm !== false
+  missing = []
 
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'refs', description: 'Check the docs for code names and links that no longer resolve' })
     if (warming) void warmUp($).catch(() => undefined)
     return next(e)
   })
+
+  // Where the warm-up found a language without a server, Claude is told too, so it can offer the setup. The system
+  // prompt is fixed at the session's first request: a warm-up still running then says nothing to Claude this session.
+  on('prompt.compose', async ($, e, next) => {
+    const composed = await next(e)
+    if (missing.length === 0) return composed
+    return { sections: [...composed.sections, { id: 'lsp-plus-missing', text: missingNote(missing), scope: 'session' as const }] }
+  }).catch(($, e, next) => next(e))
 
   on('command.run', { command: 'refs' }, async $ => ({ text: await checkDocs($, await $.session.cwd()) }))
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 (2026-10-13)
+
+cells leaves macOS, a mod that cannot run fully says so and offers the fix, and the savings are traced to the mod that earns them.
+
+- **cells 0.4.0** runs off macOS: on Linux in bubblewrap, and anywhere on Node 25 or later, whose permission model closes the network (signals stay open there, and the cell's report says so). Where nothing closes the network to its runner it does not run: you see why and the fix, Claude offers it once, and `/cells:setup` does it with you. On macOS the Seatbelt profile now refuses every signal but the runner's own: before, a cell that got out of its `vm` could have signalled Claude Code itself.
+- **lsp-plus 0.3.0**: `/lsp-plus:setup`, the first thing to run after installing: it finds the repository's languages, checks which LSP plugins and servers are missing, asks once, installs them, and confirms each after a restart. A language the repository has five or more files of, whose server does not answer, is named at session start, and Claude offers the setup once. The warm-up now asks about the smallest tracked file of each kind: it asked about the first (click's `docs/conf.py`), and Claude Code put that file's diagnostics into every session, 4.5% on small tasks.
+- **eta 0.1.2**: a log a running background command writes, tracked under a name of its own, stays one row with that command. On phone and VS Code, where there is no band, the tool's reply stays readable.
+- **Measured** (`benchmarks/delegate-bench/SUITE.md`): which mod earns the savings, each taken out of the pack (156 runs, all correct). The pack against plain Claude Code: −11% [−17%, −5%] on the average task, −18% on multi-step work, even on small tasks. cells earns it; lsp-plus answers better without saving on the whole.
+
 ## 0.1.1 (2026-10-13)
 
 The pack goes quiet where it has no proof, answers instead of advising, and runs in the background.

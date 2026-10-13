@@ -116,8 +116,9 @@ function ensureTicking($: EngineInterface) {
 }
 
 /**
- * The band above the prompt is drawn on the terminal and the desktop app only; web, mobile and
- * VS Code get the same news as this plugin's status line, while one of them is attached.
+ * The band above the prompt is drawn on the terminal and the desktop app only; mobile and VS Code get
+ * the same news as this plugin's status line, while one of them is attached. A terminal session seen
+ * over Remote Control has neither: there only the tool's reply reaches the viewer.
  */
 async function showStatus($: EngineInterface, list: readonly Job[], now: number) {
   const remote = (await $.session.surfaces().catch(() => [] as string[])).some(s => REMOTE.has(s))
@@ -166,13 +167,22 @@ type TrackInput = {
 }
 
 const str = (v: unknown) => (typeof v === 'string' && v.trim() !== '' ? v : undefined)
+
+/** The running background task that writes `file`: its own output file, or a file its command names. */
+function writerOf(list: readonly Job[], file: string): Job | undefined {
+  const name = file.split('/').pop() ?? ''
+  const named = name.length > 3 && new RegExp(`(^|[\\s>=/'"])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s'";|&)])`)
+  return list.find(j => j.status === 'running' && j.source === 'background'
+    && (j.file === file || (j.command !== undefined && (j.command.includes(file) || (named !== false && named.test(j.command))))))
+}
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : undefined)
 
 async function track($: EngineInterface, i: TrackInput): Promise<string> {
   const id = str(i.task)
   if (!id) return 'track_progress needs `task`: a background task id, or a short name for the job.'
   const now = await $.clock.now()
-  const existing = (await read($, jobs)).find(j => j.id === id)
+  const list = await read($, jobs)
+  const named = list.find(j => j.id === id)
   if (i.stop === true) {
     await update($, jobs, cur => cur.filter(c => c.id !== id))
     void tick($).catch(() => undefined)
@@ -181,18 +191,22 @@ async function track($: EngineInterface, i: TrackInput): Promise<string> {
   for (const key of ['done_pattern', 'progress_pattern', 'finished_pattern'] as const) {
     if (str(i[key]) && !compile(str(i[key]))) return `${key} is not a valid regular expression.`
   }
-  const file = str(i.file) ?? existing?.file
+  const file = str(i.file) ?? named?.file
   if (!file) return `No file to read for ${id}: pass the log or output file the job writes, or the id of a background task Claude Code started.`
   const st = await $.fs.stat(file).catch(() => undefined)
   if (!st || st.kind !== 'file') return `${file} is not a file I can read.`
+  // A log a running background command writes, tracked under a name of its own: the same job, so it
+  // stays one row, under the task's id (its notification ends it).
+  const existing = named ?? writerOf(list, file)
   const ago = num(i.started_minutes_ago)
   const startedAt = existing?.startedAt ?? (ago ? now - ago * 60_000 : now)
   const fromStart = existing?.source === 'background' || ago !== undefined
   let job: Job = {
-    id,
+    id: existing?.id ?? id,
     label: str(i.label) ?? existing?.label ?? id,
     source: existing?.source ?? 'claude',
     file,
+    command: existing?.command,
     donePattern: str(i.done_pattern) ?? existing?.donePattern,
     progressPattern: str(i.progress_pattern) ?? existing?.progressPattern,
     finishedPattern: str(i.finished_pattern) ?? existing?.finishedPattern,
@@ -210,7 +224,8 @@ async function track($: EngineInterface, i: TrackInput): Promise<string> {
   const tz = await read($, tzOffset)
   const d = describe(job, now, tz)
   const read_ = d.progress ? `${d.progress.replace(/^[▰▱]+ /, '')}, ${d.eta}` : d.eta
-  return `Showing "${job.label}" to the person: ${read_}. It updates by itself from ${file}.`
+  const as = job.id === id ? '' : ` (as background task ${job.id}, which writes it)`
+  return `Showing "${job.label}" to the person${as}: ${read_}. It updates by itself from ${file}.`
 }
 
 export const register: Register = on => {
@@ -261,7 +276,7 @@ export const register: Register = on => {
     const file = (r.text ?? '').match(/written to:?\s+(\S+?\.output)\b/)?.[1]
     const label = str(input.description) ?? String(input.command ?? id).split('\n')[0] ?? id
     await addJob($, {
-      id, label, source: 'background', file, startedAt: now, offset: 0, carry: '', done: 0,
+      id, label, source: 'background', file, command: str(input.command), startedAt: now, offset: 0, carry: '', done: 0,
       samples: [[now, 0]], status: 'running',
     })
     const hint = `Background task ${id} now shows the person its elapsed time. If its output will show countable progress, call ${TOOL} for it in your next response, alongside your other calls, so they also see a percentage and an ETA.`
@@ -284,8 +299,8 @@ export const register: Register = on => {
     return next(e)
   }).catch(($, e, next) => next(e))
 
-  // Its own tool call reads as one line: what is shown, from which file. The band carries the progress,
-  // so the tool's reply draws nothing under it.
+  // Its own tool call reads as one line: what is shown, from which file. Where the band carries the
+  // progress (terminal, desktop), the tool's reply draws nothing under it; elsewhere it is the only news.
   on('ui.render', { component: 'ToolUse', props: { tool: `mcp__eta__${TOOL}` } }, async ($, e, next) => {
     const i = (e.props.input ?? {}) as TrackInput
     const task = str(i.task)
@@ -305,7 +320,7 @@ export const register: Register = on => {
   }).catch(($, e, next) => next(e))
 
   on('ui.render', { component: 'ToolResult', props: { tool: `mcp__eta__${TOOL}` } }, async ($, e, next) => {
-    if (e.props.isErrored) return next(e)
+    if (e.props.isErrored || (e.surface !== 'terminal' && e.surface !== 'desktop')) return next(e)
     const text = typeof e.props.output === 'string' ? e.props.output : ''
     // A reply that is not the usual "Showing … to the person" (a bad pattern, no file) stays readable.
     if (text !== '' && !/^(Showing|Stopped showing)/.test(text)) return next(e)

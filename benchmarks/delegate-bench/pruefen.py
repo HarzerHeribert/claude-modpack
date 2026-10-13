@@ -31,7 +31,7 @@ ANSWER_TASKS = {"t1-trace", "t3-explain", "t4-lookup", "t5-types"}
 
 def rows() -> list[dict]:
     # The delegate runs, and the runs with the cells mod (arm K) where they are present.
-    files = [HERE / f for f in ("results.jsonl", "results-cells.jsonl", "results-suite.jsonl", "results-suite-long.jsonl", "results-sonnet.jsonl", "results-handoff-deferred.jsonl")]
+    files = [HERE / f for f in ("results.jsonl", "results-cells.jsonl", "results-suite.jsonl", "results-suite-long.jsonl", "results-sonnet.jsonl", "results-handoff-deferred.jsonl", "results-quiet.jsonl", "results-prompt.jsonl", "results-fit.jsonl", "results-answer.jsonl", "results-noconn.jsonl")]
     return [json.loads(l) for f in files if f.exists() for l in open(f)]
 
 

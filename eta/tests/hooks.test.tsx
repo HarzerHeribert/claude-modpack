@@ -92,3 +92,15 @@ test('a failed job stays in red until the person writes again', async ($, on) =>
   expect(await ui.find({ type: 'Text', text: /^nap/ })).toBe(undefined)
   await ui.unmount()
 })
+
+test('its own tool call reads as one line, and its reply draws nothing', async ($, on) => {
+  host(on, ['terminal'])
+  const input = { task: 'bench', label: 'Re-grading runs', file: '/tmp/x/run.log', total: 15, done_pattern: ' score ' }
+  const row = await $.ui.mount({ plugin: 'eta', surface: 'terminal', component: 'ToolUse', props: { tool_use_id: 'toolu_e1', tool: 'mcp__eta__track_progress', input, isRunning: false, isErrored: false, isInterrupted: false }, viewport: { columns: 100, rows: 40 } } as never)
+  expect(await row.find({ type: 'Text', text: 'showing Re-grading runs above the prompt' })).toBeDefined()
+  expect(await row.find({ type: 'Text', text: '· 15 steps · from run.log' })).toBeDefined()
+  await row.unmount()
+  const result = await $.ui.mount({ plugin: 'eta', surface: 'terminal', component: 'ToolResult', props: { tool_use_id: 'toolu_e1', tool: 'mcp__eta__track_progress', input, output: 'Showing "Re-grading runs" to the person: ETA ~15:12.', isErrored: false }, viewport: { columns: 100, rows: 40 } } as never)
+  expect(await result.find({ type: 'Text' })).toBe(undefined)
+  await result.unmount()
+})

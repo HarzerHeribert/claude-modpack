@@ -139,9 +139,16 @@ async function serve($: Engine, need: Need, cwd: string, sink: string[]): Promis
         tool: 'Bash',
         command: String(i.command ?? ''),
         ...(typeof i.timeout === 'number' ? { timeout: i.timeout } : {}),
+        ...(i.background === true ? { run_in_background: true } : {}),
       })
       keep(sink, r)
       if (r.deny !== undefined) return { ok: false, denied: r.deny }
+      // A background shell is Claude Code's own task: it notifies the model when it ends.
+      const task = (r.result as { backgroundTaskId?: unknown } | undefined)?.backgroundTaskId
+      if (i.background === true && typeof task === 'string' && !r.isError) {
+        const file = /written to:?\s+(\S+)/.exec(r.text ?? '')?.[1]?.replace(/\.$/, '')
+        return { ok: true, out: r.text ?? '', err: '', code: 0, task, file }
+      }
       if (r.isError) {
         const text = r.text ?? ''
         return { ok: false, out: text.replace(/^Exit code \d+\n?/, ''), err: '', code: exitCode(text), text }
@@ -215,6 +222,7 @@ async function answer(
   calls: CallRecord[],
   useId: string | undefined,
   notes: string[],
+  isStopped: () => boolean = () => false,
 ) {
   const startedAt = await $.clock.now()
   const index = calls.length
@@ -228,7 +236,8 @@ async function answer(
     })
   }
 
-  const reply = await serve($, need, cwd, notes)
+  // A cell the person stopped makes no further call; the one already running ended as it would.
+  const reply: Reply = isStopped() ? { ok: false, denied: 'the person stopped this cell' } : await serve($, need, cwd, notes)
   await $.fs.write(`${dir}/${id}.${need.n}.json`, JSON.stringify(reply))
 
   const ms = (await $.clock.now()) - startedAt
@@ -248,7 +257,7 @@ async function answer(
 }
 
 /** Runs one cell in the sandboxed runner and returns what the model reads. */
-async function runCell($: Engine, code: string, useId: string | undefined): Promise<string> {
+async function runCell($: Engine, code: string, useId: string | undefined, job?: Job): Promise<string> {
   if (!dir) await setup($)
   const cwd = await $.session.cwd()
   const startedAt = await $.clock.now()
@@ -256,7 +265,7 @@ async function runCell($: Engine, code: string, useId: string | undefined): Prom
   const runner = runnerDir || `${$.plugin.root}/runner`
   const calls: CallRecord[] = []
   const notes: string[] = []
-  if (useId) await update($, LIVE, l => ({ ...l, [useId]: { startedAt, calls: [], code } }))
+  if (useId) await update($, LIVE, l => ({ ...l, [useId]: { startedAt, calls: [], code, background: job?.background, stopped: job?.stopped } }))
   running.add(id)
   animate($)
 
@@ -292,7 +301,7 @@ async function runCell($: Engine, code: string, useId: string | undefined): Prom
       if (m.done) done = m.done
       if (m.need) {
         while (inFlight.size >= MAX_IN_FLIGHT) await Promise.race(inFlight)
-        const p: Promise<void> = answer($, m.need, cwd, id, calls, useId, notes).finally(() => inFlight.delete(p))
+        const p: Promise<void> = answer($, m.need, cwd, id, calls, useId, notes, () => job?.stopped === true).finally(() => inFlight.delete(p))
         inFlight.add(p)
       }
     }
@@ -314,6 +323,90 @@ async function runCell($: Engine, code: string, useId: string | undefined): Prom
     })
   }
   return report(calls, done, ms, stderr, notes)
+}
+
+/**
+ * A cell as the tool call started it. It runs detached from the call (its own dispatch), so
+ * the call can end while the cell runs on: asked for with `background`, or when the person
+ * sends a prompt while it runs (ctrl+enter), which abandons the call.
+ */
+type Job = { n: number; marker: string; finished: boolean; report?: string; background: boolean; stopped: boolean }
+let jobsMade = 0
+// When the person last sent a prompt: one at the moment a running cell's call is abandoned
+// means "send now" and the cell runs on; none means they interrupted it.
+let lastPersonPrompt = 0
+const PERSON = new Set(['composer', 'bridge'])
+
+function startCell($: Engine, code: string, useId: string | undefined, background: boolean): Job {
+  jobsMade += 1
+  const job: Job = { n: jobsMade, marker: `${dir}/job-${jobsMade}.done`, finished: false, background, stopped: false }
+  $.clock.after(0, () => {
+    void runCell($, code, useId, job)
+      .catch((err: unknown) => `cell · the cells mod failed: ${err instanceof Error ? err.message : String(err)}`)
+      .then(async text => {
+        job.report = text
+        job.finished = true
+        await $.fs.write(job.marker, '1').catch(() => undefined)
+        if (job.background && !job.stopped) await deliver($, job)
+      })
+  })
+  return job
+}
+
+/** A cell that ran on in the background reports as a message the model reads when the session is free. */
+async function deliver($: Engine, job: Job) {
+  await $.prompt.submit({ text: `Cell #${job.n}, which ran on in the background, has ended. Its report:\n\n${job.report ?? ''}` }).catch(() => undefined)
+}
+
+/**
+ * Waits for the cell through short `$` calls (a hook's own time stops only while one runs),
+ * each a waiter of at most two seconds on the cell's done-file. True once the cell ended,
+ * false when the call was abandoned first.
+ */
+async function waitFor($: Engine, job: Job, signal: AbortSignal): Promise<boolean> {
+  while (!job.finished && !signal.aborted) {
+    await $.process
+      .run(['/bin/sh', '-c', 'i=0; while [ ! -e "$1" ] && [ $i -lt 10 ]; do sleep 0.2; i=$((i+1)); done', 'sh', job.marker], { timeoutMs: 5000 })
+      .catch(() => undefined)
+  }
+  return job.finished
+}
+
+/** Whether the person sent a prompt around the moment the call was abandoned (it may come just after). */
+async function personSentPrompt($: Engine, at: number): Promise<boolean> {
+  for (let waited = 0; waited <= 1500; waited += 100) {
+    if (lastPersonPrompt >= at - 3000) return true
+    await $.clock.sleep(100).catch(() => undefined)
+  }
+  return false
+}
+
+async function markLive($: Engine, useId: string | undefined, flags: { background?: boolean; stopped?: boolean }) {
+  if (!useId) return
+  await update($, LIVE, l => {
+    const cell = l[useId]
+    return cell ? { ...l, [useId]: { ...cell, ...flags } } : l
+  })
+}
+
+/** Runs a cell for its tool call: waits for its report, or lets it run on in the background. */
+async function runFor($: Engine, signal: AbortSignal, code: string, useId: string | undefined, background: boolean): Promise<string> {
+  if (!dir) await setup($)
+  const job = startCell($, code, useId, background)
+  if (background) {
+    await markLive($, useId, { background: true })
+    return `Cell #${job.n} runs in the background: its report arrives as a message when it ends. Carry on meanwhile, or end your turn to wait.`
+  }
+  if (await waitFor($, job, signal)) return job.report ?? ''
+  if (await personSentPrompt($, await $.clock.now())) {
+    job.background = true
+    await markLive($, useId, { background: true })
+    if (job.finished) await deliver($, job)
+    return `Cell #${job.n} moved to the background: its report arrives as a message when it ends.`
+  }
+  job.stopped = true
+  await markLive($, useId, { stopped: true })
+  return `Cell #${job.n} was stopped: the call running then ended as it would, and no call after it was made.`
 }
 
 export const register: Register = (on, options) => {
@@ -344,6 +437,7 @@ export const register: Register = (on, options) => {
               items: { type: 'object', properties: { old: { type: 'string' }, new: { type: 'string' } }, required: ['old', 'new'] },
             },
             repair: { type: 'boolean', description: 'Instead of code: run the repaired program the last report offered.' },
+            background: { type: 'boolean', description: 'Run the cell in the background: the call returns at once and the report arrives as a message when the cell ends.' },
           },
         },
       })
@@ -411,23 +505,31 @@ export const register: Register = (on, options) => {
     return r
   })
 
-  on('tool.call', { tool: 'mcp__cells__run_cell' }, async ($, e) => {
-    const input = e as unknown as { code?: unknown; fix?: unknown; repair?: unknown; tool_use_id?: unknown }
+  // The person's prompts: one arriving as a running cell's call is abandoned moves the cell to the background.
+  on('prompt.submit', async ($, e, next) => {
+    if (PERSON.has(e.origin.kind)) lastPersonPrompt = await $.clock.now()
+    return next(e)
+  }).catch(($, e, next) => next(e))
+
+  on('tool.call', { tool: 'mcp__cells__run_cell' }, async ($, e, next) => {
+    const input = e as unknown as { code?: unknown; fix?: unknown; repair?: unknown; background?: unknown; tool_use_id?: unknown }
     const useId = typeof input.tool_use_id === 'string' ? input.tool_use_id : undefined
+    const background = input.background === true
+    const runCell = (code: string, id: string | undefined) => runFor($, next.signal, code, id, background)
     if (input.repair === true) {
       if (pending?.repaired === undefined) return { result: 'run_cell: no repaired program is on offer; the last cell parsed, or had no repair. Nothing ran.' }
-      return { result: await runCell($, pending.repaired, useId) }
+      return { result: await runCell(pending.repaired, useId) }
     }
     if (Array.isArray(input.fix)) {
       if (pending === undefined) return { result: 'run_cell: no program to fix; the last cell parsed. Send code. Nothing ran.' }
       const fixed = applyFixes(pending.code, input.fix as { old: string; new: string }[])
       if (fixed.error !== undefined) return { result: `run_cell: ${fixed.error}. Nothing ran; the program is kept for another fix.` }
-      return { result: await runCell($, fixed.code, useId) }
+      return { result: await runCell(fixed.code, useId) }
     }
     if (typeof input.code !== 'string' || input.code.trim() === '') {
       return { result: 'run_cell needs `code`: the JavaScript to run (or `fix` or `repair` after a cell that did not parse).' }
     }
-    return { result: await runCell($, input.code, useId) }
+    return { result: await runCell(input.code, useId) }
   }).catch(() => ({ result: 'cell · the cells mod failed before the cell could finish; nothing after its last reported call ran.' }))
 
   // The model's own calls: a note on one that was an avoidable request of its own.
@@ -465,7 +567,7 @@ export const register: Register = (on, options) => {
     if (live) {
       // A plugin's tool row may never be flagged as running: the cell's own end says whether it still is.
       const state = stateOf(live, e.props.isRunning)
-      const going = state === 'running'
+      const going = state === 'running' || state === 'background'
       const parsed = report ? parseReport(report) : undefined
       const summary = going
         ? `${live.calls.length} call${live.calls.length === 1 ? '' : 's'} · ${seconds(now - live.startedAt)}`

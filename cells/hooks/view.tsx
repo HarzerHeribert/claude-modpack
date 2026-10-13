@@ -10,7 +10,7 @@ import type { CellsCall, CellsLive } from '../types'
 
 export type Elements = { Box: ElementConstructor<BoxProps>; Text: ElementConstructor<TextProps> }
 
-export type CellState = 'writing' | 'running' | 'ran' | 'failed' | 'threw'
+export type CellState = 'writing' | 'running' | 'background' | 'ran' | 'failed' | 'threw' | 'stopped'
 
 export type Card = {
   state: CellState
@@ -37,7 +37,8 @@ export function scanner(frame: number): { before: string; head: string; after: s
 
 /** A cell's state from its own record: running until it has ended, whatever its row says. */
 export function stateOf(live: CellsLive, rowRunning: boolean): CellState {
-  if (rowRunning || live.endedAt === undefined) return 'running'
+  if (live.stopped) return 'stopped'
+  if (rowRunning || live.endedAt === undefined) return live.background ? 'background' : 'running'
   if (live.error) return 'threw'
   return live.calls.some(c => c.state !== 'ok' && c.state !== 'running') ? 'failed' : 'ran'
 }
@@ -51,14 +52,14 @@ function fit(text: string, room: number): string {
   return flat.length > room ? `${flat.slice(0, Math.max(1, room - 1))}…` : flat
 }
 
-const TONE: Record<CellState, string> = { writing: 'claude', running: 'claude', ran: 'success', failed: 'warning', threw: 'error' }
+const TONE: Record<CellState, string> = { writing: 'claude', running: 'claude', background: 'claude', ran: 'success', failed: 'warning', threw: 'error', stopped: 'warning' }
 
 export function cellCard({ Box, Text }: Elements, c: Card): RenderElement {
   const inner = Math.max(24, c.width - 6)
   const sweep = scanner(c.frame)
   const program = c.code.replace(/\s+$/, '')
   const lines = program === '' ? [] : program.split('\n')
-  const moving = c.state === 'running' || c.state === 'writing'
+  const moving = c.state === 'running' || c.state === 'writing' || c.state === 'background'
   const shown = lines.slice(0, CODE_LINES)
 
   const footer = (

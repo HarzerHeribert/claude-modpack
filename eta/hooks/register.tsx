@@ -284,6 +284,35 @@ export const register: Register = on => {
     return next(e)
   }).catch(($, e, next) => next(e))
 
+  // Its own tool call reads as one line: what is shown, from which file. The band carries the progress,
+  // so the tool's reply draws nothing under it.
+  on('ui.render', { component: 'ToolUse', props: { tool: `mcp__eta__${TOOL}` } }, async ($, e, next) => {
+    const i = (e.props.input ?? {}) as TrackInput
+    const task = str(i.task)
+    if (!task) return next(e)
+    const { Box, Text } = $.ui.resolve(e)
+    const file = str(i.file)?.split('/').pop()
+    const total = num(i.total)
+    const what = i.stop === true ? `stopped showing ${task}` : `showing ${str(i.label) ?? task} above the prompt`
+    const detail = i.stop === true ? '' : [total ? `${total} steps` : '', file ? `from ${file}` : ''].filter(Boolean).join(' · ')
+    return (
+      <Box flexDirection="row" gap={1}>
+        <Text color={COLORS.accent}>⏳</Text>
+        <Text>{what}</Text>
+        {detail ? <Text color={COLORS.faint}>{`· ${detail}`}</Text> : null}
+      </Box>
+    )
+  }).catch(($, e, next) => next(e))
+
+  on('ui.render', { component: 'ToolResult', props: { tool: `mcp__eta__${TOOL}` } }, async ($, e, next) => {
+    if (e.props.isErrored) return next(e)
+    const text = typeof e.props.output === 'string' ? e.props.output : ''
+    // A reply that is not the usual "Showing … to the person" (a bad pattern, no file) stays readable.
+    if (text !== '' && !/^(Showing|Stopped showing)/.test(text)) return next(e)
+    const { Box } = $.ui.resolve(e)
+    return <Box />
+  }).catch(($, e, next) => next(e))
+
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const list = await read($, jobs)
     if (e.props.hasSurvey || list.length === 0) return next(e)

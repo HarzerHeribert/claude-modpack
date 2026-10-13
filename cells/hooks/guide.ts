@@ -27,7 +27,9 @@ Use it where one step can do what would otherwise take several requests:
 Don't use it for one call, or when you need to read a result before deciding the next step.
 
 API (all async; plain JavaScript, TypeScript types are stripped):
-  sh(command, { timeout?, check? }) → { ok, out, err, code }    Bash; with check: true a non-zero exit throws
+  sh(command, { timeout?, check?, background? }) → { ok, out, err, code, task? }
+      Bash; with check: true a non-zero exit throws; background: true starts it as a background task (task is its id;
+      Claude Code tells you when it ends), for a server, a watcher or a long job the cell need not wait for
   read(path, { offset?, limit? }) → string                       Read
   edit(path, oldText, newText, { all? })                         Edit; throws if it fails; needs a read of the file first (in the cell is fine)
   write(path, text)                                              Write
@@ -40,6 +42,8 @@ API (all async; plain JavaScript, TypeScript types are stripped):
   log(...values)          notes shown in the result
   h                       an object whose values survive into later cells of this prompt; the result previews them
 Use Promise.all([...]) for independent calls. \`return\` what you want to see: long text is folded and cut, so keep a full value in h when you may need more of it.
+
+run_cell({ code, background: true }) returns at once and the cell's report arrives as a message when it ends: for a cell that waits on something long.
 
 A cell that does not parse, or throws before its first call, has run nothing, and the report shows the line. Don't send it again: run_cell({ fix: [{ old, new }] }) applies exact replacements to that program (each old text a short snippet that occurs once) and runs it. Where the slip is a template literal escaped as if it sat inside another one (\\\` or \\\${ outside any template), the report shows the repair and run_cell({ repair: true }) runs it.
 

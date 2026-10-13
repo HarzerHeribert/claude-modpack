@@ -14,6 +14,10 @@ Arms (lsp-plus is loaded in all three, from CLAUDE_CODE_PLUGIN_DIRS):
   V  plain Claude Code: none of these mods (the suite's baseline; earlier arms all had lsp-plus)
   P  the modpack as shipped: smart-compact, lsp-plus, delegate, cells, eta
   R  as P, with a routing rule that says which work to hand off
+  Q  as P, after the pack went quiet where it had no proof (the lsp-plus grep note off)
+  DF, DL  the pack, fresh and long (as PL), the person ending the prompt with "Delegate where you see fit."
+  Y  as Q, with lsp-plus answering symbol greps from the language server and warming servers at session start
+  X  the pack with Claude Code's system prompt replaced by one plain sentence and the routing rule
   W  as V with Sonnet as the main model: plain Claude Code, no mods (is the model choice itself the lever?)
   H  as P, told in the prompt to do the task through hand_off (F's instruction, with the whole pack); run long, as HL
   PL, HL  P and H in a long session prepared with the pack loaded (VL and RL fork one prepared without mods,
@@ -60,6 +64,11 @@ PACK_ROOT = Path(os.environ.get("BENCH_PACK_ROOT", HERE.parent.parent))
 PACK = ":".join(str(PACK_ROOT / m) for m in ("smart-compact", "lsp-plus", "delegate", "cells", "eta"))
 
 # A routing rule for the pack: Opus never handed off unasked (0 of 24 runs), so the pack says when to.
+# The person's own words, at the end of their prompt: permission to delegate, not an order.
+FIT = "Delegate where you see fit."
+
+MINIMAL = "You are Claude Code, working in a software repository from the command line. Use your tools to do the task you are given."
+
 ROUTING = """# Routing work
 
 Before you start a task, decide where it runs.
@@ -276,6 +285,9 @@ def account(session_id: str, since: float = 0) -> dict:
         "lsp_calls": sum(1 for t in tools if t == "LSP"),
         "main_tools": len(tools),
         "peak_context": max((ctx(r) for r in main), default=0),
+        # How much of the first request came from the cache: near 0 is a cold start, where the run paid to cache
+        # the tool definitions and system prompt that warm runs read (a one-time cost per cache lifetime).
+        "first_cache_read": (main[0]["usage"].get("cache_read_input_tokens") or 0) if main else 0,
         # What the task left in the main context: every later step of the session re-reads it.
         "added_context": (ctx(main[-1]) + main[-1]["usage"].get("output_tokens", 0) - ctx(main[0])) if main else 0,
     }
@@ -290,12 +302,19 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
     repo = WORK / "runs" / run_id
     shutil.copytree(BASE, repo, symlinks=True)
-    cmd = ["claude", "-p", TASKS[task]["prompt"], "--model", "sonnet" if arm == "W" else "opus", "--permission-mode", "auto", "--output-format", "json"]
-    if arm in ("V", "P", "R", "W"):
+    prompt = TASKS[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
+    cmd = ["claude", "-p", prompt, "--model", "sonnet" if arm == "W" else "opus", "--permission-mode", "auto", "--output-format", "json"]
+    if arm in ("V", "P", "R", "W", "Q", "DF", "Y"):
         # The suite's conditions load exactly what they name: nothing (V), or the pack (P, R).
-        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}})]
+        # Asks for the claude.ai connectors to stay on, as in every run before the person turned them off on 13 Oct
+        # (378 deferred tools); the person's own setting wins, so runs from then on (DF, DL, Y, results-noconn) have 15.
+        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}, "disableClaudeAiConnectors": False})]
     if arm == "R":
         cmd += ["--append-system-prompt", ROUTING]
+    if arm == "X":
+        # Claude Code's own system prompt replaced by one plain sentence and the routing rule: does its prompt keep
+        # Opus from handing off?
+        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": PACK}}), "--system-prompt", MINIMAL + "\n\n" + ROUTING]
     if arm in ("B", "C", "D", "E", "F", "I", "S", "G"):
         cmd += ["--plugin-dir", str(DELEGATE)]
     if arm == "K":
@@ -346,14 +365,14 @@ LONG_SESSION_PACK = LONG / "session-pack.txt"
 
 
 def session_file(arm: str) -> Path:
-    return LONG_SESSION_PACK if arm in ("PL", "HL") else LONG_SESSION
+    return LONG_SESSION_PACK if arm in ("PL", "HL", "DL") else LONG_SESSION
 PREP_PROMPT = "Read every .py file under src/click in full with the Read tool, the largest first, several files per response. Then reply with the single word: ready."
 
 
 def conditions(arm: str) -> list[str]:
     """The flags that make a suite condition: what loads, and the routing rule."""
     base = arm[0]
-    cmd = ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if base == "V" else PACK}})]
+    cmd = ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if base == "V" else PACK}, "disableClaudeAiConnectors": False})]
     # A resumed session takes no appended system prompt (checked 13 Oct: the instruction never reached the model),
     # so RL ran without its rule, and H puts its instruction in the prompt, as the person would ask (run_long).
     if base == "R":
@@ -384,6 +403,8 @@ def run_long(task: str, arm: str, rep: int) -> dict:
     prompt = TASKS[task]["prompt"]
     if arm.startswith("H"):
         prompt = f"{FORCE}\n\n{prompt}"
+    if arm == "DL":
+        prompt = f"{prompt}\n\n{FIT}"
     cmd = ["claude", "-p", prompt, "--resume", session_file(arm).read_text().strip(), "--fork-session",
            "--model", "opus", "--permission-mode", "auto", "--output-format", "json", *conditions(arm)]
     started = time.time()

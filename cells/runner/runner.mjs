@@ -78,9 +78,10 @@ const PRELUDE = `(function (hostAsk, hostFold, hostCut, hostLsp, handlesJson) {
 
   globalThis.sh = async function sh(command, opts = {}) {
     if (typeof command !== 'string') throw new CellError('sh(command): command must be a string')
-    const r = await call('Bash', { command, timeout: opts.timeout })
+    const r = await call('Bash', { command, timeout: opts.timeout, background: opts.background === true })
     if (r.denied) throw refused('sh ' + command, r)
     const res = { ok: r.ok, out: r.out ?? '', err: r.err ?? '', code: r.code ?? (r.ok ? 0 : 1) }
+    if (r.task) Object.assign(res, { task: r.task, file: r.file })
     if (opts.check && !res.ok) {
       throw new CellError('sh failed (exit ' + res.code + '): ' + command + '\\n' + hostCut(hostFold(res.out + res.err, 0), 3000))
     }

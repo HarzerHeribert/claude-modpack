@@ -75,11 +75,17 @@ describe('the note', () => {
 
 const GREP = 'src/click/utils.py:442:def format_filename(\nsrc/click/types.py:1013:                f"{format_filename(value)}"\n'
 
+test('by default a symbol grep gets no nudge: in 45 benchmark notes Claude never acted on one', { options: { answer: false } }, async ($, on) => {
+  on('tool.call', { tool: 'Bash' }, () => ({ result: { stdout: GREP, stderr: '', interrupted: false }, text: GREP }))
+  const r = await $.tool.call({ tool: 'Bash', command: 'grep -rn format_filename src' })
+  expect(r.context ?? []).toEqual([])
+})
+
 for (const [loaded, expected] of [
   [true, true],
   [false, false],
 ] as const) {
-  test(`a symbol grep's note names run_cell only where cells is loaded (${loaded})`, async ($, on) => {
+  test(`a symbol grep's note names run_cell only where cells is loaded (${loaded})`, { options: { nudge: true } }, async ($, on) => {
     on('tool.list', () => ({ value: loaded ? [{ name: 'mcp__cells__run_cell', description: 'Run a cell', mcp: true }] : [] }))
     on('tool.call', { tool: 'Bash' }, () => ({ result: { stdout: GREP, stderr: '', interrupted: false }, text: GREP }))
     const r = await $.tool.call({ tool: 'Bash', command: 'grep -rn format_filename src' })

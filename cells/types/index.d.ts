@@ -18,6 +18,10 @@ export type CellsLive = {
   endedAt?: number
   calls: CellsCall[]
   error?: string
+  /** Runs on after its tool call ended: asked for, or the person sent a prompt while it ran. */
+  background?: boolean
+  /** The person interrupted it: no call after that one ran. */
+  stopped?: boolean
 }
 
 declare module 'claude-code' {

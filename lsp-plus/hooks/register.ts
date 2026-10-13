@@ -15,6 +15,8 @@ import {
 } from './docs'
 import type { Mention } from './docs'
 import { LSP_FILES, codeHits, definitionAt, nudge, symbolSearch, usesAsCode } from './nudge'
+import type { SymbolSearch } from './nudge'
+import { answerNote, looksCold, parseIncoming, parseOutline, parseReferences, qualified } from './answer'
 
 type Engine = EngineInterface
 type LspInput = { operation?: string; filePath?: string; line?: number; character?: number }
@@ -30,6 +32,8 @@ const MAX_REMOVED = 6
 let docs = true
 let drift = true
 let nudging = true
+let answering = false
+let warming = false
 // Symbols already nudged about this session: the next note is one line.
 const nudged = new Set<string>()
 // Names already reported as drifted this session: each is said once.
@@ -138,13 +142,108 @@ async function symbolNote($: Engine, command: string, r: { deny?: string; text?:
   return nudge(search, definitionAt(hits, search.name), again, cells)
 }
 
+/** One LSP call; its text, or undefined where the server failed, is missing or was refused. */
+async function lsp($: Engine, input: Record<string, unknown>): Promise<string | undefined> {
+  const r = await $.tool.call({ tool: 'LSP', ...input } as never).catch(() => undefined)
+  if (r === undefined || r.deny !== undefined || r.isError) return undefined
+  const text = r.text ?? ''
+  return /^(Error performing|No LSP server)/.test(text) ? undefined : text
+}
+
+/** Where `name` is defined: from the grep's own hits, else the one symbol of that name the server knows. */
+async function definitionOf($: Engine, cwd: string, name: string, hits: ReturnType<typeof codeHits>): Promise<{ path: string; line: number; character: number; text: string } | undefined> {
+  const at = definitionAt(hits, name)
+  if (at) return { ...at, text: hits.find(h => h.path === at.path && h.line === at.line)?.text ?? '' }
+  const any = hits[0]
+  if (!any) return undefined
+  const listed = await lsp($, { operation: 'workspaceSymbol', filePath: join(cwd, any.path), line: 1, character: 1, query: name })
+  if (!listed) return undefined
+  const exact: Array<{ file: string; kind: string; line: number }> = []
+  let file = ''
+  for (const row of listed.split('\n')) {
+    const header = /^(\S.*):$/.exec(row)
+    if (header && !row.startsWith('Found')) file = header[1] as string
+    const m = /^\s+(\S+) \((\w+)\) - Line (\d+)/.exec(row)
+    if (m && m[1] === name && file) exact.push({ file, kind: m[2] as string, line: Number(m[3]) })
+  }
+  const named = exact.filter(s => !/^(Variable|Constant|Field|Property)$/.test(s.kind))
+  const one = named.length === 1 ? named[0] : exact.length === 1 ? exact[0] : undefined
+  if (!one) return undefined
+  const text = ((await $.fs.read(join(cwd, one.file)).catch(() => '')) ?? '').split('\n')[one.line - 1] ?? ''
+  const col = new RegExp(`(^|[^\\w$])${name.replace(/\$/g, '\\$')}(?![\\w$])`).exec(text)
+  if (!col) return undefined
+  return { path: one.file, line: one.line, character: col.index + (col[1] ?? '').length + 1, text }
+}
+
+/**
+ * The language server's answer to a symbol grep, read by the hook: for a function, who calls
+ * it (qualified by each caller's file outline); otherwise its references. A server still
+ * indexing knows only the file it was asked about: asked again for up to three seconds, and
+ * without a whole answer there is no note, never a partial one.
+ */
+async function symbolAnswer($: Engine, search: SymbolSearch, out: string): Promise<string | undefined> {
+  const hits = codeHits(out)
+  const uses = hits.filter(h => usesAsCode(h.text, search.name))
+  if (uses.length === 0) return undefined
+  const cwd = await $.session.cwd()
+  const def = await definitionOf($, cwd, search.name, hits)
+  if (!def) return undefined
+  const callable = /\b(def|function|fn|func)\s/.test(def.text) || /\b(async\s+)?[A-Za-z_$][\w$]*\s*\([^)]*\)\s*[:{]/.test(def.text)
+  const operation = callable ? 'incomingCalls' : 'findReferences'
+  const grepFiles = [...new Set(uses.map(h => h.path))]
+  const ask = () => lsp($, { operation, filePath: join(cwd, def.path), line: def.line, character: def.character })
+  let text = await ask()
+  const filesOf = (t: string) => (callable ? parseIncoming(t).map(c => c.file) : parseReferences(t).map(r => r.file))
+  for (let tries = 0; text !== undefined && looksCold(filesOf(text), grepFiles, def.path) && tries < 2; tries++) {
+    await $.process.run(['sleep', '1.5'])
+    text = await ask()
+  }
+  if (text === undefined || looksCold(filesOf(text), grepFiles, def.path)) return undefined
+  if (!callable) {
+    const references = parseReferences(text)
+    return references.length === 0 ? undefined : answerNote(search.name, { references })
+  }
+  const callers = parseIncoming(text)
+  if (callers.length === 0) return undefined
+  const outlines = new Map<string, ReturnType<typeof parseOutline>>()
+  await Promise.all(
+    [...new Set(callers.map(c => c.file))].map(async f => {
+      const o = await lsp($, { operation: 'documentSymbol', filePath: join(cwd, f), line: 1, character: 1 })
+      outlines.set(f, o ? parseOutline(o) : [])
+    }),
+  )
+  return answerNote(search.name, { callers: callers.map(c => ({ ...c, qualified: qualified(outlines.get(c.file) ?? [], c.name, c.line) })) })
+}
+
+/**
+ * Starts the language servers the repository will need, before anyone asks: one question about
+ * one tracked file of each kind a server reads. A server opens the project on its first
+ * question and answers whole from the second on.
+ */
+async function warmUp($: Engine) {
+  const cwd = await $.session.cwd()
+  const listed = await git($, cwd, ['ls-files'])
+  if (!listed) return
+  const first = new Map<string, string>()
+  for (const f of listed.split('\n')) {
+    const ext = /\.([^./]+)$/.exec(f)?.[1]
+    if (!ext || !LSP_FILES.test(f) || /(^|\/)(node_modules|vendor|dist|build)\//.test(f)) continue
+    const kind = /^(tsx?|jsx?|mjs|cjs|mts|cts)$/.test(ext) ? 'ts' : ext
+    if (!first.has(kind)) first.set(kind, f)
+  }
+  await Promise.all([...first.values()].map(f => lsp($, { operation: 'documentSymbol', filePath: join(cwd, f), line: 1, character: 1 })))
+}
+
 export const register: Register = (on, options) => {
   docs = options.docs !== false
   drift = options.drift !== false
-  nudging = options.nudge !== false
+  nudging = options.nudge === true // off unless asked for: never acted on in 45 benchmark notes
+  answering = options.answer !== false // measured: 25% fewer requests on a rename, even on a trace
+  warming = options.warm !== false
 
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'refs', description: 'Check the docs for code names and links that no longer resolve' })
+    if (warming) void warmUp($).catch(() => undefined)
     return next(e)
   })
 
@@ -171,7 +270,9 @@ export const register: Register = (on, options) => {
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
     const r = await next(e)
     if (r.deny !== undefined) return r
-    const text = await symbolNote($, e.command, r)
+    const search = answering ? symbolSearch(e.command) : undefined
+    const answer = search === undefined ? undefined : await symbolAnswer($, search, r.text ?? '').catch(() => undefined)
+    const text = answer ?? (await symbolNote($, e.command, r))
     return text === undefined ? r : { ...r, context: [...(r.context ?? []), text] }
   }).catch(($, e, next) => next(e))
 

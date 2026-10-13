@@ -19,6 +19,9 @@ export type Reply = {
   start?: number
   num?: number
   total?: number
+  /** Bash in the background: the task's id and the file its output goes to. */
+  task?: string
+  file?: string
   /** LSP: the places the answer lists, and what a plugin above added. */
   places?: Place[]
   context?: string[]

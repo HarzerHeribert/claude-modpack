@@ -1,6 +1,6 @@
 {
   "name": "lsp-plus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Extends Claude Code's LSP: references and definitions name the docs that use a symbol, an edit that removes a name the docs still use says so, /refs finds stale code names and broken links in the docs, a grep for a code symbol gets a note naming the exact LSP call, and Markdown and SQL get language servers.",
   "author": {
     "name": "HarzerHeribert"
@@ -42,7 +42,19 @@
     "nudge": {
       "type": "boolean",
       "title": "Nudge greps toward LSP",
-      "description": "When a grep searches for a code symbol in files a language server covers, the search runs as asked and Claude is told the exact LSP call that answers it, and that grep stays needed for strings and docs.",
+      "description": "When a grep searches for a code symbol in files a language server covers, the search runs as asked and Claude is told the exact LSP call that answers it, and that grep stays needed for strings and docs. Off by default: in 45 benchmark notes Claude never acted on one.",
+      "default": false
+    },
+    "answer": {
+      "type": "boolean",
+      "title": "Answer symbol greps from the language server",
+      "description": "When a grep searches for a code symbol, lsp-plus asks the language server itself and attaches its exact answer to the grep result: the functions that call it, or its references. No extra step for Claude. Measured: 25% fewer requests on a rename, even on a trace, never dearer.",
+      "default": true
+    },
+    "warm": {
+      "type": "boolean",
+      "title": "Start language servers early",
+      "description": "At session start, ask each language server the repository needs one question, so it has the project open before the first real one (about 1 s for Python, 4 s for TypeScript, saved later). Costs the server's memory from the start of the session.",
       "default": true
     }
   }

@@ -2,6 +2,11 @@
 
 Mods for Claude Code: plugins built from its function hooks that change how it works and what it shows. Each was measured on real tasks before it shipped, and the six here are made to work together. Built and tested on Claude Code 2.1.296.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <img alt="70 of 70 graded runs correct with the pack and without it; 15% lower cost in a session already holding 227k tokens; 5.2 instead of 7.2 model requests per task; 35% lower cost on feature work handed to a cheaper worker." src="assets/hero-light.svg" width="880">
+</picture>
+
 ## The modpack
 
 ```
@@ -12,11 +17,38 @@ installs six mods at once; the `modpack` plugin lists them as its dependencies.
 
 **Measured as a whole** (`benchmarks/delegate-bench/SUITE.md`, 70 Opus runs on click, against plain Claude Code): all 70 correct. With the pack Opus needed 5.2 model requests per task instead of 7.2, and the work cost 7% less in a fresh session; in a session already holding 227k tokens it cost 15% less and finished in 43 s instead of 54 s. A one-request lookup costs a few cents more. The savings come from fewer steps on multi-step work (a coverage task −21%, −29% in the long session), not from delegate: Opus never handed off by itself, not even with a routing rule.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/cost-dark.svg">
+  <img alt="Cost per task, plain Claude Code against the modpack. Average task: $0.49 against $0.46 in a fresh session (−7%), $0.36 against $0.31 in a 227k-token session (−15%). Coverage −21% and −29%, feature −6% and −18%; a one-request lookup costs a few cents more." src="assets/cost-light.svg" width="880">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/requests-dark.svg">
+  <img alt="Model requests per task, plain Claude Code against the modpack. Average task: 7.2 against 5.2 in a fresh session (−28%), 4.5 against 3.1 in a 227k-token session (−30%); the feature task 16 against 10." src="assets/requests-light.svg" width="880">
+</picture>
+
+<details>
+<summary>The numbers per task: cost · model requests</summary>
+
+| Task | Plain, fresh | Pack, fresh | Plain, 227k | Pack, 227k |
+| --- | --- | --- | --- | --- |
+| Add a feature | $0.85 · 16 | $0.80 · 10 | $0.98 · 12 | $0.80 · 7.5 |
+| Raise test coverage | $0.84 · 10.5 | $0.66 · 7 | $0.78 · 8 | $0.55 · 5 |
+| Rename a function | $0.38 · 6.5 | $0.35 · 5 | $0.40 · 6 | $0.33 · 4.5 |
+| Explain a code path | $0.45 · 6 | $0.42 · 4 | $0.11 · 1 | $0.13 · 1 |
+| Trace every caller | $0.36 · 5 | $0.39 · 4.5 | $0.14 · 2 | $0.17 · 2 |
+| Find matching types | $0.29 · 3.5 | $0.31 · 3.5 | $0.09 · 1.5 | $0.09 · 1 |
+| Look up a name | $0.26 · 3 | $0.26 · 2.5 | $0.06 · 1 | $0.09 · 1 |
+| **Average task** | **$0.49 · 7.2** | **$0.46 · 5.2** | **$0.36 · 4.5** | **$0.31 · 3.1** |
+
+Means of two runs each, Claude Opus 5.5 at xhigh effort, list prices. The full write-up, with what each condition loaded, is [SUITE.md](benchmarks/delegate-bench/SUITE.md).
+</details>
+
 | Mod | Area | What it does | Measured |
 | --- | --- | --- | --- |
 | [statusline](#statusline) | interface | One line under the prompt: the model and its effort, how full the context is, the plan's 5-hour and 7-day use with their resets, and what other mods put on it. | Interface only. |
 | [smart-compact](#smart-compact) | cost | Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and puts "● ready · cold in 44m" on the status line. | Priced from the cache's list prices; not benchmarked. |
-| [delegate](#delegate) | cost | A `hand_off` tool: Claude gives a self-contained task to a cheaper worker (Haiku or Sonnet), told where the change reaches by the language server, and gets back the diff, a check the tool runs itself, and what it cost. A live card and a side pane show the worker at work. | 92 Opus runs, all correct: a hand-off cost 9–35% less on specified multi-step work, 34–64% at 600k context. Opus never hands off unasked (0 of 52 runs): ask for it. |
+| [delegate](#delegate) | cost | A `hand_off` tool: Claude gives a self-contained task to a cheaper worker (Haiku or Sonnet), told where the change reaches by the language server, and gets back the diff, a check the tool runs itself, and what it cost. A live card and a side pane show the worker at work. | 120 Opus runs, all correct: handing off a feature or tests cost 27–37% less, fresh and in a 233k-token session; smaller work costs more. Opus never hands off unasked (0 of 38 runs): ask for it. |
 | [lsp-plus](#lsp-plus) | code intelligence | Extends Claude Code's LSP: references name the docs that use a symbol, an edit that removes a name the docs still use says so, a grep for a code symbol is told the exact LSP call, `/refs` finds stale names and dead links in the docs, and Markdown and SQL get language servers. | Its grep note cost no quality in 10 runs. |
 | [cells](#cells) | flow | A `run_cell` tool: edits and their check in one step through the real Edit tool, and the language server's references, definitions and renames; guidance on chaining; a note when a model request did nothing a previous one couldn't have. | 8 Opus runs, all correct: +12% in a fresh session, −6% at 600k context. |
 | eta | interface | Long-running and background jobs with a percentage and an estimated finish time, in aligned columns above the prompt; a job that has finished leaves, a failure stays until you write again. | Interface only. |
@@ -184,10 +216,37 @@ While a worker runs, its card in the transcript turns, with its clock, requests,
 | `reuseMinutes` | `50` | How long a worker stays warm for follow-ups. |
 | `workerContextCap` | `60000` | A worker grown past this is not continued. |
 
-**Measured** (`benchmarks/delegate-bench/RESULTS.md`, 92 Opus runs on click). Quality was the same in every setup: 92 of 92 runs correct.
-- **Where it pays:** fully specified work of more than about five steps whose result a diff and a check prove (a feature from a spec, tests to a coverage target, a rename). It cost 9–35% less in a fresh session and 34–64% less in a 600k-token one.
-- **Where it doesn't:** on lookups and tracing it saved nothing in a fresh session.
-- **Opus never chose to delegate by itself** (0 of 24 runs here, 0 of 28 more with a routing rule in `SUITE.md`), so the hand-off is yours to ask for: "hand the tests to a Sonnet worker", "give the rename to delegate".
+**Measured** (`benchmarks/delegate-bench/RESULTS.md`: 92 Opus runs on click; `SUITE.md`: 28 more in a session holding 233k tokens). Every run was correct.
+- **Where it pays:** a feature from a spec and tests to a coverage target, work that takes Opus six or more steps: 28–35% less in a fresh session, 27–37% less in the 233k-token one.
+- **Where it doesn't:** lookups, traces, explanations and small edits. Fresh they cost about the same handed off; in a session that already knows the code they cost from 29% to 3.6 times more, because Opus alone answers them in one to three requests and a hand-off takes two to five of its own. A projection had promised savings that grow with the session; measured, they don't.
+- **Opus never chose to delegate by itself** (0 of 24 runs here, 0 of 14 more with a routing rule in `SUITE.md`), so the hand-off is yours to ask for: "hand the tests to a Sonnet worker".
+- **The model may be the bigger lever.** On these tasks Sonnet 5.5 alone, with no mod, was as correct as Opus and cost 65% less in 44% less time (`SUITE.md`). Every setup here scored 100%, so the tasks can't show where Sonnet falls short; delegate is for an Opus session on open-ended work that hands off its big, specified pieces.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/delegate-dark.svg">
+  <img alt="Cost per task, Opus alone against a hand-off. Fresh: the feature $0.79 against $0.51 (−35%), tests −28%, the rest about even. In a 233k-token session: the feature −37%, tests −27%, the rename +43%, lookups, traces and explanations +29% to +259%." src="assets/delegate-light.svg" width="880">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/growth-dark.svg">
+  <img alt="The hand-off against Opus alone by session size. Lines projected from the fresh runs fall with the session size, to −64% for the feature at 600k. Measured at 233k: the feature −37% and tests −27%, but the rename +43% and the small tasks +101% to +259%." src="assets/growth-light.svg" width="880">
+</picture>
+
+<details>
+<summary>The numbers per task: Opus alone → handed off</summary>
+
+| Task | Fresh | In a 233k-token session |
+| --- | --- | --- |
+| Add a feature | $0.79 → $0.51 (−35%) | $0.82 → $0.52 (−37%) |
+| Raise test coverage | $0.73 → $0.52 (−28%) | $0.73 → $0.53 (−27%) |
+| Rename a function | $0.45 → $0.41 (−9%) | $0.26 → $0.38 (+43%) |
+| Explain a code path | $0.42 → $0.42 (−1%) | $0.11 → $0.21 (+101%) |
+| Trace every caller | $0.34 → $0.35 (+3%) | $0.14 → $0.18 (+29%) |
+| Find matching types | $0.32 → $0.35 (+10%) | $0.06 → $0.23 (+259%) |
+| Look up a name | $0.26 → $0.29 (+13%) | $0.06 → $0.15 (+149%) |
+
+Means of two runs each, all correct. Fresh: the best hand-off that waits in the tool call ([RESULTS.md](benchmarks/delegate-bench/RESULTS.md)); 233k: Opus told in the prompt to hand off, or not ([SUITE.md](benchmarks/delegate-bench/SUITE.md)).
+</details>
 
 ## cells
 

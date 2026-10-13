@@ -1,0 +1,218 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..b11a15b
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,212 @@
++import errno
++import io
++import os
++import sys
++import types
++
++import pytest
++
++import click
++import click.utils as cu
++
++
++def test_posixify():
++    assert cu._posixify("Foo  Bar") == "foo-bar"
++
++
++def test_safecall():
++    def boom():
++        raise ValueError
++
++    assert cu._safecall(boom)() is None
++    assert cu._safecall(lambda: 3)() == 3
++
++
++def test_make_str_bytes():
++    assert cu.make_str(b"abc") == "abc"
++    assert cu.make_str(5) == "5"
++    assert cu.make_str(b"\xff\xfe") in ("��", "\xff\xfe")
++
++
++def test_make_str_bytes_decode_error(monkeypatch):
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert cu.make_str(b"a\xffb") == "a�b"
++
++
++def test_short_help():
++    f = cu._make_default_short_help
++    assert f("Hello world. More text") == "Hello world."
++    assert f("aaa bbb ccc ddd eee fff", 7).endswith("...")
++    assert f("aaaa bbbb cccc dddd", 9) == "aaaa..."
++    assert f("short") == "short"
++    assert f("one\n\ntwo") == "one"
++    assert f("abcdefghij klm", 5) == "..."
++
++
++def test_lazy_file_stdout_and_repr(tmp_path):
++    lf = cu._LazyFile("-", "w")
++    assert lf.should_close is False
++    assert repr(lf) == repr(lf._f)
++    p = tmp_path / "x.txt"
++    p.write_text("hi")
++    lf = cu._LazyFile(str(p), "r")
++    assert "unopened" in repr(lf)
++    lf.close()  # not open: no-op
++    lf.close_intelligently()
++    assert lf.read() == "hi"
++    assert lf.open() is lf._f
++    lf.close_intelligently()
++    lf2 = cu._LazyFile(str(p), "r")
++    lf2.open()
++    lf2.should_close = False
++    lf2.close_intelligently()
++    assert not lf2._f.closed
++    lf2.close()
++    with cu._LazyFile(str(p), "r"):
++        pass
++
++
++def test_lazy_file_open_error(tmp_path):
++    lf = cu._LazyFile(str(tmp_path / "nope" / "f.txt"), "w")
++    with pytest.raises(click.FileError):
++        lf.open()
++
++
++def test_keep_open_file(tmp_path):
++    p = tmp_path / "k.txt"
++    p.write_text("a\nb\n")
++    with open(p) as f:
++        k = cu._KeepOpenFile(f)
++        assert repr(k) == repr(f)
++        with k:
++            pass
++        assert list(iter(k)) == ["a\n", "b\n"]
++        assert not f.closed
++
++
++def test_echo_bytes_and_ansi(capsys):
++    buf = io.StringIO()
++    out = io.BytesIO()
++    click.echo(b"raw", file=out, nl=False)
++    assert out.getvalue() == b"raw"
++    click.echo(click.style("x", fg="red"), file=buf, color=False)
++    assert "\x1b" not in buf.getvalue()
++    click.echo(click.style("x", fg="red"), file=buf, color=True)
++    assert "\x1b" in buf.getvalue()
++    click.echo(None, file=buf)
++    click.echo(bytearray(b"ba"), file=io.BytesIO())
++
++
++def test_echo_no_binary_writer():
++    class W:
++        def __init__(self):
++            self.data = []
++
++        def write(self, s):
++            if not isinstance(s, str):
++                raise TypeError("text only")
++            self.data.append(s)
++
++        def flush(self):
++            pass
++
++    w = W()
++    with pytest.raises(TypeError):
++        click.echo(b"zz", file=w)
++
++
++def test_unknown_streams():
++    with pytest.raises(TypeError):
++        cu._get_binary_stream("nope")
++    with pytest.raises(TypeError):
++        cu._get_text_stream("nope")
++
++
++def test_known_streams():
++    assert cu._get_binary_stream("stdout") is not None
++    assert cu._get_text_stream("stdout") is not None
++
++
++def test_open_file_lazy_and_stdin(tmp_path):
++    p = tmp_path / "l.txt"
++    p.write_text("q")
++    f = click.open_file(str(p), lazy=True)
++    assert isinstance(f, cu._LazyFile)
++    f.close()
++    f, should_close = None, None
++    with click.open_file("-", "w") as f:
++        assert f is not None
++
++
++def test_get_app_dir(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    assert click.get_app_dir("Foo Bar", force_posix=True).endswith(".foo-bar")
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert click.get_app_dir("Foo Bar").endswith("Library/Application Support/Foo Bar")
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg")
++    assert click.get_app_dir("Foo Bar") == os.path.join("/xdg", "foo-bar")
++
++
++def test_get_app_dir_windows(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", True)
++    monkeypatch.setenv("APPDATA", "/ad")
++    monkeypatch.setenv("LOCALAPPDATA", "/lad")
++    assert click.get_app_dir("X", roaming=True) == os.path.join("/ad", "X")
++    assert click.get_app_dir("X", roaming=False) == os.path.join("/lad", "X")
++    monkeypatch.delenv("APPDATA")
++    assert click.get_app_dir("X") == os.path.join(os.path.expanduser("~"), "X")
++
++
++def test_pacify_flush_wrapper():
++    class F:
++        attr = 7
++
++        def __init__(self, err=None):
++            self.err = err
++
++        def flush(self):
++            if self.err:
++                raise self.err
++
++    w = cu._PacifyFlushWrapper(F())
++    w.flush()
++    assert w.attr == 7
++    cu._PacifyFlushWrapper(F(OSError(errno.EPIPE, "pipe"))).flush()
++    with pytest.raises(OSError):
++        cu._PacifyFlushWrapper(F(OSError(errno.EIO, "io"))).flush()
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    monkeypatch.setattr(sys, "argv", ["/a/b/prog.py"])
++    main = types.SimpleNamespace(__package__=None)
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    assert cu._detect_program_name() == "prog.py"
++    main.__package__ = "pkg"
++    monkeypatch.setattr(sys, "argv", ["/a/pkg/__main__.py"])
++    assert cu._detect_program_name() == "python -m pkg"
++
++
++def test_detect_program_name_windows_exe(monkeypatch, tmp_path):
++    monkeypatch.setattr(os, "name", "nt")
++    exe = tmp_path / "tool"
++    (tmp_path / "tool.exe").write_text("")
++    main = types.SimpleNamespace(__package__="")
++    assert cu._detect_program_name(str(exe), main) == "tool"
++
++
++def test_expand_args(tmp_path, monkeypatch):
++    (tmp_path / "a.txt").write_text("")
++    monkeypatch.setenv("HOME", str(tmp_path))
++    monkeypatch.setenv("FOOV", "a")
++    assert cu._expand_args(["~/*.txt"]) == [str(tmp_path / "a.txt")]
++    assert cu._expand_args([f"{tmp_path}/$FOOV.txt"]) == [str(tmp_path / "a.txt")]
++    assert cu._expand_args(["~/*.txt"], user=False) == ["~/*.txt"]
++    assert cu._expand_args(["$FOOV"], env=False) == ["$FOOV"]
++    assert cu._expand_args(["[a"]) == ["[a"]
++    import re
++
++    monkeypatch.setattr(
++        "glob.glob", lambda *a, **k: (_ for _ in ()).throw(re.error("bad"))
++    )
++    assert cu._expand_args(["zzz"]) == ["zzz"]

@@ -48,12 +48,12 @@ const RETURNS = {
 }
 const describe = (wait: Wait) => `Outsources one self-contained task to a cheaper worker model, Haiku or Sonnet. ${RETURNS[wait]}: for edit work the diff and the result of a check command it runs, where the change reaches (references, callers and doc mentions from the language server), and what the work cost.
 
-Each of your own steps re-reads your whole context; a worker's steps read only its own small one. Measured on real tasks, a hand-off cost 40-65% less than doing the work yourself, at the same quality, once the work would take you more than about five steps.
+Each of your own steps re-reads your whole context; a worker's steps read only its own small one, but the hand-off itself takes you two to five steps (writing the task, reading the evidence, finishing). Measured on real tasks at the same quality: a feature from a precise spec and tests to a coverage target cost 27-37% less handed off, in a fresh session and in one holding 233k tokens; lookups, traces, explanations and small edits cost more handed off, up to 3.6 times as much in a session that already knows the code.
 
-Outsource work that is fully specified and takes several steps, where only the result matters to you: implementing a feature from a precise spec, writing tests to a target, applying one change in many places, tracing how something is used, collecting facts from many files or logs.
-- model "haiku" (default): mechanical or precisely specified work.
-- model "sonnet": work that needs judgment the spec cannot fully pin down, such as a refactor across modules or tests for tricky behaviour.
-Keep in house: one-step lookups, design decisions, subtle debugging, and anything that depends on what was decided in this conversation unless the task states it. The worker knows only the task text.
+Outsource work that is fully specified and would take you many steps in this session, where only the result matters to you: implementing a feature from a precise spec, writing tests to a target, one change applied across many files.
+- model "sonnet": a feature, tests, or other work across several files; it needed half the steps of a haiku worker there and saved the most.
+- model "haiku" (default): mechanical work, such as one change applied in many places.
+Keep in house: lookups, tracing, explanations and small edits, design decisions, subtle debugging, and anything that depends on what was decided in this conversation unless the task states it. The worker knows only the task text.
 
 Write the task so it stands alone: the goal, the files or symbols, constraints, and what done means. Name the symbols or file:line places it touches in focus so the tool can find where they are used. For edit work, give a check command (tests, a type check) that proves it. Don't edit the files an edit hand-off works on until its report is in.
 

@@ -14,7 +14,11 @@ Arms (lsp-plus is loaded in all three, from CLAUDE_CODE_PLUGIN_DIRS):
   V  plain Claude Code: none of these mods (the suite's baseline; earlier arms all had lsp-plus)
   P  the modpack as shipped: smart-compact, lsp-plus, delegate, cells, eta
   R  as P, with a routing rule that says which work to hand off
-  (V, P and R name what loads for each run; the arms before them took it from the person's settings)
+  W  as V with Sonnet as the main model: plain Claude Code, no mods (is the model choice itself the lever?)
+  H  as P, told in the prompt to do the task through hand_off (F's instruction, with the whole pack); run long, as HL
+  PL, HL  P and H in a long session prepared with the pack loaded (VL and RL fork one prepared without mods,
+     where the pack's tools came in deferred)
+  (V, P, R and H name what loads for each run; the arms before them took it from the person's settings)
   K  as A, with the cells mod 0.2 loaded (run_cell with refs/defn/rename, the chaining guidance, the notes);
      run with BENCH_RESULTS=results-cells.jsonl so the delegate record stays as it was
 
@@ -286,10 +290,10 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
     repo = WORK / "runs" / run_id
     shutil.copytree(BASE, repo, symlinks=True)
-    cmd = ["claude", "-p", TASKS[task]["prompt"], "--model", "opus", "--permission-mode", "auto", "--output-format", "json"]
-    if arm in ("V", "P", "R"):
+    cmd = ["claude", "-p", TASKS[task]["prompt"], "--model", "sonnet" if arm == "W" else "opus", "--permission-mode", "auto", "--output-format", "json"]
+    if arm in ("V", "P", "R", "W"):
         # The suite's conditions load exactly what they name: nothing (V), or the pack (P, R).
-        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm == "V" else PACK}})]
+        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}})]
     if arm == "R":
         cmd += ["--append-system-prompt", ROUTING]
     if arm in ("B", "C", "D", "E", "F", "I", "S", "G"):
@@ -335,6 +339,14 @@ def run_one(task: str, arm: str, rep: int) -> dict:
 LONG = WORK / "long"
 LONG_REPO = LONG / "repo"
 LONG_SESSION = LONG / "session.txt"
+# The same reading with the pack loaded from the start: a tool added to a resumed session comes in deferred
+# (Claude Code keeps the cached prompt's tool list as it was), so the pack's tools are only loaded as in real
+# use when the history began with them. PL and HL fork this one; VL and RL the plain one.
+LONG_SESSION_PACK = LONG / "session-pack.txt"
+
+
+def session_file(arm: str) -> Path:
+    return LONG_SESSION_PACK if arm in ("PL", "HL") else LONG_SESSION
 PREP_PROMPT = "Read every .py file under src/click in full with the Read tool, the largest first, several files per response. Then reply with the single word: ready."
 
 
@@ -342,17 +354,21 @@ def conditions(arm: str) -> list[str]:
     """The flags that make a suite condition: what loads, and the routing rule."""
     base = arm[0]
     cmd = ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if base == "V" else PACK}})]
-    return cmd + (["--append-system-prompt", ROUTING] if base == "R" else [])
+    # A resumed session takes no appended system prompt (checked 13 Oct: the instruction never reached the model),
+    # so RL ran without its rule, and H puts its instruction in the prompt, as the person would ask (run_long).
+    if base == "R":
+        cmd += ["--append-system-prompt", ROUTING]
+    return cmd
 
 
 def cmd_prepare(args):
     if not LONG_REPO.exists():
         shutil.copytree(BASE, LONG_REPO, symlinks=True)
     model = args.model
-    p = subprocess.run(["claude", "-p", PREP_PROMPT, "--model", model, "--permission-mode", "auto", "--output-format", "json", *conditions("V")],
+    p = subprocess.run(["claude", "-p", PREP_PROMPT, "--model", model, "--permission-mode", "auto", "--output-format", "json", *conditions("P" if args.pack else "V")],
                        cwd=LONG_REPO, capture_output=True, text=True, timeout=1800, stdin=subprocess.DEVNULL)
     res = json.loads(p.stdout)
-    LONG_SESSION.write_text(res["session_id"])
+    (LONG_SESSION_PACK if args.pack else LONG_SESSION).write_text(res["session_id"])
     a = account(res["session_id"])
     print(f"prepared {res['session_id']}: {a.get('main_requests')} requests, context {a.get('peak_context')}, ${res.get('total_cost_usd', 0):.2f}")
 
@@ -365,7 +381,10 @@ def reset_long():
 def run_long(task: str, arm: str, rep: int) -> dict:
     reset_long()
     run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
-    cmd = ["claude", "-p", TASKS[task]["prompt"], "--resume", LONG_SESSION.read_text().strip(), "--fork-session",
+    prompt = TASKS[task]["prompt"]
+    if arm.startswith("H"):
+        prompt = f"{FORCE}\n\n{prompt}"
+    cmd = ["claude", "-p", prompt, "--resume", session_file(arm).read_text().strip(), "--fork-session",
            "--model", "opus", "--permission-mode", "auto", "--output-format", "json", *conditions(arm)]
     started = time.time()
     try:
@@ -381,6 +400,7 @@ def run_long(task: str, arm: str, rep: int) -> dict:
     answer = res.get("result") or ""
     row = {
         "run": run_id, "task": task, "arm": arm, "rep": rep, "wall_s": round(wall, 1), "long": True,
+        "prepared": "pack" if session_file(arm) == LONG_SESSION_PACK else "plain",
         "session": res.get("session_id"), "reported_usd": res.get("total_cost_usd"), "is_error": res.get("is_error", True),
         "answer": answer[:4000], "stderr": err[-500:] if err else "",
     }
@@ -398,9 +418,10 @@ def run_long(task: str, arm: str, rep: int) -> dict:
 
 
 def cmd_long(args):
-    if not LONG_SESSION.exists():
-        sys.exit("no prepared session: run bench.py prepare first")
     arms, tasks = args.arms.split(","), args.tasks.split(",") if args.tasks else list(TASKS)
+    for a in arms:
+        if not session_file(a).exists():
+            sys.exit(f"no prepared session for {a}: run bench.py prepare{' --pack' if session_file(a) == LONG_SESSION_PACK else ''} first")
     plan = [(t, a, r) for r in range(1, args.reps + 1) for t in tasks for a in arms]
     print(f"{len(plan)} long runs, one at a time", flush=True)
     with open(RESULTS, "a") as f:
@@ -476,6 +497,7 @@ if __name__ == "__main__":
     sub.add_parser("report")
     pr = sub.add_parser("prepare")
     pr.add_argument("--model", default="opus")
+    pr.add_argument("--pack", action="store_true", help="prepare with the pack loaded, for PL and HL")
     lo = sub.add_parser("long")
     lo.add_argument("--reps", type=int, default=2)
     lo.add_argument("--arms", default="VL,RL")

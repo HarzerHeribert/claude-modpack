@@ -35,14 +35,14 @@
 
 **Opus does not delegate by itself.** In B, C and G it handed off 0 times in 24 runs, even on the 15-request feature task, and even after the tool's description stated the measured savings. Outsourcing has to be decided by a rule or by the person, not left to Opus.
 
-**When it does delegate, cost depends on the size of the task and of the session.** "@600k" is the same run in a session already holding 600k tokens: every main request (and every forked review) re-reads them, at $0.20/M from the cache.
+**When it does delegate, cost depends on the size of the task and of the session.** "@600k" is the same run in a session already holding 600k tokens: every main request (and every forked review) re-reads them, at $0.20/M from the cache. This is a projection, and it proved too kind: measured in a 233k-token session (SUITE.md, *The hand-off in a long session*), the feature and the tests saved what they save fresh (−37%, −27%), and everything else cost more, because a session that knows the code needs far fewer steps.
 
 | Task | A: alone | best hand-off | change | A @600k | hand-off @600k | change |
 | --- | --- | --- | --- | --- | --- | --- |
 | t4-lookup | $0.26 | $0.29 (F) | +13% | $0.62 | $0.65 | +5% |
 | t1-trace | $0.34 | $0.35 (F) | +3% | $0.94 | $0.83 | −12% |
 | t5-types | $0.32 | $0.35 (F) | +10% | $0.86 | $0.77 | −10% |
-| t3-explain | $0.42 | $0.42 (F) | 0% | $1.02 | $0.84 | −18% |
+| t3-explain | $0.42 | $0.42 (F) | −1% | $1.02 | $0.84 | −18% |
 | t2-rename | $0.45 | $0.41 (I) | −9% | $1.53 | $1.01 | −34% |
 | l1-feature | $0.79 | $0.51 (I) | −35% | $2.59 | $0.93 | −64% |
 | l2-coverage | $0.73 | $0.52 (I) | −28% | $1.81 | $1.06 | −41% |

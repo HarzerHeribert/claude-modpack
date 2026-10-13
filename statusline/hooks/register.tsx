@@ -9,6 +9,7 @@ import {
   SEPARATOR,
   artifactsLabel,
   buildSegments,
+  buildUncalm,
   condenseHint,
   fit,
   isMoving,
@@ -83,6 +84,7 @@ function isSegment(s: unknown): s is StatuslineSegment {
     typeof seg.priority === 'number' &&
     Array.isArray(seg.parts) &&
     seg.parts.every(isPart) &&
+    (seg.calm === undefined || typeof seg.calm === 'boolean') &&
     (seg.short === undefined || (Array.isArray(seg.short) && seg.short.every(isPart)))
   )
 }
@@ -150,6 +152,13 @@ async function segmentsFor($: Engine, isWorking: boolean, columns: number): Prom
   return buildSegments({ ...world, isWorking }, given, { now, isWorking, columns, limits: options.limits })
 }
 
+/** What the desktop app's line draws: other mods' segments that are not calm. */
+async function desktopSegments($: Engine, isWorking: boolean, columns: number): Promise<Segment[]> {
+  const now = await $.clock.now()
+  const given = Object.values(await read($, SEGMENTS))
+  return buildUncalm(given, { now, isWorking, columns, limits: options.limits })
+}
+
 /** Where no line is drawn (the phone, the IDE), the same line as the session's status text. */
 async function mirror($: Engine) {
   const surfaces = await $.session.surfaces().catch(() => [] as string[])
@@ -195,6 +204,9 @@ export const register: Register = (on, rawOptions) => {
       },
     }
   })
+
+  // Off: nothing drawn. `$.statusline` stays above, answering that nothing is shown, so the mods that write on it do not fail.
+  if (rawOptions.enabled === false) return
 
   on('statusline.set', async ($, e) => {
     if (!isSegment(e)) return { value: { isShown: false } }
@@ -298,8 +310,11 @@ export const register: Register = (on, rawOptions) => {
     return next(e)
   }).catch(($, e, next) => next(e))
 
+  /** Where the line goes: the desktop app draws no hint row (tried 13 Oct), so there it takes the band above the prompt. */
+  const inBand = (surface: string) => options.placement === 'band' || (options.placement !== 'off' && surface === 'desktop')
+
   on('ui.render', { component: 'PromptHint' }, async ($, e, next) => {
-    if (options.placement !== 'line' && options.placement !== 'tail') return next(e)
+    if ((options.placement !== 'line' && options.placement !== 'tail') || inBand(e.surface)) return next(e)
 
     const columns = e.viewport?.columns ?? 100
     const segments = await segmentsFor($, e.props.isWorking, columns)
@@ -356,9 +371,17 @@ export const register: Register = (on, rawOptions) => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
 
-    const artifacts = (await read($, ARTIFACTS_OPEN)) ? await read($, ARTIFACTS) : []
-    const segments = options.placement === 'band' ? fit(await segmentsFor($, e.props.isWorking, e.props.bodyColumns), e.props.bodyColumns) : []
-    if (artifacts.length === 0 && segments.length === 0) return next(e)
+    const published = await read($, ARTIFACTS)
+    const isOpen = await read($, ARTIFACTS_OPEN)
+    // The desktop app shows the essentials itself: there only other mods' segments that are not calm, no pill.
+    const isDesktop = e.surface === 'desktop' && options.placement !== 'off'
+    const artifacts = isOpen && !isDesktop ? published : []
+    const isBand = inBand(e.surface)
+    // Where the band carries the line, the published pages' pill comes with it: there is no hint row to hold it.
+    const pill = isBand && !isDesktop && published.length > 0 ? `${artifactsLabel(published.length)} ${isOpen ? '▾' : '▸'}` : ''
+    const room = e.props.bodyColumns - (pill ? width(pill) + 2 : 0)
+    const segments = isDesktop ? fit(await desktopSegments($, e.props.isWorking, room), room) : isBand ? fit(await segmentsFor($, e.props.isWorking, room), room) : []
+    if (artifacts.length === 0 && segments.length === 0 && !pill) return next(e)
 
     const now = await $.clock.now()
     const { Box, Text, Button, Link } = $.ui.resolve(e)
@@ -384,16 +407,19 @@ export const register: Register = (on, rawOptions) => {
             ))}
           </Box>
         ) : null}
-        {segments.length > 0 ? (
-          <Box key="segments" flexDirection="row" justifyContent="flex-end">
-            {segments.flatMap((s, i) => [
-              ...(i > 0 ? [<Text color={COLORS.faint}>{SEPARATOR}</Text>] : []),
-              ...s.parts.map(p => (
-                <Text color={COLORS[p.tone]} bold={p.tone === 'glint'}>
-                  {p.text}
-                </Text>
-              )),
-            ])}
+        {segments.length > 0 || pill ? (
+          <Box key="segments" flexDirection="row" justifyContent={pill ? 'space-between' : 'flex-end'}>
+            {pill ? <Button key="artifacts" plain dimColor label={pill} onPress={() => void update($, ARTIFACTS_OPEN, v => !v)} /> : null}
+            <Box flexDirection="row">
+              {segments.flatMap((s, i) => [
+                ...(i > 0 ? [<Text color={COLORS.faint}>{SEPARATOR}</Text>] : []),
+                ...s.parts.map(p => (
+                  <Text color={COLORS[p.tone]} bold={p.tone === 'glint'}>
+                    {p.text}
+                  </Text>
+                )),
+              ])}
+            </Box>
           </Box>
         ) : null}
         {below ?? null}

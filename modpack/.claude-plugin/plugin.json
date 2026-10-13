@@ -1,6 +1,6 @@
 {
   "name": "modpack",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The claude-mods modpack: statusline, smart-compact, delegate, lsp-plus, cells and eta, installed together and built to work together.",
   "author": {
     "name": "HarzerHeribert"
@@ -12,5 +12,18 @@
     "lsp-plus",
     "cells",
     "eta"
-  ]
+  ],
+  "userConfig": {
+    "updates": {
+      "type": "string",
+      "title": "Updates",
+      "description": "auto: once a day, check GitHub for a new claude-modpack release and install it in the background; it loads the next time Claude Code starts. notify: only say a new release is out. off: never check (no network request).",
+      "options": [
+        "auto",
+        "notify",
+        "off"
+      ],
+      "default": "auto"
+    }
+  }
 }

@@ -409,6 +409,7 @@ async function onMainResponse($: Engine, startedAt: number, index: number, usage
 }
 
 export const register: Register = (on, rawOptions) => {
+  if (rawOptions.enabled === false) return
   options = readOptions(rawOptions)
   learned = DEFAULT_LEARNED
   evidence = undefined

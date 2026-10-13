@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="384" viewBox="0 0 880 384" role="img">
+<title>Hand-off cards</title>
+<desc>Two rounded cards for one hand-off: while the worker runs (orange border, scanner, watch) and when done (grey border, 9 requests, $0.14, check passed, view).</desc>
+<rect x="0.5" y="0.5" width="879" height="383" rx="12" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12">
+<text x="51.2" y="38" fill="#D97757" textLength="777.6" lengthAdjust="spacing" xml:space="preserve">╭──────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="51.2" y="54" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="80.0" y="54" fill="#898781" textLength="720.0" lengthAdjust="spacing" xml:space="preserve">Add a new parameter type `click.Duration` that parses 90s, 5m, 1h30m and returns seconds as a float.</text>
+<text x="821.6" y="54" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="70" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="80.0" y="70" fill="#898781" textLength="468.0" lengthAdjust="spacing" xml:space="preserve">It goes in src/click/types.py with a test in tests/test_types.py.</text>
+<text x="821.6" y="70" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="86" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="86" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="86" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">read</text>
+<text x="123.2" y="86" fill="#0b0b0b" textLength="100.8" lengthAdjust="spacing" xml:space="preserve">click/types.py</text>
+<text x="778.4" y="86" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.8 s</text>
+<text x="821.6" y="86" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="102" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="102" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="102" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">grep</text>
+<text x="123.2" y="102" fill="#0b0b0b" textLength="122.4" lengthAdjust="spacing" xml:space="preserve">class .*ParamType</text>
+<text x="778.4" y="102" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.3 s</text>
+<text x="821.6" y="102" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="118" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="118" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="118" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">edit</text>
+<text x="123.2" y="118" fill="#0b0b0b" textLength="100.8" lengthAdjust="spacing" xml:space="preserve">click/types.py</text>
+<text x="778.4" y="118" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.1 s</text>
+<text x="821.6" y="118" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="134" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="134" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="134" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">edit</text>
+<text x="123.2" y="134" fill="#0b0b0b" textLength="136.8" lengthAdjust="spacing" xml:space="preserve">tests/test_types.py</text>
+<text x="778.4" y="134" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.1 s</text>
+<text x="821.6" y="134" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="150" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="150" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">◐</text>
+<text x="80.0" y="150" fill="#898781" textLength="21.6" lengthAdjust="spacing" xml:space="preserve">run</text>
+<text x="123.2" y="150" fill="#0b0b0b" textLength="208.8" lengthAdjust="spacing" xml:space="preserve">pytest -q tests/test_types.py</text>
+<text x="778.4" y="150" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">4.2 s</text>
+<text x="821.6" y="150" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="166" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="166" fill="#D97757" font-weight="700" textLength="50.4" lengthAdjust="spacing" xml:space="preserve">running</text>
+<text x="123.2" y="166" fill="#52514e" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">····</text>
+<text x="152.0" y="166" fill="#D97757" textLength="14.4" lengthAdjust="spacing" xml:space="preserve">━━</text>
+<text x="166.4" y="166" fill="#52514e" textLength="14.4" lengthAdjust="spacing" xml:space="preserve">··</text>
+<text x="188.0" y="166" fill="#898781" textLength="360.0" lengthAdjust="spacing" xml:space="preserve">· hand-off 1 · sonnet medium · 41s · 6 req · $0.05</text>
+<text x="555.2" y="166" fill="#898781" textLength="50.4" lengthAdjust="spacing" xml:space="preserve">watch ▸</text>
+<text x="821.6" y="166" fill="#D97757" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="182" fill="#D97757" textLength="777.6" lengthAdjust="spacing" xml:space="preserve">╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="51.2" y="214" fill="#898781" textLength="777.6" lengthAdjust="spacing" xml:space="preserve">╭──────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="51.2" y="230" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="80.0" y="230" fill="#898781" textLength="720.0" lengthAdjust="spacing" xml:space="preserve">Add a new parameter type `click.Duration` that parses 90s, 5m, 1h30m and returns seconds as a float.</text>
+<text x="821.6" y="230" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="246" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="80.0" y="246" fill="#898781" textLength="468.0" lengthAdjust="spacing" xml:space="preserve">It goes in src/click/types.py with a test in tests/test_types.py.</text>
+<text x="821.6" y="246" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="262" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="262" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="262" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">read</text>
+<text x="123.2" y="262" fill="#0b0b0b" textLength="100.8" lengthAdjust="spacing" xml:space="preserve">click/types.py</text>
+<text x="778.4" y="262" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.8 s</text>
+<text x="821.6" y="262" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="278" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="278" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="278" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">grep</text>
+<text x="123.2" y="278" fill="#0b0b0b" textLength="122.4" lengthAdjust="spacing" xml:space="preserve">class .*ParamType</text>
+<text x="778.4" y="278" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.3 s</text>
+<text x="821.6" y="278" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="294" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="294" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="294" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">edit</text>
+<text x="123.2" y="294" fill="#0b0b0b" textLength="100.8" lengthAdjust="spacing" xml:space="preserve">click/types.py</text>
+<text x="778.4" y="294" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.1 s</text>
+<text x="821.6" y="294" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="310" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="310" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="310" fill="#898781" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">edit</text>
+<text x="123.2" y="310" fill="#0b0b0b" textLength="136.8" lengthAdjust="spacing" xml:space="preserve">tests/test_types.py</text>
+<text x="778.4" y="310" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">0.1 s</text>
+<text x="821.6" y="310" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="326" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="326" fill="#2c7a39" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">✓</text>
+<text x="80.0" y="326" fill="#898781" textLength="21.6" lengthAdjust="spacing" xml:space="preserve">run</text>
+<text x="123.2" y="326" fill="#0b0b0b" textLength="208.8" lengthAdjust="spacing" xml:space="preserve">pytest -q tests/test_types.py</text>
+<text x="778.4" y="326" fill="#898781" textLength="36.0" lengthAdjust="spacing" xml:space="preserve">4.2 s</text>
+<text x="821.6" y="326" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="342" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="65.6" y="342" fill="#2c7a39" font-weight="700" textLength="28.8" lengthAdjust="spacing" xml:space="preserve">done</text>
+<text x="101.6" y="342" fill="#898781" textLength="619.2" lengthAdjust="spacing" xml:space="preserve">· hand-off 1 · sonnet medium · 1:14 · 9 req · $0.14 · +48 −2 in 2 files · check passed</text>
+<text x="728.0" y="342" fill="#898781" textLength="43.2" lengthAdjust="spacing" xml:space="preserve">view ▸</text>
+<text x="821.6" y="342" fill="#898781" textLength="7.2" lengthAdjust="spacing" xml:space="preserve">│</text>
+<text x="51.2" y="358" fill="#898781" textLength="777.6" lengthAdjust="spacing" xml:space="preserve">╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+</g>
+</svg>

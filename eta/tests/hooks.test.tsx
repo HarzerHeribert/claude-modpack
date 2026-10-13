@@ -131,3 +131,26 @@ test('a log a background command writes, tracked under its own name, stays one r
   expect(await after.find({ type: 'Text', text: /ablation/ })).toBe(undefined)
   await after.unmount()
 })
+
+test('a status_line job whose file stops growing is failed after 20 minutes of silence', async ($, on) => {
+  const h = host(on, ['terminal'])
+  await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'hand-off-1', file: '/tmp/t/h.status', status_line: true } as never)
+  await h.clock.advance(19 * 60_000)
+  let ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /failed/ })).toBe(undefined)
+  await ui.unmount()
+  await h.clock.advance(2 * 60_000)
+  ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /failed/ })).toBeDefined()
+  await ui.unmount()
+})
+
+test('a job without status_line is still running after 21 minutes of silence', async ($, on) => {
+  const h = host(on, ['terminal'])
+  await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'quiet', file: '/tmp/t/q.log' } as never)
+  await h.clock.advance(21 * 60_000)
+  const ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /failed/ })).toBe(undefined)
+  expect(await ui.find({ type: 'Text', text: /quiet/ })).toBeDefined()
+  await ui.unmount()
+})

@@ -1,124 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="880" height="845" viewBox="0 0 880 845" role="img" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
-<title>Handing work to a cheaper worker</title>
-<desc>Feature task: $0.79 alone vs $0.51 handed off (−35%) in a fresh session; $0.82 vs $0.52 (−37%) in a 233k-token session.</desc>
-<rect x="0.5" y="0.5" width="879" height="844" rx="12" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
-<text x="24.0" y="44.0" font-size="19" font-weight="600" fill="#0b0b0b" text-anchor="start">Handing work to a cheaper worker</text>
-<text x="24.0" y="67.0" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Cost per task: Opus doing it alone against Opus handing it to a Haiku or Sonnet worker with delegate.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="302" viewBox="0 0 880 302" role="img" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title>Big work handed to a worker</title>
+<desc>Add a feature: $0.59 alone vs $0.43 handed off (−27%); Raise test coverage: $0.59 alone vs $0.40 handed off (−33%), fresh session.</desc>
+<rect x="0.5" y="0.5" width="879" height="301" rx="12" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
+<text x="24.0" y="44.0" font-size="19" font-weight="600" fill="#0b0b0b" text-anchor="start">Big work handed to a worker</text>
+<text x="24.0" y="67.0" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Cost per task with the modpack: Opus alone against a hand-off ordered when the plan is approved.</text>
 <circle cx="29" cy="91" r="5" fill="#898781"/>
 <text x="40.0" y="95.5" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Opus alone</text>
 <circle cx="143.0" cy="91" r="5" fill="#2a78d6"/>
-<text x="154.0" y="95.5" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Handed off</text>
+<text x="154.0" y="95.5" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Handed to a worker</text>
 <text x="24.0" y="136.0" font-size="14" font-weight="600" fill="#0b0b0b" text-anchor="start">Fresh session</text>
 <text x="856.0" y="136.0" font-size="11" font-weight="400" fill="#898781" text-anchor="end">change</text>
-<line x1="200.0" y1="150" x2="200.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="200.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0</text>
-<line x1="335.0" y1="150" x2="335.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="335.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
-<line x1="470.0" y1="150" x2="470.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="470.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
-<line x1="605.0" y1="150" x2="605.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="605.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.75</text>
-<line x1="740.0" y1="150" x2="740.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="740.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$1</text>
-<line x1="24" y1="372.0" x2="856" y2="372.0" stroke="#c3c2b7" stroke-width="1"/>
+<line x1="200.0" y1="150" x2="200.0" y2="214" stroke="#e1e0d9" stroke-width="1"/>
+<text x="200.0" y="230.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0</text>
+<line x1="431.8" y1="150" x2="431.8" y2="214" stroke="#e1e0d9" stroke-width="1"/>
+<text x="431.8" y="230.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
+<line x1="663.6" y1="150" x2="663.6" y2="214" stroke="#e1e0d9" stroke-width="1"/>
+<text x="663.6" y="230.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
 <text x="24.0" y="169.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Add a feature</text>
-<line x1="627.7" y1="165.0" x2="475.9" y2="165.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="627.7" cy="165.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="475.9" cy="165.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="169.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−35%</text>
+<line x1="743.7" y1="165.0" x2="595.1" y2="165.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="743.7" cy="165.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="595.1" cy="165.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="169.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−27%</text>
 <text x="24.0" y="199.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Raise test coverage</text>
-<line x1="594.2" y1="195.0" x2="483.0" y2="195.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="594.2" cy="195.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="483.0" cy="195.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="199.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−28%</text>
-<text x="24.0" y="229.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Rename a function</text>
-<line x1="442.5" y1="225.0" x2="420.3" y2="225.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="442.5" cy="225.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="420.3" cy="225.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="229.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−9%</text>
-<text x="24.0" y="259.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Explain a code path</text>
-<line x1="427.9" y1="255.0" x2="426.3" y2="255.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="427.9" cy="255.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="426.3" cy="255.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="259.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−1%</text>
-<text x="24.0" y="289.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Trace every caller</text>
-<line x1="380.9" y1="285.0" x2="386.3" y2="285.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="380.9" cy="285.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="386.3" cy="285.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="289.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+3%</text>
-<text x="24.0" y="319.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Find matching types</text>
-<line x1="372.8" y1="315.0" x2="390.6" y2="315.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="372.8" cy="315.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="390.6" cy="315.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="319.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+10%</text>
-<text x="24.0" y="349.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Look up a name</text>
-<line x1="339.3" y1="345.0" x2="357.1" y2="345.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="339.3" cy="345.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="357.1" cy="345.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="349.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+13%</text>
-<text x="24.0" y="393.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="start">Average task</text>
-<line x1="455.0" y1="389.0" x2="419.9" y2="389.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="455.0" cy="389.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="419.9" cy="389.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="393.5" font-size="12.5" font-weight="600" fill="#0b0b0b" text-anchor="end" style="font-variant-numeric: tabular-nums">−14%</text>
-<text x="409.9" y="393.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">$0.41</text>
-<text x="465.0" y="393.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="start" style="font-variant-numeric: tabular-nums">$0.47</text>
-<text x="24.0" y="470.0" font-size="14" font-weight="600" fill="#0b0b0b" text-anchor="start">In a 233k-token session</text>
-<text x="856.0" y="470.0" font-size="11" font-weight="400" fill="#898781" text-anchor="end">change</text>
-<line x1="200.0" y1="484" x2="200.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="200.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0</text>
-<line x1="335.0" y1="484" x2="335.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="335.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
-<line x1="470.0" y1="484" x2="470.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="470.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
-<line x1="605.0" y1="484" x2="605.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="605.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.75</text>
-<line x1="740.0" y1="484" x2="740.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="740.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$1</text>
-<line x1="24" y1="706.0" x2="856" y2="706.0" stroke="#c3c2b7" stroke-width="1"/>
-<text x="24.0" y="503.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Add a feature</text>
-<line x1="644.0" y1="499.0" x2="480.7" y2="499.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="644.0" cy="499.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="480.7" cy="499.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="503.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−37%</text>
-<text x="24.0" y="533.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Raise test coverage</text>
-<line x1="595.1" y1="529.0" x2="486.8" y2="529.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="595.1" cy="529.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="486.8" cy="529.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="533.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−27%</text>
-<text x="24.0" y="563.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Rename a function</text>
-<line x1="342.3" y1="559.0" x2="402.9" y2="559.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="342.3" cy="559.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="402.9" cy="559.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="563.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+43%</text>
-<text x="24.0" y="593.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Explain a code path</text>
-<line x1="257.1" y1="589.0" x2="314.7" y2="589.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="257.1" cy="589.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="314.7" cy="589.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="593.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+101%</text>
-<text x="24.0" y="623.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Trace every caller</text>
-<line x1="274.2" y1="619.0" x2="295.5" y2="619.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="274.2" cy="619.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="295.5" cy="619.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="623.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+29%</text>
-<text x="24.0" y="653.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Find matching types</text>
-<line x1="233.8" y1="649.0" x2="321.3" y2="649.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="233.8" cy="649.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="321.3" cy="649.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="653.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+259%</text>
-<text x="24.0" y="683.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Look up a name</text>
-<line x1="231.8" y1="679.0" x2="279.0" y2="679.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="231.8" cy="679.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="279.0" cy="679.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="683.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+149%</text>
-<text x="24.0" y="727.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="start">Average task</text>
-<line x1="368.3" y1="723.0" x2="368.7" y2="723.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="368.3" cy="723.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="368.7" cy="723.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="727.5" font-size="12.5" font-weight="600" fill="#0b0b0b" text-anchor="end" style="font-variant-numeric: tabular-nums">0%</text>
-<text x="358.3" y="727.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">$0.31</text>
-<text x="378.7" y="727.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="start" style="font-variant-numeric: tabular-nums">$0.31</text>
-<text x="24.0" y="786.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">Fresh: 92 graded runs of Claude Opus 5.5 on click, all correct (RESULTS.md); per task the best hand-off that waits in the tool call.</text>
-<text x="24.0" y="803.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">233k: 28 runs forked from a session that had read all of src/click with the pack loaded, told in the prompt to hand off</text>
-<text x="24.0" y="820.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">or not; all correct (SUITE.md). Opus never hands off unasked: ask for it on big, specified work.</text>
+<line x1="750.0" y1="195.0" x2="567.8" y2="195.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="750.0" cy="195.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="567.8" cy="195.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="199.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−33%</text>
+<text x="24.0" y="260.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">16 graded runs of Claude Opus 5.5 on click, 16 correct, fresh sessions: Opus alone with the pack,</text>
+<text x="24.0" y="277.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">or handing the work to a cheaper worker as soon as the plan is approved. Cost at list prices, the worker's included.</text>
 </svg>

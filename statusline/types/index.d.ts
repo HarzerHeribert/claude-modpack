@@ -18,6 +18,8 @@ export type StatuslinePart = StatuslineText | StatuslineCountdown | StatuslineSp
  * line's own are the context 1, the 5-hour window 2, the 7-day window 3, a spend
  * cap 4, the model 5. `short` is what it says before it is dropped. `side: 'end'`
  * (the default) sits at the right edge, where the eye lands; `'start'` before the model.
+ * `calm` marks a routine state: drawn where the line has room for everything, left out
+ * where the host shows the essentials itself (the desktop app).
  */
 export type StatuslineSegment = {
   id: string
@@ -25,6 +27,7 @@ export type StatuslineSegment = {
   parts: StatuslinePart[]
   short?: StatuslinePart[]
   side?: 'start' | 'end'
+  calm?: boolean
 }
 
 /** What other mods call: `$.statusline.set(segment)`, `$.statusline.remove({ id })`. */

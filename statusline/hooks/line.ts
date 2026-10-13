@@ -219,6 +219,11 @@ export function buildSegments(world: StatuslineWorld, given: readonly Statusline
   ].filter((s): s is Segment => s !== undefined)
 }
 
+/** Only what other mods gave and is not calm, in the order they read: what the desktop app's line draws. */
+export function buildUncalm(given: readonly StatuslineSegment[], m: Moment): Segment[] {
+  return buildSegments({ isWorking: m.isWorking, window: 0, limits: [] }, given.filter(s => s.calm !== true), m)
+}
+
 /** The artifacts pill's text. */
 export function artifactsLabel(n: number): string {
   return `${n} artifact${n === 1 ? '' : 's'}`

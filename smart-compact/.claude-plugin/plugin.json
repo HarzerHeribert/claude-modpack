@@ -1,12 +1,18 @@
 {
   "name": "smart-compact",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the status line whether the next prompt is ready or cold.",
   "author": {
     "name": "HarzerHeribert"
   },
   "types": "./types/index.d.ts",
   "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Turn this mod off or on; /mods does it for all of the pack.",
+      "default": true
+    },
     "strategy": {
       "type": "string",
       "title": "Strategy",

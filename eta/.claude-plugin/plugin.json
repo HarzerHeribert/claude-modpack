@@ -1,9 +1,17 @@
 {
   "name": "eta",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Shows long-running and background jobs with a percentage and an estimated finish time, read live from their output.",
   "author": {
     "name": "HarzerHeribert"
   },
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Turn this mod off or on; /mods does it for all of the pack.",
+      "default": true
+    }
+  }
 }

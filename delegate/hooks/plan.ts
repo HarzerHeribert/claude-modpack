@@ -2,6 +2,17 @@
 // what the work cost against doing it on the main model, and what goes back.
 
 export type Mode = 'explore' | 'edit'
+export type Kind = 'read' | 'mechanical' | 'build'
+export const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
+
+/** "sonnet:low" -> { model: 'sonnet', effort: 'low' }; "haiku" -> { model: 'haiku' }; an unknown effort word is dropped. */
+export function parseWorker(setting: string): { model: string; effort?: string } {
+  const [m, e] = setting.trim().split(':')
+  const model = (m ?? '').trim()
+  const effort = (e ?? '').trim().toLowerCase()
+  return EFFORTS.includes(effort) ? { model, effort } : { model }
+}
+
 export type Place = { path: string; line: number }
 
 /** One thing the task touches, resolved to a place the language server can be asked about. */
@@ -240,7 +251,9 @@ export type HandOff = {
   at: number
   session: string
   mode: Mode
+  kind?: Kind
   model: string
+  effort?: string
   reused: boolean
   focus: number
   reachRefs: number

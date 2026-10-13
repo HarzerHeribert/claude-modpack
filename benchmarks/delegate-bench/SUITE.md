@@ -178,6 +178,62 @@ The warm-up now asks about the smallest tracked file of each kind (click: an emp
 - The answer still speaks: 16 answers in the 10 trace and rename runs. The rename came to −19% [−32%, −4%] against plain; against the unfixed pack +10% [−4%, +27%], within the runs' spread.
 - What is left: the files lsp-plus asks about to answer a grep (the definition, the callers' outlines) are open too, so their diagnostics reach the conversation (21 attachments in the 28 runs: every lookup run's `core.py`, the trace's callers). Those are files Claude's grep had already matched. A mod cannot keep its own LSP calls out of Claude Code's diagnostics: that needs Claude Code.
 
+## Getting Opus to hand off (HF, MO, IC, PS)
+
+Opus never hands off unasked. Four ways around that, on the work where a hand-off pays (the feature and the coverage task) unless said otherwise; all graded runs correct.
+
+| Condition | Session | Hand-offs | Feature | Coverage |
+| --- | --- | --- | --- | --- |
+| The pack, Opus alone (ablation Z) | fresh | 0 of 8 | $0.586 | $0.593 |
+| **MO**: a test mod attaches the order "the person approved this plan; implement it through hand_off" to the first prompt | fresh | **8 of 8** | **$0.426 (−27%)** | **$0.397 (−33%)** |
+| **IC**: the tool offered as `implement_spec(spec, check)`, an ability with no word of delegation | fresh | 0 of 8 | $0.689 (+18%) | $0.661 (+11%) |
+| Opus alone (PL) | 219k | 0 of 4 | $0.758 | $0.654 |
+| **PS**: told the session's size and what each request re-reads (219k tokens, $0.04), information only | 219k | 0 of 4 | $0.663 | $0.718 |
+
+- **An order from a mod works like the person's.** That is what `afterPlan` sends when the person approves a plan. A headless run cannot approve one (no one is asked), so it was checked in a session: the person planned the feature task in plan mode (a 50-line plan) and approved it; Claude's next step was the hand-off, kind build, to Sonnet at medium effort; 20 of 20 hidden tests and the whole suite passed; the session cost $1.05 with its planning, $0.045 of it the worker. On by default for plans of 20 lines or more: a smaller plan (a rename) costs more handed off.
+- **The framing is not what Opus resists.** As a capability it went unused as well, and the unused tool cost 11–18% to carry.
+- **Knowing its own cost did not move it either**, nor make it anxious: no PS answer spoke of sessions, compaction or context, and the answers were as long as PL's.
+- **Read-only hand-offs off (HF, and HL in a new 219k session).** With delegate taking edit work only, Opus told to hand off a lookup turned it into an edit task (the worker writes the answer to a file, the check cats it): 8 hand-offs in 12 fresh runs, +13% to +33% against the pack alone, and stray files in the repository. Reverted: a mod cannot make an ordered hand-off of small work cheaper than not ordering it (`results-explore-off*.jsonl`).
+
+## Which worker for which kind of work (wk-…)
+
+Each run told to hand off, every worker setting of delegate at one model and effort, three runs per task (two for the read tasks), all 41 correct; the worker models checked in the transcripts. Change against Opus alone with the pack, fresh (ablation Z):
+
+| Kind | Task | Haiku low | Haiku | Sonnet low | Sonnet medium | Sonnet |
+| --- | --- | --- | --- | --- | --- | --- |
+| build | l1-feature | −34% | | −20% | −32% | −35% |
+| build | l2-coverage | −45% | | −39% | −42% | −35% |
+| mechanical | t2-rename | +37% | +55% | +52% | | |
+| read | t1-trace | +5% | | +6% | | |
+| read | t5-types | +1% | | +11% | | |
+
+- **The worker is a small part of a hand-off**: at most $0.08, against $0.28–0.43 for the main model's own four to five requests. The setup moves the total by a few points.
+- **Haiku at low effort was cheapest everywhere** on these tasks, and correct every time. Sonnet at medium was cheaper than Sonnet at low on both build tasks: a worker that thinks less left the main model more to check.
+- **Defaults:** read and mechanical work Haiku at low effort; build work Sonnet at medium, three points behind Haiku low here, because these tasks are too easy to show where Haiku fails on harder builds.
+- A rename this small (Opus alone 3.2 requests with lsp-plus's answer) and the read tasks cost more handed off with any worker: those kinds pay only on big work.
+
+## The pack as it ships in 0.3.0 (V, Z, VL, PL)
+
+14 Oct 2026. Plain Claude Code (V) against the pack (Z) on the seven tasks, fresh: four runs per task and condition, eight for the four small tasks. And in a long session, two runs per task each: one session read all of `src/click` plain (VL, 216k tokens, $1.80), another with the pack loaded from the start (PL, 220k, $1.83), and every run forks its own. The pack ran as committed at `5d8bfa4` (`/mods` and the `enabled` switch came after and change nothing while a mod is on); the claude.ai connectors were off, as since the ablation. Every run is counted, cold starts included. 116 runs, all correct; no hand-offs (a plan approved in plan mode starts one, and headless runs have no plan).
+
+| Task | V | Z | VL | PL |
+| --- | --- | --- | --- | --- |
+| t4-lookup | $0.16 · 3.0 | $0.17 · 2.6 | $0.05 · 1.0 | $0.05 · 1.0 |
+| t1-trace | $0.23 · 4.4 | $0.25 · 4.1 | $0.14 · 2.5 | $0.12 · 2.0 |
+| t5-types | $0.20 · 3.9 | $0.21 · 3.4 | $0.05 · 1.0 | $0.06 · 1.0 |
+| t3-explain | $0.32 · 4.6 | $0.33 · 4.8 | $0.10 · 1.0 | $0.10 · 1.0 |
+| t2-rename | $0.27 · 6.5 | $0.26 · 4.5 | $0.50 · 8.0 | $0.32 · 5.0 |
+| l2-coverage | $0.75 · 11.2 | $0.66 · 9.0 | $1.19 · 12.5 | $0.73 · 6.5 |
+| l1-feature | $0.73 · 14.8 | $0.64 · 10.0 | $0.93 · 12.0 | $0.80 · 8.0 |
+| **Average task** | **$0.38 · 6.9** | **$0.36 · 5.5** | **$0.42 · 5.4** | **$0.31 · 3.5** |
+
+Change of the average task's cost, the pack against plain, with 95% bootstrap intervals (runs resampled within each task):
+
+- **Long session: −26.2% [−31.3%, −20.9%]**, the multi-step tasks (feature, coverage, rename) −29.1% [−34.6%, −22.7%], the small ones −5.4% [−14.8%, +5.6%]; 3.5 requests per task instead of 5.4, 16% less time.
+- **Fresh: −5.3% [−9.8%, −0.5%]**, the multi-step tasks −10.9% [−17.2%, −3.9%] and 18% less time, **the small ones +5.5% [+1.2%, +10.2%]**.
+- **Where the small tasks' extra cost comes from.** Their output is the same (about 1,700 tokens a task) and their requests one fewer every four tasks; the difference is context: the first request carries 30.6k tokens with the pack against 26.7k without (its tools, their instructions and the chaining guidance), and a task writes 23.1k tokens to the cache instead of 21.9k, at the 1-hour price, and reads 104k instead of 97k. In a long session that share is small against the history, and the pack is even there.
+- **Moving the chaining guidance before the cache boundary did not help.** cells' guidance is the same text in every session, so a `shared` system-prompt section should be written once and read after; 32 more runs of the small tasks with it (results-030-shared, all correct) cost +1.0% [−5%, +8%] against the pack as it was, the first request writing no less. Reverted.
+
 ## Limits
 
 - Two runs per task and condition, one repository, tasks every condition solves fully: the per-task differences are within the runs' own spread; the request counts move the same way in six of seven tasks.
@@ -185,4 +241,4 @@ The warm-up now asks about the smallest tracked file of each kind (click: an emp
 - The long session is one prepared history about the same code the tasks touch; a long session about something else would read differently.
 - The first run of each condition writes that condition's prompt prefix to the cache; later runs read it. That is how a long session looks from its second turn on, and it is part of the counted costs.
 
-Files: `results-suite.jsonl` (V, P, R), `results-suite-long.jsonl` (VL, RL, PL, HL), `results-sonnet.jsonl` (W), `results-quiet.jsonl` (V and Q on the small tasks), `results-prompt.jsonl` (X), `results-fit.jsonl` (DF, DL), `results-answer.jsonl` (Y), `results-noconn.jsonl` (the quiet pack without connectors), `results-handoff-deferred.jsonl` (the hand-off runs whose instruction never arrived, kept for the record), `results-ablation.jsonl` (V, Z, Z-cells, Z-lsp; analysed by `ablation.py`), `results-warmfix.jsonl` (Zfix), one patch per edit run in `patches/`, the conditions and the long-session runner in `bench.py`.
+Files: `results-suite.jsonl` (V, P, R), `results-suite-long.jsonl` (VL, RL, PL, HL), `results-sonnet.jsonl` (W), `results-quiet.jsonl` (V and Q on the small tasks), `results-prompt.jsonl` (X), `results-fit.jsonl` (DF, DL), `results-answer.jsonl` (Y), `results-noconn.jsonl` (the quiet pack without connectors), `results-handoff-deferred.jsonl` (the hand-off runs whose instruction never arrived, kept for the record), `results-ablation.jsonl` (V, Z, Z-cells, Z-lsp; analysed by `ablation.py`), `results-warmfix.jsonl` (Zfix), `results-explore-off.jsonl` and `results-explore-off-fresh.jsonl` (HL, PL, HF with read-only hand-offs off), `results-delegation-ideas.jsonl` (MO, IC, PL, PS), `results-workers.jsonl` (wk-…), `results-030.jsonl` (V, Z, VL, PL as 0.3.0 ships), `results-030-shared.jsonl` (Z with cells' guidance as a shared section), one patch per edit run in `patches/`, the conditions and the long-session runner in `bench.py`.

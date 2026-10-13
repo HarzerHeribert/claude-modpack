@@ -1,0 +1,271 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..6c562ee
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,265 @@
++import errno
++import glob
++import io
++import os
++import re
++import sys
++import types
++import typing as t
++
++import pytest
++
++from click import utils
++from click.exceptions import FileError
++
++
++def _patch_stdout(monkeypatch):
++    # Patch inside the test body: pytest's output capture re-binds
++    # sys.stdout after fixture setup, discarding a patch made there.
++    stream = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")
++    monkeypatch.setattr(sys, "stdout", stream)
++    return stream
++
++
++def test_safecall_returns_result():
++    def add(a, b):
++        return a + b
++
++    wrapped = utils._safecall(add)
++    assert wrapped(1, b=2) == 3
++    assert wrapped.__name__ == "add"
++
++
++def test_safecall_swallows_exception():
++    def fail():
++        raise ValueError("boom")
++
++    assert utils._safecall(fail)() is None
++
++
++@pytest.mark.parametrize(
++    ("value", "expect"),
++    [
++        pytest.param(b"hello", "hello", id="valid bytes"),
++        pytest.param(b"\xff", "�", id="invalid bytes"),
++        pytest.param(42, "42", id="non-bytes"),
++    ],
++)
++def test_make_str(value, expect):
++    assert utils.make_str(value) == expect
++
++
++@pytest.mark.parametrize(
++    ("value", "max_length", "expect"),
++    [
++        pytest.param("12345 789 more", 9, "12345...", id="exact length, not last"),
++        pytest.param("abcdefghijkl more", 10, "...", id="first word too long"),
++        pytest.param("abcdefgh ij kl", 10, "...", id="shrinks to nothing"),
++    ],
++)
++def test_make_default_short_help_truncation(value, max_length, expect):
++    assert utils._make_default_short_help(value, max_length) == expect
++
++
++def test_lazyfile_dash_uses_standard_stream(monkeypatch):
++    fake_stdout = _patch_stdout(monkeypatch)
++    lf = utils._LazyFile("-", "w")
++    assert lf._f is fake_stdout
++    assert not lf.should_close
++    assert repr(lf) == repr(fake_stdout)
++    lf.close_intelligently()
++    assert not fake_stdout.closed
++
++
++def test_lazyfile_unopened_repr_and_lazy_open(tmp_path):
++    path = tmp_path / "out.txt"
++    lf = utils._LazyFile(path, "w")
++    assert repr(lf) == f"<unopened file '{utils.format_filename(path)}' w>"
++    assert not path.exists()
++
++    with lf:
++        lf.write("data")
++
++    assert path.read_text() == "data"
++
++
++def test_lazyfile_open_error(tmp_path):
++    lf = utils._LazyFile(tmp_path / "missing" / "out.txt", "w")
++
++    with pytest.raises(FileError):
++        lf.open()
++
++
++def test_keepopenfile_repr_and_iter(tmp_path):
++    path = tmp_path / "in.txt"
++    path.write_text("a\nb\n")
++
++    with open(path) as f:
++        kf = utils._KeepOpenFile(f)
++        assert repr(kf) == repr(f)
++
++        with kf as entered:
++            assert entered is kf
++            assert list(kf) == ["a\n", "b\n"]
++
++        assert not f.closed
++
++
++def test_open_file_lazy(tmp_path):
++    path = tmp_path / "lazy.txt"
++    f = utils.open_file(path, "w", lazy=True)
++    assert isinstance(f, utils._LazyFile)
++    assert not path.exists()
++
++    with f:
++        f.write("hello")
++
++    assert path.read_text() == "hello"
++
++
++def test_echo_bytes_without_binary_writer():
++    class TextOnlyEmptyStream:
++        """Rejects empty writes so it is not detected as a binary or text
++        writer, but still accepts the real payload.
++        """
++
++        def __init__(self):
++            self.data = []
++
++        def write(self, value):
++            if not value:
++                raise TypeError("empty write")
++
++            self.data.append(value)
++
++        def flush(self):
++            pass
++
++    stream = TextOnlyEmptyStream()
++    utils.echo(b"hi", file=t.cast("t.IO[t.Any]", stream))
++    assert stream.data == [b"hi\n"]
++
++
++def test_get_binary_stream(monkeypatch):
++    fake_stdout = _patch_stdout(monkeypatch)
++    assert utils._get_binary_stream("stdout") is fake_stdout.buffer
++
++
++def test_get_binary_stream_unknown():
++    with pytest.raises(TypeError, match="Unknown standard stream 'nope'"):
++        utils._get_binary_stream("nope")  # type: ignore[arg-type]
++
++
++def test_get_text_stream(monkeypatch):
++    fake_stdout = _patch_stdout(monkeypatch)
++    assert utils._get_text_stream("stdout") is fake_stdout
++
++
++def test_get_text_stream_unknown():
++    with pytest.raises(TypeError, match="Unknown standard stream 'nope'"):
++        utils._get_text_stream("nope")  # type: ignore[arg-type]
++
++
++@pytest.mark.parametrize(
++    ("roaming", "key"), [(True, "APPDATA"), (False, "LOCALAPPDATA")]
++)
++def test_get_app_dir_windows(monkeypatch, roaming, key):
++    monkeypatch.setattr(utils, "WIN", True)
++    monkeypatch.setenv(key, os.path.join("appdata", key))
++    expect = os.path.join("appdata", key, "Foo Bar")
++    assert utils.get_app_dir("Foo Bar", roaming=roaming) == expect
++
++
++def test_get_app_dir_windows_no_env(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", True)
++    monkeypatch.delenv("APPDATA", raising=False)
++    expect = os.path.join(os.path.expanduser("~"), "Foo Bar")
++    assert utils.get_app_dir("Foo Bar") == expect
++
++
++def test_get_app_dir_force_posix(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", False)
++    expect = os.path.expanduser("~/.foo-bar")
++    assert utils.get_app_dir("Foo Bar", force_posix=True) == expect
++
++
++def test_get_app_dir_darwin(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "darwin")
++    expect = os.path.join(
++        os.path.expanduser("~/Library/Application Support"), "Foo Bar"
++    )
++    assert utils.get_app_dir("Foo Bar") == expect
++
++
++def test_get_app_dir_xdg(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", os.path.join("xdg", "config"))
++    expect = os.path.join("xdg", "config", "foo-bar")
++    assert utils.get_app_dir("Foo Bar") == expect
++
++
++def test_get_app_dir_xdg_default(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
++    expect = os.path.join(os.path.expanduser("~/.config"), "foo-bar")
++    assert utils.get_app_dir("Foo Bar") == expect
++
++
++class _FlushStream:
++    def __init__(self, exc=None):
++        self.exc = exc
++        self.flushed = False
++        self.name = "stream"
++
++    def flush(self):
++        if self.exc is not None:
++            raise self.exc
++
++        self.flushed = True
++
++
++def _pacify(stream):
++    return utils._PacifyFlushWrapper(t.cast("t.IO[t.Any]", stream))
++
++
++def test_pacify_flush_wrapper_flush():
++    stream = _FlushStream()
++    wrapper = _pacify(stream)
++    wrapper.flush()
++    assert stream.flushed
++    assert wrapper.name == "stream"
++
++
++def test_pacify_flush_wrapper_ignores_epipe():
++    _pacify(_FlushStream(OSError(errno.EPIPE, "broken pipe"))).flush()
++
++
++def test_pacify_flush_wrapper_reraises_other_errors():
++    wrapper = _pacify(_FlushStream(OSError(errno.EIO, "io")))
++
++    with pytest.raises(OSError, match="io"):
++        wrapper.flush()
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    main = types.ModuleType("__main__")
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    monkeypatch.setattr(sys, "argv", [os.path.join("path", "to", "app.py")])
++    assert utils._detect_program_name() == "app.py"
++
++
++def test_expand_args_no_user_no_env(monkeypatch):
++    monkeypatch.setenv("CLICK_TEST_VAR", "value")
++    args = ["~/missing-$CLICK_TEST_VAR"]
++    assert utils._expand_args(args, user=False, env=False) == args
++
++
++def test_expand_args_invalid_glob(monkeypatch):
++    def raise_re_error(*args, **kwargs):
++        raise re.error("bad pattern")
++
++    monkeypatch.setattr(glob, "glob", raise_re_error)
++    assert utils._expand_args(["[bad"], user=False, env=False) == ["[bad"]

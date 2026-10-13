@@ -1,0 +1,187 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..59ee6ab
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,181 @@
++import errno
++import glob
++import io
++import os
++import re
++import sys
++
++import pytest
++
++import click.utils as cu
++from click.utils import _detect_program_name
++from click.utils import _expand_args
++from click.utils import _get_binary_stream
++from click.utils import _get_text_stream
++from click.utils import _KeepOpenFile
++from click.utils import _LazyFile
++from click.utils import _make_default_short_help
++from click.utils import _PacifyFlushWrapper
++from click.utils import _safecall
++from click.utils import get_app_dir
++from click.utils import make_str
++from click.utils import open_file
++
++
++def test_get_app_dir_force_posix(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    path = get_app_dir("Foo Bar", force_posix=True)
++    assert path == os.path.expanduser("~/.foo-bar")
++
++
++@pytest.mark.parametrize(
++    ("roaming", "key"), [(True, "APPDATA"), (False, "LOCALAPPDATA")]
++)
++def test_get_app_dir_windows(monkeypatch, roaming, key):
++    monkeypatch.setattr(cu, "WIN", True)
++    monkeypatch.setenv(key, "/some/dir")
++    assert get_app_dir("Foo", roaming=roaming) == os.path.join("/some/dir", "Foo")
++    monkeypatch.delenv(key)
++    assert get_app_dir("Foo", roaming=roaming) == os.path.join(
++        os.path.expanduser("~"), "Foo"
++    )
++
++
++def test_get_app_dir_darwin(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~/Library/Application Support"), "Foo Bar"
++    )
++
++
++def test_get_app_dir_linux(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg")
++    assert get_app_dir("Foo Bar") == os.path.join("/xdg", "foo-bar")
++    monkeypatch.delenv("XDG_CONFIG_HOME")
++    assert get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~/.config"), "foo-bar"
++    )
++
++
++def test_safecall():
++    def bad():
++        raise ValueError
++
++    assert _safecall(bad)() is None
++    assert _safecall(lambda x: x + 1)(1) == 2
++
++
++def test_make_str(monkeypatch):
++    assert make_str(b"abc") == "abc"
++    assert make_str(3) == "3"
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert make_str(b"a\xff") == "a�"
++
++
++def test_short_help_exact_length_not_sentence_end():
++    assert _make_default_short_help("abcde fgh", max_length=5) == "..."
++
++
++def test_short_help_remove_words_down_to_zero():
++    text = "aaaaaaaaaa bb cccccccccc"
++    assert _make_default_short_help(text, max_length=5) == "..."
++
++
++def test_short_help_remove_words():
++    assert _make_default_short_help("aa bbbbbbbbbbbb ccc", max_length=10) == "aa..."
++
++
++def test_lazyfile_dash(monkeypatch):
++    f = _LazyFile("-", "w")
++    assert f.should_close is False
++    assert f._f is sys.stdout or f._f is not None
++    assert repr(f) == repr(f._f)
++    f.close_intelligently()  # should_close False: nothing closed
++    assert not f._f.closed
++
++
++def test_lazyfile_repr(tmp_path):
++    p = tmp_path / "x.txt"
++    f = _LazyFile(p, "w")
++    assert repr(f) == f"<unopened file '{p}' w>"
++    f.open()
++    assert repr(f) == repr(f._f)
++    f.close()
++
++
++def test_keep_open_repr():
++    buf = io.StringIO()
++    assert repr(_KeepOpenFile(buf)) == repr(buf)
++
++
++def test_echo_bytes_without_binary_writer():
++    with pytest.raises(TypeError):
++        cu.echo(b"abc", file=io.StringIO())
++
++
++def test_get_streams():
++    with pytest.raises(TypeError):
++        _get_binary_stream("nope")  # type: ignore[arg-type]
++    with pytest.raises(TypeError):
++        _get_text_stream("nope")  # type: ignore[arg-type]
++    assert _get_binary_stream("stdout") is not None
++    assert _get_text_stream("stdout") is not None
++
++
++def test_open_file_lazy(tmp_path):
++    f = open_file(tmp_path / "y.txt", "w", lazy=True)
++    assert isinstance(f, _LazyFile)
++    f.close()
++
++
++def test_pacify_flush_wrapper():
++    class Stream:
++        def __init__(self, exc=None):
++            self.exc = exc
++            self.flushed = 0
++            self.attr = "value"
++
++        def flush(self):
++            if self.exc is not None:
++                raise self.exc
++            self.flushed += 1
++
++    s = Stream()
++    w = _PacifyFlushWrapper(s)
++    w.flush()
++    assert s.flushed == 1
++    assert w.attr == "value"
++
++    _PacifyFlushWrapper(Stream(OSError(errno.EPIPE, "pipe"))).flush()
++
++    with pytest.raises(OSError, match="nope"):
++        _PacifyFlushWrapper(Stream(OSError(errno.EIO, "nope"))).flush()
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    class Main:
++        __package__ = None
++
++    monkeypatch.setitem(sys.modules, "__main__", Main)
++    monkeypatch.setattr(sys, "argv", ["/x/y/prog.py"])
++    assert _detect_program_name() == "prog.py"
++    assert _detect_program_name(path="") == "prog.py"
++
++
++def test_expand_args_no_user_no_env(monkeypatch):
++    monkeypatch.setenv("CLICK_MORE_VAR", "val")
++    assert _expand_args(["~", "$CLICK_MORE_VAR"], user=False, env=False) == [
++        "~",
++        "$CLICK_MORE_VAR",
++    ]
++
++
++def test_expand_args_glob_error(monkeypatch):
++    def boom(*a, **k):
++        raise re.error("bad")
++
++    monkeypatch.setattr(glob, "glob", boom)
++    assert _expand_args(["[z-a]"]) == ["[z-a]"]

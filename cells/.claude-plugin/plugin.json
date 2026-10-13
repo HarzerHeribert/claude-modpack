@@ -1,12 +1,18 @@
 {
   "name": "cells",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Lets Claude make several edits and their check, or a language-server lookup or rename, in one step through the real tools; guidance on chaining; and a short note when a step cost a model request of its own for nothing.",
   "author": {
     "name": "HarzerHeribert"
   },
   "types": "./types/index.d.ts",
   "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Turn this mod off or on; /mods does it for all of the pack.",
+      "default": true
+    },
     "mode": {
       "type": "string",
       "title": "Mode",

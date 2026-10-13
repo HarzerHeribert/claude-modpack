@@ -293,6 +293,7 @@ lsp-plus found no working language server for ${languages.join(', ')} in this re
 }
 
 export const register: Register = (on, options) => {
+  if (options.enabled === false) return
   docs = options.docs !== false
   drift = options.drift !== false
   nudging = options.nudge === true // off unless asked for: never acted on in 45 benchmark notes

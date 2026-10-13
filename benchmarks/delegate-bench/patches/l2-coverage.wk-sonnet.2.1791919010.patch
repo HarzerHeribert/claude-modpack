@@ -1,0 +1,199 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..e3c9ed0
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,193 @@
++import errno
++import io
++import re
++import sys
++import types
++
++import pytest
++
++import click
++import click.utils
++
++
++def test_posixify():
++    assert click.utils._posixify("Foo  Bar") == "foo-bar"
++
++
++def test_safecall():
++    def boom():
++        raise ValueError("x")
++
++    assert click.utils._safecall(boom)() is None
++    assert click.utils._safecall(lambda: 3)() == 3
++
++
++def test_make_str():
++    assert click.utils.make_str(b"abc") == "abc"
++    assert click.utils.make_str(12) == "12"
++    assert click.utils.make_str(b"\xff") in ("�", "\xff")
++
++
++def test_make_str_decode_fallback(monkeypatch):
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert click.utils.make_str(b"a\xffb") == "a�b"
++
++
++def test_short_help_edges():
++    f = click.utils._make_default_short_help
++    # exactly max_length reached at a non-final word
++    assert f("aaaa bbbb cccc", 9) == "aaaa..."
++    # loop runs down to i == 0
++    assert f("aaaaaaaaaa bbbb", 5) == "..."
++    assert f("", 10) == ""
++    assert f("\b one two", 45) == "one two"
++
++
++def test_lazy_file_stdin_stdout(monkeypatch):
++    monkeypatch.setattr(sys, "stdin", io.TextIOWrapper(io.BytesIO(b"hi\n")))
++    lf = click.utils._LazyFile("-", "r")
++    assert lf._f is not None
++    assert repr(lf) == repr(lf._f)
++    assert not lf.should_close
++    lf.close_intelligently()
++    assert not lf._f.closed
++
++
++def test_lazy_file_repr_open_close(tmp_path):
++    p = tmp_path / "f.txt"
++    lf = click.utils._LazyFile(str(p), "w")
++    assert "unopened file" in repr(lf)
++    lf.close()
++    with lf as g:
++        assert g is lf
++        g.write("data")
++    assert lf._f.closed
++    assert p.read_text() == "data"
++    assert lf.open() is lf._f
++
++
++def test_lazy_file_iter_and_error(tmp_path):
++    p = tmp_path / "f.txt"
++    p.write_text("a\nb\n")
++    lf = click.utils._LazyFile(str(p))
++    assert list(lf) == ["a\n", "b\n"]
++    lf.close()
++    bad = click.utils._LazyFile(str(tmp_path / "nodir" / "x"), "w")
++    with pytest.raises(click.FileError):
++        bad.open()
++
++
++def test_lazy_file_no_close_when_not_owner():
++    lf = click.utils._LazyFile("-", "w")
++    lf.should_close = False
++    lf.close_intelligently()
++    assert not lf._f.closed
++
++
++def test_keep_open_file():
++    sio = io.StringIO("x\ny\n")
++    k = click.utils._KeepOpenFile(sio)
++    assert repr(k) == repr(sio)
++    with k as g:
++        assert g is k
++        assert list(g) == ["x\n", "y\n"]
++    assert not sio.closed
++    assert k.getvalue() == "x\ny\n"
++
++
++def test_echo_bytes_without_binary_writer():
++    class Sink:
++        def __init__(self):
++            self.data = []
++
++        def write(self, value):
++            if value == b"":
++                raise TypeError("not binary")
++            self.data.append(value)
++
++        def flush(self):
++            pass
++
++    sink = Sink()
++    click.echo(b"abc", file=sink, nl=False)
++    assert sink.data[-1] == b"abc"
++
++
++def test_unknown_streams():
++    with pytest.raises(TypeError):
++        click.utils._get_binary_stream("nope")  # type: ignore[arg-type]
++    with pytest.raises(TypeError):
++        click.utils._get_text_stream("nope")  # type: ignore[arg-type]
++    assert click.utils._get_binary_stream("stdout") is not None
++    assert click.utils._get_text_stream("stdout") is not None
++
++
++def test_open_file_lazy(tmp_path):
++    f = click.open_file(str(tmp_path / "x"), "w", lazy=True)
++    assert isinstance(f, click.utils._LazyFile)
++    f.close()
++
++
++def test_get_app_dir_variants(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", True)
++    monkeypatch.setenv("APPDATA", "/roam")
++    monkeypatch.setenv("LOCALAPPDATA", "/local")
++    assert click.utils.get_app_dir("Foo").endswith("roam/Foo")
++    assert click.utils.get_app_dir("Foo", roaming=False).endswith("local/Foo")
++    monkeypatch.delenv("APPDATA")
++    assert click.utils.get_app_dir("Foo").endswith("Foo")
++    monkeypatch.setattr(click.utils, "WIN", False)
++    assert click.utils.get_app_dir("Foo Bar", force_posix=True).endswith(".foo-bar")
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert click.utils.get_app_dir("Foo Bar").endswith(
++        "Library/Application Support/Foo Bar"
++    )
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg")
++    assert click.utils.get_app_dir("Foo Bar").replace("\\", "/") == "/xdg/foo-bar"
++
++
++def test_pacify_flush_wrapper():
++    class Wrapped:
++        def __init__(self, err):
++            self.err = err
++            self.attr = 5
++
++        def flush(self):
++            if self.err is not None:
++                raise OSError(self.err, "x")
++
++    w = click.utils._PacifyFlushWrapper(Wrapped(None))
++    w.flush()
++    assert w.attr == 5
++    click.utils._PacifyFlushWrapper(Wrapped(errno.EPIPE)).flush()
++    with pytest.raises(OSError):
++        click.utils._PacifyFlushWrapper(Wrapped(errno.EIO)).flush()
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    main = types.ModuleType("__main__")
++    main.__package__ = None
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    monkeypatch.setattr(sys, "argv", ["/a/b/prog.py"])
++    assert click.utils._detect_program_name() == "prog.py"
++    main.__package__ = "pkg"
++    monkeypatch.setattr(sys, "argv", ["/a/pkg/__main__.py"])
++    assert click.utils._detect_program_name() == "python -m pkg"
++
++
++def test_expand_args_flags(monkeypatch):
++    monkeypatch.setenv("FOO_X", "bar")
++    assert click.utils._expand_args(["$FOO_X"], user=False, env=False) == ["$FOO_X"]
++    assert click.utils._expand_args(["$FOO_X"], user=False) == ["bar"]
++    assert click.utils._expand_args(["~"], env=False) != ["~"]
++
++
++def test_expand_args_bad_glob(monkeypatch):
++    import glob
++
++    def bad(*a, **k):
++        raise re.error("bad")
++
++    monkeypatch.setattr(glob, "glob", bad)
++    assert click.utils._expand_args(["x*"]) == ["x*"]

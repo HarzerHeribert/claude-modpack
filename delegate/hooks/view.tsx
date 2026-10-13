@@ -17,7 +17,6 @@ export const FRAME_MS = 250
 const TURN = ['◐', '◓', '◑', '◒'] as const
 const SCAN = 8
 const VERB: Record<string, string> = { Bash: 'run', Read: 'read', Edit: 'edit', Write: 'write', LSP: 'lsp', Grep: 'grep', Glob: 'glob', SubagentHandback: 'report' }
-const RECENT = 3
 
 export function scanner(frame: number): { before: string; head: string; after: string } {
   const span = SCAN - 2
@@ -48,16 +47,19 @@ export function actionLabel(tool: string, input: Record<string, unknown>): strin
   return short(s('file_path') || s('path') || s('filePath'))
 }
 
-const verb = (tool: string) => VERB[tool] ?? tool.replace(/^mcp__\w+__/, '').toLowerCase()
+export const verb = (tool: string) => VERB[tool] ?? tool.replace(/^mcp__\w+__/, '').toLowerCase()
+
+/** The model, and the effort when one is set: "sonnet low". */
+export const workerName = (j: { model: string; effort?: string }) => (j.effort ? `${j.model} ${j.effort}` : j.model)
 
 /** The card's head: what state, which worker, how far. */
 export function headline(j: DelegateJob, now: number): string {
   const time = clock((j.endedAt ?? now) - j.startedAt)
   const req = `${j.requests} req`
   const cost = usd(j.usd)
-  if (j.state === 'running') return `hand-off ${j.n} · ${j.mode} · ${j.model}${j.reused ? ' (warm)' : ''} · ${time} · ${req} · ${cost}`
+  if (j.state === 'running') return `hand-off ${j.n} · ${j.mode} · ${workerName(j)}${j.reused ? ' (warm)' : ''} · ${time} · ${req} · ${cost}`
   const saved = j.aloneUsd !== undefined ? ` · on your model ≈ ${usd(j.aloneUsd)}` : ''
-  return `hand-off ${j.n} · ${j.mode} · ${j.model} · ${time} · ${req} · ${cost}${saved}`
+  return `hand-off ${j.n} · ${j.mode} · ${workerName(j)} · ${time} · ${req} · ${cost}${saved}`
 }
 
 /** The outcome line under a finished card: what changed and whether the check held. */
@@ -92,37 +94,86 @@ function actionRow({ Box, Text }: Elements, a: DelegateAction, now: number, fram
   )
 }
 
+const CODE_LINES = 6
+const SHOWN_ACTIONS = 6
+const TONE = { running: 'claude', background: 'claude', done: 'success', failed: 'warning' } as const
+
+/** Cells' time format: "0.0 s" under ten seconds, whole seconds after. */
+export function seconds(ms: number): string {
+  return ms < 10_000 ? `${(Math.max(0, ms) / 1000).toFixed(1)} s` : `${Math.round(ms / 1000)} s`
+}
+
+/** A hand-off drawn like a cell: the task dimmed, one row per worker action, a closing line that carries the state. */
 export function jobCard(el: Elements, j: DelegateJob, now: number, width: number, onOpen: () => void): RenderElement {
   const { Box, Text, Button } = el
   const frame = Math.floor(now / FRAME_MS)
-  const room = Math.max(30, width - 4)
+  const inner = Math.max(24, width - 6)
   const running = j.state === 'running'
-  const mark = running ? TURN[frame % TURN.length] : j.state === 'reported' ? '✓' : '✕'
-  const tone = running ? 'claude' : j.state === 'reported' ? (j.check && j.check.exit !== 0 ? 'warning' : 'success') : 'error'
+  const state = running ? (j.background ? 'background' : 'running') : j.state === 'reported' ? 'done' : 'failed'
   const sweep = scanner(frame)
-  const recent = j.actions.slice(-RECENT)
+  const program = j.task.replace(/\s+$/, '')
+  const lines = program === '' ? [] : program.split('\n')
+  const shown = lines.slice(0, CODE_LINES)
+  const hidden = Math.max(0, j.actions.length - SHOWN_ACTIONS)
+  const last = j.actions.slice(hidden)
   const line = outcome(j)
-  return (
-    <Box flexDirection="column">
-      <Box flexDirection="row" gap={1}>
-        <Text color={tone}>{mark}</Text>
-        <Text bold color={tone}>
-          {fit(headline(j, now), Math.max(20, room - (running ? 24 : 12)))}
-        </Text>
-        {running && (
-          <Text>
-            <Text dimColor>{sweep.before}</Text>
-            <Text color="claude">{sweep.head}</Text>
-            <Text dimColor>{sweep.after}</Text>
-          </Text>
-        )}
-        <Button key={`open-${j.toolUseId}`} plain dimColor label={running ? 'watch ▸' : 'view ▸'} onPress={onOpen} />
+  const summary = [
+    `hand-off ${j.n}`,
+    workerName(j),
+    clock((j.endedAt ?? now) - j.startedAt),
+    `${j.requests} req`,
+    usd(j.usd),
+  ].join(' · ')
+  const saved = j.aloneUsd !== undefined ? ` · ≈ ${usd(j.aloneUsd)} on your model` : ''
+
+  const rows = last.map((a, i) => {
+    const mark = a.state === 'running' ? TURN[frame % TURN.length] : a.state === 'ok' ? '✓' : '✕'
+    const markTone = a.state === 'running' ? 'claude' : a.state === 'ok' ? 'success' : 'error'
+    const ms = a.state === 'running' ? now - a.startedAt : (a.ms ?? 0)
+    return (
+      <Box key={`a${hidden + i}`} flexDirection="row" justifyContent="space-between">
+        <Box flexDirection="row" gap={1} flexShrink={1}>
+          <Text color={markTone}>{mark}</Text>
+          <Text color="subtle">{verb(a.tool).padEnd(5)}</Text>
+          <Text wrap="truncate-end">{fit(a.label, inner - 16)}</Text>
+        </Box>
+        <Text color="subtle">{seconds(ms)}</Text>
       </Box>
-      <Box flexDirection="column" paddingLeft={2}>
-        <Text dimColor>{fit(j.task, room - 2)}</Text>
-        {running && recent.length === 0 && <Text dimColor>starting…</Text>}
-        {running && recent.map((a, i) => actionRow(el, a, now, frame, room - 2, `a${i}`))}
-        {line !== undefined && <Text dimColor>{fit(line, room - 2)}</Text>}
+    )
+  })
+
+  return (
+    <Box flexDirection="column" borderStyle="round" borderColor={running ? 'claude' : 'subtle'} paddingX={1}>
+      {lines.length === 0 ? null : (
+        <Box flexDirection="column" paddingLeft={2}>
+          {shown.map((t, i) => (
+            <Text key={`t${i}`} color="subtle" wrap="truncate-end">
+              {t.length > inner ? `${t.slice(0, inner - 1)}…` : t || ' '}
+            </Text>
+          ))}
+          {lines.length > CODE_LINES ? <Text color="inactive">{`… ${lines.length - CODE_LINES} more lines`}</Text> : null}
+        </Box>
+      )}
+      {rows.length > 0 ? (
+        <Box flexDirection="column">
+          {hidden > 0 ? <Text color="inactive">{`… ${hidden} earlier steps`}</Text> : null}
+          {rows}
+        </Box>
+      ) : null}
+      <Box flexDirection="row" gap={1}>
+        <Text bold color={TONE[state]}>
+          {state}
+        </Text>
+        {running ? (
+          <Text>
+            <Text color="inactive">{sweep.before}</Text>
+            <Text color="claude">{sweep.head}</Text>
+            <Text color="inactive">{sweep.after}</Text>
+          </Text>
+        ) : null}
+        <Text color="subtle">{`· ${summary}${saved}${line !== undefined ? ` · ${line}` : ''}`}</Text>
+        {j.note ? <Text color="warning">{`· ${j.note}`}</Text> : null}
+        <Button key={`open-${j.toolUseId}`} plain dimColor label={running ? 'watch ▸' : 'view ▸'} onPress={onOpen} />
       </Box>
     </Box>
   )

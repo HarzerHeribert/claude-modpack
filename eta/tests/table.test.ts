@@ -96,3 +96,16 @@ describe('the finish', () => {
     expect(table([failed], NOW, TZ, 140, { seen: ['f'] })).toEqual([])
   })
 })
+
+describe('status line', () => {
+  const idle = { frac: undefined, samples: [] as [number, number][] }
+  test('a job tracked with status_line shows the last line of its file', () => {
+    const rows = table([job({ ...idle, statusLine: true, lastLine: '3 req · $0.02 · read hooks/view.tsx' })], NOW, TZ, 140, CLOSED)
+    expect(text(rows[0] as Row)).toContain('3 req · $0.02 · read hooks/view.tsx')
+    expect(text(rows[0] as Row)).not.toContain('no progress readable yet')
+  })
+  test('without status_line the row says what it did', () => {
+    const rows = table([job({ ...idle, lastLine: '3 req · $0.02 · read hooks/view.tsx' })], NOW, TZ, 140, CLOSED)
+    expect(text(rows[0] as Row)).toContain('no progress readable yet')
+  })
+})

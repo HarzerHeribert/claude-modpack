@@ -11,11 +11,17 @@ export type Job = {
   /** A progress line: groups (done)(total), or one group holding a percentage. */
   progressPattern?: string
   finishedPattern?: string
+  /** Show the file's last line beside the job, for jobs that write their state. */
+  statusLine?: boolean
+  /** The last non-empty line read from the file. */
+  lastLine?: string
   total?: number
   /** Claude's own guess at the whole job's duration, used until progress is measurable. */
   expectedMs?: number
   startedAt: number
   offset: number
+  /** When the file last grew (or the job began); a status-line job silent for too long is ended. */
+  grewAt?: number
   carry: string
   done: number
   frac?: number

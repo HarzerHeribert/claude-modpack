@@ -75,6 +75,8 @@ export type Info = {
   range?: string
   note?: string
   noteTone?: Tone
+  /** The note is the job's own last line: cut to the room there is. */
+  liveLine?: boolean
   /** When it will likely finish, for the order. */
   eta?: number
 }
@@ -118,11 +120,13 @@ export function info(job: Job, now: number, tz: number | null): Info {
       ...stalledNote,
     }
   }
+  const line = job.statusLine && e.frac === undefined && job.lastLine ? job.lastLine.trim() : undefined
   return {
     job, state: e.frac === undefined ? 'waiting' : 'running', frac: e.frac, pct, count,
     inn: `${duration(now - job.startedAt)} so far`,
-    note: e.frac === undefined ? 'no progress readable yet' : 'measuring',
-    noteTone: 'faint',
+    note: line ?? (e.frac === undefined ? 'no progress readable yet' : 'measuring'),
+    noteTone: line ? 'text' : 'faint',
+    liveLine: line !== undefined,
     ...stalledNote,
   }
 }
@@ -198,7 +202,7 @@ export function table(list: readonly Job[], now: number, tz: number | null, colu
     at: running.some(i => i.at) ? Math.max(6, max(i => i.at)) : 0,
     inn: running.some(i => i.inn) ? Math.max(10, max(i => i.inn)) : 0,
     range: running.some(i => i.range) ? 11 : 0,
-    note: max(i => i.note),
+    note: Math.max(0, ...running.map(i => Math.min(width(i.note ?? ''), i.liveLine ? 40 : Infinity))),
   }
   const longest = Math.max(0, ...[...running, ...shown].map(i => width(i.job.label)))
   const l = layout(longest, w, columns)
@@ -214,7 +218,10 @@ export function table(list: readonly Job[], now: number, tz: number | null, colu
     if (w.at) parts.push(part(GAP + right(i.at ?? '', w.at), 'text'))
     if (l.inn && w.inn) parts.push(part(GAP + right(i.inn ?? '', w.inn), i.innTone ?? 'label'))
     if (l.range && w.range) parts.push(part(GAP + cell(i.range ?? '', w.range), 'faint'))
-    if (l.note && w.note && i.note) parts.push(part(GAP + i.note, i.noteTone ?? 'faint'))
+    if (l.note && w.note && i.note) {
+      const room = Math.max(8, columns - rowWidth(l, { ...w, note: 0 }) - GAP.length)
+      parts.push(part(GAP + (i.liveLine ? cell(i.note, Math.min(room, width(i.note))).trimEnd() : i.note), i.noteTone ?? 'faint'))
+    }
     rows.push({ key: i.job.id, kind: 'job', parts: trimEnd(parts) })
   }
 

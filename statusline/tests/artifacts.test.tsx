@@ -35,7 +35,7 @@ const BAND = {
   viewport: { columns: 160, rows: 40 },
 }
 
-test('a published page becomes a pill that opens a list of links, on the terminal and the desktop app', async ($, on) => {
+test('a published page becomes a pill that opens a list of links: in the hint row in the terminal, not on the desktop', async ($, on) => {
   mock.clock(on, { now: NOW })
   mock.store(on)
   on('fs.read', () => ({ value: '<title>Cells Pilot Results</title>' }))
@@ -46,17 +46,19 @@ test('a published page becomes a pill that opens a list of links, on the termina
   })
   await $.tool.call({ tool: 'Artifact', file_path: '/w/report/cells-pilot.html' } as never)
 
-  for (const surface of ['terminal', 'desktop'] as const) {
-    const line = await $.ui.mount({ plugin: 'statusline', surface, ...HINT })
-    expect(await line.find({ key: 'artifacts' })).toBeDefined()
-    expect(await line.find({ type: 'Text', text: /⧉1/ })).toBe(undefined)
-    await line.press({ key: 'artifacts' })
-    await line.unmount()
+  const line = await $.ui.mount({ plugin: 'statusline', surface: 'terminal', ...HINT })
+  expect(await line.find({ key: 'artifacts' })).toBeDefined()
+  expect(await line.find({ type: 'Text', text: /⧉1/ })).toBe(undefined)
+  await line.press({ key: 'artifacts' })
+  await line.unmount()
+  const band = await $.ui.mount({ plugin: 'statusline', surface: 'terminal', ...BAND })
+  expect(await band.find({ type: 'Link', text: 'Cells Pilot Results' })).toBeDefined()
+  expect(await band.find({ type: 'Text', text: /v2 · just now/ })).toBeDefined()
+  await band.press({ key: 'close-artifacts' })
+  await band.unmount()
 
-    const band = await $.ui.mount({ plugin: 'statusline', surface, ...BAND })
-    expect(await band.find({ type: 'Link', text: 'Cells Pilot Results' })).toBeDefined()
-    expect(await band.find({ type: 'Text', text: /v2 · just now/ })).toBeDefined()
-    await band.press({ key: 'close-artifacts' })
-    await band.unmount()
-  }
+  // The desktop app shows what it can itself: no pill there.
+  const desk = await $.ui.mount({ plugin: 'statusline', surface: 'desktop', ...BAND })
+  expect(await desk.find({ key: 'artifacts' })).toBe(undefined)
+  await desk.unmount()
 })

@@ -3,7 +3,7 @@ import { describe, expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import type { StatuslineSegment, StatuslineWorld } from '../types'
-import { SEPARATOR, buildSegments, condenseHint, fit, modelLabel, plain, resolvePart, rowLead } from '../hooks/line'
+import { SEPARATOR, buildSegments, buildUncalm, condenseHint, fit, modelLabel, plain, resolvePart, rowLead } from '../hooks/line'
 import type { Moment } from '../hooks/line'
 
 const NOW = 1_000_000_000
@@ -37,6 +37,16 @@ const HINT = {
 }
 
 describe('the line', () => {
+  test('on the desktop only the segments that are not calm are drawn, and none of the line\'s own', () => {
+    const LOUD: StatuslineSegment = { id: 'x:loud', priority: 0, parts: [{ text: 'cold now', tone: 'warn' }] }
+    const calm = { ...READY, calm: true }
+    expect(buildUncalm([calm], AT)).toEqual([])
+    expect(plain(buildUncalm([calm, LOUD], AT))).toBe('cold now')
+    // The terminal's line draws everything, calm segments too.
+    expect(plain(buildSegments(WORLD, [calm, LOUD], AT), SEPARATOR)).toContain('Opus 5.5 xhigh')
+    expect(plain(buildSegments(WORLD, [calm, LOUD], AT), SEPARATOR)).toContain('● ready')
+  })
+
   test('the model and its effort, the context, the plan windows with their resets', () => {
     expect(plain(buildSegments(WORLD, [], AT), SEPARATOR)).toBe('Opus 5.5 xhigh   412k ━━━━━━──────   5h 34% ↺2h14   7d 12% ↺3d')
   })
@@ -131,18 +141,35 @@ function lineText(node: unknown): string {
   return Array.isArray(kids) ? kids.map(lineText).join('') : ''
 }
 
-test('a main-thread response draws the model and the gauge on every surface with a hint', async ($, on) => {
+test('a main-thread response draws the model and the gauge: in the hint row in the terminal', async ($, on) => {
   mock.clock(on, { now: NOW })
   mock.store(on)
   await respond($, on)
-  for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'statusline', surface, ...HINT, viewport: { columns: 160, rows: 40 } })
-    const line = lineText(await ui.drawn())
-    expect(line).toContain('Opus 5.5 xhigh')
-    expect(line).toContain('412k ')
-    expect(await ui.find({ type: 'Text', text: '⏵⏵ auto' })).toBeDefined()
-    await ui.unmount()
-  }
+  const ui = await $.ui.mount({ plugin: 'statusline', surface: 'terminal', ...HINT, viewport: { columns: 160, rows: 40 } })
+  const line = lineText(await ui.drawn())
+  expect(line).toContain('Opus 5.5 xhigh')
+  expect(line).toContain('412k ')
+  expect(await ui.find({ type: 'Text', text: '⏵⏵ auto' })).toBeDefined()
+  await ui.unmount()
+})
+
+test('the desktop app, which draws no hint row, gets the line in the band above the prompt', async ($, on) => {
+  mock.clock(on, { now: NOW })
+  mock.store(on)
+  on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+    const { Box } = $.ui.resolve(e)
+    return <Box key="engine" />
+  })
+  await respond($, on)
+  const band = { component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 150, scroll: { offset: 0, bodyRows: 9 }, view: {} }, viewport: { columns: 160, rows: 40 } } as const
+  // The desktop app shows model and context itself: with no other mod's segment, the band draws nothing.
+  const ui = await $.ui.mount({ plugin: 'statusline', surface: 'desktop', ...band } as never)
+  expect(lineText(await ui.drawn())).toBe('')
+  await ui.unmount()
+  // The terminal keeps its band free.
+  const term = await $.ui.mount({ plugin: 'statusline', surface: 'terminal', ...band } as never)
+  expect(lineText(await term.drawn()).includes('Opus 5.5')).toBe(false)
+  await term.unmount()
 })
 
 test('tail mode leaves the engine its own line', { options: { placement: 'tail' } }, async ($, on) => {

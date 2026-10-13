@@ -56,8 +56,10 @@ export function feed(job: Job, text: string, now: number): Job {
   let count = job.done
   let frac = job.frac
   let ended = false
+  let lastLine = job.lastLine
   // A bar redrawn with \r is still mid-line: read it too, without keeping it.
   for (const line of [...parts, carry]) {
+    if (line.trim() !== '') lastLine = line.trim()
     if (line !== carry && done?.test(line)) count++
     if (progress) {
       const m = line.match(progress)
@@ -78,7 +80,7 @@ export function feed(job: Job, text: string, now: number): Job {
   if (done && job.total) frac = Math.min(1, count / job.total)
   const moved = frac !== undefined && frac !== job.frac
   const samples = moved ? thin([...job.samples, [now, frac as number]]) : job.samples
-  let next: Job = { ...job, carry: carry.slice(-4000), done: count, frac, samples, lastProgressAt: moved ? now : job.lastProgressAt }
+  let next: Job = { ...job, carry: carry.slice(-4000), lastLine, done: count, frac, samples, lastProgressAt: moved ? now : job.lastProgressAt }
   if (ended || (frac !== undefined && frac >= 1)) next = { ...next, status: 'completed', endedAt: now }
   return next
 }

@@ -26,6 +26,8 @@ const TOOL = 'track_progress'
 const POLL_MS = 4000
 /** A failure the person has not seen stays this long at most. */
 const KEEP_FAILED_MS = 10 * 60_000
+/** A job that writes its state and whose file has not grown this long has stopped. */
+const STALE_MS = 20 * 60_000
 const CHUNK = 512 * 1024
 const CHUNKS_PER_TICK = 32
 const REMOTE = new Set(['mobile', 'vscode'])
@@ -82,8 +84,11 @@ async function poll($: EngineInterface, job: Job, now: number): Promise<Job> {
     const want = Math.min(CHUNK, st.size - j.offset)
     const r = await $.process.run(['/bin/sh', '-c', 'tail -c +"$1" "$2" | head -c "$3"', 'sh', String(j.offset + 1), job.file, String(want)])
     if (r.exitCode !== 0) break
-    j = { ...feed(j, r.stdout, now), offset: j.offset + want }
+    j = { ...feed(j, r.stdout, now), offset: j.offset + want, grewAt: now }
     if (j.status !== 'running') break
+  }
+  if (j.status === 'running' && j.statusLine && now - (j.grewAt ?? j.startedAt) >= STALE_MS) {
+    j = { ...j, status: 'failed', lastLine: 'no update for 20 min', endedAt: now }
   }
   return j
 }
@@ -164,6 +169,7 @@ type TrackInput = {
   expected_minutes?: unknown
   started_minutes_ago?: unknown
   stop?: unknown
+  status_line?: unknown
 }
 
 const str = (v: unknown) => (typeof v === 'string' && v.trim() !== '' ? v : undefined)
@@ -210,10 +216,13 @@ async function track($: EngineInterface, i: TrackInput): Promise<string> {
     donePattern: str(i.done_pattern) ?? existing?.donePattern,
     progressPattern: str(i.progress_pattern) ?? existing?.progressPattern,
     finishedPattern: str(i.finished_pattern) ?? existing?.finishedPattern,
+    statusLine: typeof i.status_line === 'boolean' ? i.status_line : existing?.statusLine,
+    lastLine: existing?.lastLine,
     total: num(i.total) ?? existing?.total,
     expectedMs: num(i.expected_minutes) ? (i.expected_minutes as number) * 60_000 : existing?.expectedMs,
     startedAt,
     offset: 0,
+    grewAt: now,
     carry: '',
     done: 0,
     samples: fromStart ? [[startedAt, 0]] : [],
@@ -228,7 +237,12 @@ async function track($: EngineInterface, i: TrackInput): Promise<string> {
   return `Showing "${job.label}" to the person${as}: ${read_}. It updates by itself from ${file}.`
 }
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  if (options.enabled === false) {
+    // Off: a tool registered earlier may outlive the reload, so only its call is answered.
+    on('tool.call', { tool: 'mcp__eta__track_progress' }, () => ({ result: 'eta is turned off (/mods turns it on).' }))
+    return
+  }
   on('session.start', async ($, e, next) => {
     await $.tool.register({
       name: TOOL,
@@ -246,6 +260,7 @@ export const register: Register = on => {
           finished_pattern: { type: 'string', description: 'Regular expression for a line that means the job finished.' },
           expected_minutes: { type: 'number', description: 'Your estimate of the whole job’s duration, shown until progress is measurable.' },
           started_minutes_ago: { type: 'number', description: 'For a job already running: how long ago it started.' },
+          status_line: { type: 'boolean', description: "Show the file's last line beside the job: for jobs that write their state rather than countable progress." },
           stop: { type: 'boolean', description: 'Stop showing this job.' },
         },
         required: ['task'],

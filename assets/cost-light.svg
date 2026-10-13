@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="845" viewBox="0 0 880 845" role="img" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
-<title>The same work, for less</title>
-<desc>Average task: fresh session $0.49 plain vs $0.45 with the pack; long session $0.36 vs $0.31 (−14%).</desc>
+<title>What a task costs</title>
+<desc>Average task: fresh session $0.38 plain vs $0.36 with the pack; long session $0.42 vs $0.31 (−26%).</desc>
 <rect x="0.5" y="0.5" width="879" height="844" rx="12" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
-<text x="24.0" y="44.0" font-size="19" font-weight="600" fill="#0b0b0b" text-anchor="start">The same work, for less</text>
+<text x="24.0" y="44.0" font-size="19" font-weight="600" fill="#0b0b0b" text-anchor="start">What a task costs</text>
 <text x="24.0" y="67.0" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Cost per task at list prices: plain Claude Code against Claude Code with the modpack.</text>
 <circle cx="29" cy="91" r="5" fill="#898781"/>
 <text x="40.0" y="95.5" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Plain Claude Code</text>
@@ -12,113 +12,113 @@
 <text x="856.0" y="136.0" font-size="11" font-weight="400" fill="#898781" text-anchor="end">change</text>
 <line x1="200.0" y1="150" x2="200.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
 <text x="200.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0</text>
-<line x1="335.0" y1="150" x2="335.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="335.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
-<line x1="470.0" y1="150" x2="470.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="470.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
-<line x1="605.0" y1="150" x2="605.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="605.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.75</text>
-<line x1="740.0" y1="150" x2="740.0" y2="406" stroke="#e1e0d9" stroke-width="1"/>
-<text x="740.0" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$1</text>
+<line x1="329.1" y1="150" x2="329.1" y2="406" stroke="#e1e0d9" stroke-width="1"/>
+<text x="329.1" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
+<line x1="458.3" y1="150" x2="458.3" y2="406" stroke="#e1e0d9" stroke-width="1"/>
+<text x="458.3" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
+<line x1="587.4" y1="150" x2="587.4" y2="406" stroke="#e1e0d9" stroke-width="1"/>
+<text x="587.4" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.75</text>
+<line x1="716.5" y1="150" x2="716.5" y2="406" stroke="#e1e0d9" stroke-width="1"/>
+<text x="716.5" y="422.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$1</text>
 <line x1="24" y1="372.0" x2="856" y2="372.0" stroke="#c3c2b7" stroke-width="1"/>
 <text x="24.0" y="169.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Add a feature</text>
-<line x1="661.3" y1="165.0" x2="632.9" y2="165.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="661.3" cy="165.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="632.9" cy="165.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="169.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−6%</text>
+<line x1="577.4" y1="165.0" x2="528.7" y2="165.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="577.4" cy="165.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="528.7" cy="165.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="169.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−13%</text>
 <text x="24.0" y="199.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Raise test coverage</text>
-<line x1="654.6" y1="195.0" x2="558.4" y2="195.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="654.6" cy="195.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="558.4" cy="195.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="199.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−21%</text>
+<line x1="585.4" y1="195.0" x2="540.9" y2="195.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="585.4" cy="195.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="540.9" cy="195.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="199.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−12%</text>
 <text x="24.0" y="229.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Rename a function</text>
-<line x1="405.9" y1="225.0" x2="389.5" y2="225.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="405.9" cy="225.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="389.5" cy="225.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="229.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−8%</text>
+<line x1="341.4" y1="225.0" x2="336.4" y2="225.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="341.4" cy="225.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="336.4" cy="225.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="229.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−4%</text>
 <text x="24.0" y="259.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Explain a code path</text>
-<line x1="425.2" y1="255.0" x2="425.5" y2="255.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="425.2" cy="255.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="425.5" cy="255.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="259.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">0%</text>
+<line x1="365.6" y1="255.0" x2="372.1" y2="255.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="365.6" cy="255.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="372.1" cy="255.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="259.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+4%</text>
 <text x="24.0" y="289.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Trace every caller</text>
-<line x1="384.7" y1="285.0" x2="378.2" y2="285.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="384.7" cy="285.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="378.2" cy="285.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="289.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−4%</text>
+<line x1="316.6" y1="285.0" x2="327.1" y2="285.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="316.6" cy="285.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="327.1" cy="285.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="289.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+9%</text>
 <text x="24.0" y="319.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Find matching types</text>
-<line x1="367.4" y1="315.0" x2="366.2" y2="315.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="367.4" cy="315.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="366.2" cy="315.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="319.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−1%</text>
+<line x1="304.9" y1="315.0" x2="310.5" y2="315.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="304.9" cy="315.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="310.5" cy="315.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="319.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+5%</text>
 <text x="24.0" y="349.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Look up a name</text>
-<line x1="340.5" y1="345.0" x2="343.9" y2="345.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="340.5" cy="345.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="343.9" cy="345.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="349.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+2%</text>
+<line x1="285.0" y1="345.0" x2="288.2" y2="345.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="285.0" cy="345.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="288.2" cy="345.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="349.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+4%</text>
 <text x="24.0" y="393.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="start">Average task</text>
-<line x1="462.8" y1="389.0" x2="442.1" y2="389.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="462.8" cy="389.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="442.1" cy="389.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="393.5" font-size="12.5" font-weight="600" fill="#0b0b0b" text-anchor="end" style="font-variant-numeric: tabular-nums">−8%</text>
-<text x="432.1" y="393.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">$0.45</text>
-<text x="472.8" y="393.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="start" style="font-variant-numeric: tabular-nums">$0.49</text>
-<text x="24.0" y="470.0" font-size="14" font-weight="600" fill="#0b0b0b" text-anchor="start">In a 230k-token session</text>
+<line x1="396.6" y1="389.0" x2="386.3" y2="389.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="396.6" cy="389.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="386.3" cy="389.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="393.5" font-size="12.5" font-weight="600" fill="#0b0b0b" text-anchor="end" style="font-variant-numeric: tabular-nums">−5%</text>
+<text x="376.3" y="393.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">$0.36</text>
+<text x="406.6" y="393.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="start" style="font-variant-numeric: tabular-nums">$0.38</text>
+<text x="24.0" y="470.0" font-size="14" font-weight="600" fill="#0b0b0b" text-anchor="start">In a 216k-token session</text>
 <text x="856.0" y="470.0" font-size="11" font-weight="400" fill="#898781" text-anchor="end">change</text>
 <line x1="200.0" y1="484" x2="200.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
 <text x="200.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0</text>
-<line x1="335.0" y1="484" x2="335.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="335.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
-<line x1="470.0" y1="484" x2="470.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="470.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
-<line x1="605.0" y1="484" x2="605.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="605.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.75</text>
-<line x1="740.0" y1="484" x2="740.0" y2="740" stroke="#e1e0d9" stroke-width="1"/>
-<text x="740.0" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$1</text>
+<line x1="329.1" y1="484" x2="329.1" y2="740" stroke="#e1e0d9" stroke-width="1"/>
+<text x="329.1" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
+<line x1="458.3" y1="484" x2="458.3" y2="740" stroke="#e1e0d9" stroke-width="1"/>
+<text x="458.3" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
+<line x1="587.4" y1="484" x2="587.4" y2="740" stroke="#e1e0d9" stroke-width="1"/>
+<text x="587.4" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.75</text>
+<line x1="716.5" y1="484" x2="716.5" y2="740" stroke="#e1e0d9" stroke-width="1"/>
+<text x="716.5" y="756.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$1</text>
 <line x1="24" y1="706.0" x2="856" y2="706.0" stroke="#c3c2b7" stroke-width="1"/>
 <text x="24.0" y="503.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Add a feature</text>
-<line x1="728.6" y1="499.0" x2="644.0" y2="499.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="728.6" cy="499.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="644.0" cy="499.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="503.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−16%</text>
+<line x1="681.0" y1="499.0" x2="615.2" y2="499.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="681.0" cy="499.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="615.2" cy="499.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="503.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−14%</text>
 <text x="24.0" y="533.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Raise test coverage</text>
-<line x1="620.2" y1="529.0" x2="595.1" y2="529.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="620.2" cy="529.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="595.1" cy="529.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="533.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−6%</text>
+<line x1="814.8" y1="529.0" x2="578.9" y2="529.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="814.8" cy="529.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="578.9" cy="529.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="533.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−38%</text>
 <text x="24.0" y="563.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Rename a function</text>
-<line x1="416.7" y1="559.0" x2="342.3" y2="559.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="416.7" cy="559.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="342.3" cy="559.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="563.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−34%</text>
+<line x1="456.8" y1="559.0" x2="365.5" y2="559.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="456.8" cy="559.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="365.5" cy="559.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="563.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−36%</text>
 <text x="24.0" y="593.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Explain a code path</text>
-<line x1="258.5" y1="589.0" x2="257.1" y2="589.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="258.5" cy="589.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="257.1" cy="589.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="593.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−2%</text>
+<line x1="253.5" y1="589.0" x2="254.1" y2="589.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="253.5" cy="589.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="254.1" cy="589.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="593.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+1%</text>
 <text x="24.0" y="623.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Trace every caller</text>
-<line x1="272.9" y1="619.0" x2="274.2" y2="619.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="272.9" cy="619.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="274.2" cy="619.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="623.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+2%</text>
+<line x1="274.9" y1="619.0" x2="263.0" y2="619.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="274.9" cy="619.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="263.0" cy="619.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="623.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−16%</text>
 <text x="24.0" y="653.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Find matching types</text>
-<line x1="247.7" y1="649.0" x2="233.8" y2="649.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="247.7" cy="649.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="233.8" cy="649.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="653.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−29%</text>
+<line x1="227.6" y1="649.0" x2="228.8" y2="649.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="227.6" cy="649.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="228.8" cy="649.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="653.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">+5%</text>
 <text x="24.0" y="683.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Look up a name</text>
-<line x1="232.3" y1="679.0" x2="231.8" y2="679.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="232.3" cy="679.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="231.8" cy="679.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="683.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−2%</text>
+<line x1="228.0" y1="679.0" x2="228.2" y2="679.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="228.0" cy="679.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="228.2" cy="679.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="683.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">0%</text>
 <text x="24.0" y="727.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="start">Average task</text>
-<line x1="396.7" y1="723.0" x2="368.3" y2="723.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
-<circle cx="396.7" cy="723.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
-<circle cx="368.3" cy="723.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
-<text x="856.0" y="727.5" font-size="12.5" font-weight="600" fill="#0b0b0b" text-anchor="end" style="font-variant-numeric: tabular-nums">−14%</text>
-<text x="358.3" y="727.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">$0.31</text>
-<text x="406.7" y="727.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="start" style="font-variant-numeric: tabular-nums">$0.36</text>
-<text x="24.0" y="786.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">88 graded runs of Claude Opus 5.5 on click, 88 correct; two to six per task and setup. Left out: 3 fresh runs that</text>
-<text x="24.0" y="803.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">began with a cold cache and paid once, about $0.10, to cache the pack's tool definitions. Long session: every run forks one</text>
-<text x="24.0" y="820.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">that had read all of src/click, plain (227k tokens) or with the pack loaded from the start (233k). Data: benchmarks/delegate-bench.</text>
+<line x1="419.5" y1="723.0" x2="362.0" y2="723.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="419.5" cy="723.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="362.0" cy="723.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="727.5" font-size="12.5" font-weight="600" fill="#0b0b0b" text-anchor="end" style="font-variant-numeric: tabular-nums">−26%</text>
+<text x="352.0" y="727.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">$0.31</text>
+<text x="429.5" y="727.0" font-size="11.5" font-weight="400" fill="#52514e" text-anchor="start" style="font-variant-numeric: tabular-nums">$0.42</text>
+<text x="24.0" y="786.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">116 graded runs of Claude Opus 5.5 on click, 116 correct: 88 fresh runs and 28 in the long session. Data: pilot/delegate-bench, results-030.</text>
+<text x="24.0" y="803.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">Long session: each run forks one that had read all of src/click, 216k tokens plain, a little more with the pack loaded.</text>
+<text x="24.0" y="820.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">Cost at list prices; the pack's runs include its workers.</text>
 </svg>

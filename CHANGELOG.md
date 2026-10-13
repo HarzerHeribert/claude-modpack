@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 (2026-10-14)
+
+Workers that start from an approved plan, mods you can see and switch, a pack that updates itself.
+
+- **modpack 0.3.0, cells 0.4.1, delegate 0.2.0, eta 0.2.0, statusline 0.2.0, smart-compact 0.1.1, lsp-plus 0.3.1**.
+- **modpack 0.3.0**: `/mods` shows the pack's mods and turns each on or off live; every mod has an `enabled` setting.
+- **delegate 0.2.0**: when the desktop app's auto mode refuses a worker, delegate says why. A background worker's report arrives when the worker ends its turn, also in the desktop app, which sends no notice for it. A hand-off orphaned by a reload or restart now ends.
+- **statusline 0.2.0**: in the desktop app it shows only the cache's state, and only when it needs the person.
+- **cells 0.4.1**: a cell after a reload no longer fails when the first setup stopped halfway; it sets up again.
+- **delegate**: Claude names the kind of work (`read`, `mechanical`, `build`) and the kind picks the worker, measured per kind: Haiku at low effort for read and mechanical work, Sonnet at medium for build work (`readWorker`, `mechanicalWorker`, `buildWorker`). When you approve a plan of 20 lines or more, Claude is told to implement it through a hand-off (`afterPlan`, on): an order from the mod was followed 8 of 8 times, 27–33% cheaper on feature and test work, and a real plan-mode session handed its 50-line feature plan to a Sonnet worker, correct on all 20 hidden tests. The card is drawn like a cell, and with eta loaded each running worker is a row above the prompt.
+- **statusline**: in the desktop app, which draws no hint row, the line and the published-pages pill sit in the band above the prompt.
+- **modpack**: keeps itself current: once a day it checks GitHub's latest release and installs a new one in the background, loaded at the next start (`updates: notify` or `off`); `/modpack:update` updates now.
+- **eta**: `track_progress` takes `status_line`: a job that writes its state rather than countable progress shows its last line.
+
 ## 0.2.0 (2026-10-13)
 
 cells leaves macOS, a mod that cannot run fully says so and offers the fix, and the savings are traced to the mod that earns them.

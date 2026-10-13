@@ -29,6 +29,15 @@ const say = (c: SmartCompactCache, at = AT) => {
 }
 
 describe('the segment smart-compact puts on the line', () => {
+  test('calm when ready far from expiry; not in the last five minutes or while compacting', () => {
+    expect(readySegment(WARM, AT)?.calm).toBe(true)
+    const late = readySegment({ ...WARM, warmAt: NOW - TTL_1H + 4 * 60_000 }, AT)
+    expect(late?.calm).toBeUndefined()
+    expect(readySegment({ ...WARM, phase: 'acting', plan: 'compact' }, AT)?.calm).toBeUndefined()
+    expect(readySegment({ ...WARM, phase: 'cold' }, AT)?.calm).toBeUndefined()
+    expect(readySegment({ ...WARM, isPaused: true }, AT)?.calm).toBeUndefined()
+  })
+
   test('ready at the right edge, the most important segment', () => {
     const s = readySegment(WARM, AT)
     expect(s?.id).toBe(READY_ID)

@@ -93,14 +93,19 @@ async function setup($: Engine) {
     isolation = { sandbox: undefined, why: 'no node on the PATH Claude Code runs with', fix: 'install Node 25 or later' }
     return
   }
-  nodePath = probe.nodePath
-  platform = probe.platform
-  dir = `${probe.tmpdir.replace(/[\\/]$/, '')}/claude-cells/${await $.session.id()}`
-  await $.process.run([nodePath, '-e', 'require("fs").mkdirSync(process.argv[1], { recursive: true })', dir])
+  // Everything is worked out first and kept at the end: a setup that fails halfway (seen after a reload) leaves
+  // nothing half set, and the next cell runs it again.
+  const folder = `${probe.tmpdir.replace(/[\\/]$/, '')}/claude-cells/${await $.session.id()}`
+  await $.process.run([probe.nodePath, '-e', 'require("fs").mkdirSync(process.argv[1], { recursive: true })', folder])
   const linked = `${$.plugin.root}/runner`
   const stat = await $.fs.stat(linked, { resolve: true }).catch(() => undefined)
-  runnerDir = stat?.realPath ?? linked
-  isolation = choose(probe, probe.platform === 'linux' ? await tryBwrap($, runnerDir) : { works: false })
+  const runner = stat?.realPath ?? linked
+  nodePath = probe.nodePath
+  platform = probe.platform
+  dir = folder
+  const chosen = choose(probe, probe.platform === 'linux' ? await tryBwrap($, runner) : { works: false })
+  runnerDir = runner
+  isolation = chosen
 }
 
 /** Whether bubblewrap starts node in the sandbox the runner would get: installed is not enough where user namespaces are off. */
@@ -309,7 +314,8 @@ async function answer(
 
 /** Runs one cell in the sandboxed runner and returns what the model reads. */
 async function runCell($: Engine, code: string, useId: string | undefined, job?: Job): Promise<string> {
-  if (!dir) await setup($)
+  // A setup that stopped halfway set no sandbox: run it again.
+  if (!dir || isolation === undefined) await setup($)
   const cwd = await $.session.cwd()
   const startedAt = await $.clock.now()
   const id = `${++made}-${startedAt}`
@@ -438,7 +444,8 @@ async function markLive($: Engine, useId: string | undefined, flags: { backgroun
 
 /** Runs a cell for its tool call: waits for its report, or lets it run on in the background. */
 async function runFor($: Engine, signal: AbortSignal, code: string, useId: string | undefined, background: boolean): Promise<string> {
-  if (!dir) await setup($)
+  // A setup that stopped halfway set no sandbox: run it again.
+  if (!dir || isolation === undefined) await setup($)
   const job = startCell($, code, useId, background)
   if (background) {
     await markLive($, useId, { background: true })
@@ -457,6 +464,11 @@ async function runFor($: Engine, signal: AbortSignal, code: string, useId: strin
 }
 
 export const register: Register = (on, options) => {
+  if (options.enabled === false) {
+    // Off: a tool registered earlier may outlive the reload, so only its call is answered.
+    on('tool.call', { tool: 'mcp__cells__run_cell' }, () => ({ result: 'cells is turned off (/mods turns it on).' }))
+    return
+  }
   readOptions(options)
   dir = ''
   runnerDir = ''

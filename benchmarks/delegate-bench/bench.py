@@ -28,6 +28,18 @@ Arms (lsp-plus is loaded in all three, from CLAUDE_CODE_PLUGIN_DIRS):
   Z  the pack as shipped in 0.1.1, all six mods with their defaults (lsp-plus answering symbol greps)
   Z-cells, Z-lsp  Z without cells, Z without lsp-plus: which mod earns the pack's savings (the ablation;
      run with BENCH_RESULTS=results-ablation.jsonl and BENCH_PACK_ROOT on a worktree of the commit, beside V)
+  HF  as Z, told in the prompt to do the task through hand_off (H's instruction, fresh): with delegate taking
+     edit work only, does a person's ask for a read-only hand-off still cost more than Z?
+  MO  as Z, with a test mod (BENCH_EXTRA_DIRS) attaching the order a plan-approval hand-off would send to the
+     first prompt: does Opus follow an order that comes from a mod, not from the person?
+  IC  as Z, with delegate's framing "capability": the tool is implement_spec(spec, check), described as an
+     ability, not as handing work to a cheaper worker. Unasked: does Opus use it?
+  wk-<model>[-<effort>]  as Z, told in the prompt to do the task through hand_off, with every delegate worker
+     setting (readWorker, mechanicalWorker, buildWorker) at that model and effort (none: Claude Code's
+     default): which worker setup is cheapest for each kind of work at the same quality?
+  PS  as PL (the long session prepared with the pack), with a test mod (BENCH_EXTRA_DIRS) telling Claude the
+     session's size and what each of its requests re-reads (BENCH_SESSION_TOKENS): information, no advice.
+     Unasked: does knowing its own cost make Opus hand off?
 
 Each run: a fresh copy of click, `claude -p` on Opus with the person's own
 settings, the task graded by a fixed rule, and its cost priced from the
@@ -69,6 +81,12 @@ PACK = ":".join(str(PACK_ROOT / m) for m in ("smart-compact", "lsp-plus", "deleg
 # The ablation: the pack as shipped, and the same pack without one mod.
 SHIPPED = ("statusline", "smart-compact", "lsp-plus", "delegate", "cells", "eta")
 ABLATION = {"Z": SHIPPED, "Z-cells": tuple(m for m in SHIPPED if m != "cells"), "Z-lsp": tuple(m for m in SHIPPED if m != "lsp-plus")}
+
+# The worker setups the bench compares: arm name → delegate's worker setting.
+WORKER_ARMS = {
+    "wk-sonnet-low": "sonnet:low", "wk-sonnet-medium": "sonnet:medium", "wk-sonnet": "sonnet",
+    "wk-haiku-low": "haiku:low", "wk-haiku": "haiku",
+}
 
 # A routing rule for the pack: Opus never handed off unasked (0 of 24 runs), so the pack says when to.
 # The person's own words, at the end of their prompt: permission to delegate, not an order.
@@ -287,7 +305,7 @@ def account(session_id: str, since: float = 0) -> dict:
         "main_models": sorted({r["model"] for r in main}),
         "worker_requests": len(workers),
         "worker_usd": sum(cost_of(r) for r in workers),
-        "hand_offs": sum(1 for t in tools if t and t.endswith("hand_off")),
+        "hand_offs": sum(1 for t in tools if t and (t.endswith("hand_off") or t.endswith("implement_spec"))),
         "agents": sum(1 for t in tools if t == "Agent"),
         "lsp_calls": sum(1 for t in tools if t == "LSP"),
         "main_tools": len(tools),
@@ -310,14 +328,27 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     repo = WORK / "runs" / run_id
     shutil.copytree(BASE, repo, symlinks=True)
     prompt = TASKS[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
+    if arm == "HF" or arm in WORKER_ARMS:
+        prompt = f"{FORCE}\n\n{prompt}"
     cmd = ["claude", "-p", prompt, "--model", "sonnet" if arm == "W" else "opus", "--permission-mode", "auto", "--output-format", "json"]
     if arm in ("V", "P", "R", "W", "Q", "DF", "Y"):
         # The suite's conditions load exactly what they name: nothing (V), or the pack (P, R).
         # Asks for the claude.ai connectors to stay on, as in every run before the person turned them off on 13 Oct
         # (378 deferred tools); the person's own setting wins, so runs from then on (DF, DL, Y, results-noconn) have 15.
         cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}, "disableClaudeAiConnectors": False})]
-    if arm in ABLATION:
-        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": ":".join(str(PACK_ROOT / m) for m in ABLATION[arm])}})]
+    if arm in ABLATION or arm in ("HF", "MO", "IC") or arm in WORKER_ARMS:
+        dirs = [str(PACK_ROOT / m) for m in ABLATION.get(arm, SHIPPED)]
+        if arm == "MO":
+            dirs += [d for d in os.environ.get("BENCH_EXTRA_DIRS", "").split(":") if d]
+        settings = {"env": {"CLAUDE_CODE_PLUGIN_DIRS": ":".join(dirs)}}
+        if arm == "IC":
+            framing = {"options": {"framing": "capability"}}
+            settings["pluginConfigs"] = {"delegate": framing, "delegate@inline": framing}
+        if arm in WORKER_ARMS:
+            worker = WORKER_ARMS[arm]
+            options = {"options": {"readWorker": worker, "mechanicalWorker": worker, "buildWorker": worker}}
+            settings["pluginConfigs"] = {"delegate": options, "delegate@inline": options}
+        cmd += ["--settings", json.dumps(settings)]
     if arm == "R":
         cmd += ["--append-system-prompt", ROUTING]
     if arm == "X":
@@ -374,14 +405,18 @@ LONG_SESSION_PACK = LONG / "session-pack.txt"
 
 
 def session_file(arm: str) -> Path:
-    return LONG_SESSION_PACK if arm in ("PL", "HL", "DL") else LONG_SESSION
+    return LONG_SESSION_PACK if arm in ("PL", "HL", "DL", "PS") else LONG_SESSION
 PREP_PROMPT = "Read every .py file under src/click in full with the Read tool, the largest first, several files per response. Then reply with the single word: ready."
 
 
 def conditions(arm: str) -> list[str]:
     """The flags that make a suite condition: what loads, and the routing rule."""
     base = arm[0]
-    cmd = ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if base == "V" else PACK}, "disableClaudeAiConnectors": False})]
+    env = {"CLAUDE_CODE_PLUGIN_DIRS": "" if base == "V" else PACK}
+    if arm == "PS":
+        env["CLAUDE_CODE_PLUGIN_DIRS"] += "".join(f":{d}" for d in os.environ.get("BENCH_EXTRA_DIRS", "").split(":") if d)
+        env["BENCH_SESSION_TOKENS"] = os.environ.get("BENCH_SESSION_TOKENS", "")
+    cmd = ["--settings", json.dumps({"env": env, "disableClaudeAiConnectors": False})]
     # A resumed session takes no appended system prompt (checked 13 Oct: the instruction never reached the model),
     # so RL ran without its rule, and H puts its instruction in the prompt, as the person would ask (run_long).
     if base == "R":

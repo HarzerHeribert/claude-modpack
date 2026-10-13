@@ -1,17 +1,35 @@
 {
   "name": "delegate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back.",
   "author": {
     "name": "HarzerHeribert"
   },
   "types": "./types/index.d.ts",
   "userConfig": {
-    "model": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Turn this mod off or on; /mods does it for all of the pack.",
+      "default": true
+    },
+    "readWorker": {
       "type": "string",
-      "title": "Worker model",
-      "description": "The model hand_off's worker runs on: an alias (haiku, sonnet) or a full model id.",
-      "default": "haiku"
+      "title": "Worker for read work",
+      "description": "Model and effort for hand-offs that change no file (find, list, trace, explain), e.g. haiku or haiku:low.",
+      "default": "haiku:low"
+    },
+    "mechanicalWorker": {
+      "type": "string",
+      "title": "Worker for mechanical edits",
+      "description": "Model and effort for edits the task spells out completely (a rename, one change applied everywhere, moving code), e.g. haiku:low.",
+      "default": "haiku:low"
+    },
+    "buildWorker": {
+      "type": "string",
+      "title": "Worker for build work",
+      "description": "Model and effort for edits with something left to work out (a feature from a spec, tests to a target), e.g. sonnet:medium.",
+      "default": "sonnet:medium"
     },
     "wait": {
       "type": "string",
@@ -21,6 +39,26 @@
       "options": [
         "tool",
         "message"
+      ]
+    },
+    "framing": {
+      "type": "string",
+      "title": "How the tool is offered",
+      "description": "hand_off: a tool that outsources a task to a cheaper worker. capability: the same work offered as implement_spec(spec, check), a tool that implements a precisely specified change and proves it, without the word delegation.",
+      "default": "hand_off",
+      "options": [
+        "hand_off",
+        "capability"
+      ]
+    },
+    "afterPlan": {
+      "type": "string",
+      "title": "After a plan is approved",
+      "description": "hand_off: when you approve a plan of 20 lines or more, Claude is told to implement it through a hand-off, the plan as the worker's spec (measured: followed 8 of 8 times; feature and test work cost 27-33% less). off: Claude implements it itself.",
+      "default": "hand_off",
+      "options": [
+        "hand_off",
+        "off"
       ]
     },
     "review": {

@@ -1,0 +1,49 @@
+{
+  "name": "lsp-plus",
+  "version": "0.1.0",
+  "description": "Extends Claude Code's LSP: references and definitions name the docs that use a symbol, an edit that removes a name the docs still use says so, /refs finds stale code names and broken links in the docs, a grep for a code symbol gets a note naming the exact LSP call, and Markdown and SQL get language servers.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "lspServers": {
+    "markdown": {
+      "command": "marksman",
+      "args": [
+        "server"
+      ],
+      "extensionToLanguage": {
+        ".md": "markdown",
+        ".markdown": "markdown"
+      }
+    },
+    "sql": {
+      "command": "postgres-language-server",
+      "args": [
+        "lsp-proxy"
+      ],
+      "extensionToLanguage": {
+        ".sql": "sql"
+      }
+    }
+  },
+  "userConfig": {
+    "docs": {
+      "type": "boolean",
+      "title": "Docs in references",
+      "description": "Add the doc lines that mention a symbol (as code) to LSP findReferences, goToDefinition and incomingCalls results.",
+      "default": true
+    },
+    "drift": {
+      "type": "boolean",
+      "title": "Warn about drifting docs",
+      "description": "After an Edit or Write removes a name from the code that the docs still mention, tell Claude where.",
+      "default": true
+    },
+    "nudge": {
+      "type": "boolean",
+      "title": "Nudge greps toward LSP",
+      "description": "When a grep searches for a code symbol in files a language server covers, the search runs as asked and Claude is told the exact LSP call that answers it, and that grep stays needed for strings and docs.",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Laid by Claude Code each time it loads a mod; regenerated, never edited.
+**/.claude-plugin/types/
+node_modules/
+.DS_Store
+__pycache__/

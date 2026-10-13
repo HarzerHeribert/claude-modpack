@@ -1,0 +1,16 @@
+{
+  "name": "modpack",
+  "version": "0.1.0",
+  "description": "The claude-mods modpack: statusline, smart-compact, delegate, lsp-plus, cells and eta, installed together and built to work together.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "dependencies": [
+    "statusline",
+    "smart-compact",
+    "delegate",
+    "lsp-plus",
+    "cells",
+    "eta"
+  ]
+}

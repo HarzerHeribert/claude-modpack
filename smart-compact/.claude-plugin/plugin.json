@@ -1,0 +1,67 @@
+{
+  "name": "smart-compact",
+  "version": "0.1.0",
+  "description": "Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the status line whether the next prompt is ready or cold.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "strategy": {
+      "type": "string",
+      "title": "Strategy",
+      "description": "smart: keep the cache warm while that is cheaper, then compact before it expires. compact: compact at the first expiry. keepalive: never compact. off: status line only.",
+      "default": "smart",
+      "options": [
+        "smart",
+        "compact",
+        "keepalive",
+        "off"
+      ]
+    },
+    "cacheTtl": {
+      "type": "string",
+      "title": "Cache TTL",
+      "description": "auto: learn it (1h on a subscription, 5m in overage or on an API key).",
+      "default": "auto",
+      "options": [
+        "auto",
+        "1h",
+        "5m"
+      ]
+    },
+    "minSavingsUsd": {
+      "type": "number",
+      "title": "Minimum re-cache cost to act on (USD)",
+      "description": "Below this, a lapsing cache is left to lapse.",
+      "default": 0.25
+    },
+    "compactPenaltyUsd": {
+      "type": "number",
+      "title": "Price of lost detail (USD)",
+      "description": "What avoiding a compaction is worth to you; higher keeps the cache warm longer before compacting.",
+      "default": 0.5
+    },
+    "minCompactTokens": {
+      "type": "number",
+      "title": "Minimum context to compact (tokens)",
+      "description": "Never compact a smaller context.",
+      "default": 100000
+    },
+    "maxIdleHours": {
+      "type": "number",
+      "title": "Keep warm for at most (hours)",
+      "description": "After this long idle, stop keep-alives: compact if it pays, else let the cache lapse.",
+      "default": 6
+    },
+    "compactInstructions": {
+      "type": "string",
+      "title": "Compaction instructions",
+      "description": "Passed to an idle compaction as /compact's argument; empty uses Claude Code's own.",
+      "default": ""
+    }
+  },
+  "dependencies": [
+    "statusline"
+  ]
+}

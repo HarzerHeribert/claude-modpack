@@ -1,0 +1,259 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..860c2ab
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,253 @@
++import errno
++import io
++import os
++import re
++import sys
++import types
++
++import pytest
++
++import click
++
++
++def _text_stream(data=b""):
++    return io.TextIOWrapper(io.BytesIO(data), encoding="utf-8", errors="strict")
++
++
++def test_safecall_returns_value():
++    def add(a, b):
++        """Add two numbers."""
++        return a + b
++
++    wrapped = click.utils._safecall(add)
++    assert wrapped(1, b=2) == 3
++    assert wrapped.__name__ == "add"
++    assert wrapped.__doc__ == "Add two numbers."
++
++
++def test_safecall_swallows_exception():
++    def fail():
++        raise ValueError("boom")
++
++    assert click.utils._safecall(fail)() is None
++
++
++def test_safecall_does_not_swallow_base_exception():
++    def interrupt():
++        raise KeyboardInterrupt
++
++    with pytest.raises(KeyboardInterrupt):
++        click.utils._safecall(interrupt)()
++
++
++@pytest.mark.parametrize(
++    ("value", "expect"),
++    [
++        pytest.param("text", "text", id="str"),
++        pytest.param(42, "42", id="int"),
++        pytest.param(b"hello", "hello", id="bytes"),
++    ],
++)
++def test_make_str(value, expect):
++    assert click.utils.make_str(value) == expect
++
++
++def test_make_str_undecodable_bytes(monkeypatch):
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert click.utils.make_str(b"ab\xff") == "ab�"
++
++
++@pytest.mark.parametrize(
++    ("value", "max_length", "expect"),
++    [
++        pytest.param("1234 6789 more", 9, "1234...", id="exact length, more words"),
++        pytest.param("abcdefghijkl more", 5, "...", id="first word too long"),
++        pytest.param("   ", 10, "", id="only whitespace"),
++    ],
++)
++def test_make_default_short_help_edges(value, max_length, expect):
++    assert click.utils._make_default_short_help(value, max_length) == expect
++
++
++def test_lazyfile_repr_unopened_then_opened(tmp_path):
++    path = tmp_path / "out.txt"
++    lf = click.utils._LazyFile(path, "w")
++    assert repr(lf) == f"<unopened file '{path}' w>"
++    assert not path.exists()
++
++    lf.write("data")
++    assert repr(lf) == repr(lf._f)
++    lf.close_intelligently()
++    assert path.read_text() == "data"
++
++
++def test_lazyfile_close_unopened_is_noop(tmp_path):
++    lf = click.utils._LazyFile(tmp_path / "never.txt", "w")
++    lf.close()
++    assert not (tmp_path / "never.txt").exists()
++
++
++def test_lazyfile_dash_uses_stdin_without_closing(monkeypatch):
++    stdin = _text_stream(b"line\n")
++    monkeypatch.setattr(sys, "stdin", stdin)
++
++    lf = click.utils._LazyFile("-")
++    assert lf.should_close is False
++    assert lf._f is stdin
++    assert repr(lf) == repr(stdin)
++    assert lf.read() == "line\n"
++
++    lf.close_intelligently()
++    assert not stdin.closed
++
++
++def test_keep_open_file_repr():
++    f = io.StringIO()
++    assert repr(click.utils._KeepOpenFile(f)) == repr(f)
++
++
++def test_echo_bytes_to_text_only_stream_raises():
++    # No binary writer can be found for a StringIO, so the bytes are
++    # handed to the text stream, which rejects them.
++    with pytest.raises(TypeError):
++        click.echo(b"hello", file=io.StringIO())
++
++
++def test_get_binary_stream_unknown_name():
++    with pytest.raises(TypeError, match="Unknown standard stream 'nope'"):
++        click.utils._get_binary_stream("nope")
++
++
++def test_get_text_stream(monkeypatch):
++    stdout = _text_stream()
++    monkeypatch.setattr(sys, "stdout", stdout)
++    assert click.utils._get_text_stream("stdout") is stdout
++
++
++def test_get_text_stream_unknown_name():
++    with pytest.raises(TypeError, match="Unknown standard stream 'nope'"):
++        click.utils._get_text_stream("nope")
++
++
++def test_open_file_lazy(tmp_path):
++    path = tmp_path / "lazy.txt"
++    f = click.open_file(path, "w", lazy=True)
++    assert isinstance(f, click.utils._LazyFile)
++    assert not path.exists()
++
++    with f:
++        f.write("hello")
++
++    assert path.read_text() == "hello"
++
++
++def test_get_app_dir_windows_roaming(monkeypatch, tmp_path):
++    monkeypatch.setattr(click.utils, "WIN", True)
++    monkeypatch.setenv("APPDATA", str(tmp_path))
++    assert click.get_app_dir("Foo Bar") == os.path.join(str(tmp_path), "Foo Bar")
++
++
++def test_get_app_dir_windows_local_fallback(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", True)
++    monkeypatch.delenv("LOCALAPPDATA", raising=False)
++    assert click.get_app_dir("Foo Bar", roaming=False) == os.path.join(
++        os.path.expanduser("~"), "Foo Bar"
++    )
++
++
++def test_get_app_dir_force_posix(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    assert click.get_app_dir("Foo Bar", force_posix=True) == os.path.expanduser(
++        "~/.foo-bar"
++    )
++
++
++def test_get_app_dir_darwin(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert click.get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~/Library/Application Support"), "Foo Bar"
++    )
++
++
++def test_get_app_dir_xdg(monkeypatch, tmp_path):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
++    assert click.get_app_dir("Foo  Bar") == os.path.join(str(tmp_path), "foo-bar")
++
++
++def test_get_app_dir_xdg_default(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
++    assert click.get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~/.config"), "foo-bar"
++    )
++
++
++class _FlushStream:
++    def __init__(self, exc=None):
++        self.exc = exc
++        self.flushed = False
++        self.name = "<fake>"
++
++    def flush(self):
++        if self.exc is not None:
++            raise self.exc
++        self.flushed = True
++
++
++def test_pacify_flush_wrapper_flushes():
++    stream = _FlushStream()
++    click.utils._PacifyFlushWrapper(stream).flush()
++    assert stream.flushed
++
++
++def test_pacify_flush_wrapper_ignores_broken_pipe():
++    stream = _FlushStream(OSError(errno.EPIPE, "Broken pipe"))
++    click.utils._PacifyFlushWrapper(stream).flush()
++
++
++def test_pacify_flush_wrapper_reraises_other_errors():
++    stream = _FlushStream(OSError(errno.EIO, "I/O error"))
++    with pytest.raises(OSError) as exc_info:
++        click.utils._PacifyFlushWrapper(stream).flush()
++    assert exc_info.value.errno == errno.EIO
++
++
++def test_pacify_flush_wrapper_proxies_attributes():
++    stream = _FlushStream()
++    assert click.utils._PacifyFlushWrapper(stream).name == "<fake>"
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    monkeypatch.setitem(sys.modules, "__main__", types.ModuleType("__main__"))
++    monkeypatch.setattr(sys, "argv", [os.path.join("some", "dir", "prog.py")])
++    assert click.utils._detect_program_name() == "prog.py"
++
++
++def test_expand_args_without_user_and_env(monkeypatch, tmp_path):
++    monkeypatch.chdir(tmp_path)
++    monkeypatch.setenv("CLICK_TEST", "hello")
++    assert click.utils._expand_args(
++        ["~", "$CLICK_TEST"], user=False, env=False
++    ) == ["~", "$CLICK_TEST"]
++
++
++def test_expand_args_glob_not_recursive(monkeypatch, tmp_path):
++    (tmp_path / "sub").mkdir()
++    (tmp_path / "sub" / "a.txt").touch()
++    (tmp_path / "b.txt").touch()
++    monkeypatch.chdir(tmp_path)
++    assert click.utils._expand_args(["**/*.txt"], glob_recursive=False) == [
++        os.path.join("sub", "a.txt")
++    ]
++
++
++def test_expand_args_glob_error(monkeypatch):
++    def raise_re_error(pattern, recursive=False):
++        raise re.error("bad pattern")
++
++    monkeypatch.setattr("glob.glob", raise_re_error)
++    assert click.utils._expand_args(["[bad"]) == ["[bad"]

@@ -1,0 +1,178 @@
+import type { Job } from '../types'
+
+export type { Job }
+
+/** Progress lines common tools print, tried when Claude named no pattern. */
+const AUTO: { re: RegExp; read: (m: RegExpMatchArray) => number | undefined }[] = [
+  { re: /(\d{1,3}(?:\.\d+)?)%\|/, read: m => pct(m[1]) },                                  // tqdm
+  { re: /\[\s*(\d{1,3})%\]/, read: m => pct(m[1]) },                                        // pytest
+  { re: /Building \[[^\]]*\]\s*(\d+)\/(\d+)/, read: m => ratio(m[1], m[2]) },              // cargo
+  { re: /\[(\d+)\/(\d+)\]/, read: m => ratio(m[1], m[2]) },                                 // ninja, [3/10]
+  { re: /\b(?:step|task|test|file|item|batch|epoch|attempt|block|run|job|shard|chunk|page)s?\s*:?\s*(\d+)\s*(?:\/|of)\s*(\d+)/i, read: m => ratio(m[1], m[2]) },
+  { re: /\b(?:progress|done|completed?)\b\D{0,12}(\d{1,3}(?:\.\d+)?)\s*%/i, read: m => pct(m[1]) },
+]
+
+function pct(s: string | undefined) {
+  const v = Number(s)
+  return Number.isFinite(v) && v >= 0 && v <= 100 ? v / 100 : undefined
+}
+
+function ratio(a: string | undefined, b: string | undefined) {
+  const x = Number(a)
+  const y = Number(b)
+  return y > 0 && x >= 0 && x <= y ? x / y : undefined
+}
+
+/** Reads one progress line with a pattern Claude gave: named or positional groups. */
+function readPattern(m: RegExpMatchArray) {
+  const g = m.groups ?? {}
+  if (g.done !== undefined && g.total !== undefined) return ratio(g.done, g.total)
+  if (g.pct !== undefined) return pct(g.pct)
+  if (m[2] !== undefined) return ratio(m[1], m[2])
+  return pct(m[1])
+}
+
+export function compile(source: string | undefined) {
+  if (!source) return undefined
+  try {
+    return new RegExp(source)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Feeds new output to a job: counts done lines, reads the latest progress line, notices a finish
+ * line. A partial last line waits in `carry` for the rest. Returns the updated job.
+ */
+export function feed(job: Job, text: string, now: number): Job {
+  const all = job.carry + text
+  const parts = all.split(/\r\n|\r|\n/)
+  const carry = /[\r\n]$/.test(all) ? '' : (parts.pop() ?? '')
+  if (carry === '' && parts.at(-1) === '') parts.pop()
+  const done = compile(job.donePattern)
+  const progress = compile(job.progressPattern)
+  const finished = compile(job.finishedPattern)
+  let count = job.done
+  let frac = job.frac
+  let ended = false
+  // A bar redrawn with \r is still mid-line: read it too, without keeping it.
+  for (const line of [...parts, carry]) {
+    if (line !== carry && done?.test(line)) count++
+    if (progress) {
+      const m = line.match(progress)
+      const v = m ? readPattern(m) : undefined
+      if (v !== undefined) frac = v
+    } else if (!done) {
+      for (const { re, read } of AUTO) {
+        const m = line.match(re)
+        const v = m ? read(m) : undefined
+        if (v !== undefined) {
+          frac = v
+          break
+        }
+      }
+    }
+    if (line !== carry && finished?.test(line)) ended = true
+  }
+  if (done && job.total) frac = Math.min(1, count / job.total)
+  const moved = frac !== undefined && frac !== job.frac
+  const samples = moved ? thin([...job.samples, [now, frac as number]]) : job.samples
+  let next: Job = { ...job, carry: carry.slice(-4000), done: count, frac, samples, lastProgressAt: moved ? now : job.lastProgressAt }
+  if (ended || (frac !== undefined && frac >= 1)) next = { ...next, status: 'completed', endedAt: now }
+  return next
+}
+
+/** Keeps the first sample and at most 120 after it. */
+function thin(samples: [number, number][]) {
+  return samples.length <= 121 ? samples : [samples[0] as [number, number], ...samples.slice(-120)]
+}
+
+export type Estimate = {
+  frac?: number
+  /** When it will likely finish, and a range from the overall and the recent rate. */
+  at?: number
+  lo?: number
+  hi?: number
+  basis: 'measured' | 'guess' | 'none'
+  /** How long since progress last moved, once that is unusually long. */
+  stalledMs?: number
+}
+
+export function estimate(job: Job, now: number): Estimate {
+  const frac = job.frac
+  const stalledMs = stalled(job, now)
+  const first = job.samples[0]
+  if (frac !== undefined && first && frac > first[1] && now > first[0]) {
+    const elapsed = now - first[0]
+    const overall = (frac - first[1]) / elapsed
+    const window = Math.max(elapsed / 4, 60_000)
+    const back = [...job.samples].reverse().find(([t]) => t <= now - window) ?? first
+    const recent = (frac - back[1]) / (now - back[0])
+    const remaining = 1 - frac
+    let mid = remaining / overall
+    if (job.expectedMs && frac < 0.1) {
+      const w = frac / 0.1
+      mid = w * mid + (1 - w) * Math.max(0, job.startedAt + job.expectedMs - now)
+    }
+    const fast = Math.max(overall, recent)
+    const slow = Math.min(overall, recent)
+    return {
+      frac, at: now + mid, lo: now + Math.min(mid, remaining / fast),
+      hi: slow > 0 ? now + Math.max(mid, remaining / slow) : undefined, basis: 'measured', stalledMs,
+    }
+  }
+  if (job.expectedMs) return { frac, at: job.startedAt + job.expectedMs, basis: 'guess', stalledMs }
+  return { frac, basis: 'none', stalledMs }
+}
+
+/** Progress that has not moved for three times its usual gap, and at least two minutes. */
+function stalled(job: Job, now: number) {
+  if (job.status !== 'running' || job.lastProgressAt === undefined || job.samples.length < 3) return undefined
+  const first = job.samples[0] as [number, number]
+  const gap = (job.lastProgressAt - first[0]) / (job.samples.length - 1)
+  const quiet = now - job.lastProgressAt
+  return quiet > Math.max(3 * gap, 120_000) ? quiet : undefined
+}
+
+export function duration(ms: number) {
+  const m = Math.max(1, Math.round(ms / 60_000))
+  if (m < 60) return `${m}m`
+  return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`
+}
+
+/** hh:mm in the person's time zone, given its offset from UTC in minutes. */
+export function clock(ms: number, tzOffsetMin: number) {
+  const d = new Date(ms + tzOffsetMin * 60_000)
+  return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`
+}
+
+export function bar(frac: number, cells = 10) {
+  const full = Math.max(0, Math.min(cells, Math.round(frac * cells)))
+  return '▰'.repeat(full) + '▱'.repeat(cells - full)
+}
+
+/** One line for a job: what a status line or a band row says. */
+export function describe(job: Job, now: number, tz: number | null) {
+  const label = job.label.length > 32 ? job.label.slice(0, 31) + '…' : job.label
+  if (job.status !== 'running') {
+    const took = duration((job.endedAt ?? now) - job.startedAt)
+    const word = job.status === 'completed' ? `done in ${took}` : job.status === 'failed' ? `failed after ${took}` : `stopped after ${took}`
+    return { label, progress: '', eta: word }
+  }
+  const e = estimate(job, now)
+  const count = job.donePattern && job.total ? ` ${job.done}/${job.total}` : ''
+  const progress = e.frac === undefined ? '' : `${bar(e.frac)} ${Math.floor(e.frac * 100)}%${count}`
+  const at = (ms: number) => (tz === null ? `in ${duration(ms - now)}` : clock(ms, tz))
+  let eta: string
+  if (e.basis === 'measured' && e.at !== undefined) {
+    const range = e.lo !== undefined && e.hi !== undefined && e.hi - e.lo >= 4 * 60_000 ? ` (${at(e.lo)}–${at(e.hi)})` : ''
+    eta = `ETA ${at(e.at)}${tz === null ? '' : ` · in ${duration(e.at - now)}`}${range}`
+  } else if (e.basis === 'guess' && e.at !== undefined) {
+    eta = e.at > now ? `ETA ~${at(e.at)} (Claude's guess)` : `past Claude's guess of ${duration((job.expectedMs ?? 0))}`
+  } else {
+    eta = `running ${duration(now - job.startedAt)}${e.frac === undefined ? ' · no progress readable yet' : ' · measuring'}`
+  }
+  if (e.stalledMs !== undefined) eta += ` · no progress for ${duration(e.stalledMs)}`
+  return { label, progress, eta }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "statusline",
+  "version": "0.1.0",
+  "description": "One line under the prompt: the model and its effort, how full the context is, the plan's 5-hour and 7-day use with their resets, and what other mods put on it (smart-compact's ready or cold).",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "placement": {
+      "type": "string",
+      "title": "Placement",
+      "description": "line: one line under the prompt, merged with Claude Code's hint. tail: appended to that hint, dim. band: above the prompt. off: none.",
+      "default": "line",
+      "options": ["line", "tail", "band", "off"]
+    },
+    "limits": {
+      "type": "string",
+      "title": "Plan usage",
+      "description": "always: the 5-hour and 7-day windows' use from the first reading, with when each resets. half: only once a window is half used. off: never.",
+      "default": "always",
+      "options": ["always", "half", "off"]
+    },
+    "animate": {
+      "type": "boolean",
+      "title": "Animate",
+      "description": "A glint along the context gauge while Claude works.",
+      "default": true
+    }
+  }
+}

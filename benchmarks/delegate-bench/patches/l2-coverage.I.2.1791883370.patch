@@ -1,0 +1,311 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..23f20da
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,305 @@
++import errno
++import io
++import os
++import sys
++import types
++
++import pytest
++
++import click
++import click.utils
++from click import utils
++
++
++def test_posixify():
++    assert utils._posixify("Foo  Bar\tBaz") == "foo-bar-baz"
++
++
++def test_safecall():
++    def boom():
++        raise ValueError("x")
++
++    wrapped = utils._safecall(boom)
++    assert wrapped() is None
++    assert wrapped.__name__ == "boom"
++    assert utils._safecall(lambda a: a + 1)(1) == 2
++
++
++def test_make_str():
++    assert utils.make_str("a") == "a"
++    assert utils.make_str(1) == "1"
++    assert utils.make_str(b"abc") == "abc"
++
++
++def test_make_str_decode_fallback(monkeypatch):
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert utils.make_str(b"caf\xc3\xa9") == "café"
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "utf-8")
++    assert utils.make_str(b"a\xffb") == "a�b"
++
++
++def test_short_help_exact_length_truncates():
++    # "aaaa bbbb" has length 9 == max_length, with more words following.
++    assert utils._make_default_short_help("aaaa bbbb cccc", max_length=9) == "aaaa..."
++
++
++def test_short_help_first_word_too_long():
++    assert utils._make_default_short_help("abcdefghij klm", max_length=5) == "..."
++
++
++def test_short_help_misc():
++    assert utils._make_default_short_help("   ") == ""
++    assert utils._make_default_short_help("\b one two") == "one two"
++    assert utils._make_default_short_help("Hi there. More") == "Hi there."
++    assert utils._make_default_short_help("a\n\nb") == "a"
++
++
++def test_lazyfile_stdin_dash():
++    lf = utils._LazyFile("-", "r")
++    assert lf._f is not None
++    assert lf.should_close is False
++    assert repr(lf) == repr(lf._f)
++    lf.close_intelligently()  # must not close stdin
++
++
++def test_lazyfile_repr_unopened(tmp_path):
++    p = tmp_path / "f.txt"
++    lf = utils._LazyFile(str(p), "w")
++    assert repr(lf) == f"<unopened file '{p}' w>"
++    assert not p.exists()
++    lf.close()  # no-op when not opened
++
++
++def test_lazyfile_open_and_close(tmp_path):
++    p = tmp_path / "f.txt"
++    with utils._LazyFile(str(p), "w") as lf:
++        lf.write("hi")
++        assert lf.open() is lf.open()
++        assert repr(lf) == repr(lf._f)
++    assert p.read_text() == "hi"
++    assert lf._f.closed
++
++
++def test_lazyfile_open_error(tmp_path):
++    lf = utils._LazyFile(str(tmp_path / "nodir" / "f"), "w")
++    with pytest.raises(click.FileError):
++        lf.open()
++
++
++def test_lazyfile_close_intelligently_not_closing(tmp_path):
++    p = tmp_path / "f.txt"
++    lf = utils._LazyFile(str(p), "w")
++    lf.open()
++    lf.should_close = False
++    lf.close_intelligently()
++    assert not lf._f.closed
++    lf.close()
++    assert lf._f.closed
++
++
++def test_keep_open_file():
++    buf = io.StringIO("a\nb\n")
++    k = utils._KeepOpenFile(buf)
++    assert repr(k) == repr(buf)
++    with k as inner:
++        assert inner is k
++        assert list(inner) == ["a\n", "b\n"]
++        assert inner.getvalue() == "a\nb\n"
++    assert not buf.closed
++    k.close()
++    assert buf.closed
++
++
++def test_echo_bytes_without_binary_writer(monkeypatch):
++    monkeypatch.setattr(utils, "_find_binary_writer", lambda f: None)
++    out = io.BytesIO()
++    click.echo(b"abc", file=out)
++    assert out.getvalue() == b"abc\n"
++
++
++def test_echo_no_default_stream(monkeypatch):
++    monkeypatch.setattr(utils, "_default_text_stdout", lambda: None)
++    monkeypatch.setattr(utils, "_default_text_stderr", lambda: None)
++    click.echo("x")
++    click.echo("x", err=True)
++
++
++def test_get_streams_unknown():
++    with pytest.warns(DeprecationWarning):
++        gbs = utils.get_binary_stream
++    with pytest.warns(DeprecationWarning):
++        gts = utils.get_text_stream
++    with pytest.raises(TypeError, match="Unknown standard stream 'nope'"):
++        gbs("nope")
++    with pytest.raises(TypeError, match="Unknown standard stream 'nope'"):
++        gts("nope")
++
++
++def test_get_streams_known(monkeypatch):
++    sentinel_b = object()
++    sentinel_t = object()
++    monkeypatch.setitem(utils.binary_streams, "stdin", lambda: sentinel_b)
++    monkeypatch.setitem(utils.text_streams, "stdin", lambda enc, err: (sentinel_t, enc, err))
++    assert utils._get_binary_stream("stdin") is sentinel_b
++    assert utils._get_text_stream("stdin", "ascii", "ignore") == (
++        sentinel_t,
++        "ascii",
++        "ignore",
++    )
++
++
++def test_open_file_lazy(tmp_path):
++    p = tmp_path / "f.txt"
++    f = click.open_file(str(p), "w", lazy=True)
++    assert isinstance(f, utils._LazyFile)
++    assert not p.exists()
++    f.write("x")
++    f.close()
++    assert p.read_text() == "x"
++
++
++def test_open_file_dash_keeps_open():
++    f = click.open_file("-", "r")
++    assert isinstance(f, utils._KeepOpenFile)
++    with f:
++        pass
++
++
++def test_format_filename():
++    assert utils.format_filename("a/b.txt", shorten=True) == "b.txt"
++    assert utils.format_filename(b"a/\xffb") == "a/�b"
++    assert utils.format_filename("a\udcffb") == "a�b"
++
++
++def test_get_app_dir_win(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", True)
++    monkeypatch.setenv("APPDATA", "/roam")
++    monkeypatch.setenv("LOCALAPPDATA", "/local")
++    assert utils.get_app_dir("Foo Bar") == os.path.join("/roam", "Foo Bar")
++    assert utils.get_app_dir("Foo Bar", roaming=False) == os.path.join(
++        "/local", "Foo Bar"
++    )
++    monkeypatch.delenv("APPDATA")
++    monkeypatch.setenv("HOME", "/home/u")
++    assert utils.get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~"), "Foo Bar"
++    )
++
++
++def test_get_app_dir_posix_variants(monkeypatch):
++    monkeypatch.setattr(utils, "WIN", False)
++    monkeypatch.setenv("HOME", "/home/u")
++    assert utils.get_app_dir("Foo Bar", force_posix=True) == "/home/u/.foo-bar"
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert (
++        utils.get_app_dir("Foo Bar") == "/home/u/Library/Application Support/Foo Bar"
++    )
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg")
++    assert utils.get_app_dir("Foo Bar") == "/xdg/foo-bar"
++    monkeypatch.delenv("XDG_CONFIG_HOME")
++    assert utils.get_app_dir("Foo Bar") == "/home/u/.config/foo-bar"
++
++
++def test_pacify_flush_wrapper():
++    class Wrapped:
++        def __init__(self, err=None):
++            self.err = err
++            self.attr = 5
++
++        def flush(self):
++            if self.err is not None:
++                raise self.err
++
++    w = utils._PacifyFlushWrapper(Wrapped())
++    w.flush()
++    assert w.attr == 5
++    utils._PacifyFlushWrapper(Wrapped(OSError(errno.EPIPE, "pipe"))).flush()
++    with pytest.raises(OSError):
++        utils._PacifyFlushWrapper(Wrapped(OSError(errno.EIO, "io"))).flush()
++
++
++@pytest.mark.parametrize(
++    "name",
++    [
++        "LazyFile",
++        "KeepOpenFile",
++        "make_default_short_help",
++        "PacifyFlushWrapper",
++        "safecall",
++        "get_text_stream",
++        "get_binary_stream",
++    ],
++)
++def test_deprecated_names(name):
++    with pytest.warns(DeprecationWarning):
++        obj = getattr(utils, name)
++    assert obj is getattr(utils, f"_{name}")
++
++
++def test_module_getattr_unknown():
++    with pytest.raises(AttributeError):
++        utils.does_not_exist
++
++
++def test_detect_program_name_nt_exe(monkeypatch, tmp_path):
++    main = types.ModuleType("__main__")
++    main.__package__ = ""
++    monkeypatch.setattr(os, "name", "nt")
++    script = tmp_path / "tool"
++    (tmp_path / "tool.exe").write_text("")
++    assert utils._detect_program_name(str(script), _main=main) == "tool"
++
++
++def test_detect_program_name_modules(monkeypatch):
++    main = types.ModuleType("__main__")
++    main.__package__ = "example"
++    assert utils._detect_program_name("/x/__main__.py", _main=main) == (
++        "python -m example"
++    )
++    assert utils._detect_program_name("/x/cli.py", _main=main) == (
++        "python -m example.cli"
++    )
++    monkeypatch.setattr(sys, "argv", ["/x/cli.py"])
++    assert utils._detect_program_name(_main=main) == "python -m example.cli"
++    main.__package__ = None
++    assert utils._detect_program_name("/x/app.py", _main=main) == "app.py"
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    assert utils._detect_program_name("/x/app.py") == "app.py"
++
++
++def test_detect_program_name_nt_no_exe(monkeypatch, tmp_path):
++    main = types.ModuleType("__main__")
++    main.__package__ = ""
++    monkeypatch.setattr(os, "name", "nt")
++    assert utils._detect_program_name(str(tmp_path / "zz"), _main=main) == "zz"
++
++
++def test_expand_args(monkeypatch, tmp_path):
++    (tmp_path / "a.txt").write_text("")
++    (tmp_path / "b.txt").write_text("")
++    monkeypatch.setenv("HOME", str(tmp_path))
++    monkeypatch.setenv("FOO", "a")
++    assert sorted(utils._expand_args(["~/*.txt"])) == [
++        str(tmp_path / "a.txt"),
++        str(tmp_path / "b.txt"),
++    ]
++    assert utils._expand_args(["~/$FOO.txt"]) == [str(tmp_path / "a.txt")]
++    assert utils._expand_args(["~/$FOO.txt"], user=False, env=False) == [
++        "~/$FOO.txt"
++    ]
++    assert utils._expand_args(["nomatch*"]) == ["nomatch*"]
++    assert utils._expand_args(["[z-a]"], user=False, env=False) == ["[z-a]"]
++    assert utils._expand_args(["**"], user=False, env=False, glob_recursive=False)
++
++
++def test_expand_args_re_error(monkeypatch):
++    import re
++
++    import glob as glob_mod
++
++    def bad(*a, **k):
++        raise re.error("bad")
++
++    monkeypatch.setattr(glob_mod, "glob", bad)
++    assert utils._expand_args(["x*"]) == ["x*"]

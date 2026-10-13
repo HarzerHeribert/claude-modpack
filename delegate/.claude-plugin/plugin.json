@@ -1,0 +1,50 @@
+{
+  "name": "delegate",
+  "version": "0.1.0",
+  "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "model": {
+      "type": "string",
+      "title": "Worker model",
+      "description": "The model hand_off's worker runs on: an alias (haiku, sonnet) or a full model id.",
+      "default": "haiku"
+    },
+    "wait": {
+      "type": "string",
+      "title": "How hand_off waits by default",
+      "description": "tool: the call holds the turn until the worker is done and returns its report with the evidence (fewest requests of the main model). message: it returns at once and the report arrives as a message. Claude can choose either per call with the tool's background flag.",
+      "default": "tool",
+      "options": [
+        "tool",
+        "message"
+      ]
+    },
+    "review": {
+      "type": "string",
+      "title": "Review route",
+      "description": "Who reads an edit hand-off's evidence. inline (default): the main model, in its next step. fork: one forked request of the main model returns a verdict and only the verdict enters the context. auto: fork when the evidence is larger than about a 60th of the context. In the benchmark forks cost far more than reading inline, so inline is the default.",
+      "default": "inline",
+      "options": [
+        "inline",
+        "auto",
+        "fork"
+      ]
+    },
+    "reuseMinutes": {
+      "type": "number",
+      "title": "Keep a worker warm (minutes)",
+      "description": "A follow-up hand-off within this time continues the same worker, its earlier reading still in its context.",
+      "default": 50
+    },
+    "workerContextCap": {
+      "type": "number",
+      "title": "Worker context cap (tokens)",
+      "description": "A worker whose requests have grown past this size is not continued; the next hand-off starts a fresh one.",
+      "default": 60000
+    }
+  }
+}

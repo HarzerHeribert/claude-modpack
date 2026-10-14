@@ -18,10 +18,7 @@ Every number on this page was measured, including the one place where it doesn't
 
 <br>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-  <img alt="26% less per task in a long session; 21% fewer steps for the same work; 27% less on a feature a cheaper model builds from your plan; 116 of 116 results correct, with the pack and without." src="assets/hero-light.svg" width="880">
-</picture>
+<img alt="Animated: the cost per job with and without the pack, as bars that grow: in a long session $0.42 against $0.31 (−26%), bigger jobs in a fresh session $0.58 against $0.52 (−11%), quick questions in a fresh session $0.23 against $0.24 (+5%, the one place it costs more); then four numbers: −26% cost per job in a long session, −21% steps for the same work, −27% cost of a feature a cheaper model builds from your plan, 116 of 116 results correct." src="assets/numbers.gif" width="880">
 
 ## Why it saves
 
@@ -33,10 +30,7 @@ The pack takes out steps that need no thinking. Several edits and their test run
 
 ### Always know where your plan stands
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/screen-band-dark.svg">
-  <img alt="Above the prompt, two rows: a background pytest run at 55% finishing in 21 minutes and a running hand-off with its requests, cost and latest action; below the prompt, the status line: auto mode on, Opus 5.5 xhigh, context 412k, 5h 34%, 7d 12%, and ready, cold in 44m." src="assets/screen-band-light.svg" width="880">
-</picture>
+<img alt="A real Claude Code session: Claude starts the stress tests in the background; above the prompt a row shows them with a bar, a percentage and a finish time, climbing from 8% to 100%; under the prompt the status line shows the model, the context, the plan's 5-hour and weekly use and a green ready dot." src="assets/demo-band.gif" width="880">
 
 One line under the prompt: the model, how full the conversation is, and how much of your plan's 5-hour and weekly limits you have used, with when each one resets. Long jobs get a progress bar and a finish time above the prompt. And when you step away, your session is kept ready, or tidied up before it goes cold, whichever costs less; the line tells you which.
 
@@ -44,10 +38,7 @@ These are the **statusline**, **eta** and **smart-compact** mods.
 
 ### Several changes in one step, and you can still undo them
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/screen-cells-dark.svg">
-  <img alt="A running cell card in the terminal: a rounded orange card with the three lines of code the cell runs, the read and edit rows done and the pytest row still running with its elapsed time, and the closing line: running, a scanner, 3 calls, 1.0 s." src="assets/screen-cells-light.svg" width="880">
-</picture>
+<img alt="A real Claude Code session: asked to add two docstrings and run the whole test suite, Claude runs one cell; an orange card shows the read, the two edits, the diff and the test run live, and the tests pass: 1990 passed." src="assets/demo-cells.gif" width="880">
 
 Claude makes several edits and runs the tests as one step, and you watch each part happen in a live card. Every edit still goes through Claude Code's own edit tool: you see each change, and `/rewind` undoes it.
 
@@ -55,10 +46,7 @@ That's the **cells** mod.
 
 ### A cheaper model builds what you approved
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/screen-delegate-dark.svg">
-  <img alt="Two hand-off cards: one with an orange border while the Sonnet worker runs (the task, five worker actions with the last one still turning, the state running with a scanner, 41s, 6 req, $0.05, watch), and the same card in grey when done (1:14, 9 req, $0.14, +48 -2 in 2 files, check passed, view)." src="assets/screen-delegate-light.svg" width="880">
-</picture>
+<img alt="A real Claude Code session: in plan mode Claude plans a new click.Duration parameter type; the plan is approved; Claude hands it to a Sonnet worker, whose orange card shows its steps live with a row above the prompt (hand-off 1, sonnet medium, requests and cost); then Claude checks the diff and reports: the new type works and the full suite passes." src="assets/demo-delegate.gif" width="880">
 
 When you approve a plan, Claude hands the building to Sonnet, a cheaper model, and checks its work before reporting back. In our tests that made a feature 27% cheaper and new tests 33% cheaper, with every result correct. You can watch the helper work in its card, and `/delegate` shows every step it took.
 
@@ -71,6 +59,8 @@ When Claude searches your code for a name, it gets the exact list of places that
 That's the **lsp-plus** mod.
 
 ### You stay in control
+
+<img alt="A real Claude Code session: /mods lists the pack's six mods and opens a pane of cards; the status line is turned off and disappears from under the prompt, then turned on again." src="assets/demo-mods.gif" width="880">
 
 `/mods` lists the six and turns any of them on or off, right away. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. It keeps itself up to date (or only lets you know, if you prefer).
 

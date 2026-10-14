@@ -1,6 +1,6 @@
 {
   "name": "modpack",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "The claude-mods modpack: statusline, smart-compact, delegate, lsp-plus, cells and eta, installed together and built to work together.",
   "author": {
     "name": "HarzerHeribert"
@@ -24,6 +24,12 @@
         "off"
       ],
       "default": "auto"
+    },
+    "hookGuard": {
+      "type": "boolean",
+      "title": "Hook guard",
+      "description": "Stop waiting for another plugin's permission or notification hook after 10 s, so a hook that hangs cannot freeze Claude Code. Turn off if a hook of yours waits for you on purpose, such as approving from your phone.",
+      "default": true
     }
   }
 }

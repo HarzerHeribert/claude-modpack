@@ -878,14 +878,14 @@ export const register: Register = (on, options) => {
   on('prompt.submit', async ($, e, next) => {
     const kind = e.origin?.kind
     if (kind === undefined || kind === 'composer' || kind === 'bridge' || kind === 'sdk' || kind === 'plugin') return next(e)
-    if (dropsNotice(handedOver, kind, e.text)) return { drop: 'delegate: this worker\'s report was already delivered.' }
+    if (dropsNotice(handedOver, kind, e.text)) return { drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' }
     const job = [...jobs.values()].find(j => (!j.reported || (j.returned && j.handback === undefined)) && e.text.includes(j.agentId))
     if (job === undefined) return next(e)
     // Held in the tool call: the report goes back as its result, so the message itself does not enter.
     if (job.holding || job.returned) {
       job.handback = reportText(e.text)
       if (job.returned && job.done !== undefined) jobs.delete(job.agentId)
-      return { drop: 'delegate: this worker report reached Claude as the hand_off result.' }
+      return { drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' }
     }
     if (job.done !== undefined) jobs.delete(job.agentId)
     const evidence = await deliver($, job, reportText(e.text))

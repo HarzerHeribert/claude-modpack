@@ -1,8 +1,96 @@
 import type { EngineInterface, Register } from 'claude-code'
 
-import { loadedMods, modRows, modsPane, modsText, type Elements } from './mods'
+import { loadedMods, MODS, modRows, modsPane, modsText, type Elements } from './mods'
 
 type Engine = EngineInterface
+
+// Hook guard: another plugin's PermissionRequest or Notification command hook that hangs must not freeze
+// Claude Code. Skipping only these two is safe (PermissionRequest skipped: Claude Code asks the person; Notification
+// is cosmetic). PreToolUse is never touched.
+
+const FIRST_LIMIT_MS = 10_000
+const AFTER_HANG_LIMIT_MS = 2_000
+
+/** Marks that the limit ran out before the chain beneath answered. */
+const TIMED_OUT = Symbol('timed out')
+
+type Race<R> = { timedOut: false; result: R } | { timedOut: true }
+
+/**
+ * Waits for `run()` (the `next(e)` call) at most `limitMs`, by racing it against a `$.clock.sleep`.
+ * The sleep counts against the hook's own budget (a $.clock wait is the one `$` call that does), so
+ * the limit is cut to stay under what `budget.remainingMs` leaves; the hook's `.catch` is the net.
+ */
+async function race<R>($: Engine, run: () => Promise<R>, limitMs: number, remainingMs: number): Promise<Race<R>> {
+  const stop = new AbortController()
+  const ms = Math.max(0, Math.min(limitMs, remainingMs - 500))
+  const timer = $.clock.sleep(ms, { signal: stop.signal }).then(
+    () => TIMED_OUT,
+    // Aborted because the chain answered first: this side never wins.
+    () => new Promise<never>(() => undefined),
+  )
+  const chain = run()
+  // If the timer wins, a later rejection of the abandoned chain must not surface.
+  chain.catch(() => undefined)
+  try {
+    const r = await Promise.race([chain, timer])
+    return r === TIMED_OUT ? { timedOut: true } : { timedOut: false, result: r as R }
+  } finally {
+    stop.abort()
+  }
+}
+
+type HookEntry = { hooks?: { type?: string; command?: string }[] }
+
+const hasCommand = (v: unknown, event: string): boolean => {
+  const list = (v as Record<string, unknown> | undefined)?.[event]
+  return (
+    Array.isArray(list) &&
+    (list as HookEntry[]).some(h => Array.isArray(h?.hooks) && h.hooks.some(c => (c?.type ?? 'command') === 'command'))
+  )
+}
+
+/** The enabled plugins and settings that define a command hook for `event`: best effort, may be empty. */
+async function hookSources($: Engine, event: string): Promise<string[]> {
+  const out: string[] = []
+  try {
+    const settings = (await $.settings.read()) as { enabledPlugins?: Record<string, unknown> }
+    const home = (await $.env.get('HOME')) ?? ''
+    // The merged settings carry the plugins' hooks too: the person's own are in their files.
+    const cwd = await $.session.cwd()
+    for (const f of [`${home}/.claude/settings.json`, `${home}/.claude/settings.local.json`, `${cwd}/.claude/settings.json`, `${cwd}/.claude/settings.local.json`]) {
+      const own = await $.fs.read(f).then(t => JSON.parse(t) as { hooks?: unknown }).catch(() => undefined)
+      if (own !== undefined && hasCommand(own.hooks, event)) {
+        out.push('your settings')
+        break
+      }
+    }
+    for (const [id, on] of Object.entries(settings.enabledPlugins ?? {})) {
+      if (on === false) continue
+      const [name, market] = id.split('@')
+      const dir = `${home}/.claude/plugins/cache/${market}/${name}`
+      const versions = await $.fs.list(dir).catch(() => [])
+      for (const v of versions) {
+        if (v.kind === 'file') continue
+        const path = `${dir}/${v.name}/hooks/hooks.json`
+        if (!(await $.fs.exists(path).catch(() => false))) continue
+        const json = JSON.parse(await $.fs.read(path)) as { hooks?: unknown }
+        if (hasCommand(json.hooks ?? json, event)) {
+          out.push(id)
+          break
+        }
+      }
+    }
+  } catch {
+    // unreadable settings: name no source
+  }
+  return out
+}
+
+function notice(event: string, sources: readonly string[], limitMs: number): string {
+  const who = sources.length ? ` (${sources.join(', ')})` : ''
+  return `a ${event} hook${who} ran over ${limitMs / 1000} s, so Claude Code went on without it. hookGuard: off in the modpack settings turns this off.`
+}
 
 async function loaded($: Engine) {
   const commands = await $.command.list().catch(() => [])
@@ -18,6 +106,8 @@ const THROTTLE_MS = 20 * 3_600_000
 const MODS_PANE = 'mods'
 
 let mode = 'auto'
+let hung = false
+let told = false
 
 const parts = (v: string) => v.replace(/^v/, '').split('.').map(p => Number.parseInt(p, 10) || 0)
 
@@ -100,13 +190,46 @@ async function check($: Engine, force: boolean, doInstall: boolean): Promise<Out
   return { text, current, latest, root }
 }
 
+async function guarded(event: string, $: Engine, e: unknown, next: unknown, guard: boolean) {
+  const n = next as ((e: unknown) => Promise<unknown>) & { budget: { remainingMs: number } }
+  if (!guard) return n(e)
+  const limit = hung ? AFTER_HANG_LIMIT_MS : FIRST_LIMIT_MS
+  const r = await race($, () => n(e), limit, n.budget.remainingMs)
+  if (!r.timedOut) return r.result
+  hung = true
+  if (!told) {
+    told = true
+    const sources = await hookSources($, event)
+    await $.ui.log(notice(event, sources, limit))
+  }
+  return {} // no decision: Claude Code goes on to its own dialog
+}
+
+async function setMod($: Engine, mod: string, action: string | undefined): Promise<string> {
+  const names = MODS.map(m => m[0])
+  if (!names.includes(mod as never)) return `No mod called ${mod}. The pack's mods: ${names.join(', ')}.`
+  if (action !== undefined && action !== 'on' && action !== 'off') return `Say /mods ${mod} on or /mods ${mod} off.`
+  const config = await $.config.list()
+  const row = modRows(config, await loaded($)).find(r => r.name === mod)
+  if (row === undefined || row.state === 'not installed') return `${mod} is not installed: ${row?.install ?? ''}`
+  if (row.folder) return `${mod} is loaded from a folder, so it has no row in /config: its switch is \`enabled\` under pluginConfigs in your settings.`
+  const key = `${mod}.enabled`
+  const cfg = config.find(r => r.key === key)
+  if (cfg === undefined) return `${mod} has no on/off switch.`
+  if (cfg.isLocked) return `${mod}'s switch is locked by your settings policy; /mods cannot change it.`
+  const value = action === undefined ? cfg.value === false : action === 'on'
+  await $.config.set({ key, value })
+  await $.ui.invalidate('ui.render')
+  return `${mod} is now ${value ? 'on' : 'off'}. /mods ${mod} ${value ? 'off' : 'on'} turns it back ${value ? 'off' : 'on'}.`
+}
+
 export const register: Register = (on, options) => {
   const u = options.updates
   mode = u === 'notify' || u === 'off' ? u : 'auto'
 
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'update', description: 'Update claude-modpack and its mods to the newest release' })
-    await $.command.register({ name: 'mods', description: "See the pack's mods, and turn each on or off" })
+    await $.command.register({ name: 'mods', description: "See the pack's mods, and turn each on or off", argumentHint: '[mod] [on|off]' })
     if (mode !== 'off') {
       $.clock.after(0, () => {
         void check($, false, mode === 'auto').then(o => {
@@ -123,11 +246,21 @@ export const register: Register = (on, options) => {
     if (o.latest === undefined) return { text: 'Could not reach GitHub to look for a new release. Try again later.' }
     return { text: o.text ?? `Already the newest: ${o.current}.` }
   })
-  on('command.run', { command: 'mods' }, async $ => {
+  on('command.run', { command: 'mods' }, async ($, e) => {
+    const argv = (e.args ?? '').trim().split(/\s+/).filter(Boolean)
+    if (argv.length > 0) return { text: await setMod($, argv[0] as string, argv[1]) }
     const text = modsText(modRows(await $.config.list(), await loaded($)))
     await $.ui.open({ id: MODS_PANE, title: 'Mods' }).catch(() => undefined)
     return { text }
   })
+
+  // The hook guard: next(e) raced against a $.clock wait; see guard.ts.
+  hung = false
+  told = false
+  const guard = options.hookGuard !== false
+  // The hook's 10 s budget can end before a 10 s wait does: the handler then also answers with no decision.
+  on('classic.PermissionRequest', ($, e, next) => guarded('PermissionRequest', $, e, next, guard) as never).catch(() => ({}))
+  on('classic.Notification', ($, e, next) => guarded('Notification', $, e, next, guard) as never).catch(() => ({}))
 
   on('ui.render', { component: 'Pane', requestId: MODS_PANE }, async ($, e) => {
     const flip = (key: string, value: boolean) =>

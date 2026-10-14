@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 (2026-10-14)
+
+A guard against other plugins' hooks that hang, `/mods` from the keyboard, and rows above the prompt that always end.
+
+- **modpack 0.4.0**: a hook guard. A permission or notification hook of another plugin that runs over 10 seconds no longer freezes Claude Code: the pack stops waiting for it, Claude Code goes on (with a permission question, it asks you itself), and you are told once which plugin it was. Found with Warp's plugin, whose permission hook hangs outside the Warp terminal. Only these two kinds of hook, whose skipping is safe; a hook that guards tool calls is never touched. `hookGuard: off` turns it off, for a hook that waits for you on purpose. Checked live: the guard never got in the way of a permission question, and it stepped in after 10 s; the case where the hang blocked a hand-off in auto mode was not reproduced again.
+- **modpack 0.4.0**: `/mods <mod> on`, `/mods <mod> off`, or `/mods <mod>` to switch: the pane's buttons answer only a mouse click.
+- **eta 0.2.1**: a background command run by a subagent (a delegate worker) no longer gets a row that can never end: its end is reported to the subagent, so eta never heard it. A row that measures progress and gets no output for 20 minutes ends as "no update for 20 min".
+- **delegate 0.2.1**: the line Claude Code shows when delegate drops the host's second copy of a worker's report now says what happened.
+- **README**: real recordings of each feature, and the measured numbers animated.
+
 ## 0.3.0 (2026-10-14)
 
 Workers that start from an approved plan, mods you can see and switch, a pack that updates itself.

@@ -62,7 +62,7 @@ That's the **lsp-plus** mod.
 
 <img alt="A real Claude Code session: /mods lists the pack's six mods and opens a pane of cards; the status line is turned off and disappears from under the prompt, then turned on again." src="assets/demo-mods.gif" width="880">
 
-`/mods` lists the six and turns any of them on or off, right away. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. It keeps itself up to date (or only lets you know, if you prefer).
+`/mods` lists the six and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
 
 That's the **modpack** plugin, which installs the other six.
 

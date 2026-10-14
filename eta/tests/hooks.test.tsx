@@ -154,3 +154,44 @@ test('a job without status_line is still running after 21 minutes of silence', a
   expect(await ui.find({ type: 'Text', text: /quiet/ })).toBeDefined()
   await ui.unmount()
 })
+
+test('a background command run by a subagent adds no row and no hint', async ($, on) => {
+  const h = host(on, ['terminal'])
+  const r = await $.tool.call({ tool: 'Bash', command: 'sleep 100', run_in_background: true, description: 'sub nap', agentId: 'a1' } as never)
+  expect(r.context?.some(c => c.includes('track_progress')) ?? false).toBe(false)
+  await h.clock.advance(6000)
+  const ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /sub nap/ })).toBe(undefined)
+  await ui.unmount()
+})
+
+test('a background command run by the main loop still adds its row and hint', async ($, on) => {
+  const h = host(on, ['terminal'])
+  const r = await $.tool.call({ tool: 'Bash', command: 'sleep 100', run_in_background: true, description: 'main nap' } as never)
+  expect(r.context?.some(c => c.includes('track_progress'))).toBe(true)
+  await h.clock.advance(6000)
+  const ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /main nap/ })).toBeDefined()
+  await ui.unmount()
+})
+
+test('track_progress called by a subagent shows nothing', async ($, on) => {
+  const h = host(on, ['terminal'])
+  const r = await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'sub-job', file: '/tmp/t/s.log', agentId: 'a1' } as never)
+  expect(String(r.result)).toContain('main conversation only')
+  await h.clock.advance(6000)
+  const ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /sub-job/ })).toBe(undefined)
+  await ui.unmount()
+})
+
+test('a job with progress and no growth for 20 minutes fails; one without progress stays', async ($, on) => {
+  const h = host(on, ['terminal'])
+  await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'counted', file: '/tmp/t/c.log', done_pattern: ' (RESOLVED|no) ', total: 90 } as never)
+  await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'plainjob', file: '/tmp/t/p.log' } as never)
+  await h.clock.advance(21 * 60_000)
+  const ui = await $.ui.mount({ plugin: 'eta', surface: 'terminal', ...BAND })
+  expect(await ui.find({ type: 'Text', text: /failed/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /plainjob/ })).toBeDefined()
+  await ui.unmount()
+})

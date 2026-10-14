@@ -87,7 +87,8 @@ async function poll($: EngineInterface, job: Job, now: number): Promise<Job> {
     j = { ...feed(j, r.stdout, now), offset: j.offset + want, grewAt: now }
     if (j.status !== 'running') break
   }
-  if (j.status === 'running' && j.statusLine && now - (j.grewAt ?? j.startedAt) >= STALE_MS) {
+  const measured = j.statusLine || j.frac !== undefined || j.done > 0
+  if (j.status === 'running' && measured && now - (j.grewAt ?? j.startedAt) >= STALE_MS) {
     j = { ...j, status: 'failed', lastLine: 'no update for 20 min', endedAt: now }
   }
   return j
@@ -274,7 +275,12 @@ export const register: Register = (on, options) => {
   })
 
   on('tool.call', async ($, e, next) => {
-    if (e.tool.endsWith(`__${TOOL}`)) return { result: await track($, e as TrackInput) }
+    // A subagent's tool call carries its agentId; the main loop's does not.
+    const fromSubagent = (e as { agentId?: unknown }).agentId !== undefined
+    if (e.tool.endsWith(`__${TOOL}`)) {
+      if (fromSubagent) return { result: 'track_progress shows jobs to the person from the main conversation only; nothing is shown for a subagent\'s job.' }
+      return { result: await track($, e as TrackInput) }
+    }
     const r = await next(e)
     if (r.deny !== undefined) return r
     if (e.tool === 'TaskStop' && !r.isError) {
@@ -285,7 +291,7 @@ export const register: Register = (on, options) => {
     }
     if (e.tool !== 'Bash' || r.isError) return r
     const id = (r.result as { backgroundTaskId?: unknown } | undefined)?.backgroundTaskId
-    if (typeof id !== 'string') return r
+    if (typeof id !== 'string' || fromSubagent) return r
     const input = e as { command?: unknown; description?: unknown }
     const now = await $.clock.now()
     const file = (r.text ?? '').match(/written to:?\s+(\S+?\.output)\b/)?.[1]

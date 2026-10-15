@@ -45,6 +45,27 @@ describe('the note', () => {
     expect(codeHits('docs/utils.md:3:format_filename')).toEqual([])
   })
 
+  test('Go, Kotlin and Ruby: their files count, and their definitions past a receiver', () => {
+    const hits = codeHits(
+      [
+        'server/handler.go:41:func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {',
+        'app/src/main/kotlin/Ext.kt:7:fun <T> List<T>.secondOrNull(): T? = getOrNull(1)',
+        'build.gradle.kts:3:val versionName = "1.0"',
+        'lib/auth/token.rb:12:  def self.issue(user)',
+        'Rakefile.rake:2:task :issue',
+        'auth.gemspec:4:  spec.name = "auth"',
+      ].join('\n'),
+    )
+    expect(hits.map(h => h.path)).toEqual(['server/handler.go', 'app/src/main/kotlin/Ext.kt', 'build.gradle.kts', 'lib/auth/token.rb', 'Rakefile.rake', 'auth.gemspec'])
+    expect(definitionAt(hits, 'HandleLogin')).toEqual({ path: 'server/handler.go', line: 41, character: 18 })
+    expect(definitionAt(hits, 'secondOrNull')).toEqual({ path: 'app/src/main/kotlin/Ext.kt', line: 7, character: 17 })
+    expect(definitionAt(hits, 'versionName')).toEqual({ path: 'build.gradle.kts', line: 3, character: 5 })
+    expect(definitionAt(hits, 'issue')).toEqual({ path: 'lib/auth/token.rb', line: 12, character: 12 })
+    expect(symbolSearch('rg -n "fun secondOrNull" app')).toEqual({ name: 'secondOrNull', kind: 'definition' })
+    expect(symbolSearch("grep -rn 'def self\\.issue' lib")).toEqual({ name: 'issue', kind: 'definition' })
+    expect(symbolSearch('grep -rn "func (s \\*Server) HandleLogin" server')).toEqual({ name: 'HandleLogin', kind: 'definition' })
+  })
+
   test('a name met only in strings or comments is no symbol', () => {
     expect(usesAsCode('    if v.get("kind") == "lastenheft" and x:', 'lastenheft')).toBe(false)
     expect(usesAsCode("    mod = HERE / 'mod' / 'lastenheft'  # the copy", 'lastenheft')).toBe(false)

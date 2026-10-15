@@ -1,0 +1,153 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..dfe8950
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,147 @@
++import errno
++import glob as glob_module
++import io
++import os
++import re
++import sys
++import types
++
++import pytest
++
++import click.utils as cu
++from click.utils import _detect_program_name
++from click.utils import _expand_args
++from click.utils import _KeepOpenFile
++from click.utils import _LazyFile
++from click.utils import _make_default_short_help
++from click.utils import _PacifyFlushWrapper
++from click.utils import _posixify
++from click.utils import _safecall
++from click.utils import echo
++from click.utils import get_app_dir
++from click.utils import make_str
++
++
++def test_posixify():
++    assert _posixify("Foo  Bar") == "foo-bar"
++
++
++def test_safecall():
++    def boom():
++        raise ValueError
++
++    assert _safecall(boom)() is None
++    assert _safecall(lambda: 3)() == 3
++
++
++def test_make_str(monkeypatch):
++    assert make_str(b"abc") == "abc"
++    assert make_str(1) == "1"
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert make_str(b"a\xffb") == "a�b"
++
++
++def test_short_help_break_at_max_length():
++    assert _make_default_short_help("aaaa bbbb", max_length=4) == "..."
++    assert _make_default_short_help("aaaa bbbb cccc", max_length=9) == "aaaa..."
++
++
++def test_lazy_file_stdin_and_repr(tmp_path):
++    lf = _LazyFile("-")
++    assert not lf.should_close
++    lf.close_intelligently()
++    assert repr(lf) == repr(lf._f)
++
++    p = tmp_path / "f.txt"
++    lf = _LazyFile(str(p), "w")
++    assert repr(lf).startswith("<unopened file")
++    lf.open()
++    assert repr(lf) == repr(lf._f)
++    lf.close()
++
++
++def test_keep_open_repr():
++    f = io.StringIO()
++    k = _KeepOpenFile(f)
++    assert repr(k) == repr(f)
++
++
++def test_echo_bytes_without_binary_writer():
++    with pytest.raises(TypeError):
++        echo(b"x", file=io.StringIO())
++
++
++def test_stream_getters_unknown():
++    with pytest.raises(TypeError):
++        cu._get_binary_stream("nope")
++    with pytest.raises(TypeError):
++        cu._get_text_stream("nope")
++    assert cu._get_text_stream("stdout") is not None
++
++
++def test_open_file_lazy(tmp_path):
++    f = cu.open_file(str(tmp_path / "x"), "w", lazy=True)
++    assert isinstance(f, _LazyFile)
++    f.close()
++
++
++def test_get_app_dir_win(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", True)
++    monkeypatch.setenv("APPDATA", "/roam")
++    monkeypatch.setenv("LOCALAPPDATA", "/local")
++    assert get_app_dir("Foo") == os.path.join("/roam", "Foo")
++    assert get_app_dir("Foo", roaming=False) == os.path.join("/local", "Foo")
++    monkeypatch.delenv("APPDATA")
++    assert get_app_dir("Foo") == os.path.join(os.path.expanduser("~"), "Foo")
++
++
++def test_get_app_dir_posix_variants(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    assert get_app_dir("Foo Bar", force_posix=True) == os.path.expanduser("~/.foo-bar")
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert get_app_dir("Foo Bar").endswith("Library/Application Support/Foo Bar")
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg")
++    assert get_app_dir("Foo Bar") == os.path.join("/xdg", "foo-bar")
++
++
++def test_pacify_flush_wrapper():
++    class W:
++        def __init__(self, err):
++            self.err = err
++            self.attr = 5
++
++        def flush(self):
++            if self.err is not None:
++                raise OSError(self.err, "x")
++
++    assert _PacifyFlushWrapper(W(None)).attr == 5
++    _PacifyFlushWrapper(W(None)).flush()
++    _PacifyFlushWrapper(W(errno.EPIPE)).flush()
++    with pytest.raises(OSError):
++        _PacifyFlushWrapper(W(errno.EIO)).flush()
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    main = types.ModuleType("__main__")
++    main.__package__ = None
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    monkeypatch.setattr(sys, "argv", ["/a/b/prog.py"])
++    assert _detect_program_name() == "prog.py"
++    assert _detect_program_name("") == "prog.py"
++
++
++def test_expand_args_options(monkeypatch):
++    monkeypatch.setenv("HOME", "/h")
++    monkeypatch.setenv("CLICKVAR", "v")
++    assert _expand_args(["~/zz$CLICKVAR"], user=False, env=False) == ["~/zz$CLICKVAR"]
++    assert _expand_args(["~/zz$CLICKVAR"], user=True, env=False) == ["/h/zz$CLICKVAR"]
++    assert _expand_args(["~/zz$CLICKVAR"], user=False, env=True) == ["~/zzv"]
++
++
++def test_expand_args_re_error(monkeypatch):
++    def bad(*a, **k):
++        raise re.error("bad")
++
++    monkeypatch.setattr(glob_module, "glob", bad)
++    assert _expand_args(["abc"]) == ["abc"]

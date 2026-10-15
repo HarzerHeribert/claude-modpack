@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The graveyard · Lab notes</title>
+<meta name="description" content="Lab notes 5 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/05-the-graveyard.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="the-graveyard">The graveyard</h1>
+<p><em>Lab notes 5 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Six mods ship in this pack. Many more ideas were built, measured and dropped. A project&#39;s README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features that worked. Each grave has the idea, why it looked good, and the number that ended it.</p>
+<h2 id="the-checklist-that-said-everything-was-fine">The checklist that said everything was fine</h2>
+<p><strong>lastenheft</strong> (German for a requirements specification) turned an order into a list of checkable requirements and refused to let Claude stop until each was proven. Agents that report &quot;done&quot; on half-finished work are a real problem; a gate against it looked like obvious value.</p>
+<p>The first batch looked promising. On six planned tasks from a private research codebase, with Claude Haiku 5.5, the gate lowered &quot;said done while incomplete&quot; from 92% to 75% of runs, a paired difference of −17 points [−33, −4].</p>
+<p>We did not ship it. Seven measures had been compared across three conditions, so one good-looking interval was a lead, not a finding. Before running more, we wrote down the one measure and the rule that would count as a confirmation (<a href="#sources">preregistration</a>; Nosek et al. 2018), then ran the same tasks with fresh repeats:</p>
+<ul>
+<li>Confirmation: 88% against 92%, <strong>−4 points [−12.5, 0.0]. Not confirmed.</strong> Further repeats gave the same −4. The first batch&#39;s −17 had been mostly luck, the shrinkage you expect when the first estimate is picked because it looked large (Ioannidis 2008).</li>
+<li>The gate also cost about 20 more tool calls per run.</li>
+<li>A lighter version, a checklist without the gate, came out the same: −4 points [−14.6, +6.2], not confirmed. And it showed why: in <strong>38 of 43 runs that were incomplete, every point on the list showed passed.</strong> Claude&#39;s own tests passed; they just did not test what was missing. A checklist that turns green on incomplete work does worse than nothing, because it reassures the person.</li>
+</ul>
+<p>lastenheft stays in the lab, switched off. (Its data stays private: the tasks come from a private codebase.)</p>
+<h2 id="the-hint-nobody-followed">The hint nobody followed</h2>
+<p>lsp-plus&#39;s grep note told Claude which language-server call answers its search exactly. <strong>0 of 45</strong> followed. The story, and what replaced it, is in <a href="02-notes-nobody-reads.html">note 2</a>. The note is off by default.</p>
+<h2 id="four-ways-to-make-opus-delegate">Four ways to make Opus delegate</h2>
+<p>A rule in the system prompt naming the work to hand off (<strong>0</strong> hand-offs in 18 runs), the person&#39;s own &quot;Delegate where you see fit&quot; (<strong>0 of 28</strong>), the tool presented as an ability, <code>implement_spec(spec, check)</code>, with no word of delegation (<strong>0 of 8</strong>, and the unused tool cost 11–18% to carry), and telling Opus what each of its requests costs (<strong>0 of 4</strong>). Only an order works (<a href="02-notes-nobody-reads.html#174-runs-0-delegations">note 2</a>).</p>
+<h2 id="handing-off-the-small-stuff">Handing off the small stuff</h2>
+<p>If handing off a feature saves a third, why not hand off lookups? We let delegate take read-only work. Told to hand off a lookup, Opus turned it into an edit task (the worker wrote the answer to a file, the check printed the file) and the runs cost <strong>13–33% more</strong>, leaving stray files in the repository. A hand-off takes two to five requests of its own; a lookup takes one. Reverted.</p>
+<h2 id="the-projection-that-was-wrong">The projection that was wrong</h2>
+<p>An early analysis projected that hand-offs save more the fuller the session, <strong>−53%</strong> for the feature at 200k tokens, by assuming each step re-reads more. We measured it in a 233k-token session: the feature saved <strong>37%</strong>, about what it saved fresh, and a small question handed off cost up to <strong>3.6 times</strong> as much (the lookup 2.5 times) (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-hand-off-in-a-long-session-pl-hl">SUITE.md</a>). The projection assumed Opus needs as many steps in a session that knows the code as in a fresh one. It needs far fewer.</p>
+<h2 id="moving-text-before-the-cache-boundary">Moving text before the cache boundary</h2>
+<p>cells&#39; guidance is the same text in every session. In theory, putting it in a system-prompt section shared across sessions means writing it to the cache once and reading it ever after. Measured: <strong>+1.0% [−5%, +8%]</strong>, no saving; the first request wrote no less. Reverted.</p>
+<h2 id="keyword-pointers">Keyword pointers</h2>
+<p>BM25 ranking to point Claude at files before it searches. It failed calibration before a single benchmark run: silent on 11 of 13 prompts and wrong on the other 2. The version that survived is deterministic (<a href="04-borrowing-the-good-ideas.html">note 4</a>).</p>
+<h2 id="the-log-squeezer">The log squeezer</h2>
+<p><strong>squeeze</strong> replaced a long test log with its failures (file, line, message) and kept the full log on disk. Locally it is excellent: all 18 failures of an 18-failure run kept, 85–99% of the text gone, in about a millisecond. On a task with 18 failing tests it fired <strong>0 times in 4 runs</strong>, because Opus piped every test run through <code>tail</code> or <code>grep</code> itself, 24 times across the 8 runs. We tried Claude Haiku 5.5, expecting a smaller model to dump whole logs: it piped through <code>tail</code> too (44 times in 8 runs), and squeeze fired 0 times again. A tool for a habit neither model has.</p>
+<h2 id="compression-that-forgets">Compression that forgets</h2>
+<p>ScaleDown&#39;s Compress keeps the passages that look relevant to a question. Asked five factual questions about click from a compressed copy, a model answered 4 of 5 when each question had its own compression, and <strong>0–1 of 5</strong> when one compression had to serve all five; one answer was confidently wrong (exit code 1 instead of 2) because the line that said 2 was gone. In a coding session the next question is never known in advance (<a href="07-small-models-as-plumbing.html">note 7</a>).</p>
+<h2 id="the-mod-nobody-measured">The mod nobody measured</h2>
+<p><strong>turn-savers</strong> (lighter thinking on routine steps, the code at a failure attached to the failing run) was built and never measured. So it does not ship. A mod without a measurement is a guess with a version number.</p>
+<h2 id="what-the-graveyard-teaches">What the graveyard teaches</h2>
+<ul>
+<li><strong>The first good number is usually too good.</strong> Write down what would confirm it, then run it again.</li>
+<li><strong>A check that passes is not a check that checks.</strong> Agents&#39; own tests share their blind spots.</li>
+<li><strong>Models have habits.</strong> They grep, they tail logs, they keep work they can do. A feature that fights a habit loses; one that answers inside it wins.</li>
+<li><strong>Removing is a result.</strong> Every grave here made the pack cheaper or simpler.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Delegate bench results: <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/delegate-bench/</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>. The lastenheft runs used Claude Haiku 5.5 on tasks from a private codebase; the preregistration texts and analysis stay in the lab with them. squeeze: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-squeeze.jsonl"><code>results-squeeze.jsonl</code></a>. ScaleDown measurements: <a href="07-small-models-as-plumbing.html">note 7</a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Nosek, B. A., Ebersole, C. R., DeHaven, A. C., &amp; Mellor, D. T. (2018). The preregistration revolution. <em>PNAS</em>, 115(11), 2600–2606.</li>
+<li>Ioannidis, J. P. A. (2008). Why most discovered true associations are inflated. <em>Epidemiology</em>, 19(5), 640–648.</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="04-borrowing-the-good-ideas.html"><span>Previous</span>Borrowing the good ideas</a><a class="next" href="06-one-server-per-extension.html"><span>Next</span>One server per extension</a></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

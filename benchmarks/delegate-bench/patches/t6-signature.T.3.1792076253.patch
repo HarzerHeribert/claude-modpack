@@ -1,0 +1,82 @@
+diff --git a/.trail/learnings/2026-10-15-resolve-color-default-is-keyword-only-harzerheribert.md b/.trail/learnings/2026-10-15-resolve-color-default-is-keyword-only-harzerheribert.md
+new file mode 100644
+index 0000000..7587443
+--- /dev/null
++++ b/.trail/learnings/2026-10-15-resolve-color-default-is-keyword-only-harzerheribert.md
+@@ -0,0 +1,20 @@
++---
++title: resolve_color_default is keyword-only (override=)
++author: HarzerHeribert
++date: 2026-10-15
++cost: { minutes: 1, tokens: 24577 }
++touches:
++  - src/click/globals.py
++  - src/click/termui.py
++  - src/click/utils.py
++---
++
++## Decided
++- `click.globals.resolve_color_default` signature is `(*, override: bool | None = None) -> bool | None`. Callers pass `override=color`; behavior unchanged (explicit value wins, else ctx.color, else None).
++
++## Tried and ruled out
++- Nothing; plain rename. Tests in tests/ never call the helper directly, so no test edits were needed.
++
++## Watch out
++- Callers live in three files: utils.echo, termui.get_pager_file, termui.progressbar (pass override=color); ClickException.__init__ and termui._readline_prompt call it with no args.
++- Pyright "not accessed" warnings in utils.py (_safecall, _get_text_stream, etc.) are pre-existing, not caused by this change.
+diff --git a/src/click/globals.py b/src/click/globals.py
+index a2f9172..dc107d2 100644
+--- a/src/click/globals.py
++++ b/src/click/globals.py
+@@ -51,13 +51,13 @@ def pop_context() -> None:
+     _local.stack.pop()
+ 
+ 
+-def resolve_color_default(color: bool | None = None) -> bool | None:
++def resolve_color_default(*, override: bool | None = None) -> bool | None:
+     """Internal helper to get the default value of the color flag.  If a
+     value is passed it's returned unchanged, otherwise it's looked up from
+     the current context.
+     """
+-    if color is not None:
+-        return color
++    if override is not None:
++        return override
+ 
+     ctx = get_current_context(silent=True)
+ 
+diff --git a/src/click/termui.py b/src/click/termui.py
+index e1315f2..f46d7cf 100644
+--- a/src/click/termui.py
++++ b/src/click/termui.py
+@@ -359,7 +359,7 @@ def get_pager_file(
+     """
+     from ._termui_impl import get_pager_file
+ 
+-    color = resolve_color_default(color)
++    color = resolve_color_default(override=color)
+ 
+     return get_pager_file(color=color)
+ 
+@@ -578,7 +578,7 @@ def progressbar(
+     """
+     from ._termui_impl import ProgressBar
+ 
+-    color = resolve_color_default(color)
++    color = resolve_color_default(override=color)
+     return ProgressBar(
+         iterable=iterable,
+         length=length,
+diff --git a/src/click/utils.py b/src/click/utils.py
+index b529eb0..3be4f03 100644
+--- a/src/click/utils.py
++++ b/src/click/utils.py
+@@ -339,7 +339,7 @@ def echo(
+ 
+     # ANSI style code support. For no message or bytes, nothing happens.
+     # When outputting to a file instead of a terminal, strip codes.
+-    elif should_strip_ansi(file, resolve_color_default(color)):
++    elif should_strip_ansi(file, resolve_color_default(override=color)):
+         out = strip_ansi(out)
+ 
+     file.write(out)  # type: ignore

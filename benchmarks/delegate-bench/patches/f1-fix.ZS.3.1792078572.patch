@@ -1,0 +1,26 @@
+diff --git a/src/click/termui.py b/src/click/termui.py
+index 74fad9f..e1315f2 100644
+--- a/src/click/termui.py
++++ b/src/click/termui.py
+@@ -322,7 +322,7 @@ def confirm(
+         text,
+         prompt_suffix,
+         show_default,
+-        "y/n" if default is None else ("Y/N" if default else "y/N"),
++        "y/n" if default is None else ("Y/n" if default else "y/N"),
+     )
+ 
+     while True:
+diff --git a/src/click/types.py b/src/click/types.py
+index fc33fd2..0eb8462 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -810,7 +810,7 @@ class BoolParamType(ParamType[bool]):
+ 
+     bool_states: dict[str, bool] = {
+         "1": True,
+-        "0": True,
++        "0": False,
+         "yes": True,
+         "no": False,
+         "true": True,

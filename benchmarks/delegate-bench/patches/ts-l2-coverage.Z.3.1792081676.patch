@@ -1,0 +1,134 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..a193f4b
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,128 @@
++import * as chrono from "../../src";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++
++test("Test - Number word with apostrophe (un')", function () {
++    testSingleCase(chrono.it, "un'ora fa abbiamo fatto qualcosa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("un'ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 0));
++    });
++
++    testSingleCase(chrono.it, "ci vediamo tra un'ora", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(11);
++        expect(result.text).toBe("tra un'ora");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 13, 0));
++    });
++});
++
++test("Test - Number word 'qualche'", function () {
++    testSingleCase(chrono.it, "qualche giorno fa abbiamo fatto qualcosa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("qualche giorno fa");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(7);
++        expect(result.start).toBeDate(new Date(2012, 7, 7, 12, 0));
++    });
++
++    testSingleCase(chrono.it, "qualche minuto fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("qualche minuto fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 57));
++    });
++});
++
++test("Test - Number word 'mezza'", function () {
++    testSingleCase(chrono.it, "mezza ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("mezza ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 30));
++    });
++
++    testSingleCase(chrono.it, "ci vediamo tra mezza ora", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(11);
++        expect(result.text).toBe("tra mezza ora");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 12, 30));
++    });
++});
++
++test("Test - Number word 'paio di'", function () {
++    testSingleCase(chrono.it, "paio di giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("paio di giorni fa");
++        expect(result.start.get("day")).toBe(8);
++        expect(result.start).toBeDate(new Date(2012, 7, 8, 12, 0));
++    });
++
++    testSingleCase(chrono.it, "un paio di giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(3);
++        expect(result.text).toBe("paio di giorni fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 8, 12, 0));
++    });
++});
++
++test("Test - Number word 'alcuni'", function () {
++    testSingleCase(chrono.it, "alcuni giorni fa abbiamo fatto qualcosa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("alcuni giorni fa");
++        expect(result.start.get("day")).toBe(3);
++        expect(result.start).toBeDate(new Date(2012, 7, 3, 12, 0));
++    });
++});
++
++test("Test - Time units without any parsable fragment", function () {
++    testUnexpectedResult(chrono.it, "treore fa", new Date(2012, 7, 10, 12, 0));
++
++    testUnexpectedResult(chrono.it, "tra treore", new Date(2012, 7, 10, 12, 0));
++});
++
++test("Test - Year with Buddhist Era (BE)", function () {
++    testSingleCase(chrono.it, "La scadenza è il 10 agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(14);
++        expect(result.text).toBe("il 10 agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 12));
++    });
++
++    testSingleCase(chrono.it, "agosto 10 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("agosto 10 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++
++    testSingleCase(chrono.it, "agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++    });
++});
++
++test("Test - Year Before Christ (BC/BCE)", function () {
++    testSingleCase(chrono.it, "La scadenza è il 10 agosto 345 BC", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(14);
++        expect(result.text).toBe("il 10 agosto 345 BC");
++        expect(result.start.get("year")).toBe(-345);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++
++    testSingleCase(chrono.it, "10 agosto 345 BCE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 345 BCE");
++        expect(result.start.get("year")).toBe(-345);
++    });
++});
++
++test("Test - Year Anno Domini (AD/CE)", function () {
++    testSingleCase(chrono.it, "10 agosto 2000 AD", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 2000 AD");
++        expect(result.start.get("year")).toBe(2000);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++        expect(result.start).toBeDate(new Date(2000, 7, 10, 12));
++    });
++
++    testSingleCase(chrono.it, "10 agosto 100 CE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 100 CE");
++        expect(result.start.get("year")).toBe(100);
++    });
++});

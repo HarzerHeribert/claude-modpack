@@ -1,7 +1,7 @@
 {
   "name": "lsp-plus",
-  "version": "0.3.1",
-  "description": "Extends Claude Code's LSP: references and definitions name the docs that use a symbol, an edit that removes a name the docs still use says so, /refs finds stale code names and broken links in the docs, a grep for a code symbol gets a note naming the exact LSP call, and Markdown and SQL get language servers.",
+  "version": "0.4.0",
+  "description": "Extends Claude Code's LSP: references and definitions name the docs that use a symbol, an edit that removes a name the docs still use says so, /refs finds stale code names and broken links in the docs, a grep for a code symbol gets a note naming the exact LSP call, and Markdown, SQL, shell scripts and Terraform get language servers.",
   "author": {
     "name": "HarzerHeribert"
   },
@@ -23,6 +23,26 @@
       ],
       "extensionToLanguage": {
         ".sql": "sql"
+      }
+    },
+    "shell": {
+      "command": "bash-language-server",
+      "args": [
+        "start"
+      ],
+      "extensionToLanguage": {
+        ".sh": "shellscript",
+        ".bash": "shellscript"
+      }
+    },
+    "terraform": {
+      "command": "terraform-ls",
+      "args": [
+        "serve"
+      ],
+      "extensionToLanguage": {
+        ".tf": "terraform",
+        ".tfvars": "terraform-vars"
       }
     }
   },
@@ -56,6 +76,12 @@
       "title": "Answer symbol greps from the language server",
       "description": "When a grep searches for a code symbol, lsp-plus asks the language server itself and attaches its exact answer to the grep result: the functions that call it, or its references. No extra step for Claude. Measured: 25% fewer requests on a rename, even on a trace, never dearer.",
       "default": true
+    },
+    "blast": {
+      "type": "boolean",
+      "title": "Callers after a signature change",
+      "description": "After an Edit changes a function's parameters, tell Claude who calls it, from the language server. Off until measured.",
+      "default": false
     },
     "warm": {
       "type": "boolean",

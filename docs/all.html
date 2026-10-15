@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab notes · claude-modpack</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/lab-notes.pdf" download>All notes as PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="lab-notes">Lab notes</h1>
+<p>What we tried while building this modpack, how we measured it, and why most of it did not ship.</p>
+<p>The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that made sessions more expensive. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
+<blockquote>
+<p><strong>Who wrote this.</strong> Claude (Opus 5.5) wrote these notes from this repository&#39;s results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.</p>
+</blockquote>
+<h2 id="how-we-measure">How we measure</h2>
+<p>The same setup runs through every note unless it says otherwise.</p>
+<ul>
+<li><strong>The work.</strong> Seven tasks on <a href="https://github.com/pallets/click">click</a> 8.5.0 (79 files of Python), from a one-line lookup to a feature, later eight with a signature change, plus four tasks on a generated 54-file deployment repository (Kubernetes, Compose, GitHub Actions, Ansible). Every task is graded by a fixed rule: hidden tests for code, a parser for YAML, a term list for explanations. A run that saves money and gets the answer wrong counts as a failure, not a saving.</li>
+<li><strong>The runs.</strong> Headless Claude Code (<code>claude -p</code>), Claude Opus 5.5, one fresh copy of the repository per run. Each condition names exactly which mods load, so nobody&#39;s personal settings decide anything. A <em>long session</em> forks a prepared session that has already read all of click&#39;s source, <code>src/click</code> (about 220k tokens of context), which is where real work spends most of its time.</li>
+<li><strong>The cost.</strong> Read request by request from the transcripts and priced at list prices: Opus 5.5 at $4 per million input tokens, $20 output, $0.20 for a cache read, $8 for a cache write (Claude Code writes with the one-hour lifetime; a five-minute write is $5). On a subscription these are API-equivalent estimates, not a bill.</li>
+<li><strong>The uncertainty.</strong> Two to eight runs per task and condition. Differences are reported for the average task with 95% bootstrap intervals, resampling runs within each task (<a href="#references">Efron &amp; Tibshirani 1993</a>). An interval that crosses zero means <em>not shown</em>, and we say so. Before a confirmation run we wrote down what would count as confirmed (<a href="05-the-graveyard.html#the-checklist-that-said-everything-was-fine">an example</a>).</li>
+<li><strong>The limits.</strong> Mostly one small Python repository and tasks every condition solves (<a href="09-beyond-click.html">note 9</a> repeats the main comparisons on TypeScript and on real bug reports): these benchmarks can show cost and step differences at equal quality. They cannot show where a weaker setup fails on harder work. Each note says what its data can and cannot carry.</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>Efron, B., &amp; Tibshirani, R. J. (1993). <em>An Introduction to the Bootstrap</em>. Chapman &amp; Hall.</li>
+<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+<li>Nosek, B. A., Ebersole, C. R., DeHaven, A. C., &amp; Mellor, D. T. (2018). The preregistration revolution. <em>PNAS</em>, 115(11), 2600–2606.</li>
+</ul>
+
+<section class="chapter"><h1 id="the-cheapest-step-is-the-one-claude-never-takes">The cheapest step is the one Claude never takes</h1>
+<p><em>Lab notes 1 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Ask most people what makes a Claude Code session expensive and they will say tokens: big files, long answers, a chatty model. That is true, but it points at the wrong lever. Our first useful result was learning where the money actually goes.</p>
+<h2 id="every-step-re-reads-everything">Every step re-reads everything</h2>
+<p>A Claude Code session is a loop. Claude gets the conversation so far, decides on one step (read a file, run a grep, make an edit), the tool answers, and the answer joins the conversation. Then the whole conversation goes back to the model for the next step.</p>
+<p>The whole conversation, every time. Prompt caching makes the re-read cheap per token: a cached token costs $0.20 per million instead of $4 on Opus 5.5. It does not make it free, and it multiplies. In a session holding 220,000 tokens, every step costs about $0.044 before Claude has thought about anything. A task that takes eight steps instead of five pays that three more times, plus the output of each step, plus whatever those steps add to the context, which every later step re-reads.</p>
+<p>So the unit of cost is the <strong>request</strong>: a step of the main model. That shaped everything else. A mod that makes each tool answer 10% shorter saves a little. A mod that removes a step saves a whole re-read of everything.</p>
+<h2 id="what-the-pack-actually-saves">What the pack actually saves</h2>
+<p>The pack&#39;s first measurements came out exactly along that line (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#results">SUITE.md</a>). Tokens per request barely moved. Requests did: 5.2 per task with the pack against 7.2 without, on the same seven tasks, every run graded correct.</p>
+<p>The release measurement of version 0.3.0, 116 runs, put numbers on it (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-pack-as-it-ships-in-030-v-z-vl-pl">SUITE.md</a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Change in cost per task, pack against plain Claude Code</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Long session (Claude has read the project)</td>
+<td><strong>−26.2%</strong></td>
+<td>−31.3% to −20.9%</td>
+</tr>
+<tr>
+<td>Fresh session, multi-step tasks</td>
+<td>−10.9%</td>
+<td>−17.2% to −3.9%</td>
+</tr>
+<tr>
+<td>Fresh session, quick questions</td>
+<td><strong>+5.5%</strong></td>
+<td>+1.2% to +10.2%</td>
+</tr>
+</tbody></table>
+<p>The long session is where the pack pays most, because that is where a removed step removes the most re-reading. In a long session Claude needed 3.5 requests per task with the pack instead of 5.4.</p>
+<h2 id="which-mod-does-it">Which mod does it</h2>
+<p>An ablation takes one mod out at a time and measures what is lost (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#which-mod-earns-it-the-ablation-z">SUITE.md</a>). The answer was not the mod we expected.</p>
+<ul>
+<li><strong>cells</strong> lets Claude make several edits and run the tests in one step, through Claude Code&#39;s own edit tool. Taking it out made the pack 8.9% more expensive [+2.1%, +16.4%], and 16% on multi-step work. The feature task took 14.2 requests without it instead of 9.8.</li>
+<li><strong>lsp-plus</strong>, which answers code searches from the language server, showed no net effect on the whole (−0.6% [−7.2%, +6.7%]). On the one task where it fires most, a rename, the pack without it needed 5.0 requests instead of 3.2. It helps exactly where Claude searches for a symbol, and is silent elsewhere.</li>
+</ul>
+<h2 id="the-quick-question-tax">The quick-question tax</h2>
+<p>The +5.5% on quick questions is the other side of the same arithmetic. The pack&#39;s tools, their descriptions and its guidance are about 4,000 tokens: 30.6k in the first request of a session instead of 26.7k. Cached, that is about $0.001 per request. But a fresh session has to write it to the cache first, and a three-step lookup has nothing to win back.</p>
+<p>We could have hidden this in an average. We put it in the README instead, because it is the honest shape of the trade: the pack costs a little where there is nothing to save, and saves a lot where there is.</p>
+<p>Then it did not replicate. Measured again two days later with the next version of the pack (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>), quick questions cost <strong>3.6% less</strong> [−8.2%, +1.3%], and on a TypeScript library 9.9% less (<a href="09-beyond-click.html">note 9</a>). Both days pooled: +2.3% [−1.1%, +6.0%], an interval across zero. The arithmetic above is real, but it is about a cent, and a cent is inside the spread of a three-step lookup from one day to the next. The README now says &quot;about even&quot;. The long session replicated in the other direction: −39.9% on the second day, −33.2% [−38.9%, −26.9%] pooled.</p>
+<h2 id="the-biggest-saving-was-not-a-mod">The biggest saving was not a mod</h2>
+<p>While measuring that tax, we found a bigger one we were paying without knowing it. The person running this lab had six claude.ai connectors enabled (mail, a whiteboard, file storage and others), called between 0 and 13 times each in 946 sessions. Turning them off took the deferred tools offered to every session from 378 to 15, about 6,000 tokens of names and instructions, and cut the cost of the four quick tasks by 34%, with the same number of requests (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#unused-connectors">SUITE.md</a>). That is more than any mod in this pack saves on small work. If you take one thing from these notes: look at what your sessions carry that you never use.</p>
+<h2 id="what-this-changed">What this changed</h2>
+<ul>
+<li>We count requests first, tokens second. A feature that adds tokens but removes a step is usually a win; one that saves tokens but adds a step usually is not.</li>
+<li>We measure in long sessions, not only fresh ones. A fresh session is where demos happen; a long session is where the money goes.</li>
+<li>A mod has to pay for its own prompt. Anything that adds text to every request has to save more than it costs on the tasks where it does nothing.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Click 8.5.0, Opus 5.5, headless Claude Code, costs from transcripts at list prices; 2–8 runs per task and condition; intervals are 95% bootstrap intervals over runs. The connector measurement compared runs from different hours, so the cache&#39;s state may differ a little; the size of the effect is not in doubt. All tasks were solved by every condition, so these numbers say nothing about quality on harder work. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-030.jsonl"><code>results-030.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ablation.jsonl"><code>results-ablation.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-noconn.jsonl"><code>results-noconn.jsonl</code></a>; harness: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Anthropic, <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Prompt caching</a>: how cached prompt prefixes are written and read, and what each costs.</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="notes-nobody-reads">Notes nobody reads</h1>
+<p><em>Lab notes 2 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>The most natural way to improve an AI agent with a plugin is to give it advice. Notice it doing something slow, tell it the faster way. We built two mods on that idea. Both measurements came back with the same number: zero.</p>
+<h2 id="45-hints-0-followed">45 hints, 0 followed</h2>
+<p>When Claude searches code with <code>grep</code>, it gets every line that contains the text: definitions, calls, comments, strings, a variable that happens to share the name. A language server knows the difference. It can list exactly the functions that call <code>format_filename</code>, without the noise.</p>
+<p>So lsp-plus watched for greps that looked for a code symbol and attached a short note to the result: <em>this is a code symbol; <code>LSP findReferences</code> on utils.py:442 lists exactly its uses</em>. Correct, specific, one call away.</p>
+<p>In every benchmark run with the pack, that note fired 45 times. Claude acted on it 0 times (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#quiet-where-it-has-no-proof-q">SUITE.md</a>).</p>
+<p>Looking at the transcripts, the reason is plain economics, the model&#39;s own. The note arrives after the grep has already answered. Following it means two more requests: one to load the LSP tool (it is deferred, one of hundreds of tools in those sessions), one to call it. Two steps to get an answer Claude believes it already has. From where the model stands, ignoring the note is the efficient choice.</p>
+<h2 id="answers-instead-of-advice">Answers instead of advice</h2>
+<p>So we stopped advising and started answering. When a grep looks for a code symbol, lsp-plus now asks the language server itself, inside the hook, and attaches the server&#39;s answer to the grep&#39;s result: the callers, each named by its class and method, or the references by file (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-language-server-answers-the-grep-y">SUITE.md</a>).</p>
+<pre><code>`resolve_color_default` per the language server: called from 5 functions in 3 files (code only: strings, comments, docs and namesakes are in the grep above):
+src/click/exceptions.py: ClickException.__init__ (48)
+src/click/termui.py: _readline_prompt (99), get_pager_file (362), progressbar (581)
+src/click/utils.py: echo (342)
+</code></pre>
+<p>No extra step for Claude: the answer is in the place it was already reading. On the rename task that cut requests by 25% and cost by 6.5%. Where no grep asked for a symbol, it said nothing and cost nothing. The note that asked Claude to do the same thing itself was switched off.</p>
+<h2 id="174-runs-0-delegations">174 runs, 0 delegations</h2>
+<p>The second idea was bigger. Opus is expensive; Sonnet and Haiku are much cheaper. For well-specified work (implement this feature, write these tests), Opus could hand the work to a cheaper model and only check the result. The delegate mod offers exactly that: a <code>hand_off</code> tool, with the evidence (the diff, the test run) coming back for Opus to judge.</p>
+<p>Asked to hand off, it works: a feature cost 27–37% less, every result correct. The question was whether Opus would hand off without being asked. We tried everything we could think of (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#why-opus-does-not-hand-off-x">SUITE.md</a>):</p>
+<table>
+<thead>
+<tr>
+<th>What we tried</th>
+<th>Runs</th>
+<th>Hand-offs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The tool offered</td>
+<td>24</td>
+<td>0</td>
+</tr>
+<tr>
+<td>The tool offered, with its measured savings in its description</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>A routing rule in the system prompt naming the work to hand off</td>
+<td>14</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Claude Code&#39;s whole system prompt replaced by one sentence and that rule</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>The person ending every prompt with &quot;Delegate where you see fit.&quot;</td>
+<td>28</td>
+<td>0</td>
+</tr>
+<tr>
+<td>The same tool described as an ability, <code>implement_spec</code>, with no word of delegation</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Telling Opus what each of its requests costs in this session</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Claude Code&#39;s own Agent tool, available in every run</td>
+<td>174</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>It is not the harness: with Claude Code&#39;s system prompt gone, nothing changed. It is not permission: the person&#39;s own words in the prompt changed nothing. Opus 5.5 does not give away work it can do itself.</p>
+<p>On small work that is the right call: a hand-off takes two to five requests of its own, so a small question handed off costs up to three and a half times as much. Opus only misses the big, specified work.</p>
+<h2 id="an-order-works">An order works</h2>
+<p>One thing did work, every time. When a mod attached an order to the prompt, phrased as the person&#39;s (&quot;The person approved this plan; implement it through hand_off&quot;), Opus handed off in 8 of 8 runs, and the feature cost 27% less (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#getting-opus-to-hand-off-hf-mo-ic-ps">SUITE.md</a>).</p>
+<p>That became the design. When you approve a plan of 20 lines or more in plan mode, delegate gives that order: the plan becomes the worker&#39;s spec. Claude does not decide to delegate; your approval does.</p>
+<h2 id="other-tools-found-the-same-thing">Other tools found the same thing</h2>
+<p>We are not the only ones who learned this. The code-graph tool Trail-Code (formerly graft) injects an instruction to <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts#L254-L255">&quot;reach for trail first&quot;</a> at session start, and with prompts adds pointers or a reminder to run <code>trail ask</code> &quot;before grepping&quot;. Its own source has a comment from an investigated session: <em>&quot;the agent did not pull. It grepped 38 times.&quot;</em> (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts#L176-L184"><code>src/claude/format.ts</code></a>). Its maintainer, on Hacker News: <em>&quot;claude never actually uses them as it&#39;s trained to use grep&quot;</em> (<a href="https://news.ycombinator.com/item?id=49299985">HN</a>). graphify, another code-graph tool, injects a note before searches: <em>&quot;MANDATORY: … You MUST run <code>graphify query &quot;&lt;question&gt;&quot;</code> before grepping raw files&quot;</em> (<a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/cli.py#L18-L28"><code>graphify/cli.py</code></a>).</p>
+<p>Three projects, the same observation: an agent trained to grep keeps grepping. Shouting does not change that. Answering inside the grep does.</p>
+<h2 id="what-this-changed">What this changed</h2>
+<ul>
+<li>A mod that wants Claude to behave differently must change what Claude sees in the place it already looks, not ask it to look elsewhere.</li>
+<li>Advice is not free. Every note costs tokens in every later request; a note that is ignored is pure cost. Our rule since: a mod speaks only where it has proof that speaking helps.</li>
+<li>When a choice really is the person&#39;s (delegating, spending), make the person&#39;s action the trigger, not a model&#39;s judgment the model has shown it won&#39;t make.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Click 8.5.0, Opus 5.5, headless Claude Code; hand-off counts read from transcripts. &quot;0 hand-offs&quot; holds for these tasks and this model version; a future model may behave differently, and the harness to check is public. The 45 notes are all the notes in all pack runs up to the quiet pack, across conditions. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-quiet.jsonl"><code>results-quiet.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-answer.jsonl"><code>results-answer.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prompt.jsonl"><code>results-prompt.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-fit.jsonl"><code>results-fit.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-delegation-ideas.jsonl"><code>results-delegation-ideas.jsonl</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a>, source at <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts"><code>ead585b</code></a> (checked 15 Oct 2026).</li>
+<li><a href="https://news.ycombinator.com/item?id=49299985">Show HN discussion of graft</a>, maintainer comments.</li>
+<li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/cli.py#L18-L28"><code>graphify/cli.py</code></a> (the hook-guard note).</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="a-10000-star-code-graph-on-our-bench">A 10,000-star code graph on our bench</h1>
+<p><em>Lab notes 3 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>A friend asked a fair question: why build our own code tools when projects like graphify (about 127,000 GitHub stars) and Trail-Code (about 10,000) put a whole codebase into a graph that Claude can query, and report large savings doing it? Someone they knew had cut their Claude usage sharply with one of them.</p>
+<p>So we put one on our bench. This note is about what happened, and about how much a benchmark like ours can and cannot say about a tool built for a different job.</p>
+<h2 id="two-tools-one-idea">Two tools, one idea</h2>
+<p>Both tools parse a repository with tree-sitter into a graph of definitions and calls, and hand Claude ways to query it. Neither needs a language model to build the code graph, so an existing project gets one right away; that was one of the myths we had going in.</p>
+<p>They differ in the thing that turned out to matter most: <strong>keeping the graph current</strong>. graphify&#39;s Claude Code setup asks the model, in CLAUDE.md, to run <code>graphify update .</code> after changing code, or relies on opt-in git hooks and a file watcher; its issue tracker has reports of answers from graphs days old (<a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a>, <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a>). Trail-Code checks the working tree before every query (a few milliseconds) and rebuilds what changed, with no model involved (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/graph/refresh.ts#L10-L16"><code>src/graph/refresh.ts</code></a>). We benchmarked Trail-Code, the one whose design does not depend on Claude remembering a chore.</p>
+<h2 id="what-they-claim-and-what-others-measured">What they claim, and what others measured</h2>
+<p>Trail-Code reports a 162-run sweep with Claude Sonnet 5 answering questions about two repositories: 32% lower cost, 46% fewer tool calls, the same correctness (93% vs 93%), judged by another model (<a href="https://github.com/trailhq/Trail-Code#benchmark">README</a>). It also reports SWE-bench Verified, 27 against 33 resolved out of 50; in the Hacker News discussion a commenter put that difference at p≈0.22, and the maintainer explained the growing sample size by usage limits running out (<a href="https://news.ycombinator.com/item?id=49299985">HN</a>).</p>
+<p>graphify&#39;s documented benchmark is &quot;71.5x fewer tokens per query&quot; on a 52-file corpus (<a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/docs/how-it-works.md">docs/how-it-works.md</a>). Its own <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/benchmark.py">benchmark script</a> compares one query&#39;s output against reading <strong>the whole corpus</strong>, and the same page reports about 1x on a 6-file corpus. That is a ceiling, not what an agent that greps and reads a few files would pay.</p>
+<p>Two independent checks stand out, both from users in Trail-Code&#39;s own issue tracker:</p>
+<ul>
+<li><a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>: on 186 cases built from merged pull requests in four repositories (graft 0.10.1), the tool&#39;s ranking put 48.5% of the files each pull request changed into its top 10, against <strong>66.5% for plain BM25 keyword search over whole files</strong>. A contributor later proposed adopting whole-file BM25 (<a href="https://github.com/trailhq/Trail-Code/issues/257">#257</a>); the maintainers declined after their own re-test found their current ranking as good or better.</li>
+<li><a href="https://github.com/trailhq/Trail-Code/issues/506">#506</a>: on a 291-file Swift/Kotlin repository, the context packs it returned were 2.5–4 times larger than <code>rg</code> plus a targeted read, and its top hit was right in one of three questions.</li>
+</ul>
+<h2 id="our-setup">Our setup</h2>
+<ul>
+<li>Trail-Code 0.22.1 from npm, wired with its own <code>trail init</code> (skill, hooks, MCP server, its graph of click: 2,028 nodes and 3,221 edges from 79 files, built in about a second). We kept only the repository-level wiring, so its hooks ran once (<a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a> describes them running twice when both levels are installed), started its MCP server from the installed version, and turned its telemetry off.</li>
+<li><strong>Both arms had our pack loaded.</strong> This measures what Trail-Code adds to the pack, not Trail-Code against plain Claude Code. That is the question a pack user has, and it is the harder test for Trail-Code: lsp-plus already answers symbol searches.</li>
+<li>Opus 5.5, click 8.5.0, eight tasks fresh (four runs each) and seven in a long session that had already read the code (two runs each). Every result graded by hidden tests or fixed rules.</li>
+</ul>
+<h2 id="what-we-measured">What we measured</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Trail-Code added to the pack</th>
+<th>95% interval</th>
+<th>Runs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fresh session</td>
+<td><strong>+12.8%</strong> cost</td>
+<td>+7.5% to +18.3%</td>
+<td>64</td>
+</tr>
+<tr>
+<td>Long session</td>
+<td><strong>+32.1%</strong> cost</td>
+<td>+21.9% to +43.6%</td>
+<td>28</td>
+</tr>
+<tr>
+<td>Fresh, without its learning hook</td>
+<td>+4.0% cost</td>
+<td>+0.1% to +8.0%</td>
+<td>64</td>
+</tr>
+</tbody></table>
+<p>It cost more on every one of the eight tasks, fresh and long. Quality was the same: every answer correct.</p>
+<h2 id="where-the-extra-cost-came-from">Where the extra cost came from</h2>
+<p><strong>A learning note that ate the answer.</strong> Trail-Code&#39;s end-of-turn hook stops Claude once per session to write a &quot;team learning&quot; into the repository. On the explanation task, in all four fresh runs, Claude explained how click resolves an option&#39;s value, and then the hook made it write a learning file, so its final message was about the file, not the answer. The note ended with a line for a contributor named from the repository&#39;s history: <em>&quot;Commit what you learned and their agents get to a PR 3x faster&quot;</em> (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/notes/notes.ts#L570"><code>src/notes/notes.ts</code></a>). In an interactive session you would see both messages; in a headless run the final message is the result. We graded Trail-Code fairly on all of Claude&#39;s messages (all correct), and measured the hook separately: it accounts for about 8 points of the cost [+4.0%, +13.5%], and 2–4 extra requests on that task. The learning file&#39;s name also contained the git user&#39;s name.</p>
+<p><strong>Context Claude did not need.</strong> Without the learning hook, Trail-Code still cost 4% more. Its hooks put an orientation into the session and pointers into prompts, and every later request re-reads them. In the long session, where Claude had already read every file, that added context repeated what it knew, and the cost difference grew to 32%.</p>
+<p><strong>Tools Claude rarely reached for.</strong> Claude used Trail-Code&#39;s command line in 11 of its 32 fresh runs, mostly on the lookup and explanation tasks, and its six MCP tools in none. On the rename, the feature and the tests it worked as without it. That matches what Trail-Code&#39;s own maintainer wrote (see <a href="02-notes-nobody-reads.html#other-tools-found-the-same-thing">note 2</a>), and what we saw with our own hints.</p>
+<h2 id="what-this-does-and-does-not-say">What this does and does not say</h2>
+<p>Our bench is a 79-file Python library, and our tasks mostly name what they are about: <code>format_filename</code>, <code>ParamType</code>, an option&#39;s default. Opus with the pack finds such things in two or three steps. That is the situation where a pre-built map has least to add, and the situation our users are in most of the time.</p>
+<p>It says nothing about the job these tools are designed for: a large, unfamiliar repository where the question comes before anyone knows a symbol to search (&quot;where does authentication happen?&quot;). We did not test that, and the one independent test of that step we found (#117) favoured plain keyword search over the graph&#39;s ranking of that version. If you maintain one of these tools and think our setup is unfair to it, the harness is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/</code></a> and we will run what you suggest.</p>
+<p>We measured it once more on real bug reports, where it reports its own SWE-bench results: 30 issues, again more expensive than the pack alone (+10.8% [0.0%, +25.5%]; <a href="09-beyond-click.html">note 9</a>). What we took from these tools is in the <a href="04-borrowing-the-good-ideas.html">next note</a>.</p>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Arms: Z (the pack as committed), T (the pack and Trail-Code as <code>trail init</code> wires a repository), TG (as T without Trail-Code&#39;s Stop hook), PL and TL (Z and T in a prepared 220k-token session). The four explanation runs of T score 0, 0, 0.33 and 0 in the results file, graded on the final message as the bench does; graded on all of Claude&#39;s messages, from the transcripts that stay in the lab, all four score 1.0. Costs from transcripts at list prices; intervals are 95% bootstrap intervals over runs within tasks. Four runs per task fresh, two in the long session: per-task differences are within the runs&#39; spread; the totals&#39; intervals are not. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>; setup: <code>trail_init()</code> and <code>TRAIL_ARMS</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a> (formerly graft), README, source and issues <a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>, <a href="https://github.com/trailhq/Trail-Code/issues/257">#257</a>, <a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a>, <a href="https://github.com/trailhq/Trail-Code/issues/506">#506</a>; checked 15 Oct 2026.</li>
+<li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/docs/how-it-works.md">docs/how-it-works.md</a>, issues <a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a>, <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a>; checked 15 Oct 2026.</li>
+<li><a href="https://news.ycombinator.com/item?id=49299985">Show HN: graft</a>, discussion of its SWE-bench sample.</li>
+<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+<li>Jimenez, C. E., et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? <em>ICLR 2024</em>.</li>
+<li>OpenAI (2024). Introducing SWE-bench Verified.</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="borrowing-the-good-ideas">Borrowing the good ideas</h1>
+<p><em>Lab notes 4 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>The code-graph tools in the <a href="03-a-code-graph-on-our-bench.html">last note</a> cost more on our bench than they saved. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: answers placed where it already looks, from sources that are never stale.</p>
+<h2 id="idea-1-a-pointer-before-the-first-search">Idea 1: a pointer before the first search</h2>
+<p>Trail-Code&#39;s prompt hook adds a few likely places to a prompt before Claude starts, so it can skip the first search. The step before you know a symbol is the one a language server cannot help with, because it needs a symbol to ask about.</p>
+<p><strong>Our first version failed in calibration.</strong> We started with what the independent evaluation found strongest (<a href="https://github.com/trailhq/Trail-Code/issues/117">Trail-Code #117</a>): BM25 keyword ranking over whole files (<a href="#sources">Robertson &amp; Zaragoza 2009</a>), term counts from <code>git grep</code>, so there is no index to keep fresh. It speaks only when the best file is clearly ahead of the field.</p>
+<p>Before spending a single benchmark run, we looked at what it would attach to 13 prompts: our seven task prompts and six everyday ones (&quot;commit and push this&quot;, &quot;run the tests and tell me what fails&quot;, &quot;fix the typo in the README&quot;…).</p>
+<ul>
+<li>The first version pointed &quot;commit and push this&quot; at an example program that happens to define <code>commit()</code> and <code>push()</code> functions.</li>
+<li>After teaching it to skip paths and flags, to weigh code over prose, and to need a rare code identifier from the prompt, it went quiet on 11 of 13 prompts. On the other two it pointed at the wrong code: once at the word <code>inner</code>, taken from a formatting example in the prompt (&quot;nested functions as <code>outer.inner</code>&quot;), and once at <code>pytest</code>.</li>
+<li>Silent where it should speak, confidently wrong where it spoke. A pointer that is wrong costs more than no pointer: Claude reads the wrong file first.</li>
+</ul>
+<p><strong>What survived is the deterministic half.</strong> When a prompt spells out a code name (<code>format_filename</code>, <code>ParamType</code>, <code>echo()</code>), scout looks up where that name is defined, with one <code>git grep</code> per name, and attaches the definition if there are one to three of them in code files (the code&#39;s own ahead of tests and examples):</p>
+<pre><code>Where the code names in this prompt are defined (git grep):
+`resolve_color_default`: src/click/globals.py:54 `def resolve_color_default(color: bool | None = None) -&gt; bool | None:`
+</code></pre>
+<p>On the same 13 prompts it spoke on 4, correctly each time, and said nothing on the other 9. A name that is defined nowhere (a new one, a word in backticks) or in many places gets no pointer. Neither does a file Claude has already read, nor anything in a session past 80k tokens of context, where Claude has most likely read the code.</p>
+<p>One caution we owe the reader: we calibrated on the same prompts we then benchmarked on. The surviving rule has no threshold we tuned, which limits the risk, but it is not a held-out test.</p>
+<h2 id="idea-2-the-blast-radius-after-an-edit">Idea 2: the blast radius after an edit</h2>
+<p>Trail-Code prints the callers of what you just edited, from its graph. Our version asks the live language server, and only when an edit changed a function&#39;s parameters, the moment callers may break:</p>
+<pre><code>`resolve_color_default`&#39;s parameters changed; per the language server it is called from 5 places in 3 files, which may still pass the old ones:
+src/click/exceptions.py: __init__ (48)
+src/click/termui.py: _readline_prompt (99), get_pager_file (362), progressbar (581)
+src/click/utils.py: echo (342)
+</code></pre>
+<p>To give it a fair chance we added a task built for it: make <code>resolve_color_default</code>&#39;s parameter keyword-only and rename it, so three positional callers must change, checked by a hidden test and a scan for stale calls.</p>
+<h2 id="what-it-measured">What it measured</h2>
+<p>96 runs of the ideas, all correct (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ideas.jsonl"><code>results-ideas.jsonl</code></a>), beside the pack&#39;s own runs. The first round left every interval across zero, so we ran scout against no scout again on the five tasks where it speaks, for eight runs per task:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Change in cost</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The pack with both ideas, against the pack, 8 tasks</td>
+<td>−2.5%</td>
+<td>−6.9% to +2.0%</td>
+</tr>
+<tr>
+<td>Taking scout out, on the 5 tasks where it speaks</td>
+<td>+3.8%</td>
+<td>−1.9% to +10.3%</td>
+</tr>
+<tr>
+<td>Taking blast out, on the signature task</td>
+<td>+3.7%</td>
+<td>−2.0% to +11.0%</td>
+</tr>
+</tbody></table>
+<p>On the signature task itself, Claude needed 4.2 requests with the pack, 3.4 with both ideas, 5.2 with only the blast radius, and 6.5 with Trail-Code.</p>
+<p>Twice the runs, the same answer: a small saving in the direction we hoped, never a wrong result, and an interval that still crosses zero. By our own rule that is not enough to ship. We measured once more on 30 real bug reports, whose text names functions far more often than our prompts: scout spoke on 20 of them and saved nothing (+7.3% against the pack [−6.7%, +20.7%]; <a href="09-beyond-click.html">note 9</a>). Both ideas stay out of the pack.</p>
+<p><strong>Why the blast radius barely matters here</strong> was visible in the transcripts: before editing a function, Claude greps for it, and lsp-plus already answers that grep with the same list of callers. By the time the signature changes, Claude knows who calls it. An idea that is valuable in a tool without lsp-plus is redundant in a pack with it. It stays in lsp-plus, off by default.</p>
+<h2 id="what-this-changed">What this changed</h2>
+<ul>
+<li>Calibrate before you benchmark. Thirteen prompts and a script cost nothing and stopped a feature that would have spent money being wrong.</li>
+<li>Prefer the deterministic version of an idea. &quot;Where is the name you typed defined&quot; can be wrong only if the code changed in the last second; &quot;which file is most similar to your words&quot; can be wrong in a hundred ways.</li>
+<li>An idea&#39;s value depends on the pack around it. Measure it as an addition to what already ships, not on its own.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Arms: Z (the pack), N (the pack with scout and lsp-plus&#39;s <code>blast</code> on), N-scout (without scout), N-blast (without blast). Opus 5.5, click 8.5.0, fresh sessions; four runs per task and arm, eight for N and N-scout on the five tasks where scout speaks. Scout&#39;s calibration script and prompts are in the lab. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ideas.jsonl"><code>results-ideas.jsonl</code></a>, the pack&#39;s runs in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a>: <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/hooks.ts#L712-L738">prompt hook</a> and <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/hooks.ts#L201-L212">post-edit blast radius</a>; issue <a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>.</li>
+<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="the-graveyard">The graveyard</h1>
+<p><em>Lab notes 5 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Six mods ship in this pack. Many more ideas were built, measured and dropped. A project&#39;s README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features that worked. Each grave has the idea, why it looked good, and the number that ended it.</p>
+<h2 id="the-checklist-that-said-everything-was-fine">The checklist that said everything was fine</h2>
+<p><strong>lastenheft</strong> (German for a requirements specification) turned an order into a list of checkable requirements and refused to let Claude stop until each was proven. Agents that report &quot;done&quot; on half-finished work are a real problem; a gate against it looked like obvious value.</p>
+<p>The first batch looked promising. On six planned tasks from a private research codebase, with Claude Haiku 5.5, the gate lowered &quot;said done while incomplete&quot; from 92% to 75% of runs, a paired difference of −17 points [−33, −4].</p>
+<p>We did not ship it. Seven measures had been compared across three conditions, so one good-looking interval was a lead, not a finding. Before running more, we wrote down the one measure and the rule that would count as a confirmation (<a href="#sources">preregistration</a>; Nosek et al. 2018), then ran the same tasks with fresh repeats:</p>
+<ul>
+<li>Confirmation: 88% against 92%, <strong>−4 points [−12.5, 0.0]. Not confirmed.</strong> Further repeats gave the same −4. The first batch&#39;s −17 had been mostly luck, the shrinkage you expect when the first estimate is picked because it looked large (Ioannidis 2008).</li>
+<li>The gate also cost about 20 more tool calls per run.</li>
+<li>A lighter version, a checklist without the gate, came out the same: −4 points [−14.6, +6.2], not confirmed. And it showed why: in <strong>38 of 43 runs that were incomplete, every point on the list showed passed.</strong> Claude&#39;s own tests passed; they just did not test what was missing. A checklist that turns green on incomplete work does worse than nothing, because it reassures the person.</li>
+</ul>
+<p>lastenheft stays in the lab, switched off. (Its data stays private: the tasks come from a private codebase.)</p>
+<h2 id="the-hint-nobody-followed">The hint nobody followed</h2>
+<p>lsp-plus&#39;s grep note told Claude which language-server call answers its search exactly. <strong>0 of 45</strong> followed. The story, and what replaced it, is in <a href="02-notes-nobody-reads.html">note 2</a>. The note is off by default.</p>
+<h2 id="four-ways-to-make-opus-delegate">Four ways to make Opus delegate</h2>
+<p>A rule in the system prompt naming the work to hand off (<strong>0</strong> hand-offs in 18 runs), the person&#39;s own &quot;Delegate where you see fit&quot; (<strong>0 of 28</strong>), the tool presented as an ability, <code>implement_spec(spec, check)</code>, with no word of delegation (<strong>0 of 8</strong>, and the unused tool cost 11–18% to carry), and telling Opus what each of its requests costs (<strong>0 of 4</strong>). Only an order works (<a href="02-notes-nobody-reads.html#174-runs-0-delegations">note 2</a>).</p>
+<h2 id="handing-off-the-small-stuff">Handing off the small stuff</h2>
+<p>If handing off a feature saves a third, why not hand off lookups? We let delegate take read-only work. Told to hand off a lookup, Opus turned it into an edit task (the worker wrote the answer to a file, the check printed the file) and the runs cost <strong>13–33% more</strong>, leaving stray files in the repository. A hand-off takes two to five requests of its own; a lookup takes one. Reverted.</p>
+<h2 id="the-projection-that-was-wrong">The projection that was wrong</h2>
+<p>An early analysis projected that hand-offs save more the fuller the session, <strong>−53%</strong> for the feature at 200k tokens, by assuming each step re-reads more. We measured it in a 233k-token session: the feature saved <strong>37%</strong>, about what it saved fresh, and a small question handed off cost up to <strong>3.6 times</strong> as much (the lookup 2.5 times) (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-hand-off-in-a-long-session-pl-hl">SUITE.md</a>). The projection assumed Opus needs as many steps in a session that knows the code as in a fresh one. It needs far fewer.</p>
+<h2 id="moving-text-before-the-cache-boundary">Moving text before the cache boundary</h2>
+<p>cells&#39; guidance is the same text in every session. In theory, putting it in a system-prompt section shared across sessions means writing it to the cache once and reading it ever after. Measured: <strong>+1.0% [−5%, +8%]</strong>, no saving; the first request wrote no less. Reverted.</p>
+<h2 id="keyword-pointers">Keyword pointers</h2>
+<p>BM25 ranking to point Claude at files before it searches. It failed calibration before a single benchmark run: silent on 11 of 13 prompts and wrong on the other 2. The version that survived is deterministic (<a href="04-borrowing-the-good-ideas.html">note 4</a>).</p>
+<h2 id="the-log-squeezer">The log squeezer</h2>
+<p><strong>squeeze</strong> replaced a long test log with its failures (file, line, message) and kept the full log on disk. Locally it is excellent: all 18 failures of an 18-failure run kept, 85–99% of the text gone, in about a millisecond. On a task with 18 failing tests it fired <strong>0 times in 4 runs</strong>, because Opus piped every test run through <code>tail</code> or <code>grep</code> itself, 24 times across the 8 runs. We tried Claude Haiku 5.5, expecting a smaller model to dump whole logs: it piped through <code>tail</code> too (44 times in 8 runs), and squeeze fired 0 times again. A tool for a habit neither model has.</p>
+<h2 id="compression-that-forgets">Compression that forgets</h2>
+<p>ScaleDown&#39;s Compress keeps the passages that look relevant to a question. Asked five factual questions about click from a compressed copy, a model answered 4 of 5 when each question had its own compression, and <strong>0–1 of 5</strong> when one compression had to serve all five; one answer was confidently wrong (exit code 1 instead of 2) because the line that said 2 was gone. In a coding session the next question is never known in advance (<a href="07-small-models-as-plumbing.html">note 7</a>).</p>
+<h2 id="the-mod-nobody-measured">The mod nobody measured</h2>
+<p><strong>turn-savers</strong> (lighter thinking on routine steps, the code at a failure attached to the failing run) was built and never measured. So it does not ship. A mod without a measurement is a guess with a version number.</p>
+<h2 id="what-the-graveyard-teaches">What the graveyard teaches</h2>
+<ul>
+<li><strong>The first good number is usually too good.</strong> Write down what would confirm it, then run it again.</li>
+<li><strong>A check that passes is not a check that checks.</strong> Agents&#39; own tests share their blind spots.</li>
+<li><strong>Models have habits.</strong> They grep, they tail logs, they keep work they can do. A feature that fights a habit loses; one that answers inside it wins.</li>
+<li><strong>Removing is a result.</strong> Every grave here made the pack cheaper or simpler.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Delegate bench results: <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/delegate-bench/</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>. The lastenheft runs used Claude Haiku 5.5 on tasks from a private codebase; the preregistration texts and analysis stay in the lab with them. squeeze: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-squeeze.jsonl"><code>results-squeeze.jsonl</code></a>. ScaleDown measurements: <a href="07-small-models-as-plumbing.html">note 7</a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Nosek, B. A., Ebersole, C. R., DeHaven, A. C., &amp; Mellor, D. T. (2018). The preregistration revolution. <em>PNAS</em>, 115(11), 2600–2606.</li>
+<li>Ioannidis, J. P. A. (2008). Why most discovered true associations are inflated. <em>Epidemiology</em>, 19(5), 640–648.</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="one-server-per-extension">One server per extension</h1>
+<p><em>Lab notes 6 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>lsp-plus answers Claude&#39;s code searches from a language server. That only works where a server answers. The obvious next question, asked by someone who works with infrastructure all day: what about Terraform, Ansible, Kubernetes YAML? This note is about adding languages, and how often &quot;there is a language server for that&quot; turned out to be the start of the work, not the end.</p>
+<h2 id="the-rule-that-shapes-everything">The rule that shapes everything</h2>
+<p>Claude Code picks a language server by file extension, and only by extension: no file patterns, no first-line detection. Each extension gets exactly one server; when two plugins claim the same one, the first registered wins (<a href="https://code.claude.com/docs/en/plugins/components#lsp-servers">plugin docs</a>). For most languages that is fine. For <code>.yaml</code> it is a problem, because Kubernetes manifests, Compose files, GitHub Actions, Ansible playbooks and Helm values all share it.</p>
+<h2 id="five-languages-five-surprises">Five languages, five surprises</h2>
+<p>We gave lsp-plus Go, Kotlin and Ruby (whose servers it could install but whose files its grep answer ignored), and declared servers for shell scripts and Terraform. Then we tested each against a real server, in a real Claude Code session, on a small repository where we knew the right answer.</p>
+<ul>
+<li><strong>Go</strong> worked at once. gopls even found callers through method receivers (<code>func (c *Calculator) Total</code>).</li>
+<li><strong>Shell</strong> worked after one change. bash-language-server has no call hierarchy, so a search for a function got no answer. lsp-plus now falls back to the server&#39;s references when there is no call hierarchy.</li>
+<li><strong>Ruby</strong> crashed with exit code 78 before answering anything. ruby-lsp refuses to start in a project with a <code>Gemfile</code> but no <code>Gemfile.lock</code>. Most apps commit the lock file; many gems do not. Now in the setup guide.</li>
+<li><strong>Terraform</strong> answered symbol searches but found no references. Our own LSP client got the same, so it was the server, not Claude Code. Its log said why: no provider schema for <code>hashicorp/aws</code>. terraform-ls only sees references inside blocks whose schema it knows, and the Homebrew build of terraform-ls ships without the provider schemas HashiCorp&#39;s own build embeds (0 schema entries in the binary against 6). Installed from HashiCorp&#39;s tap, every <code>var.region</code> was found.</li>
+<li><strong>Kotlin</strong> we could not test: JetBrains&#39; Homebrew formula pointed at a download that returned 404 that day. It is covered by tests only.</li>
+</ul>
+<p>Terraform also needed lsp-plus to understand its names. A grep for <code>var.region</code> or <code>aws_s3_bucket.logs</code> searches for an address, not an identifier. lsp-plus now maps an address to the block that declares it, asks the server in each module (directory) where the grep found it, and answers with the references:</p>
+<pre><code>`var.region` per the language server: 4 references in code, in 3 files (code only: strings, comments, docs and namesakes are in the grep above):
+main.tf: 2
+outputs.tf: 2, 6
+providers.tf: 2
+</code></pre>
+<h2 id="ansible-and-kubernetes-no-references-to-give">Ansible and Kubernetes: no references to give</h2>
+<p>For YAML the research came first, and it was sobering (<a href="#sources">sources</a>):</p>
+<ul>
+<li>The <strong>Ansible language server</strong> offers hover, completion, definition and diagnostics, but no references and no symbols; its &quot;definition&quot; jumps from a module name to the module&#39;s Python source. A <a href="https://github.com/ansible/vscode-ansible/pull/2647">pull request</a> adding references for handlers, variables and roles was closed unmerged. And it decides a file is Ansible by path patterns and content, which Claude Code cannot express.</li>
+<li><strong>yaml-language-server</strong> with Kubernetes schemas validates structure (a misspelled field, a string where a number belongs) but has no references: its &quot;definition&quot; only jumps from a YAML alias to its anchor in the same file.</li>
+<li>No language server we found resolves the names that actually connect a Kubernetes deployment: a Service&#39;s selector to the pods it selects, a <code>configMapRef</code> to the ConfigMap, a RoleBinding to its ServiceAccount.</li>
+</ul>
+<p>So the question became: one YAML server for everything is forced on us anyway; could it also check the names?</p>
+<h2 id="yaml-plus">yaml-plus</h2>
+<p>yaml-plus is one server for every <code>.yaml</code> file. It runs yaml-language-server underneath for syntax and schemas, choosing the schema from each file&#39;s content (Kubernetes by <code>apiVersion</code> and <code>kind</code>, Ansible by structure). It skips Helm templates, which are not YAML until rendered. On top it indexes the repository&#39;s names and checks the references between them:</p>
+<ul>
+<li><strong>Kubernetes</strong>: ConfigMaps, ServiceAccounts and volume claims a pod uses; Services and the workloads they select; Ingress backends, autoscaler targets, role bindings; kustomize paths.</li>
+<li><strong>Compose</strong>: <code>depends_on</code>, networks, volumes, configs, secrets.</li>
+<li><strong>GitHub Actions</strong>: <code>needs</code>, <code>needs.X.outputs</code>, <code>steps.X</code>, inputs, local actions.</li>
+<li><strong>Ansible</strong>: handlers and <code>notify</code>, roles, included task files.</li>
+</ul>
+<p>It also answers go-to-definition and find-references for those names.</p>
+<p>Its rule is to say nothing it is not sure of. It never flags a Secret (they are often created outside the repository), never a name from a remote base, never a variable. Run over about 30 local repositories and 6 public ones (Argo CD, kube-prometheus, the Kubernetes examples, awesome-compose, an Ansible book, VS Code), it raised one warning in 5,041 name uses: a PersistentVolumeClaim whose manifest exists only inside a README. It indexes 4,000 manifests in about 0.7 s.</p>
+<p><strong>One thing we did not expect.</strong> In a live session, yaml-plus&#39;s warning reached Claude after an edit:</p>
+<blockquote>
+<p>ConfigMap &quot;cart-confg&quot; (namespace shop) is not declared in this repository (did you mean &quot;cart-config&quot;?)</p>
+</blockquote>
+<p>Reading the same broken file delivered nothing. Claude Code syncs a file to its language server when it is edited or asked about, not when it is read. A checker that only speaks after edits cannot help Claude <em>find</em> a broken reference, only avoid making one. yaml-plus therefore gained hooks: a read of a YAML file gets that file&#39;s name problems, and a grep for a name that hits YAML files gets where it is declared and used, the way lsp-plus answers code searches.</p>
+<h2 id="what-it-measured">What it measured</h2>
+<p>We generated a 54-file deployment repository (ten services across Kubernetes, Compose, two GitHub Actions workflows and six Ansible roles) and four tasks:</p>
+<ul>
+<li>a ConfigMap rename across 11 references;</li>
+<li>six planted broken references, one in each kind of file and two more in Kubernetes;</li>
+<li>&quot;which objects refer to this ServiceAccount&quot;;</li>
+<li>a Compose change.</li>
+</ul>
+<p>Every task was graded by parsing the YAML, never by the server under test.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>yaml-plus added to the pack</th>
+<th>95% interval</th>
+<th>Runs</th>
+<th>Correct</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Opus 5.5</td>
+<td>+2.0% cost</td>
+<td>−1.3% to +5.3%</td>
+<td>64</td>
+<td>all</td>
+</tr>
+<tr>
+<td>Haiku 5.5</td>
+<td>about the same, at roughly one cent a run</td>
+<td></td>
+<td>32</td>
+<td>all</td>
+</tr>
+</tbody></table>
+<p>yaml-plus spoke 56 times in Opus&#39;s runs. Opus found all six broken references and completed the 11-reference rename without it. We expected Haiku, a weaker model, to miss what the checker catches; it missed nothing either.</p>
+<p>Fifty-four files are few enough for any model to read whole, and a checker cannot save what a model never misses. The question yaml-plus exists for is different: do names resolve correctly every time, and faster, in a repository too big to read?</p>
+<p>So we made one. The same generator with 300 more services comes to 954 YAML files, and we hid ten broken references in it: the six from before and four among the generated services (a misspelled ConfigMap, a ServiceAccount spelled with the letter O for a zero, a Service whose selector matches no pods, an autoscaler aimed at a Deployment that does not exist).</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Without yaml-plus</th>
+<th>With yaml-plus</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Opus 5.5</td>
+<td>10 of 10 in every run, $0.61, 10.2 requests</td>
+<td>10 of 10 in every run, $0.70, 10.0 requests</td>
+</tr>
+<tr>
+<td>Haiku 5.5</td>
+<td>10 of 10 in every run, $0.03</td>
+<td>10 of 10 in three runs, 8 in one, $0.03</td>
+</tr>
+</tbody></table>
+<p>Four runs per cell. Opus did not read 954 files. It listed them, read one of each kind, and then <strong>wrote its own reference checker</strong>: about 50 lines of Python with PyYAML, which it ran over the whole repository, and confirmed the result with <code>kubectl kustomize</code>. In one step, it built for this task the tool we had built for every task.</p>
+<p>That is the honest end of this experiment. Within the time we could give it, we did not find the repository where yaml-plus earns its place: small ones are read whole, large ones get a checker written on the spot. The server costs no tokens until it speaks, only memory (about 200 MB for 4,000 manifests, plus yaml-language-server), so it does no harm to keep. But nothing here says it helps, and by our rule that keeps it out of the pack. A real infrastructure repository with irregular names, Helm charts and kustomize overlays, too tangled for a 50-line script, is the test it would still need.</p>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Language checks: one headless Claude Code session per language on a small repository with known answers, the hook&#39;s note read from the transcript; terraform-ls also queried directly with a minimal LSP client. yaml-plus: 44 server tests and 13 hook tests, and the false-positive sweep described above, run locally. The YAML benchmark&#39;s generator and grader are in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/yaml_repo.py"><code>yaml_repo.py</code></a>; runs in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml.jsonl"><code>results-yaml.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-b.jsonl"><code>results-yaml-b.jsonl</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-haiku.jsonl"><code>results-yaml-haiku.jsonl</code></a>; the 954-file repository in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-big.jsonl"><code>results-yaml-big.jsonl</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-big-haiku.jsonl"><code>results-yaml-big-haiku.jsonl</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Claude Code, <a href="https://code.claude.com/docs/en/plugins/components#lsp-servers">Plugin components: LSP servers</a>.</li>
+<li>HashiCorp, <a href="https://github.com/hashicorp/terraform-ls">terraform-ls</a>, <a href="https://github.com/hashicorp/terraform-ls/blob/main/docs/schema.md"><code>docs/schema.md</code></a> (provider schemas bundled at compile time in HashiCorp&#39;s released binaries).</li>
+<li>Red Hat, <a href="https://github.com/ansible/vscode-ansible/tree/main/packages/ansible-language-server">ansible-language-server</a>, and <a href="https://github.com/ansible/vscode-ansible/pull/2647">the closed pull request #2647</a>.</li>
+<li>Red Hat, <a href="https://github.com/redhat-developer/yaml-language-server">yaml-language-server</a>.</li>
+<li><a href="https://github.com/Shopify/ruby-lsp">Ruby LSP</a>; <a href="https://github.com/bash-lsp/bash-language-server">bash-language-server</a>; <a href="https://github.com/golang/tools/tree/master/gopls">gopls</a>.</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="small-models-as-plumbing">Small models as plumbing</h1>
+<p><em>Lab notes 7 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>If every token in Claude&#39;s context is paid for again on every step, an obvious trick is to shrink what enters it. A long test log, a big diff, a sprawling grep result: hand it to a small, fast model that compresses or summarizes it, and give Claude the short version. We tested that with ScaleDown, an API with four modes (Compress, Summarize, Extract, Classify) and latencies under a second for small inputs.</p>
+<p>The price question settled itself. The person running this lab paid €2.50 for 50 million tokens, about $0.054 per million: a quarter of what Claude charges just to <em>re-read</em> a cached token. Every call we made cost under 1% of what the same text would cost in Claude&#39;s context. So price is not the question. Whether the short version keeps what Claude needs is.</p>
+<h2 id="compress-the-right-passages-for-the-wrong-question">Compress: the right passages for the wrong question</h2>
+<p>Compress keeps the passages it judges relevant to a question and drops the rest. On click&#39;s source it kept 1–5% of the text, in 1.6–3.6 s. We asked five factual questions about click, with answers checked in the source, from the original text and from compressed copies:</p>
+<table>
+<thead>
+<tr>
+<th>Text given to the model</th>
+<th>20k-token context</th>
+<th>60k-token context</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Original</td>
+<td>5 of 5</td>
+<td>5 of 5</td>
+</tr>
+<tr>
+<td>Compressed once per question</td>
+<td>4 of 5</td>
+<td>4 of 5</td>
+</tr>
+<tr>
+<td>Compressed once for all five questions</td>
+<td><strong>0 of 5</strong></td>
+<td><strong>1 of 5</strong></td>
+</tr>
+</tbody></table>
+<p>The miss in the per-question case was the same both times: the line of <code>confirm()</code> that shows <code>[Y/n]</code> had been cut. In the shared case one answer was confidently wrong: an error class &quot;inherits exit code 1&quot;, because the line setting <code>exit_code = 2</code> was gone while its docstring stayed.</p>
+<p>An agent&#39;s next question is never known when its context is built. Compression that keeps what matters for <em>a</em> question is compression that drops what matters for the next one. Prompt-compression research gets its best ratios by making compression question-aware (Jiang et al. 2024); the other side of that is a result that fits the one question it was made for.</p>
+<h2 id="summarize-confident-and-wrong-about-the-important-part">Summarize: confident, and wrong about the important part</h2>
+<p>On a test log with three failures, Summarize named the three failing tests every time and <strong>never</strong> kept a file and line number. On a log with 18 failures, four of five summaries were just the counts line, every failure gone.</p>
+<p>The worst case was a report from a worker model (the kind delegate hands back). It truthfully listed a diff and a test run with three failures, and then said, falsely, <em>&quot;the new tests pass&quot;</em>. A plain summary repeated the false claim <strong>3 of 3 times</strong>, and once did not mention the failure at all. Told what to keep (&quot;failing tests, exit codes, claims that contradict the check&quot;), it kept the failures and flagged the false claim every time. Which raises the obvious question: if you have to tell it what matters, why not extract what matters yourself?</p>
+<h2 id="extract-right-and-slower-than-a-parser">Extract: right, and slower than a parser</h2>
+<p>Extract with a schema (failing test, file, line, message) got the test logs right: all failures, all locations, every time. It took 4–10 s, and one call failed after 77 s. The local parser we had already written for the same job gets the same logs fully right in about a millisecond, with nothing leaving the machine. (On a large diff, Summarize recovered at most 41% of the changed functions and Extract at most 26%, where reading the diff&#39;s own hunk headers gets 80%.)</p>
+<h2 id="classify-the-one-job-it-did-perfectly">Classify: the one job it did perfectly</h2>
+<p>Classify sorts a text into labels you give it. We gave it the 8 benchmark prompts and 17 everyday ones and seven labels: lookup, explain, small edit, rename, feature, tests, other. Asked one prompt at a time: <strong>25 of 25</strong> right, median 0.42 s, $0.00003 a call. (In one batch call of all 25 it got one wrong, though <a href="https://docs.scaledown.ai/api-reference/classify">the documentation</a> says calibration is the same as for single calls.)</p>
+<p>That is exactly the missing piece from <a href="02-notes-nobody-reads.html">note 2</a>: Opus never hands work to a cheaper model unless told, and an order from a mod is followed every time. A classifier that recognizes &quot;implement this feature&quot; or &quot;write tests for this&quot; in 0.4 s could give that order for exactly the work where a hand-off pays (27–37% less on features and tests), and stay silent on small questions, where a hand-off costs up to 3.6 times as much.</p>
+<p>So we built it. <strong>route</strong> is a small mod: when you send a prompt, it asks Classify what kind of work it is, with the same seven labels and rubrics that scored 25 of 25, and waits up to three seconds. If the answer is feature or test work with a score of at least 0.7, it attaches delegate&#39;s order beside the prompt: <em>the person&#39;s setting for feature work is: implement it through the hand_off tool</em>. Anything else, or no answer in time, adds nothing.</p>
+<p>On our eight click tasks, four runs each, all 32 correct (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-route.jsonl"><code>results-route.jsonl</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>The order given</th>
+<th>Hand-offs</th>
+<th>Cost, the pack → the pack with route</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The feature</td>
+<td>4 of 4</td>
+<td>4</td>
+<td>$0.61 → <strong>$0.41</strong> (9.5 → 5.2 main requests)</td>
+</tr>
+<tr>
+<td>The coverage task</td>
+<td>4 of 4</td>
+<td>4</td>
+<td>$0.67 → <strong>$0.36</strong> (8.5 → 4.2)</td>
+</tr>
+<tr>
+<td>The six other tasks</td>
+<td>0 of 24</td>
+<td>0</td>
+<td>about the same</td>
+</tr>
+</tbody></table>
+<p>Every routing decision was right: the order on all eight feature and test prompts, on none of the other 24. On the two tasks it routed, the pack with route cost <strong>39.6% less</strong> than the pack alone [−44.8%, −33.7%]; on the other six, +4.3% [−0.1%, +9.0%], within the runs&#39; spread. Over all eight, <strong>−17.0%</strong> against the pack [−20.5%, −13.1%] and <strong>−21.7% against plain Claude Code</strong> [−24.9%, −18.2%].</p>
+<p>This closes the loop from <a href="02-notes-nobody-reads.html">note 2</a>. Opus never delegates on its own and always follows an order; a 0.4-second classifier decides when an order is worth giving. What it costs: a ScaleDown key, about 0.4 s (up to 3 s) before each prompt starts, $0.00003 a prompt, and the prompt&#39;s text leaving the machine. So it can only ever be opt-in.</p>
+<h2 id="what-it-adds-up-to">What it adds up to</h2>
+<table>
+<thead>
+<tr>
+<th>Use</th>
+<th>Verdict</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Compress Claude&#39;s context</td>
+<td>No</td>
+<td>Loses facts the next question needs</td>
+</tr>
+<tr>
+<td>Summarize logs or worker reports</td>
+<td>No</td>
+<td>Drops locations; repeats false claims unless told what to keep</td>
+</tr>
+<tr>
+<td>Extract failures from logs</td>
+<td>Not needed</td>
+<td>A local parser is as right, thousands of times faster, and private</td>
+</tr>
+<tr>
+<td>Classify prompts for routing</td>
+<td><strong>Yes, opt-in</strong></td>
+<td>25 of 25, 0.4 s; routing feature and test work to a cheaper worker: −17% over the pack</td>
+</tr>
+</tbody></table>
+<p>Small models make good plumbing where the job is narrow and checkable: a label from a fixed set, on which a stronger model then acts. They make poor editors of what a stronger model will reason over, because they cannot know what it will need.</p>
+<p>Privacy is part of the cost: every call sends the text to a processor in the US. ScaleDown&#39;s data processing terms, as provided with the account, promise zero retention and no training on customer data. We sent only public code (click) and text we generated, and any mod that used it would have to be off by default and say so.</p>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>151 API calls, 1.8 million billed tokens in total, on click&#39;s source and on logs, diffs and greps generated from it; answers scored against ground truth worked out from the code. Fidelity of compressed context judged by Claude Haiku 5.5 answering from the text alone. Five runs per case unless noted; Classify on 25 prompts, one run each plus repeats. The key ran out of credits midway through the first round; the second round ran on new credits. Scripts and results stay in the lab with the API client.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>ScaleDown, <a href="https://docs.scaledown.ai/quickstart">documentation</a>, <a href="https://docs.scaledown.ai/benchmarks/overview">model overview</a> and <a href="https://docs.scaledown.ai/api-reference/classify">Classify reference</a>; price and data terms as provided with the account.</li>
+<li>Jiang, H., Wu, Q., Luo, X., Li, D., Lin, C.-Y., Yang, Y., &amp; Qiu, L. (2024). LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression. <em>ACL 2024</em> (Vol. 1), 1658–1677.</li>
+</ul>
+</section>
+<section class="chapter"><h1 id="our-plain-runs-were-not-plain">Our plain runs were not plain</h1>
+<p><em>Lab notes 8 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Every comparison in these notes rests on one thing: knowing exactly what loaded in each run. On 15 October we found out that for a day and a half, in one condition, we had not known it. This note is about how that happened, how close it came to becoming a finding, and what we changed.</p>
+<h2 id="the-good-news-that-wasnt">The good news that wasn&#39;t</h2>
+<p>The bench names what loads in each condition. Our mods are listed in an environment variable; &quot;plain Claude Code&quot; is the same list, empty. That had worked for hundreds of runs.</p>
+<p>On the afternoon of the 15th we re-ran plain Claude Code on the click tasks, to compare the pack against today&#39;s version of Claude Code rather than the one from two days earlier. The result was striking: plain cost the same as the pack (+2.1% for the pack [−2.4%, +7.0%]). The feature task, which plain had needed 14.8 requests for, now took 9.2.</p>
+<p>There was a ready story: Claude Code had caught up. A new version, smarter defaults, the pack&#39;s advantage gone. It would have made a good note.</p>
+<p>Before writing it, we looked at what plain was doing differently, request by request. In the feature runs, plain Claude Code called <code>mcp__cells__run_cell</code> five times. That tool exists only in our cells mod.</p>
+<h2 id="what-had-happened">What had happened</h2>
+<p>On 14 October at 00:33, the person running this lab installed the released modpack from its marketplace, to use it day to day. From then on, every headless run that read that person&#39;s settings loaded the installed pack as well.</p>
+<ul>
+<li><strong>In the pack&#39;s conditions</strong> this did no harm. Where the lab&#39;s copy of a mod and the installed copy share a name, only the lab&#39;s copy runs. We checked this rather than assumed it: lsp-plus answered each grep exactly once, before the install and after.</li>
+<li><strong>In plain Claude Code&#39;s condition</strong>, nothing replaced the installed mods. &quot;Plain&quot; was the pack, version 0.4.0. The +2.1% was the pack measured against itself.</li>
+</ul>
+<h2 id="the-opposite-mistake-the-same-day">The opposite mistake, the same day</h2>
+<p>Our other harness, for SWE-bench, avoids this problem by leaving the person&#39;s settings out entirely. That also left out the one thing every condition is meant to have: the official Python language server plugin, which the person&#39;s settings switch on. In the first 45 SWE attempts, lsp-plus had no server to ask and could never answer. We found it by asking the LSP tool directly under the harness&#39;s settings: <em>&quot;No LSP server is configured for .py files.&quot;</em></p>
+<p>A clean environment can remove what a condition needs, just as a dirty one can add what it must not have.</p>
+<h2 id="what-we-changed">What we changed</h2>
+<ul>
+<li>Every run of the click bench now switches the person&#39;s installed plugins off explicitly, whatever the condition, and every SWE run switches the official Python language server on explicitly.</li>
+<li>We checked the fix the way we caught the fault, by what loaded. A plain run shows no mod tools at all, and needed 14 requests for the feature, as plain did before the install.</li>
+<li>The contaminated runs are kept, labelled for what they were (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-v-1015-installedpack.jsonl"><code>results-v-1015-installedpack.jsonl</code></a>): the installed pack 0.4.0 against the lab&#39;s pack, the same thing measured twice, a few percent apart. The 45 SWE attempts without a language server are kept apart too.</li>
+</ul>
+<p>With plain Claude Code really plain, today&#39;s numbers are back where the release measured them, and in a long session larger:</p>
+<table>
+<thead>
+<tr>
+<th>The pack against plain Claude Code, 15 Oct</th>
+<th>Change in cost</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fresh session, 8 tasks</td>
+<td>−5.7%</td>
+<td>−9.6% to −1.6%</td>
+</tr>
+<tr>
+<td>Long session, 8 tasks (warm runs)</td>
+<td><strong>−37.4%</strong></td>
+<td>−40.9% to −33.9%</td>
+</tr>
+</tbody></table>
+<p>&quot;Warm runs&quot; is the other thing a long session can hide. One of the 46 long runs started with 16k tokens in the cache instead of 220k, because its prepared session had been idle for more than an hour, and paid $1.91 to write the cache again for a five-request task. We report the warm runs and say so; the bench records each run&#39;s first cache read so that this can be checked.</p>
+<h2 id="what-we-keep-from-it">What we keep from it</h2>
+<ul>
+<li><strong>Name what loads, then check what loaded.</strong> The transcripts say which tools each run had. A five-line check would have caught this on the first run.</li>
+<li><strong>Distrust good news about the baseline as much as good news about yourself.</strong> &quot;The competition caught up&quot; was as tempting a story as &quot;our tool saves 40%&quot;, and it was wrong for a mundane reason.</li>
+<li><strong>A setting has two sides.</strong> Removing the person&#39;s settings removed a plugin the conditions needed. Every exclusion needs the same check as every inclusion.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Click 8.5.0, Opus 5.5, headless Claude Code 2.1.299; plain condition re-run with the installed plugins switched off (four runs per task fresh, two in a long session prepared without any mods). Pack runs from the same day (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>). Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-v-1015.jsonl"><code>results-v-1015.jsonl</code></a>; the bench&#39;s switch is <code>neutral()</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
+</section>
+<section class="chapter"><h1 id="beyond-click">Beyond click</h1>
+<p><em>Lab notes 9 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Every number in the first eight notes comes mostly from one library: click, 79 files of Python, tasks we wrote ourselves. A fair reader&#39;s first objection is the obvious one. Maybe the pack is tuned to click. Maybe the code-graph tools would look better on code they were built for. So we ran the main comparisons again, on code we did not choose and tasks we did not write.</p>
+<h2 id="three-new-grounds">Three new grounds</h2>
+<ul>
+<li><strong>A TypeScript library.</strong> chrono, a natural-language date parser (267 TypeScript source files, 753 tests, jest), at release v2.10.3. Eight tasks of the same kinds as click&#39;s (trace the callers, rename, explain, look up, list subclasses, a feature to a spec, raise coverage, change a signature), each graded by hidden tests or fixed answers. Every grader was checked both ways: 0 on the untouched code, 1.0 on a reference solution.</li>
+<li><strong>Real bug reports.</strong> 30 tasks from SWE-bench Verified (Jimenez et al. 2024; OpenAI 2024): issues filed against django, sympy and other Python projects, each stated as the original issue text, graded by the project&#39;s own hidden tests. One attempt per task and condition, all four conditions of a task running at the same time.</li>
+<li><strong>Deployment configuration.</strong> The YAML repository from <a href="06-one-server-per-extension.html">note 6</a>, small and large.</li>
+</ul>
+<h2 id="the-pack-on-typescript">The pack on TypeScript</h2>
+<p>64 runs, Opus 5.5, four per task and condition (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ts.jsonl"><code>results-ts.jsonl</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Change in cost, the pack against plain Claude Code</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>All eight tasks</td>
+<td><strong>−7.6%</strong></td>
+<td>−12.1% to −3.1%</td>
+</tr>
+<tr>
+<td>Multi-step tasks</td>
+<td>−6.3%</td>
+<td>−12.5% to +0.8%</td>
+</tr>
+<tr>
+<td>Quick questions</td>
+<td><strong>−9.9%</strong></td>
+<td>−13.7% to −5.9%</td>
+</tr>
+</tbody></table>
+<p>The pack took fewer requests on all eight tasks: the feature in 10.5 instead of 13.2, the rename in 4.2 instead of 6.0. Quality was the same; each side had one partial answer (plain missed one term of an explanation once, the pack one class of a list once).</p>
+<p>One difference from click stands out. On click&#39;s quick questions the pack cost 5.5% more on one day and 3.6% less on another, about even (<a href="01-the-cheapest-step.html">note 1</a>). On TypeScript it saved 9.9% on them. Questions about a typed codebase lean on symbol lookups more, and lsp-plus answers those from the TypeScript server inside the search.</p>
+<h2 id="the-pack-on-real-bugs">The pack on real bugs</h2>
+<p>120 attempts, Opus 5.5 at its highest effort, as the harness runs SWE-bench (<a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/swe-bench"><code>swe-bench/2026-10-15-swe</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Bugs fixed</th>
+<th>Cost of all 30</th>
+<th>Requests per bug</th>
+<th>Time per bug</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain Claude Code</td>
+<td>29</td>
+<td>$15.01</td>
+<td>12.9</td>
+<td>213 s</td>
+</tr>
+<tr>
+<td><strong>The pack</strong></td>
+<td><strong>30</strong></td>
+<td><strong>$13.17</strong></td>
+<td><strong>9.9</strong></td>
+<td><strong>144 s</strong></td>
+</tr>
+<tr>
+<td>The pack with scout and blast</td>
+<td>29</td>
+<td>$14.13</td>
+<td>10.2</td>
+<td>150 s</td>
+</tr>
+<tr>
+<td>The pack with Trail-Code</td>
+<td>29</td>
+<td>$14.59</td>
+<td>11.5</td>
+<td>162 s</td>
+</tr>
+</tbody></table>
+<p>With one attempt per bug, cost intervals are wide: the pack against plain −12.3% [−32.5%, +11.9%]. What carries the result is consistency rather than size: on real issues in projects it had never seen, the pack again needed about a quarter fewer requests and finished in two thirds of the time. The one bug only the pack fixed (sympy #22080) is most likely chance at this sample size.</p>
+<p>Trail-Code, measured where it reports its own SWE-bench results, again cost more than the pack alone: +10.8% [0.0%, +25.5%]. Scout, the definition pointers from <a href="04-borrowing-the-good-ideas.html">note 4</a>, spoke on 20 of the 30 issues, which name functions and classes far more often than our tasks; it still saved nothing (+7.3% against the pack [−6.7%, +20.7%]). That settles scout: it stays out.</p>
+<h2 id="deployment-configuration">Deployment configuration</h2>
+<p><a href="06-one-server-per-extension.html">Note 6</a> has the details. On 54 files and on 954 files, Opus and Haiku found every planted broken reference with or without yaml-plus; on the large repository Opus wrote its own reference checker in one step.</p>
+<h2 id="what-holds-and-what-does-not">What holds, and what does not</h2>
+<ul>
+<li><strong>The pack&#39;s saving holds</strong> on a second language, on real bug reports and on code it was not built around: fewer requests at equal quality, everywhere we looked. Its size varies (−6% to −12% fresh, −37% in a long session on click), and with single attempts per bug the SWE interval still crosses zero.</li>
+<li><strong>Trail-Code cost more than the pack alone on every ground</strong> we measured: click fresh, click long, and SWE-bench.</li>
+<li><strong>The ideas we borrowed did not survive replication.</strong> Scout&#39;s small saving on click did not appear on real issues. yaml-plus found nothing a model did not find itself.</li>
+<li><strong>The router (route) has not been replicated yet.</strong> Its −17% is from click alone; bug reports are mostly neither features nor tests, so SWE-bench is the wrong ground for it, and a set of real feature requests is the right one.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>TypeScript: chrono-node v2.10.3, tasks and graders in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/ts_repo.py"><code>ts_repo.py</code></a>; runs with the person&#39;s installed plugins switched off and the official TypeScript language server on. SWE-bench: 30 validated SWE-bench Verified tasks, the harness in <code>pilot/swe.py</code> of the lab (each condition loads frozen copies of the mods; the official Python language server switched on in every condition, see <a href="08-our-plain-runs-were-not-plain.html">note 8</a>); one attempt per task and condition, so per-task differences are noise and only totals carry weight. All costs at list prices from transcripts.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Jimenez, C. E., et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? <em>ICLR 2024</em>.</li>
+<li>OpenAI (2024). Introducing SWE-bench Verified.</li>
+<li><a href="https://github.com/wanasit/chrono">chrono</a>, natural-language date parser, release v2.10.3.</li>
+</ul>
+</section>
+
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

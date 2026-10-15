@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A 10,000-star code graph on our bench · Lab notes</title>
+<meta name="description" content="Lab notes 3 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/03-a-code-graph-on-our-bench.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="a-10000-star-code-graph-on-our-bench">A 10,000-star code graph on our bench</h1>
+<p><em>Lab notes 3 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>A friend asked a fair question: why build our own code tools when projects like graphify (about 127,000 GitHub stars) and Trail-Code (about 10,000) put a whole codebase into a graph that Claude can query, and report large savings doing it? Someone they knew had cut their Claude usage sharply with one of them.</p>
+<p>So we put one on our bench. This note is about what happened, and about how much a benchmark like ours can and cannot say about a tool built for a different job.</p>
+<h2 id="two-tools-one-idea">Two tools, one idea</h2>
+<p>Both tools parse a repository with tree-sitter into a graph of definitions and calls, and hand Claude ways to query it. Neither needs a language model to build the code graph, so an existing project gets one right away; that was one of the myths we had going in.</p>
+<p>They differ in the thing that turned out to matter most: <strong>keeping the graph current</strong>. graphify&#39;s Claude Code setup asks the model, in CLAUDE.md, to run <code>graphify update .</code> after changing code, or relies on opt-in git hooks and a file watcher; its issue tracker has reports of answers from graphs days old (<a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a>, <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a>). Trail-Code checks the working tree before every query (a few milliseconds) and rebuilds what changed, with no model involved (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/graph/refresh.ts#L10-L16"><code>src/graph/refresh.ts</code></a>). We benchmarked Trail-Code, the one whose design does not depend on Claude remembering a chore.</p>
+<h2 id="what-they-claim-and-what-others-measured">What they claim, and what others measured</h2>
+<p>Trail-Code reports a 162-run sweep with Claude Sonnet 5 answering questions about two repositories: 32% lower cost, 46% fewer tool calls, the same correctness (93% vs 93%), judged by another model (<a href="https://github.com/trailhq/Trail-Code#benchmark">README</a>). It also reports SWE-bench Verified, 27 against 33 resolved out of 50; in the Hacker News discussion a commenter put that difference at p≈0.22, and the maintainer explained the growing sample size by usage limits running out (<a href="https://news.ycombinator.com/item?id=49299985">HN</a>).</p>
+<p>graphify&#39;s documented benchmark is &quot;71.5x fewer tokens per query&quot; on a 52-file corpus (<a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/docs/how-it-works.md">docs/how-it-works.md</a>). Its own <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/benchmark.py">benchmark script</a> compares one query&#39;s output against reading <strong>the whole corpus</strong>, and the same page reports about 1x on a 6-file corpus. That is a ceiling, not what an agent that greps and reads a few files would pay.</p>
+<p>Two independent checks stand out, both from users in Trail-Code&#39;s own issue tracker:</p>
+<ul>
+<li><a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>: on 186 cases built from merged pull requests in four repositories (graft 0.10.1), the tool&#39;s ranking put 48.5% of the files each pull request changed into its top 10, against <strong>66.5% for plain BM25 keyword search over whole files</strong>. A contributor later proposed adopting whole-file BM25 (<a href="https://github.com/trailhq/Trail-Code/issues/257">#257</a>); the maintainers declined after their own re-test found their current ranking as good or better.</li>
+<li><a href="https://github.com/trailhq/Trail-Code/issues/506">#506</a>: on a 291-file Swift/Kotlin repository, the context packs it returned were 2.5–4 times larger than <code>rg</code> plus a targeted read, and its top hit was right in one of three questions.</li>
+</ul>
+<h2 id="our-setup">Our setup</h2>
+<ul>
+<li>Trail-Code 0.22.1 from npm, wired with its own <code>trail init</code> (skill, hooks, MCP server, its graph of click: 2,028 nodes and 3,221 edges from 79 files, built in about a second). We kept only the repository-level wiring, so its hooks ran once (<a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a> describes them running twice when both levels are installed), started its MCP server from the installed version, and turned its telemetry off.</li>
+<li><strong>Both arms had our pack loaded.</strong> This measures what Trail-Code adds to the pack, not Trail-Code against plain Claude Code. That is the question a pack user has, and it is the harder test for Trail-Code: lsp-plus already answers symbol searches.</li>
+<li>Opus 5.5, click 8.5.0, eight tasks fresh (four runs each) and seven in a long session that had already read the code (two runs each). Every result graded by hidden tests or fixed rules.</li>
+</ul>
+<h2 id="what-we-measured">What we measured</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Trail-Code added to the pack</th>
+<th>95% interval</th>
+<th>Runs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fresh session</td>
+<td><strong>+12.8%</strong> cost</td>
+<td>+7.5% to +18.3%</td>
+<td>64</td>
+</tr>
+<tr>
+<td>Long session</td>
+<td><strong>+32.1%</strong> cost</td>
+<td>+21.9% to +43.6%</td>
+<td>28</td>
+</tr>
+<tr>
+<td>Fresh, without its learning hook</td>
+<td>+4.0% cost</td>
+<td>+0.1% to +8.0%</td>
+<td>64</td>
+</tr>
+</tbody></table>
+<p>It cost more on every one of the eight tasks, fresh and long. Quality was the same: every answer correct.</p>
+<h2 id="where-the-extra-cost-came-from">Where the extra cost came from</h2>
+<p><strong>A learning note that ate the answer.</strong> Trail-Code&#39;s end-of-turn hook stops Claude once per session to write a &quot;team learning&quot; into the repository. On the explanation task, in all four fresh runs, Claude explained how click resolves an option&#39;s value, and then the hook made it write a learning file, so its final message was about the file, not the answer. The note ended with a line for a contributor named from the repository&#39;s history: <em>&quot;Commit what you learned and their agents get to a PR 3x faster&quot;</em> (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/notes/notes.ts#L570"><code>src/notes/notes.ts</code></a>). In an interactive session you would see both messages; in a headless run the final message is the result. We graded Trail-Code fairly on all of Claude&#39;s messages (all correct), and measured the hook separately: it accounts for about 8 points of the cost [+4.0%, +13.5%], and 2–4 extra requests on that task. The learning file&#39;s name also contained the git user&#39;s name.</p>
+<p><strong>Context Claude did not need.</strong> Without the learning hook, Trail-Code still cost 4% more. Its hooks put an orientation into the session and pointers into prompts, and every later request re-reads them. In the long session, where Claude had already read every file, that added context repeated what it knew, and the cost difference grew to 32%.</p>
+<p><strong>Tools Claude rarely reached for.</strong> Claude used Trail-Code&#39;s command line in 11 of its 32 fresh runs, mostly on the lookup and explanation tasks, and its six MCP tools in none. On the rename, the feature and the tests it worked as without it. That matches what Trail-Code&#39;s own maintainer wrote (see <a href="02-notes-nobody-reads.html#other-tools-found-the-same-thing">note 2</a>), and what we saw with our own hints.</p>
+<h2 id="what-this-does-and-does-not-say">What this does and does not say</h2>
+<p>Our bench is a 79-file Python library, and our tasks mostly name what they are about: <code>format_filename</code>, <code>ParamType</code>, an option&#39;s default. Opus with the pack finds such things in two or three steps. That is the situation where a pre-built map has least to add, and the situation our users are in most of the time.</p>
+<p>It says nothing about the job these tools are designed for: a large, unfamiliar repository where the question comes before anyone knows a symbol to search (&quot;where does authentication happen?&quot;). We did not test that, and the one independent test of that step we found (#117) favoured plain keyword search over the graph&#39;s ranking of that version. If you maintain one of these tools and think our setup is unfair to it, the harness is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/</code></a> and we will run what you suggest.</p>
+<p>We measured it once more on real bug reports, where it reports its own SWE-bench results: 30 issues, again more expensive than the pack alone (+10.8% [0.0%, +25.5%]; <a href="09-beyond-click.html">note 9</a>). What we took from these tools is in the <a href="04-borrowing-the-good-ideas.html">next note</a>.</p>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Arms: Z (the pack as committed), T (the pack and Trail-Code as <code>trail init</code> wires a repository), TG (as T without Trail-Code&#39;s Stop hook), PL and TL (Z and T in a prepared 220k-token session). The four explanation runs of T score 0, 0, 0.33 and 0 in the results file, graded on the final message as the bench does; graded on all of Claude&#39;s messages, from the transcripts that stay in the lab, all four score 1.0. Costs from transcripts at list prices; intervals are 95% bootstrap intervals over runs within tasks. Four runs per task fresh, two in the long session: per-task differences are within the runs&#39; spread; the totals&#39; intervals are not. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>; setup: <code>trail_init()</code> and <code>TRAIL_ARMS</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a> (formerly graft), README, source and issues <a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>, <a href="https://github.com/trailhq/Trail-Code/issues/257">#257</a>, <a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a>, <a href="https://github.com/trailhq/Trail-Code/issues/506">#506</a>; checked 15 Oct 2026.</li>
+<li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/docs/how-it-works.md">docs/how-it-works.md</a>, issues <a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a>, <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a>; checked 15 Oct 2026.</li>
+<li><a href="https://news.ycombinator.com/item?id=49299985">Show HN: graft</a>, discussion of its SWE-bench sample.</li>
+<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+<li>Jimenez, C. E., et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? <em>ICLR 2024</em>.</li>
+<li>OpenAI (2024). Introducing SWE-bench Verified.</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="02-notes-nobody-reads.html"><span>Previous</span>Notes nobody reads</a><a class="next" href="04-borrowing-the-good-ideas.html"><span>Next</span>Borrowing the good ideas</a></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

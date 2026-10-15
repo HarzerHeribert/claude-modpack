@@ -1,0 +1,152 @@
+diff --git a/k8s/base/api-deployment.yaml b/k8s/base/api-deployment.yaml
+index 6668e1d..fd438a3 100644
+--- a/k8s/base/api-deployment.yaml
++++ b/k8s/base/api-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8080
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: api-config
+           env:
+@@ -38,7 +38,7 @@ spec:
+       volumes:
+         - name: settings
+           configMap:
+-            name: app-config
++            name: shop-config
+             items:
+               - key: settings.toml
+                 path: settings.toml
+diff --git a/k8s/base/auth-deployment.yaml b/k8s/base/auth-deployment.yaml
+index e201569..3cb11db 100644
+--- a/k8s/base/auth-deployment.yaml
++++ b/k8s/base/auth-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8082
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: auth-config
+           env:
+diff --git a/k8s/base/billing-deployment.yaml b/k8s/base/billing-deployment.yaml
+index 4ce57c6..8be65e3 100644
+--- a/k8s/base/billing-deployment.yaml
++++ b/k8s/base/billing-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8086
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: billing-config
+           env:
+diff --git a/k8s/base/cart-deployment.yaml b/k8s/base/cart-deployment.yaml
+index b9843dc..a8a4f67 100644
+--- a/k8s/base/cart-deployment.yaml
++++ b/k8s/base/cart-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8084
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: cart-config
+           env:
+diff --git a/k8s/base/catalog-deployment.yaml b/k8s/base/catalog-deployment.yaml
+index e03ff06..e002ea1 100644
+--- a/k8s/base/catalog-deployment.yaml
++++ b/k8s/base/catalog-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8083
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: catalog-config
+           env:
+diff --git a/k8s/base/configmap.yaml b/k8s/base/configmap.yaml
+index 7df71f0..9eb5ccd 100644
+--- a/k8s/base/configmap.yaml
++++ b/k8s/base/configmap.yaml
+@@ -1,7 +1,7 @@
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+-  name: app-config
++  name: shop-config
+   namespace: shop
+ data:
+   LOG_LEVEL: info
+diff --git a/k8s/base/media-deployment.yaml b/k8s/base/media-deployment.yaml
+index 3af7a9b..4cffca8 100644
+--- a/k8s/base/media-deployment.yaml
++++ b/k8s/base/media-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8089
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: media-config
+           env:
+diff --git a/k8s/base/notify-deployment.yaml b/k8s/base/notify-deployment.yaml
+index 83e4e67..84407d6 100644
+--- a/k8s/base/notify-deployment.yaml
++++ b/k8s/base/notify-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8088
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: notify-config
+           env:
+diff --git a/k8s/base/orders-deployment.yaml b/k8s/base/orders-deployment.yaml
+index f3f8cd2..9cd778e 100644
+--- a/k8s/base/orders-deployment.yaml
++++ b/k8s/base/orders-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8085
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: orders-config
+           env:
+diff --git a/k8s/base/search-deployment.yaml b/k8s/base/search-deployment.yaml
+index 084c141..ef7df2b 100644
+--- a/k8s/base/search-deployment.yaml
++++ b/k8s/base/search-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8087
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: search-config
+           env:
+diff --git a/k8s/base/worker-deployment.yaml b/k8s/base/worker-deployment.yaml
+index 828388c..5f6804e 100644
+--- a/k8s/base/worker-deployment.yaml
++++ b/k8s/base/worker-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8081
+           envFrom:
+             - configMapRef:
+-                name: app-config
++                name: shop-config
+             - configMapRef:
+                 name: worker-config
+           env:

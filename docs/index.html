@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab notes · claude-modpack</title>
+<meta name="description" content="What we tried while building a Claude Code modpack, how we measured it, and why most of it did not ship.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/lab-notes.pdf" download>All notes as PDF</a>
+  </nav>
+</header>
+<main class="note">
+<picture class="banner"><source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg"><img alt="claude-modpack" src="assets/banner-light.svg"></picture><h1 id="lab-notes">Lab notes</h1>
+<p>What we tried while building this modpack, how we measured it, and why most of it did not ship.</p>
+<p>The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that made sessions more expensive. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
+<blockquote>
+<p><strong>Who wrote this.</strong> Claude (Opus 5.5) wrote these notes from this repository&#39;s results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.</p>
+</blockquote>
+<h2 id="the-notes">The notes</h2>
+<div class="cards">
+<a class="card" href="01-the-cheapest-step.html"><span class="num">01</span><span class="title">The cheapest step is the one Claude never takes</span><span class="lead">Ask most people what makes a Claude Code session expensive and they will say tokens: big files, long answers, a chatty model. That is true, but it points at the wrong lever. Our first useful result was learning where the…</span></a>
+<a class="card" href="02-notes-nobody-reads.html"><span class="num">02</span><span class="title">Notes nobody reads</span><span class="lead">The most natural way to improve an AI agent with a plugin is to give it advice. Notice it doing something slow, tell it the faster way. We built two mods on that idea. Both measurements came back with the same number: ze…</span></a>
+<a class="card" href="03-a-code-graph-on-our-bench.html"><span class="num">03</span><span class="title">A 10,000-star code graph on our bench</span><span class="lead">A friend asked a fair question: why build our own code tools when projects like graphify (about 127,000 GitHub stars) and Trail-Code (about 10,000) put a whole codebase into a graph that Claude can query, and report larg…</span></a>
+<a class="card" href="04-borrowing-the-good-ideas.html"><span class="num">04</span><span class="title">Borrowing the good ideas</span><span class="lead">The code-graph tools in the last note cost more on our bench than they saved. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: ans…</span></a>
+<a class="card" href="05-the-graveyard.html"><span class="num">05</span><span class="title">The graveyard</span><span class="lead">Six mods ship in this pack. Many more ideas were built, measured and dropped. A project's README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features th…</span></a>
+<a class="card" href="06-one-server-per-extension.html"><span class="num">06</span><span class="title">One server per extension</span><span class="lead">lsp-plus answers Claude's code searches from a language server. That only works where a server answers. The obvious next question, asked by someone who works with infrastructure all day: what about Terraform, Ansible, Ku…</span></a>
+<a class="card" href="07-small-models-as-plumbing.html"><span class="num">07</span><span class="title">Small models as plumbing</span><span class="lead">If every token in Claude's context is paid for again on every step, an obvious trick is to shrink what enters it. A long test log, a big diff, a sprawling grep result: hand it to a small, fast model that compresses or su…</span></a>
+<a class="card" href="08-our-plain-runs-were-not-plain.html"><span class="num">08</span><span class="title">Our plain runs were not plain</span><span class="lead">Every comparison in these notes rests on one thing: knowing exactly what loaded in each run. On 15 October we found out that for a day and a half, in one condition, we had not known it. This note is about how that happen…</span></a>
+<a class="card" href="09-beyond-click.html"><span class="num">09</span><span class="title">Beyond click</span><span class="lead">Every number in the first eight notes comes mostly from one library: click, 79 files of Python, tasks we wrote ourselves. A fair reader's first objection is the obvious one. Maybe the pack is tuned to click. Maybe the co…</span></a>
+</div>
+<h2 id="how-we-measure">How we measure</h2>
+<p>The same setup runs through every note unless it says otherwise.</p>
+<ul>
+<li><strong>The work.</strong> Seven tasks on <a href="https://github.com/pallets/click">click</a> 8.5.0 (79 files of Python), from a one-line lookup to a feature, later eight with a signature change, plus four tasks on a generated 54-file deployment repository (Kubernetes, Compose, GitHub Actions, Ansible). Every task is graded by a fixed rule: hidden tests for code, a parser for YAML, a term list for explanations. A run that saves money and gets the answer wrong counts as a failure, not a saving.</li>
+<li><strong>The runs.</strong> Headless Claude Code (<code>claude -p</code>), Claude Opus 5.5, one fresh copy of the repository per run. Each condition names exactly which mods load, so nobody&#39;s personal settings decide anything. A <em>long session</em> forks a prepared session that has already read all of click&#39;s source, <code>src/click</code> (about 220k tokens of context), which is where real work spends most of its time.</li>
+<li><strong>The cost.</strong> Read request by request from the transcripts and priced at list prices: Opus 5.5 at $4 per million input tokens, $20 output, $0.20 for a cache read, $8 for a cache write (Claude Code writes with the one-hour lifetime; a five-minute write is $5). On a subscription these are API-equivalent estimates, not a bill.</li>
+<li><strong>The uncertainty.</strong> Two to eight runs per task and condition. Differences are reported for the average task with 95% bootstrap intervals, resampling runs within each task (<a href="#references">Efron &amp; Tibshirani 1993</a>). An interval that crosses zero means <em>not shown</em>, and we say so. Before a confirmation run we wrote down what would count as confirmed (<a href="05-the-graveyard.html#the-checklist-that-said-everything-was-fine">an example</a>).</li>
+<li><strong>The limits.</strong> Mostly one small Python repository and tasks every condition solves (<a href="09-beyond-click.html">note 9</a> repeats the main comparisons on TypeScript and on real bug reports): these benchmarks can show cost and step differences at equal quality. They cannot show where a weaker setup fails on harder work. Each note says what its data can and cannot carry.</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>Efron, B., &amp; Tibshirani, R. J. (1993). <em>An Introduction to the Bootstrap</em>. Chapman &amp; Hall.</li>
+<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+<li>Nosek, B. A., Ebersole, C. R., DeHaven, A. C., &amp; Mellor, D. T. (2018). The preregistration revolution. <em>PNAS</em>, 115(11), 2600–2606.</li>
+</ul>
+
+
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

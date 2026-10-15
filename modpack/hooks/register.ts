@@ -100,7 +100,7 @@ async function loaded($: Engine) {
 
 const REPO = 'HarzerHeribert/claude-modpack'
 const MARKETPLACE = 'claude-modpack'
-const PLUGINS = ['modpack', 'statusline', 'smart-compact', 'delegate', 'lsp-plus', 'cells', 'eta']
+const PLUGINS = ['modpack', 'statusline', 'smart-compact', 'delegate', 'lsp-plus', 'cells', 'eta', 'route']
 const THROTTLE_MS = 20 * 3_600_000
 
 const MODS_PANE = 'mods'
@@ -151,6 +151,8 @@ async function install($: Engine, latest: string, current: string): Promise<stri
   let own: Awaited<ReturnType<typeof claude>>
   for (const name of PLUGINS) {
     const r = await claude($, ['plugin', 'update', `${name}@${MARKETPLACE}`])
+    // A mod new in this release (route, in 0.5.0) is not installed yet: update cannot reach it, install does.
+    if (name !== 'modpack' && (r === undefined || r.exitCode !== 0)) await claude($, ['plugin', 'install', `${name}@${MARKETPLACE}`])
     if (name === 'modpack') own = r
   }
   if (own === undefined || own.exitCode !== 0) return failed(latest, own?.stderr)

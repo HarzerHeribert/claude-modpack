@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Small models as plumbing · Lab notes</title>
+<meta name="description" content="Lab notes 7 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/07-small-models-as-plumbing.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="small-models-as-plumbing">Small models as plumbing</h1>
+<p><em>Lab notes 7 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>If every token in Claude&#39;s context is paid for again on every step, an obvious trick is to shrink what enters it. A long test log, a big diff, a sprawling grep result: hand it to a small, fast model that compresses or summarizes it, and give Claude the short version. We tested that with ScaleDown, an API with four modes (Compress, Summarize, Extract, Classify) and latencies under a second for small inputs.</p>
+<p>The price question settled itself. The person running this lab paid €2.50 for 50 million tokens, about $0.054 per million: a quarter of what Claude charges just to <em>re-read</em> a cached token. Every call we made cost under 1% of what the same text would cost in Claude&#39;s context. So price is not the question. Whether the short version keeps what Claude needs is.</p>
+<h2 id="compress-the-right-passages-for-the-wrong-question">Compress: the right passages for the wrong question</h2>
+<p>Compress keeps the passages it judges relevant to a question and drops the rest. On click&#39;s source it kept 1–5% of the text, in 1.6–3.6 s. We asked five factual questions about click, with answers checked in the source, from the original text and from compressed copies:</p>
+<table>
+<thead>
+<tr>
+<th>Text given to the model</th>
+<th>20k-token context</th>
+<th>60k-token context</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Original</td>
+<td>5 of 5</td>
+<td>5 of 5</td>
+</tr>
+<tr>
+<td>Compressed once per question</td>
+<td>4 of 5</td>
+<td>4 of 5</td>
+</tr>
+<tr>
+<td>Compressed once for all five questions</td>
+<td><strong>0 of 5</strong></td>
+<td><strong>1 of 5</strong></td>
+</tr>
+</tbody></table>
+<p>The miss in the per-question case was the same both times: the line of <code>confirm()</code> that shows <code>[Y/n]</code> had been cut. In the shared case one answer was confidently wrong: an error class &quot;inherits exit code 1&quot;, because the line setting <code>exit_code = 2</code> was gone while its docstring stayed.</p>
+<p>An agent&#39;s next question is never known when its context is built. Compression that keeps what matters for <em>a</em> question is compression that drops what matters for the next one. Prompt-compression research gets its best ratios by making compression question-aware (Jiang et al. 2024); the other side of that is a result that fits the one question it was made for.</p>
+<h2 id="summarize-confident-and-wrong-about-the-important-part">Summarize: confident, and wrong about the important part</h2>
+<p>On a test log with three failures, Summarize named the three failing tests every time and <strong>never</strong> kept a file and line number. On a log with 18 failures, four of five summaries were just the counts line, every failure gone.</p>
+<p>The worst case was a report from a worker model (the kind delegate hands back). It truthfully listed a diff and a test run with three failures, and then said, falsely, <em>&quot;the new tests pass&quot;</em>. A plain summary repeated the false claim <strong>3 of 3 times</strong>, and once did not mention the failure at all. Told what to keep (&quot;failing tests, exit codes, claims that contradict the check&quot;), it kept the failures and flagged the false claim every time. Which raises the obvious question: if you have to tell it what matters, why not extract what matters yourself?</p>
+<h2 id="extract-right-and-slower-than-a-parser">Extract: right, and slower than a parser</h2>
+<p>Extract with a schema (failing test, file, line, message) got the test logs right: all failures, all locations, every time. It took 4–10 s, and one call failed after 77 s. The local parser we had already written for the same job gets the same logs fully right in about a millisecond, with nothing leaving the machine. (On a large diff, Summarize recovered at most 41% of the changed functions and Extract at most 26%, where reading the diff&#39;s own hunk headers gets 80%.)</p>
+<h2 id="classify-the-one-job-it-did-perfectly">Classify: the one job it did perfectly</h2>
+<p>Classify sorts a text into labels you give it. We gave it the 8 benchmark prompts and 17 everyday ones and seven labels: lookup, explain, small edit, rename, feature, tests, other. Asked one prompt at a time: <strong>25 of 25</strong> right, median 0.42 s, $0.00003 a call. (In one batch call of all 25 it got one wrong, though <a href="https://docs.scaledown.ai/api-reference/classify">the documentation</a> says calibration is the same as for single calls.)</p>
+<p>That is exactly the missing piece from <a href="02-notes-nobody-reads.html">note 2</a>: Opus never hands work to a cheaper model unless told, and an order from a mod is followed every time. A classifier that recognizes &quot;implement this feature&quot; or &quot;write tests for this&quot; in 0.4 s could give that order for exactly the work where a hand-off pays (27–37% less on features and tests), and stay silent on small questions, where a hand-off costs up to 3.6 times as much.</p>
+<p>So we built it. <strong>route</strong> is a small mod: when you send a prompt, it asks Classify what kind of work it is, with the same seven labels and rubrics that scored 25 of 25, and waits up to three seconds. If the answer is feature or test work with a score of at least 0.7, it attaches delegate&#39;s order beside the prompt: <em>the person&#39;s setting for feature work is: implement it through the hand_off tool</em>. Anything else, or no answer in time, adds nothing.</p>
+<p>On our eight click tasks, four runs each, all 32 correct (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-route.jsonl"><code>results-route.jsonl</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>The order given</th>
+<th>Hand-offs</th>
+<th>Cost, the pack → the pack with route</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The feature</td>
+<td>4 of 4</td>
+<td>4</td>
+<td>$0.61 → <strong>$0.41</strong> (9.5 → 5.2 main requests)</td>
+</tr>
+<tr>
+<td>The coverage task</td>
+<td>4 of 4</td>
+<td>4</td>
+<td>$0.67 → <strong>$0.36</strong> (8.5 → 4.2)</td>
+</tr>
+<tr>
+<td>The six other tasks</td>
+<td>0 of 24</td>
+<td>0</td>
+<td>about the same</td>
+</tr>
+</tbody></table>
+<p>Every routing decision was right: the order on all eight feature and test prompts, on none of the other 24. On the two tasks it routed, the pack with route cost <strong>39.6% less</strong> than the pack alone [−44.8%, −33.7%]; on the other six, +4.3% [−0.1%, +9.0%], within the runs&#39; spread. Over all eight, <strong>−17.0%</strong> against the pack [−20.5%, −13.1%] and <strong>−21.7% against plain Claude Code</strong> [−24.9%, −18.2%].</p>
+<p>This closes the loop from <a href="02-notes-nobody-reads.html">note 2</a>. Opus never delegates on its own and always follows an order; a 0.4-second classifier decides when an order is worth giving. What it costs: a ScaleDown key, about 0.4 s (up to 3 s) before each prompt starts, $0.00003 a prompt, and the prompt&#39;s text leaving the machine. So it can only ever be opt-in.</p>
+<h2 id="what-it-adds-up-to">What it adds up to</h2>
+<table>
+<thead>
+<tr>
+<th>Use</th>
+<th>Verdict</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Compress Claude&#39;s context</td>
+<td>No</td>
+<td>Loses facts the next question needs</td>
+</tr>
+<tr>
+<td>Summarize logs or worker reports</td>
+<td>No</td>
+<td>Drops locations; repeats false claims unless told what to keep</td>
+</tr>
+<tr>
+<td>Extract failures from logs</td>
+<td>Not needed</td>
+<td>A local parser is as right, thousands of times faster, and private</td>
+</tr>
+<tr>
+<td>Classify prompts for routing</td>
+<td><strong>Yes, opt-in</strong></td>
+<td>25 of 25, 0.4 s; routing feature and test work to a cheaper worker: −17% over the pack</td>
+</tr>
+</tbody></table>
+<p>Small models make good plumbing where the job is narrow and checkable: a label from a fixed set, on which a stronger model then acts. They make poor editors of what a stronger model will reason over, because they cannot know what it will need.</p>
+<p>Privacy is part of the cost: every call sends the text to a processor in the US. ScaleDown&#39;s data processing terms, as provided with the account, promise zero retention and no training on customer data. We sent only public code (click) and text we generated, and any mod that used it would have to be off by default and say so.</p>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>151 API calls, 1.8 million billed tokens in total, on click&#39;s source and on logs, diffs and greps generated from it; answers scored against ground truth worked out from the code. Fidelity of compressed context judged by Claude Haiku 5.5 answering from the text alone. Five runs per case unless noted; Classify on 25 prompts, one run each plus repeats. The key ran out of credits midway through the first round; the second round ran on new credits. Scripts and results stay in the lab with the API client.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>ScaleDown, <a href="https://docs.scaledown.ai/quickstart">documentation</a>, <a href="https://docs.scaledown.ai/benchmarks/overview">model overview</a> and <a href="https://docs.scaledown.ai/api-reference/classify">Classify reference</a>; price and data terms as provided with the account.</li>
+<li>Jiang, H., Wu, Q., Luo, X., Li, D., Lin, C.-Y., Yang, Y., &amp; Qiu, L. (2024). LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression. <em>ACL 2024</em> (Vol. 1), 1658–1677.</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="06-one-server-per-extension.html"><span>Previous</span>One server per extension</a><a class="next" href="08-our-plain-runs-were-not-plain.html"><span>Next</span>Our plain runs were not plain</a></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

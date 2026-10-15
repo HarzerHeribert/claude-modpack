@@ -1,0 +1,172 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..c7bb59f
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,166 @@
++import errno
++import io
++import re
++import sys
++import types
++
++import pytest
++
++import click.utils as cu
++from click.exceptions import FileError
++
++
++def test_posixify_and_get_app_dir_force_posix(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    path = cu.get_app_dir("Foo  Bar", force_posix=True)
++    assert path.endswith(".foo-bar")
++
++
++def test_get_app_dir_win(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", True)
++    monkeypatch.setenv("APPDATA", "/roam")
++    monkeypatch.setenv("LOCALAPPDATA", "/local")
++    assert cu.get_app_dir("App") == "/roam/App"
++    assert cu.get_app_dir("App", roaming=False) == "/local/App"
++    monkeypatch.delenv("APPDATA")
++    assert cu.get_app_dir("App").endswith("App")
++    assert cu.get_app_dir("App").startswith(cu.os.path.expanduser("~"))
++
++
++def test_get_app_dir_darwin_and_other(monkeypatch):
++    monkeypatch.setattr(cu, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert cu.get_app_dir("My App").endswith("Library/Application Support/My App")
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg")
++    assert cu.get_app_dir("My App") == "/xdg/my-app"
++
++
++def test_safecall():
++    def boom():
++        raise ValueError
++
++    assert cu._safecall(boom)() is None
++    assert cu._safecall(lambda: 3)() == 3
++
++
++def test_make_str(monkeypatch):
++    assert cu.make_str(b"abc") == "abc"
++    assert cu.make_str(5) == "5"
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    assert cu.make_str(b"\xff") == "�"
++
++
++def test_short_help_edges():
++    assert cu._make_default_short_help("aaaa bbbbb cc", 10) == "aaaa..."
++    assert cu._make_default_short_help("aaaaaaaaaaaa bb", 5) == "..."
++
++
++def test_lazyfile_stdin_repr_close(tmp_path):
++    lf = cu._LazyFile("-", "r")
++    assert lf.name == "-"
++    assert repr(lf) == repr(lf._f)
++    lf.close_intelligently()  # should_close False: no close
++
++    p = tmp_path / "f.txt"
++    lz = cu._LazyFile(p, "w")
++    assert "unopened file" in repr(lz)
++    lz.close()
++    with lz:
++        pass
++    lz.open()
++    assert repr(lz) == repr(lz._f)
++    lz.close()
++
++
++def test_lazyfile_open_error(tmp_path):
++    lz = cu._LazyFile(tmp_path / "no" / "f.txt", "w")
++    with pytest.raises(FileError):
++        lz.open()
++
++
++def test_keep_open_file_repr():
++    f = io.StringIO()
++    assert repr(cu._KeepOpenFile(f)) == repr(f)
++
++
++def test_open_file_lazy_and_stdout(tmp_path):
++    f = cu.open_file(tmp_path / "x", "w", lazy=True)
++    assert isinstance(f, cu._LazyFile)
++    f.close()
++    k = cu.open_file("-", "w")
++    assert isinstance(k, cu._KeepOpenFile)
++
++
++def test_echo_bytes_no_binary_writer():
++    class W:
++        def __init__(self):
++            self.data = []
++
++        def write(self, d):
++            if not d:
++                raise TypeError
++            self.data.append(d)
++
++        def flush(self):
++            pass
++
++    w = W()
++    cu.echo(b"hi", file=w, nl=False)
++    assert w.data == [b"hi"]
++
++
++def test_unknown_streams():
++    with pytest.raises(TypeError):
++        cu._get_binary_stream("nope")  # type: ignore[arg-type]
++    with pytest.raises(TypeError):
++        cu._get_text_stream("nope")  # type: ignore[arg-type]
++
++
++def test_pacify_flush_wrapper():
++    class F:
++        def __init__(self, err):
++            self.err = err
++            self.x = 7
++
++        def flush(self):
++            if self.err is not None:
++                raise OSError(self.err, "e")
++
++    cu._PacifyFlushWrapper(F(None)).flush()
++    cu._PacifyFlushWrapper(F(errno.EPIPE)).flush()
++    with pytest.raises(OSError):
++        cu._PacifyFlushWrapper(F(errno.EIO)).flush()
++    assert cu._PacifyFlushWrapper(F(None)).x == 7
++
++
++def test_detect_program_name_defaults(monkeypatch):
++    monkeypatch.setattr(sys, "argv", ["/a/b/prog.py"])
++    main = types.ModuleType("__main__")
++    main.__package__ = None
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    assert cu._detect_program_name() == "prog.py"
++
++
++def test_expand_args_flags(monkeypatch):
++    monkeypatch.setenv("CLICK_X_VAR", "val")
++    assert cu._expand_args(["$CLICK_X_VAR"], env=False, user=False) == [
++        "$CLICK_X_VAR"
++    ]
++    assert cu._expand_args(["$CLICK_X_VAR"], user=False) == ["val"]
++
++
++def test_expand_args_bad_glob(monkeypatch):
++    import glob
++
++    def bad(*a, **k):
++        raise re.error("bad")
++
++    monkeypatch.setattr(glob, "glob", bad)
++    assert cu._expand_args(["x*"]) == ["x*"]
++
++
++def test_get_text_stream_known(monkeypatch):
++    sentinel = io.StringIO()
++    monkeypatch.setitem(cu.text_streams, "stdout", lambda enc, err: sentinel)
++    assert cu._get_text_stream("stdout") is sentinel

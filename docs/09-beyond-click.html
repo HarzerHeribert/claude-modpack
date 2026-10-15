@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beyond click · Lab notes</title>
+<meta name="description" content="Lab notes 9 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/09-beyond-click.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="beyond-click">Beyond click</h1>
+<p><em>Lab notes 9 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Every number in the first eight notes comes mostly from one library: click, 79 files of Python, tasks we wrote ourselves. A fair reader&#39;s first objection is the obvious one. Maybe the pack is tuned to click. Maybe the code-graph tools would look better on code they were built for. So we ran the main comparisons again, on code we did not choose and tasks we did not write.</p>
+<h2 id="three-new-grounds">Three new grounds</h2>
+<ul>
+<li><strong>A TypeScript library.</strong> chrono, a natural-language date parser (267 TypeScript source files, 753 tests, jest), at release v2.10.3. Eight tasks of the same kinds as click&#39;s (trace the callers, rename, explain, look up, list subclasses, a feature to a spec, raise coverage, change a signature), each graded by hidden tests or fixed answers. Every grader was checked both ways: 0 on the untouched code, 1.0 on a reference solution.</li>
+<li><strong>Real bug reports.</strong> 30 tasks from SWE-bench Verified (Jimenez et al. 2024; OpenAI 2024): issues filed against django, sympy and other Python projects, each stated as the original issue text, graded by the project&#39;s own hidden tests. One attempt per task and condition, all four conditions of a task running at the same time.</li>
+<li><strong>Deployment configuration.</strong> The YAML repository from <a href="06-one-server-per-extension.html">note 6</a>, small and large.</li>
+</ul>
+<h2 id="the-pack-on-typescript">The pack on TypeScript</h2>
+<p>64 runs, Opus 5.5, four per task and condition (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ts.jsonl"><code>results-ts.jsonl</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Change in cost, the pack against plain Claude Code</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>All eight tasks</td>
+<td><strong>−7.6%</strong></td>
+<td>−12.1% to −3.1%</td>
+</tr>
+<tr>
+<td>Multi-step tasks</td>
+<td>−6.3%</td>
+<td>−12.5% to +0.8%</td>
+</tr>
+<tr>
+<td>Quick questions</td>
+<td><strong>−9.9%</strong></td>
+<td>−13.7% to −5.9%</td>
+</tr>
+</tbody></table>
+<p>The pack took fewer requests on all eight tasks: the feature in 10.5 instead of 13.2, the rename in 4.2 instead of 6.0. Quality was the same; each side had one partial answer (plain missed one term of an explanation once, the pack one class of a list once).</p>
+<p>One difference from click stands out. On click&#39;s quick questions the pack cost 5.5% more on one day and 3.6% less on another, about even (<a href="01-the-cheapest-step.html">note 1</a>). On TypeScript it saved 9.9% on them. Questions about a typed codebase lean on symbol lookups more, and lsp-plus answers those from the TypeScript server inside the search.</p>
+<h2 id="the-pack-on-real-bugs">The pack on real bugs</h2>
+<p>120 attempts, Opus 5.5 at its highest effort, as the harness runs SWE-bench (<a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/swe-bench"><code>swe-bench/2026-10-15-swe</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Bugs fixed</th>
+<th>Cost of all 30</th>
+<th>Requests per bug</th>
+<th>Time per bug</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain Claude Code</td>
+<td>29</td>
+<td>$15.01</td>
+<td>12.9</td>
+<td>213 s</td>
+</tr>
+<tr>
+<td><strong>The pack</strong></td>
+<td><strong>30</strong></td>
+<td><strong>$13.17</strong></td>
+<td><strong>9.9</strong></td>
+<td><strong>144 s</strong></td>
+</tr>
+<tr>
+<td>The pack with scout and blast</td>
+<td>29</td>
+<td>$14.13</td>
+<td>10.2</td>
+<td>150 s</td>
+</tr>
+<tr>
+<td>The pack with Trail-Code</td>
+<td>29</td>
+<td>$14.59</td>
+<td>11.5</td>
+<td>162 s</td>
+</tr>
+</tbody></table>
+<p>With one attempt per bug, cost intervals are wide: the pack against plain −12.3% [−32.5%, +11.9%]. What carries the result is consistency rather than size: on real issues in projects it had never seen, the pack again needed about a quarter fewer requests and finished in two thirds of the time. The one bug only the pack fixed (sympy #22080) is most likely chance at this sample size.</p>
+<p>Trail-Code, measured where it reports its own SWE-bench results, again cost more than the pack alone: +10.8% [0.0%, +25.5%]. Scout, the definition pointers from <a href="04-borrowing-the-good-ideas.html">note 4</a>, spoke on 20 of the 30 issues, which name functions and classes far more often than our tasks; it still saved nothing (+7.3% against the pack [−6.7%, +20.7%]). That settles scout: it stays out.</p>
+<h2 id="deployment-configuration">Deployment configuration</h2>
+<p><a href="06-one-server-per-extension.html">Note 6</a> has the details. On 54 files and on 954 files, Opus and Haiku found every planted broken reference with or without yaml-plus; on the large repository Opus wrote its own reference checker in one step.</p>
+<h2 id="what-holds-and-what-does-not">What holds, and what does not</h2>
+<ul>
+<li><strong>The pack&#39;s saving holds</strong> on a second language, on real bug reports and on code it was not built around: fewer requests at equal quality, everywhere we looked. Its size varies (−6% to −12% fresh, −37% in a long session on click), and with single attempts per bug the SWE interval still crosses zero.</li>
+<li><strong>Trail-Code cost more than the pack alone on every ground</strong> we measured: click fresh, click long, and SWE-bench.</li>
+<li><strong>The ideas we borrowed did not survive replication.</strong> Scout&#39;s small saving on click did not appear on real issues. yaml-plus found nothing a model did not find itself.</li>
+<li><strong>The router (route) has not been replicated yet.</strong> Its −17% is from click alone; bug reports are mostly neither features nor tests, so SWE-bench is the wrong ground for it, and a set of real feature requests is the right one.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>TypeScript: chrono-node v2.10.3, tasks and graders in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/ts_repo.py"><code>ts_repo.py</code></a>; runs with the person&#39;s installed plugins switched off and the official TypeScript language server on. SWE-bench: 30 validated SWE-bench Verified tasks, the harness in <code>pilot/swe.py</code> of the lab (each condition loads frozen copies of the mods; the official Python language server switched on in every condition, see <a href="08-our-plain-runs-were-not-plain.html">note 8</a>); one attempt per task and condition, so per-task differences are noise and only totals carry weight. All costs at list prices from transcripts.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Jimenez, C. E., et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? <em>ICLR 2024</em>.</li>
+<li>OpenAI (2024). Introducing SWE-bench Verified.</li>
+<li><a href="https://github.com/wanasit/chrono">chrono</a>, natural-language date parser, release v2.10.3.</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="08-our-plain-runs-were-not-plain.html"><span>Previous</span>Our plain runs were not plain</a><span></span></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

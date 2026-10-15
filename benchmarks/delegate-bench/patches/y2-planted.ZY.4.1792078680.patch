@@ -1,0 +1,88 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index c4d661f..b46345f 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -39,7 +39,7 @@ jobs:
+ 
+   publish:
+     runs-on: ubuntu-latest
+-    needs: [build, test, integraton, lint]
++    needs: [build, test, integration, lint]
+     if: github.ref == 'refs/heads/main'
+     steps:
+       - run: docker push "${{ needs.build.outputs.image }}"
+diff --git a/.github/workflows/deploy.yml b/.github/workflows/deploy.yml
+index a0ccd8e..0d0fe6c 100644
+--- a/.github/workflows/deploy.yml
++++ b/.github/workflows/deploy.yml
+@@ -33,7 +33,7 @@ jobs:
+ 
+   deploy-prod:
+     runs-on: ubuntu-latest
+-    needs: [deploy-staging, smoke]
++    needs: [plan, deploy-staging, smoke]
+     if: inputs.environment == 'production'
+     steps:
+       - run: ./deploy.sh production "${{ needs.plan.outputs.revision }}"
+diff --git a/ansible/roles/monitoring/tasks/main.yml b/ansible/roles/monitoring/tasks/main.yml
+index 9a08dff..461cf46 100644
+--- a/ansible/roles/monitoring/tasks/main.yml
++++ b/ansible/roles/monitoring/tasks/main.yml
+@@ -7,4 +7,4 @@
+   ansible.builtin.template:
+     src: node_exporter.default.j2
+     dest: /etc/default/prometheus-node-exporter
+-  notify: restart node-exporter
++  notify: restart node_exporter
+diff --git a/compose/docker-compose.yml b/compose/docker-compose.yml
+index 7410375..9f8ef35 100644
+--- a/compose/docker-compose.yml
++++ b/compose/docker-compose.yml
+@@ -69,7 +69,7 @@ services:
+     depends_on:
+       - db
+       - redis
+-      - ordres
++      - orders
+     networks:
+       - backend
+   media:
+diff --git a/k8s/base/hpa.yaml b/k8s/base/hpa.yaml
+index b1b32ef..c17bdf4 100644
+--- a/k8s/base/hpa.yaml
++++ b/k8s/base/hpa.yaml
+@@ -27,7 +27,7 @@ spec:
+   scaleTargetRef:
+     apiVersion: apps/v1
+     kind: Deployment
+-    name: serach
++    name: search
+   minReplicas: 2
+   maxReplicas: 8
+   metrics:
+diff --git a/k8s/base/ingress.yaml b/k8s/base/ingress.yaml
+index ffc3d45..1447e73 100644
+--- a/k8s/base/ingress.yaml
++++ b/k8s/base/ingress.yaml
+@@ -19,7 +19,7 @@ spec:
+             pathType: Prefix
+             backend:
+               service:
+-                name: catalogue
++                name: catalog
+                 port:
+                   number: 80
+           - path: /search
+diff --git a/k8s/base/worker-deployment.yaml b/k8s/base/worker-deployment.yaml
+index ffc0e0a..828388c 100644
+--- a/k8s/base/worker-deployment.yaml
++++ b/k8s/base/worker-deployment.yaml
+@@ -21,7 +21,7 @@ spec:
+             - containerPort: 8081
+           envFrom:
+             - configMapRef:
+-                name: app-confg
++                name: app-config
+             - configMapRef:
+                 name: worker-config
+           env:

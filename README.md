@@ -2,23 +2,23 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-  <img alt="claude-modpack: six Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, lsp-plus, cells, eta." src="assets/banner-light.svg" width="880">
+  <img alt="claude-modpack: seven Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, lsp-plus, cells, eta, route." src="assets/banner-light.svg" width="880">
 </picture>
 
-[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![730 graded runs, all correct](https://img.shields.io/badge/graded%20runs-730%2C%20all%20correct-0ca30c?style=flat-square)](benchmarks/delegate-bench/SUITE.md) [![6 mods](https://img.shields.io/badge/mods-6-555555?style=flat-square)](#the-mods-in-depth)
+[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![730 graded runs, all correct](https://img.shields.io/badge/graded%20runs-730%2C%20all%20correct-0ca30c?style=flat-square)](benchmarks/delegate-bench/SUITE.md) [![7 mods](https://img.shields.io/badge/mods-7-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-9-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/)
 
 ### Claude Code with fewer wasted steps, and a clear view of what it's doing.
 
-Six free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
-Every number on this page was measured, including the one place where it doesn't help.
+Seven free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
+Every number on this page was measured, including where it doesn't help.
 
-[Install](#install) · [What you get](#what-you-get) · [Honest numbers](#honest-numbers) · [Questions](#questions)
+[Install](#install) · [What you get](#what-you-get) · [Honest numbers](#honest-numbers) · [Lab notes](https://harzerheribert.github.io/claude-modpack/) · [Questions](#questions)
 
 </div>
 
 <br>
 
-<img alt="Animated: the cost per job with and without the pack, as bars that grow: in a long session $0.42 against $0.31 (−26%), bigger jobs in a fresh session $0.58 against $0.52 (−11%), quick questions in a fresh session $0.23 against $0.24 (+5%, the one place it costs more); then four numbers: −26% cost per job in a long session, −21% steps for the same work, −27% cost of a feature a cheaper model builds from your plan, 116 of 116 results correct." src="assets/numbers.gif" width="880">
+<img alt="Animated: the cost per job with and without the pack, as bars that grow: in a long session $0.44 against $0.29 (−33%; measured twice, −26% one day and −40% the next), bigger jobs in a fresh session $0.56 against $0.51 (−9%), quick questions in a fresh session $0.23 against $0.24 (+2%, about even: +5% one day, −4% the next); then four numbers: −33% cost per job in a long session, −21% steps for the same work, −27% cost of a feature a cheaper model builds from your plan, 200 of 200 results correct." src="assets/numbers.gif" width="880">
 
 ## Why it saves
 
@@ -52,9 +52,15 @@ When you approve a plan, Claude hands the building to Sonnet, a cheaper model, a
 
 That's the **delegate** mod.
 
+### Feature work goes to the cheaper model by itself (opt-in)
+
+A small, fast classifier reads each prompt you send, and only when it is feature or test work, Claude is told to hand it to delegate's worker; everything else stays with Claude. In our tests that made the pack another 17% cheaper across all eight jobs, and 40% cheaper on features and tests, with every routing decision right and every result correct. The classifier is an outside service, ScaleDown, so this is off until you turn it on and give it a key: from then on, the text of each prompt goes to ScaleDown, in the US, to be classified.
+
+That's the **route** mod.
+
 ### Straight answers about your code
 
-When Claude searches your code for a name, it gets the exact list of places that use it, from the same engine your editor uses, instead of reading through search results. Renames and "who calls this?" questions take fewer steps. Run `/lsp-plus:setup` once in your project to turn it on.
+When Claude searches your code for a name, it gets the exact list of places that use it, from the same engine your editor uses, instead of reading through search results. Renames and "who calls this?" questions take fewer steps. New in 0.5.0: Go, Kotlin and Ruby code, shell scripts and Terraform. Run `/lsp-plus:setup` once in your project to turn it on.
 
 That's the **lsp-plus** mod.
 
@@ -62,9 +68,9 @@ That's the **lsp-plus** mod.
 
 <img alt="A real Claude Code session: /mods lists the pack's six mods and opens a pane of cards; the status line is turned off and disappears from under the prompt, then turned on again." src="assets/demo-mods.gif" width="880">
 
-`/mods` lists the six and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
+`/mods` lists the seven and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
 
-That's the **modpack** plugin, which installs the other six.
+That's the **modpack** plugin, which installs the other seven.
 
 ## Install
 
@@ -91,20 +97,23 @@ Each mod installs on its own the same way, for example `/plugin install smart-co
 
 ## Honest numbers
 
-We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source project ([click](https://github.com/pallets/click)), from a one-line lookup to building a feature. Every result was checked by hidden tests. The same jobs ran with the pack and without it, and we compared what they cost at API prices.
+We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source project ([click](https://github.com/pallets/click)), from a one-line lookup to building a feature, on two days, 13 and 15 October. Every result was checked by hidden tests. The same jobs ran with the pack and without it, and we compared what they cost at API prices.
 
 | Cost per job | Without | With the pack | |
 | --- | --- | --- | --- |
-| In a long session (Claude has already read the whole project) | $0.42 | $0.31 | **−26%** |
-| Bigger jobs in a long session (a feature, tests, a rename) | $0.87 | $0.62 | **−29%** |
-| In a fresh session | $0.38 | $0.36 | −5% |
-| Bigger jobs in a fresh session | $0.58 | $0.52 | −11%, and 18% faster |
-| Quick questions in a fresh session | $0.23 | $0.24 | **+5%** |
+| In a long session (Claude has already read the whole project) | $0.44 | $0.29 | **−33%** |
+| Bigger jobs in a long session (a feature, tests, a rename) | $0.91 | $0.57 | **−37%** |
+| In a fresh session | $0.37 | $0.36 | −5% |
+| Bigger jobs in a fresh session | $0.56 | $0.51 | −9%, and 13% faster |
+| Quick questions in a fresh session | $0.23 | $0.24 | +2%, about even |
 
-- **Where it doesn't help:** a quick question in a brand-new session costs about 5% more, because the pack's tools come along with every step. It pays off on real work and in long sessions.
-- **Nothing got worse:** all 116 runs behind this table produced a correct result, with the pack and without.
-- **The 95% ranges:** long session −31% to −21%; fresh −10% to −0.5%; quick questions +1% to +10%.
+- **Where it doesn't help:** quick questions in a brand-new session. The pack's tools come along with every step, and a three-step lookup has little to save: 5% more one day, 4% less the next, about even.
+- **Nothing got worse:** all 200 runs behind this table produced a correct result, with the pack and without.
+- **The 95% ranges:** long session −39% to −27%; fresh −8% to −1%; bigger jobs fresh −14% to −3%; quick questions −1% to +6%. The long session is two runs per job each day, and the days differ: −26% on one, −40% on the other, mostly from the feature (plain needed 12 requests one day, 16 the next).
+- **The same on other code:** on a TypeScript library ([chrono](https://github.com/wanasit/chrono)) the pack cost 7.6% less (−12% to −3%) and took fewer steps on all eight jobs. On 30 real bug reports from SWE-bench Verified it fixed 30 against 29, with 23% fewer steps; the cost, −12%, is not certain at one attempt per bug (−33% to +12%).
 - **A plan handed to a cheaper model:** −27% on a feature, −33% on tests, against Opus doing it alone with the pack (16 runs, all correct).
+- **With route turned on:** a further −17% on the eight jobs, −40% on features and tests (32 runs, all correct). Measured on click only so far.
+- **Two days, two versions:** the 13 October runs used the pack as of 0.3.0 and Claude Code 2.1.296, the 15 October runs 0.4.0 and 2.1.299. What changed in the pack between them (on/off switches, setup, messages shown when a worker is refused) never reached the model in these runs: its first request was 26.7k tokens plain and 30.6k with the pack on both days. The second day's plain runs were done twice, because the first try had the pack installed by mistake: [lab notes 8](lab-notes/08-our-plain-runs-were-not-plain.md) tells how we caught it.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/cost-dark.svg">
@@ -117,7 +126,7 @@ We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/requests-dark.svg">
-  <img alt="Model requests per task, plain Claude Code against the modpack: 3.5 against 5.4 in a session already holding 216k tokens." src="assets/requests-light.svg" width="880">
+  <img alt="Model requests per task, plain Claude Code against the modpack: 3.2 against 5.6 in a session already holding 216k tokens." src="assets/requests-light.svg" width="880">
 </picture>
 
 <picture>
@@ -126,7 +135,7 @@ We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source 
 </picture>
 </details>
 
-How we measured, every run's record, and the scripts to run it all again are in [`benchmarks/`](benchmarks/), starting with [SUITE.md](benchmarks/delegate-bench/SUITE.md). Not measured: what smart-compact saves you while you're away (worked out from prices, not tested) and Windows.
+How we measured, every run's record, and the scripts to run it all again are in [`benchmarks/`](benchmarks/), starting with [SUITE.md](benchmarks/delegate-bench/SUITE.md). What we tried that did not make it, a 10,000-star code graph among it, is in the [lab notes](https://harzerheribert.github.io/claude-modpack/) ([as Markdown](lab-notes/)). Not measured: what smart-compact saves you while you're away (worked out from prices, not tested) and Windows.
 
 ## Questions
 
@@ -134,13 +143,13 @@ How we measured, every run's record, and the scripts to run it all again are in 
 No. In every run we graded, 730 in all, the result was correct with the pack and without, and every one was graded again for this release. The pack changes how many steps Claude takes to get there, and in our tests the results came out the same.
 
 **Is it safe?**
-It's open source (MIT), so every line is here to read. Code that Claude runs inside a cell runs in a sandbox with no network access. Edits go through Claude Code's own edit tool, so your usual permission prompts and `/rewind` still apply. The only thing the pack ever sends anywhere is a once-a-day check on GitHub for a new release, which you can turn off.
+It's open source (MIT), so every line is here to read. Code that Claude runs inside a cell runs in a sandbox with no network access. Edits go through Claude Code's own edit tool, so your usual permission prompts and `/rewind` still apply. The pack sends nothing anywhere except a once-a-day check on GitHub for a new release, which you can turn off, and, only if you turn route on, the text of each prompt to ScaleDown to be classified.
 
 **I'm on a Pro or Max plan. Does this help me?**
 You don't pay per job, but every step counts against your 5-hour and weekly limits. We measured cost at API prices, not plan usage, so we can't promise a number. Fewer, lighter steps should leave more of your limits, and the status line shows exactly where you stand.
 
 **Does it work in the desktop app?**
-Yes, cards, progress and the status line included. One limit: in auto mode the desktop app doesn't let an add-on start a helper model, so plans aren't handed off there; in manual mode, or in the terminal, they are. Windows hasn't been tested yet.
+Yes, cards, progress and the status line included. One limit: in auto mode the desktop app doesn't let an add-on start a helper model, so plans aren't handed off there (turn route off there too); in manual mode, or in the terminal, they are. Windows hasn't been tested yet.
 
 **How do I turn it off?**
 `/mods` switches each part off or on, right away. `/plugin` removes them.
@@ -242,18 +251,42 @@ Measured on 120 Opus runs, all correct: a feature or tests cost 27–37% less ha
 </details>
 
 <details>
+<summary><b>route</b>: cost: sends feature and test work to delegate's worker (off until you turn it on)</summary>
+<br>
+
+Opus does not hand work off on its own, and on small work a hand-off costs more than it saves, so the question is when to tell it to. route asks, for each prompt you send (typed, from the phone, or `claude -p`; not a slash command or a reply under 40 characters):
+
+1. **The classifier.** ScaleDown's Classify, with seven labels (lookup, explain, small edit, rename, feature, tests, other) and a one-line rubric each. On 25 prompts, ours and everyday ones: 25 right, 0.42 s median, about $0.00003 a prompt.
+2. **The order.** Only for feature or test work with a score of at least 0.7: beside your prompt, the order delegate gives for an approved plan, to implement it through `hand_off`. Anything else, an answer slower than 3 s, or no delegate loaded: nothing, and without delegate nothing is sent.
+
+Measured on click's eight jobs, 4 runs each, all correct: the order on all 8 feature and test prompts and on none of the 24 others; −40% on those two jobs, −17% over the pack on all eight, −22% against plain Claude Code. Not yet measured outside click.
+
+What it needs: delegate, and a ScaleDown API key (`scaledownKey`, or `SCALEDOWN_API_KEY` in the environment). What it costs: a prompt starts up to 3 s later (0.4 s typically), and its text leaves your machine for ScaleDown, a US service. In the desktop app's auto mode delegate cannot start workers, so turn route off there.
+
+| Option | Default | |
+| --- | --- | --- |
+| `enabled` | `false` | On: each prompt's text goes to ScaleDown to be classified. |
+| `scaledownKey` | empty | Else `SCALEDOWN_API_KEY`. |
+| `minScore` | `0.7` | The classifier's score from which a prompt gets the order. |
+| `timeoutMs` | `3000` | A slower answer adds nothing. |
+
+</details>
+
+<details>
 <summary><b>lsp-plus</b>: code intelligence: the language server's answer to a symbol grep</summary>
 <br>
 
-- **The language server's answer to a symbol grep.** When grep, rg, git grep and the like look for a code symbol, lsp-plus asks the language server itself and attaches its answer to the grep's result: for a function the functions that call it, each named as it is nested (`Command.invoke (1412)`), otherwise its references, by file. Grep's own output stays for strings, comments and docs. A server still indexing gets up to 3 s, and without a whole answer there is none.
+- **The language server's answer to a symbol grep.** When grep, rg, git grep and the like look for a code symbol, lsp-plus asks the language server itself and attaches its answer to the grep's result: for a function the functions that call it, each named as it is nested (`Command.invoke (1412)`), otherwise its references, by file. Grep's own output stays for strings, comments and docs. In Terraform the grep can name an address (`var.region`, `aws_s3_bucket.logs`, `local.tags`, `module.vpc`) or its block; the answer is the references in each module that uses it. A server still indexing gets up to 3 s, and without a whole answer there is none.
 - **Servers warm from the start.** At session start each language the repository has gets one question, about its smallest tracked file, so its server has the project open before the first real one: about 1 s for Python, 4 s for TypeScript, saved later. The smallest file because Claude Code adds the problems a server reports about any file it has open to the conversation, and a near-empty file has none. A server costs memory (pyright about 440 MB, the TypeScript server up to 2 GB on a large repository) and runs until the session ends.
 - **Docs in references.** `findReferences`, `goToDefinition` and `incomingCalls` also name the doc lines that use the symbol as code, which no language server indexes.
 - **Docs that drift.** After an Edit or Write removes a name from the code that the docs still mention, Claude is told where, with the likely new name when it looks like a rename.
 - **`/refs`** checks every doc in the repository for code names no file in the code has any more, and for links to files that do not exist.
 - **A missing server said once.** Where the repository has five or more files of a language whose server does not answer, you see a line naming it, and Claude is told to offer `/lsp-plus:setup` once.
-- **Markdown and SQL servers.** marksman for `.md`, postgres-language-server for `.sql`.
+- **Markdown, SQL, shell and Terraform servers.** marksman for `.md`, postgres-language-server for `.sql`, bash-language-server for `.sh` and `.bash`, terraform-ls for `.tf` and `.tfvars`.
+- **Go, Kotlin and Ruby.** The grep answer knows their definitions, methods on a receiver included (`func (s *Server) Run`, `def self.issue`), through the official plugins' servers; where a server has no call hierarchy, the answer is its references. Checked against gopls and ruby-lsp (which needs a `Gemfile.lock`); Kotlin by tests only.
+- **`blast`** (off): after an edit changes a function's parameters, the places that call it, from the server. Off because the grep answer before the edit already names them: on a task built for it, +3.7% [−2%, +11%] taken out.
 
-Measured: the grep answer cut a rename from 4.6 to 3.4 requests (−6.5% cost) and a trace from 4.3 to 3.9 (cost even), 7 runs each way, all correct; on tasks without a symbol grep it never spoke. Taken out of the pack, renames took 5.0 requests instead of 3.2 and the whole cost the same. Its warm-up once asked about click's `docs/conf.py`, whose diagnostics then reached every conversation (+4.5% on small tasks); it now asks about the smallest file of each kind, and costs nothing there. Options `answer`, `warm`, `docs` and `drift` turn those off, `enabled: false` the whole mod; `nudge` turns on an older note that only told Claude which LSP call to make (never followed in 45 notes).
+Measured: the grep answer cut a rename from 4.6 to 3.4 requests (−6.5% cost) and a trace from 4.3 to 3.9 (cost even), 7 runs each way, all correct; on tasks without a symbol grep it never spoke. Taken out of the pack, renames took 5.0 requests instead of 3.2 and the whole cost the same. Its warm-up once asked about click's `docs/conf.py`, whose diagnostics then reached every conversation (+4.5% on small tasks); it now asks about the smallest file of each kind, and costs nothing there. Options `answer`, `warm`, `docs` and `drift` turn those off, `blast` turns that one on, `enabled: false` the whole mod; `nudge` turns on an older note that only told Claude which LSP call to make (never followed in 45 notes).
 
 </details>
 
@@ -302,6 +335,7 @@ The mods never import each other. Each finds the others through Claude Code itse
 - **Edits made in a cell go through the Edit tool**, so lsp-plus's check for docs that still use a removed name runs on them, and the notes other mods attach to a cell's calls come back in the cell's report.
 - **smart-compact keeps long sessions' caches warm**, where delegate and cells pay most: both save model requests, and every request re-reads the whole context.
 - **eta shows background shell jobs**, including those a cell starts; delegate shows its own workers in its card and pane.
+- **route gives delegate's order** for feature and test prompts, the same order delegate gives for an approved plan; without delegate's tool in the list it sends nothing.
 
 ### What makes the cut
 
@@ -320,13 +354,16 @@ A mod joins the pack when:
 | TypeScript, JavaScript | `typescript-lsp` | `npm i -g typescript-language-server typescript@6` (TypeScript 7 has no `tsserver.js`, which the server needs) |
 | Python | `pyright-lsp` | `npm i -g pyright` |
 | Rust | `rust-analyzer-lsp` | `brew install rust-analyzer` |
+| Go | `gopls-lsp` | `go install golang.org/x/tools/gopls@latest` |
 | Swift | `swift-lsp` | Xcode |
 | C, C++ | `clangd-lsp` | Xcode (`clangd`) |
 | Java | `jdtls-lsp` | `brew install jdtls` |
+| Kotlin | `kotlin-lsp` | `brew install JetBrains/utils/kotlin-lsp` (its download failed when we tried, 15 Oct) |
 | C# | `csharp-lsp` | `dotnet tool install -g csharp-ls` (0.18 on .NET 9) |
 | PHP | `php-lsp` | `npm i -g intelephense` |
+| Ruby | `ruby-lsp` | `gem install ruby-lsp` |
 | Lua | `lua-lsp` | `brew install lua-language-server` |
-| Markdown, SQL | lsp-plus | `brew install marksman postgres-language-server` |
+| Markdown, SQL, shell, Terraform | lsp-plus | `brew install marksman postgres-language-server bash-language-server hashicorp/tap/terraform-ls` |
 
 ## Developing
 

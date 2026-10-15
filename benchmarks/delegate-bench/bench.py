@@ -62,9 +62,20 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import ts_repo
+import yaml_repo
+
 HERE = Path(__file__).resolve().parent
 WORK = Path(os.environ.get("BENCH_WORK", Path.home() / ".cache" / "claude-modpack-bench"))
 BASE = WORK / "click-base"
+# The YAML tasks' repository (yaml_repo.py), built on first use; their runs are named with --tasks, never by default.
+YAML_BASE = WORK / "yaml-base"
+YAML_BIG_BASE = WORK / "yaml-big-base"
+YAML_BUILD = __import__("threading").Lock()
+# The TypeScript tasks' repository (ts_repo.py: chrono at a release tag, its node_modules installed), cloned on first use;
+# its tasks (ts-*) run only when named with --tasks.
+TS_BASE = WORK / "ts-base"
+TS_BUILD = __import__("threading").Lock()
 VENV = WORK / "venv"
 RESULTS = Path(os.environ.get("BENCH_RESULTS", HERE / "results.jsonl"))
 DELEGATE = HERE.parent.parent / "delegate"
@@ -81,6 +92,35 @@ PACK = ":".join(str(PACK_ROOT / m) for m in ("smart-compact", "lsp-plus", "deleg
 # The ablation: the pack as shipped, and the same pack without one mod.
 SHIPPED = ("statusline", "smart-compact", "lsp-plus", "delegate", "cells", "eta")
 ABLATION = {"Z": SHIPPED, "Z-cells": tuple(m for m in SHIPPED if m != "cells"), "Z-lsp": tuple(m for m in SHIPPED if m != "lsp-plus")}
+# The code-graph tools' ideas the pack could carry (run with BENCH_PACK_ROOT on a pack that has them): scout's definitions
+# beside the prompt, and lsp-plus's callers after an edit changes a signature (its option blast); N has both, the other two
+# drop one each.
+IDEAS = {"N": (SHIPPED + ("scout",), True), "N-scout": (SHIPPED, True), "N-blast": (SHIPPED + ("scout",), False)}
+ABLATION.update({arm: mods for arm, (mods, _) in IDEAS.items()})
+# The pack with yaml-plus, one YAML server for every kind of YAML with name checks, against Z on the YAML tasks.
+ABLATION["ZY"] = SHIPPED + ("yaml-plus",)
+# The pack with squeeze, which hands Claude a long test log's failures (file:line, messages) and keeps the whole log
+# on disk, against Z on f1-fix, whose failing suite prints such a log.
+ABLATION["ZS"] = SHIPPED + ("squeeze",)
+# The pack with route: ScaleDown's classifier reads the prompt, and feature or test work gets the hand-off order (needs
+# SCALEDOWN_API_KEY in the environment). Against Z: does it hand off where that pays, and stay out of the rest?
+ABLATION["RT"] = SHIPPED + ("route",)
+
+# f1-fix: three one-line bugs planted in src/ (18 tests fail, ~49k characters of `pytest -q`): (file, as released, as planted).
+F1_BUGS = [
+    ("src/click/formatting.py", "width = max(min(shutil.get_terminal_size().columns, max_width) - 2, 50)", "width = max(min(shutil.get_terminal_size().columns, max_width) - 4, 50)"),
+    ("src/click/termui.py", '"y/n" if default is None else ("Y/n" if default else "y/N"),', '"y/n" if default is None else ("Y/N" if default else "y/N"),'),
+    ("src/click/types.py", '        "0": False,\n', '        "0": True,\n'),
+]
+
+
+def plant_bugs(repo: Path):
+    for rel, good, bad in F1_BUGS:
+        p = repo / rel
+        text = p.read_text()
+        assert text.count(good) == 1, rel
+        p.write_text(text.replace(good, bad))
+    subprocess.run(["git", "-c", "user.email=bench@local", "-c", "user.name=bench", "commit", "-q", "-am", "planted bugs"], cwd=repo, check=True)
 
 # The worker setups the bench compares: arm name → delegate's worker setting.
 WORKER_ARMS = {
@@ -101,6 +141,76 @@ Before you start a task, decide where it runs.
 - Keep it yourself when it is a lookup, a trace, an explanation, a design decision or debugging, or when it depends on what this conversation decided."""
 
 TEST = f"PYTHONPATH=src {VENV}/bin/python -m pytest -q"
+# Trail-Code (trailhq, formerly graft), a code-graph tool, as its `trail init` wires a repository: the published
+# npm version installed in a folder of its own, its home (install record, update check) beside it so nothing is
+# written into the person's ~/.trail or settings. T and TL are the pack with it.
+TRAIL = Path(os.environ.get("BENCH_TRAIL", "<work>/trail"))
+TRAIL_BIN = TRAIL / "node_modules" / ".bin" / "trail"
+TRAIL_HOME = TRAIL / "home"
+BASE_TRAIL = WORK / "click-trail"
+# TG: Trail without its Stop hook, which asks Claude once per session to write a team learning (in T's runs the
+# learning note became the final reply): what the graph, its prompt pointers and its tools are worth alone.
+BASE_TRAIL_GRAPH = WORK / "click-trail-graph"
+TRAIL_ARMS = ("T", "TL", "TG")
+# Tasks run only when named with --tasks, beside the YAML ones: f1-fix needs its bugs planted first.
+EXTRA_TASKS = {
+    "f1-fix": {
+        "kind": "edit",
+        "prompt": f"The test suite of this repository (click) fails. Find the bugs in src/ and fix them; do not change the tests. The tests run with: {TEST}",
+    },
+}
+
+
+# Plugins the person has installed that no condition may load by accident: the modpack from its marketplace (its mods
+# made "plain" runs a pack from 14 Oct on; in pack runs the lab's copies replace them), and Warp (its permission hook
+# hangs outside Warp). Every run's command gets them switched off (neutral()).
+INSTALLED_OFF = {f"{m}@claude-modpack": False for m in ("modpack", "statusline", "smart-compact", "delegate", "lsp-plus", "cells", "eta")}
+INSTALLED_OFF["warp@claude-code-warp"] = False
+
+
+def neutral(cmd: list[str]) -> list[str]:
+    """The command with the installed plugins above switched off: merged into its --settings, or a --settings of its own."""
+    cmd = list(cmd)
+    for i, a in enumerate(cmd[:-1]):
+        if a == "--settings":
+            s = json.loads(cmd[i + 1])
+            s["enabledPlugins"] = {**INSTALLED_OFF, **s.get("enabledPlugins", {})}
+            cmd[i + 1] = json.dumps(s)
+            return cmd
+    return cmd + ["--settings", json.dumps({"enabledPlugins": INSTALLED_OFF})]
+
+
+def trail_env() -> dict:
+    """The environment of a run with Trail: its binary on the PATH, its home, its telemetry off."""
+    return {**os.environ, "PATH": f"{TRAIL_BIN.parent}:{os.environ['PATH']}", "TRAIL_HOME": str(TRAIL_HOME / ".trail"), "DO_NOT_TRACK": "1"}
+
+
+def trail_mcp() -> list[str]:
+    """Trail's MCP server, the installed version (its .mcp.json would fetch the newest with npx)."""
+    env = {"TRAIL_HOME": str(TRAIL_HOME / ".trail"), "DO_NOT_TRACK": "1"}
+    return ["--mcp-config", json.dumps({"mcpServers": {"trail": {"command": str(TRAIL_BIN), "args": ["mcp"], "env": env}}})]
+
+
+def trail_graph_only():
+    """click-trail with Trail's Stop hook taken out of its project settings, committed."""
+    if BASE_TRAIL_GRAPH.exists():
+        return
+    shutil.copytree(BASE_TRAIL, BASE_TRAIL_GRAPH, symlinks=True)
+    settings = BASE_TRAIL_GRAPH / ".claude" / "settings.json"
+    s = json.loads(settings.read_text())
+    s["hooks"].pop("Stop", None)
+    settings.write_text(json.dumps(s, indent=2) + "\n")
+    subprocess.run(["git", "-c", "user.email=bench@local", "-c", "user.name=bench", "commit", "-q", "-am", "trail without its Stop hook"], cwd=BASE_TRAIL_GRAPH, check=True)
+
+
+def trail_init(repo: Path):
+    """`trail init` for Claude Code in a copy of click, its home the bench's own, then its files committed so a
+    task's diff holds only the task (the graph in graft/ stays ignored, as init leaves it)."""
+    env = {**trail_env(), "HOME": str(TRAIL_HOME)}
+    subprocess.run([str(TRAIL_BIN), "init", "--no-agents", "--no-global", "--no-statusline", "-y", "."], cwd=repo, env=env, check=True, capture_output=True)
+    (repo / ".mcp.json").unlink(missing_ok=True)
+    subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+    subprocess.run(["git", "-c", "user.email=bench@local", "-c", "user.name=bench", "commit", "-q", "-m", "trail init"], cwd=repo, check=True)
 
 TASKS = {
     "t1-trace": {
@@ -148,6 +258,13 @@ TASKS = {
         "prompt": "In this repository (click): if a click program is invoked as `my.cli-tool`, which environment variable triggers its shell completion? "
         "Answer with the exact variable name and the file:line where the name is built.",
     },
+    "t6-signature": {
+        "kind": "edit",
+        "prompt": "In this repository (click), change the internal helper `resolve_color_default` so its parameter is keyword-only and named "
+        "`override` instead of `color`: its signature becomes `def resolve_color_default(*, override: bool | None = None) -> bool | None`, "
+        "with the same behavior. Update every caller in src/ and tests/ so none passes it positionally or by its old name. "
+        f"The tests run with: {TEST}",
+    },
 }
 
 # t1: the 18 callers of echo() in click 8.5.0, from the AST (pattern: what must appear in the answer).
@@ -184,6 +301,16 @@ T3_TERMS = ["handle_parse_result", "consume_value", "value_from_envvar|resolve_e
 
 
 def grade(task: str, answer: str, repo: Path) -> dict:
+    if task in yaml_repo.TASKS:
+        return yaml_repo.grade(task, answer, repo)
+    if task in ts_repo.TASKS:
+        return ts_repo.grade(task, answer, repo)
+    if task == "f1-fix":
+        fixed = [rel for rel, good, bad in F1_BUGS if good in (t := (repo / rel).read_text()) and bad not in t]
+        tests_changed = subprocess.run(["git", "status", "--porcelain", "tests"], cwd=repo, capture_output=True, text=True).stdout.strip()
+        suite = subprocess.run(f"{TEST} -p no:cacheprovider --tb=no", shell=True, cwd=repo, capture_output=True, text=True)
+        score = 0.0 if tests_changed else (len(fixed) / len(F1_BUGS)) * (1.0 if suite.returncode == 0 else 0.5)
+        return {"score": score, "fixed": len(fixed), "tests_changed": bool(tests_changed), "suite": (suite.stdout.strip().splitlines() or [""])[-1]}
     if task == "t1-trace":
         lines = answer.splitlines()
         hit = 0
@@ -221,6 +348,20 @@ def grade(task: str, answer: str, repo: Path) -> dict:
         suite = subprocess.run(f"{TEST} -p no:cacheprovider --tb=no", shell=True, cwd=repo, capture_output=True, text=True)
         frac = passed / (passed + failed) if passed + failed else 0.0
         return {"score": frac * (1.0 if suite.returncode == 0 else 0.5), "hidden_passed": passed, "hidden_failed": failed, "suite": (suite.stdout.strip().splitlines() or [""])[-1]}
+    if task == "t6-signature":
+        hidden = repo / "tests" / "test_zz_hidden_signature.py"
+        shutil.copy(HERE / "hidden" / "test_signature_hidden.py", hidden)
+        h = subprocess.run(f"{TEST} -p no:cacheprovider --tb=no {hidden.relative_to(repo)}", shell=True, cwd=repo, capture_output=True, text=True)
+        hidden.unlink()
+        passed = int((re.search(r"(\d+) passed", h.stdout) or [0, 0])[1])
+        failed = int((re.search(r"(\d+) failed", h.stdout) or [0, 0])[1]) + int((re.search(r"(\d+) error", h.stdout) or [0, 0])[1])
+        # Every call passes nothing or override=: a caller left positional only fails where a test reaches it.
+        calls = subprocess.run(["grep", "-rnI", "--include=*.py", "resolve_color_default(", "src", "tests"], cwd=repo, capture_output=True, text=True).stdout.splitlines()
+        stale = [c for c in calls if not re.search(r"def resolve_color_default|resolve_color_default\(\s*(\)|override\s*=)", c)]
+        suite = subprocess.run(f"{TEST} -p no:cacheprovider --tb=no", shell=True, cwd=repo, capture_output=True, text=True)
+        frac = passed / (passed + failed) if passed + failed else 0.0
+        ok = suite.returncode == 0 and not stale
+        return {"score": frac * (1.0 if ok else 0.5), "hidden_passed": passed, "hidden_failed": failed, "stale_calls": stale, "suite": (suite.stdout.strip().splitlines() or [""])[-1]}
     if task == "l2-coverage":
         src_changed = subprocess.run(["git", "status", "--porcelain", "src"], cwd=repo, capture_output=True, text=True).stdout.strip()
         cov = subprocess.run(f"{TEST} -p no:cacheprovider --tb=no --cov=click.utils --cov-branch --cov-report=json:/dev/stdout -q", shell=True, cwd=repo, capture_output=True, text=True)
@@ -323,20 +464,52 @@ def ctx(req: dict) -> int:
     return u.get("input_tokens", 0) + (u.get("cache_read_input_tokens") or 0) + (u.get("cache_creation_input_tokens") or 0)
 
 
+def ts_base() -> Path:
+    """The TypeScript tasks' base, prepared once (clone and npm ci) aside and moved in whole, as the YAML ones."""
+    with TS_BUILD:
+        if not TS_BASE.exists():
+            part = TS_BASE.with_name(TS_BASE.name + ".part")
+            shutil.rmtree(part, ignore_errors=True)
+            ts_repo.prepare(part)
+            part.rename(TS_BASE)
+    return TS_BASE
+
+
 def run_one(task: str, arm: str, rep: int) -> dict:
     run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
     repo = WORK / "runs" / run_id
-    shutil.copytree(BASE, repo, symlinks=True)
-    prompt = TASKS[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
+    if task in yaml_repo.TASKS:
+        big = yaml_repo.TASKS[task].get("big", False)
+        base = YAML_BIG_BASE if big else YAML_BASE
+        with YAML_BUILD:
+            if not base.exists():
+                # Built aside and moved in whole: a parallel run never copies half a repository.
+                part = base.with_name(base.name + ".part")
+                shutil.rmtree(part, ignore_errors=True)
+                part.mkdir(parents=True)
+                yaml_repo.build(part, yaml_repo.BIG if big else 0)
+                part.rename(base)
+        shutil.copytree(base, repo, symlinks=True)
+        if yaml_repo.TASKS[task].get("plant"):
+            yaml_repo.plant(repo, yaml_repo.PLANTED_BIG if big else yaml_repo.PLANTED)
+    elif task in ts_repo.TASKS:
+        shutil.copytree(ts_base(), repo, symlinks=True)
+    else:
+        shutil.copytree(BASE_TRAIL_GRAPH if arm == "TG" else BASE_TRAIL if arm in TRAIL_ARMS else BASE, repo, symlinks=True)
+        if task == "f1-fix":
+            plant_bugs(repo)
+    prompt = {**TASKS, **yaml_repo.TASKS, **ts_repo.TASKS, **EXTRA_TASKS}[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
     if arm == "HF" or arm in WORKER_ARMS:
         prompt = f"{FORCE}\n\n{prompt}"
-    cmd = ["claude", "-p", prompt, "--model", "sonnet" if arm == "W" else "opus", "--permission-mode", "auto", "--output-format", "json"]
+    # BENCH_MODEL runs a whole batch on another main model (does a mod help a weaker one?); W is Sonnet by definition.
+    model = os.environ.get("BENCH_MODEL") or ("sonnet" if arm == "W" else "opus")
+    cmd = ["claude", "-p", prompt, "--model", model, "--permission-mode", "auto", "--output-format", "json"]
     if arm in ("V", "P", "R", "W", "Q", "DF", "Y"):
         # The suite's conditions load exactly what they name: nothing (V), or the pack (P, R).
         # Asks for the claude.ai connectors to stay on, as in every run before the person turned them off on 13 Oct
         # (378 deferred tools); the person's own setting wins, so runs from then on (DF, DL, Y, results-noconn) have 15.
         cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}, "disableClaudeAiConnectors": False})]
-    if arm in ABLATION or arm in ("HF", "MO", "IC") or arm in WORKER_ARMS:
+    if arm in ABLATION or arm in ("HF", "MO", "IC", "T", "TG") or arm in WORKER_ARMS:
         dirs = [str(PACK_ROOT / m) for m in ABLATION.get(arm, SHIPPED)]
         if arm == "MO":
             dirs += [d for d in os.environ.get("BENCH_EXTRA_DIRS", "").split(":") if d]
@@ -344,6 +517,13 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         if arm == "IC":
             framing = {"options": {"framing": "capability"}}
             settings["pluginConfigs"] = {"delegate": framing, "delegate@inline": framing}
+        if arm in IDEAS:
+            blast = {"options": {"blast": IDEAS[arm][1]}}
+            settings["pluginConfigs"] = {"lsp-plus": blast, "lsp-plus@inline": blast}
+        if arm == "RT":
+            # route is off until turned on; its key comes from SCALEDOWN_API_KEY in the environment, never the command line.
+            on = {"options": {"enabled": True}}
+            settings["pluginConfigs"] = {"route": on, "route@inline": on}
         if arm in WORKER_ARMS:
             worker = WORKER_ARMS[arm]
             options = {"options": {"readWorker": worker, "mechanicalWorker": worker, "buildWorker": worker}}
@@ -351,6 +531,8 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         cmd += ["--settings", json.dumps(settings)]
     if arm == "R":
         cmd += ["--append-system-prompt", ROUTING]
+    if arm in TRAIL_ARMS:
+        cmd += trail_mcp()
     if arm == "X":
         # Claude Code's own system prompt replaced by one plain sentence and the routing rule: does its prompt keep
         # Opus from handing off?
@@ -367,7 +549,7 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         cmd += ["--append-system-prompt", FORCE + " Give the worker model sonnet."]
     started = time.time()
     try:
-        p = subprocess.run(cmd, cwd=repo, capture_output=True, text=True, timeout=1800)
+        p = subprocess.run(neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=1800, env=trail_env() if arm in TRAIL_ARMS else None)
         out, err = p.stdout, p.stderr
     except subprocess.TimeoutExpired as e:
         out, err = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""), "timeout"
@@ -383,7 +565,7 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         "answer": answer[:4000], "stderr": err[-500:] if err else "",
     }
     row["grade"] = grade(task, answer, repo)
-    if task in ("t2-rename", "l1-feature", "l2-coverage"):
+    if task in ("t2-rename", "l1-feature", "l2-coverage", "t6-signature", "f1-fix") or yaml_repo.TASKS.get(task, {}).get("kind") == "edit" or ts_repo.TASKS.get(task, {}).get("kind") == "edit":
         # The change as made, against the clean copy: re-graded later from this alone.
         subprocess.run(["git", "add", "-A", "-N", "."], cwd=repo, capture_output=True)
         diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", ".", ":(exclude).coverage", ":(exclude)*.pyc", ":(exclude)__pycache__"], cwd=repo, capture_output=True, text=True).stdout
@@ -404,8 +586,19 @@ LONG_SESSION = LONG / "session.txt"
 LONG_SESSION_PACK = LONG / "session-pack.txt"
 
 
+LONG_TRAIL = WORK / "long-trail"
+LONG_TRAIL_REPO = LONG_TRAIL / "repo"
+LONG_SESSION_TRAIL = LONG_TRAIL / "session.txt"
+
+
 def session_file(arm: str) -> Path:
+    if arm == "TL":
+        return LONG_SESSION_TRAIL
     return LONG_SESSION_PACK if arm in ("PL", "HL", "DL", "PS") else LONG_SESSION
+
+
+def long_repo(arm: str) -> Path:
+    return LONG_TRAIL_REPO if arm == "TL" else LONG_REPO
 PREP_PROMPT = "Read every .py file under src/click in full with the Read tool, the largest first, several files per response. Then reply with the single word: ready."
 
 
@@ -421,28 +614,40 @@ def conditions(arm: str) -> list[str]:
     # so RL ran without its rule, and H puts its instruction in the prompt, as the person would ask (run_long).
     if base == "R":
         cmd += ["--append-system-prompt", ROUTING]
+    if arm in TRAIL_ARMS:
+        cmd += trail_mcp()
     return cmd
 
 
 def cmd_prepare(args):
-    if not LONG_REPO.exists():
+    if args.trail:
+        # The copy of click Trail's fresh runs start from, and the long session's own repository.
+        if not BASE_TRAIL.exists():
+            shutil.copytree(BASE, BASE_TRAIL, symlinks=True)
+            trail_init(BASE_TRAIL)
+        if not LONG_TRAIL_REPO.exists():
+            shutil.copytree(BASE_TRAIL, LONG_TRAIL_REPO, symlinks=True)
+    elif not LONG_REPO.exists():
         shutil.copytree(BASE, LONG_REPO, symlinks=True)
     model = args.model
-    p = subprocess.run(["claude", "-p", PREP_PROMPT, "--model", model, "--permission-mode", "auto", "--output-format", "json", *conditions("P" if args.pack else "V")],
-                       cwd=LONG_REPO, capture_output=True, text=True, timeout=1800, stdin=subprocess.DEVNULL)
+    arm = "TL" if args.trail else "P" if args.pack else "V"
+    p = subprocess.run(neutral(["claude", "-p", PREP_PROMPT, "--model", model, "--permission-mode", "auto", "--output-format", "json", *conditions(arm)]),
+                       cwd=long_repo(arm), capture_output=True, text=True, timeout=1800, stdin=subprocess.DEVNULL, env=trail_env() if args.trail else None)
     res = json.loads(p.stdout)
-    (LONG_SESSION_PACK if args.pack else LONG_SESSION).write_text(res["session_id"])
+    (LONG_SESSION_TRAIL if args.trail else LONG_SESSION_PACK if args.pack else LONG_SESSION).write_text(res["session_id"])
     a = account(res["session_id"])
     print(f"prepared {res['session_id']}: {a.get('main_requests')} requests, context {a.get('peak_context')}, ${res.get('total_cost_usd', 0):.2f}")
 
 
-def reset_long():
-    subprocess.run(["git", "checkout", "-q", "--", "."], cwd=LONG_REPO)
-    subprocess.run(["git", "clean", "-q", "-fdx", "-e", "*.egg-info"], cwd=LONG_REPO)
+def reset_long(repo: Path = LONG_REPO):
+    subprocess.run(["git", "checkout", "-q", "--", "."], cwd=repo)
+    # Trail's graph (graft/, ignored) is the tool's own state, kept as a person's checkout would keep it.
+    subprocess.run(["git", "clean", "-q", "-fdx", "-e", "*.egg-info", "-e", "graft"], cwd=repo)
 
 
 def run_long(task: str, arm: str, rep: int) -> dict:
-    reset_long()
+    repo = long_repo(arm)
+    reset_long(repo)
     run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
     prompt = TASKS[task]["prompt"]
     if arm.startswith("H"):
@@ -453,7 +658,7 @@ def run_long(task: str, arm: str, rep: int) -> dict:
            "--model", "opus", "--permission-mode", "auto", "--output-format", "json", *conditions(arm)]
     started = time.time()
     try:
-        p = subprocess.run(cmd, cwd=LONG_REPO, capture_output=True, text=True, timeout=1800, stdin=subprocess.DEVNULL)
+        p = subprocess.run(neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=1800, stdin=subprocess.DEVNULL, env=trail_env() if arm in TRAIL_ARMS else None)
         out, err = p.stdout, p.stderr
     except subprocess.TimeoutExpired as e:
         out, err = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""), "timeout"
@@ -465,16 +670,16 @@ def run_long(task: str, arm: str, rep: int) -> dict:
     answer = res.get("result") or ""
     row = {
         "run": run_id, "task": task, "arm": arm, "rep": rep, "wall_s": round(wall, 1), "long": True,
-        "prepared": "pack" if session_file(arm) == LONG_SESSION_PACK else "plain",
+        "prepared": "trail" if arm == "TL" else "pack" if session_file(arm) == LONG_SESSION_PACK else "plain",
         "session": res.get("session_id"), "reported_usd": res.get("total_cost_usd"), "is_error": res.get("is_error", True),
         "answer": answer[:4000], "stderr": err[-500:] if err else "",
     }
-    row["grade"] = grade(task, answer, LONG_REPO)
-    if task in ("t2-rename", "l1-feature", "l2-coverage"):
-        subprocess.run(["git", "add", "-A", "-N", "."], cwd=LONG_REPO, capture_output=True)
-        diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", ".", ":(exclude).coverage", ":(exclude)*.pyc", ":(exclude)__pycache__"], cwd=LONG_REPO, capture_output=True, text=True).stdout
+    row["grade"] = grade(task, answer, repo)
+    if task in ("t2-rename", "l1-feature", "l2-coverage", "t6-signature"):
+        subprocess.run(["git", "add", "-A", "-N", "."], cwd=repo, capture_output=True)
+        diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", ".", ":(exclude).coverage", ":(exclude)*.pyc", ":(exclude)__pycache__"], cwd=repo, capture_output=True, text=True).stdout
         (HERE / "patches" / f"{run_id}.patch").write_text(diff)
-        subprocess.run(["git", "reset", "-q"], cwd=LONG_REPO)
+        subprocess.run(["git", "reset", "-q"], cwd=repo)
     if row["session"]:
         # A resumed session's reported cost includes the history it forked: what this run cost is what the
         # transcript holds from its start on (the copied history keeps its own, earlier timestamps).
@@ -563,6 +768,7 @@ if __name__ == "__main__":
     pr = sub.add_parser("prepare")
     pr.add_argument("--model", default="opus")
     pr.add_argument("--pack", action="store_true", help="prepare with the pack loaded, for PL and HL")
+    pr.add_argument("--trail", action="store_true", help="prepare Trail-Code's copies of click and its long session (pack and Trail loaded), for T and TL")
     lo = sub.add_parser("long")
     lo.add_argument("--reps", type=int, default=2)
     lo.add_argument("--arms", default="VL,RL")

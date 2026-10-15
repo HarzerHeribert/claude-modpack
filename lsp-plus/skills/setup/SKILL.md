@@ -30,8 +30,10 @@ For each language that matters, check both halves at once: `claude plugin list` 
 | .lua | `lua-lsp` | `lua-language-server` | `brew install lua-language-server` |
 | .md | lsp-plus (built in) | `marksman` | `brew install marksman` |
 | .sql | lsp-plus (built in) | `postgres-language-server` | `brew install postgres-language-server` |
+| .sh .bash | lsp-plus (built in) | `bash-language-server` | `npm i -g bash-language-server` (or `brew install bash-language-server`); with `shellcheck` on the `PATH` it also reports ShellCheck's warnings |
+| .tf .tfvars | lsp-plus (built in) | `terraform-ls` | `brew install hashicorp/tap/terraform-ls` (Linux: HashiCorp's apt/rpm repository or a release binary) |
 
-Markdown and SQL need no plugin: lsp-plus declares their servers itself.
+Markdown, SQL, shell and Terraform need no plugin: lsp-plus declares their servers itself. YAML (Ansible, Kubernetes, Helm, GitHub Actions) gets no server here: Claude Code gives each file extension one server, so `.yaml` cannot go to the Ansible server for playbooks and to another for manifests, and none of their servers finds references; grep stays the tool for them.
 
 ## 3. Ask once, then install
 
@@ -43,6 +45,8 @@ What goes wrong:
 - **TypeScript 7** ships no `tsserver.js`, which `typescript-language-server` needs: install `typescript@6` alongside it, even if the project uses 7.
 - **npm `EACCES`** on a global install: point npm at a user prefix (`npm config set prefix ~/.local`) and make sure `~/.local/bin` is on the `PATH`, rather than installing as root.
 - **csharp-ls** 0.18 needs .NET 9; an older SDK fails at start.
+- **terraform-ls from Homebrew's own formula** (`brew install terraform-ls`) has no provider schemas built in: it finds no references inside `resource`, `data` and `provider` blocks. HashiCorp's build (`hashicorp/tap/terraform-ls`, or a release binary) has them; swap it in if `findReferences` on a variable misses its uses in resources.
+- **ruby-lsp** exits at start (code 78) in a project with a `Gemfile` but no `Gemfile.lock`: run `bundle lock` (or `bundle install`) there first.
 - **clangd from Homebrew's llvm** is not on the `PATH` by itself: add `$(brew --prefix llvm)/bin`.
 - A server installed into a directory the shell adds to the `PATH` only in interactive shells (`.zshrc`) may be invisible to Claude Code started from elsewhere: prefer `~/.local/bin`, `/opt/homebrew/bin` or `/usr/local/bin`.
 

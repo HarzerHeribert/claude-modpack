@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Borrowing the good ideas · Lab notes</title>
+<meta name="description" content="Lab notes 4 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/04-borrowing-the-good-ideas.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="borrowing-the-good-ideas">Borrowing the good ideas</h1>
+<p><em>Lab notes 4 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>The code-graph tools in the <a href="03-a-code-graph-on-our-bench.html">last note</a> cost more on our bench than they saved. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: answers placed where it already looks, from sources that are never stale.</p>
+<h2 id="idea-1-a-pointer-before-the-first-search">Idea 1: a pointer before the first search</h2>
+<p>Trail-Code&#39;s prompt hook adds a few likely places to a prompt before Claude starts, so it can skip the first search. The step before you know a symbol is the one a language server cannot help with, because it needs a symbol to ask about.</p>
+<p><strong>Our first version failed in calibration.</strong> We started with what the independent evaluation found strongest (<a href="https://github.com/trailhq/Trail-Code/issues/117">Trail-Code #117</a>): BM25 keyword ranking over whole files (<a href="#sources">Robertson &amp; Zaragoza 2009</a>), term counts from <code>git grep</code>, so there is no index to keep fresh. It speaks only when the best file is clearly ahead of the field.</p>
+<p>Before spending a single benchmark run, we looked at what it would attach to 13 prompts: our seven task prompts and six everyday ones (&quot;commit and push this&quot;, &quot;run the tests and tell me what fails&quot;, &quot;fix the typo in the README&quot;…).</p>
+<ul>
+<li>The first version pointed &quot;commit and push this&quot; at an example program that happens to define <code>commit()</code> and <code>push()</code> functions.</li>
+<li>After teaching it to skip paths and flags, to weigh code over prose, and to need a rare code identifier from the prompt, it went quiet on 11 of 13 prompts. On the other two it pointed at the wrong code: once at the word <code>inner</code>, taken from a formatting example in the prompt (&quot;nested functions as <code>outer.inner</code>&quot;), and once at <code>pytest</code>.</li>
+<li>Silent where it should speak, confidently wrong where it spoke. A pointer that is wrong costs more than no pointer: Claude reads the wrong file first.</li>
+</ul>
+<p><strong>What survived is the deterministic half.</strong> When a prompt spells out a code name (<code>format_filename</code>, <code>ParamType</code>, <code>echo()</code>), scout looks up where that name is defined, with one <code>git grep</code> per name, and attaches the definition if there are one to three of them in code files (the code&#39;s own ahead of tests and examples):</p>
+<pre><code>Where the code names in this prompt are defined (git grep):
+`resolve_color_default`: src/click/globals.py:54 `def resolve_color_default(color: bool | None = None) -&gt; bool | None:`
+</code></pre>
+<p>On the same 13 prompts it spoke on 4, correctly each time, and said nothing on the other 9. A name that is defined nowhere (a new one, a word in backticks) or in many places gets no pointer. Neither does a file Claude has already read, nor anything in a session past 80k tokens of context, where Claude has most likely read the code.</p>
+<p>One caution we owe the reader: we calibrated on the same prompts we then benchmarked on. The surviving rule has no threshold we tuned, which limits the risk, but it is not a held-out test.</p>
+<h2 id="idea-2-the-blast-radius-after-an-edit">Idea 2: the blast radius after an edit</h2>
+<p>Trail-Code prints the callers of what you just edited, from its graph. Our version asks the live language server, and only when an edit changed a function&#39;s parameters, the moment callers may break:</p>
+<pre><code>`resolve_color_default`&#39;s parameters changed; per the language server it is called from 5 places in 3 files, which may still pass the old ones:
+src/click/exceptions.py: __init__ (48)
+src/click/termui.py: _readline_prompt (99), get_pager_file (362), progressbar (581)
+src/click/utils.py: echo (342)
+</code></pre>
+<p>To give it a fair chance we added a task built for it: make <code>resolve_color_default</code>&#39;s parameter keyword-only and rename it, so three positional callers must change, checked by a hidden test and a scan for stale calls.</p>
+<h2 id="what-it-measured">What it measured</h2>
+<p>96 runs of the ideas, all correct (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ideas.jsonl"><code>results-ideas.jsonl</code></a>), beside the pack&#39;s own runs. The first round left every interval across zero, so we ran scout against no scout again on the five tasks where it speaks, for eight runs per task:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Change in cost</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The pack with both ideas, against the pack, 8 tasks</td>
+<td>−2.5%</td>
+<td>−6.9% to +2.0%</td>
+</tr>
+<tr>
+<td>Taking scout out, on the 5 tasks where it speaks</td>
+<td>+3.8%</td>
+<td>−1.9% to +10.3%</td>
+</tr>
+<tr>
+<td>Taking blast out, on the signature task</td>
+<td>+3.7%</td>
+<td>−2.0% to +11.0%</td>
+</tr>
+</tbody></table>
+<p>On the signature task itself, Claude needed 4.2 requests with the pack, 3.4 with both ideas, 5.2 with only the blast radius, and 6.5 with Trail-Code.</p>
+<p>Twice the runs, the same answer: a small saving in the direction we hoped, never a wrong result, and an interval that still crosses zero. By our own rule that is not enough to ship. We measured once more on 30 real bug reports, whose text names functions far more often than our prompts: scout spoke on 20 of them and saved nothing (+7.3% against the pack [−6.7%, +20.7%]; <a href="09-beyond-click.html">note 9</a>). Both ideas stay out of the pack.</p>
+<p><strong>Why the blast radius barely matters here</strong> was visible in the transcripts: before editing a function, Claude greps for it, and lsp-plus already answers that grep with the same list of callers. By the time the signature changes, Claude knows who calls it. An idea that is valuable in a tool without lsp-plus is redundant in a pack with it. It stays in lsp-plus, off by default.</p>
+<h2 id="what-this-changed">What this changed</h2>
+<ul>
+<li>Calibrate before you benchmark. Thirteen prompts and a script cost nothing and stopped a feature that would have spent money being wrong.</li>
+<li>Prefer the deterministic version of an idea. &quot;Where is the name you typed defined&quot; can be wrong only if the code changed in the last second; &quot;which file is most similar to your words&quot; can be wrong in a hundred ways.</li>
+<li>An idea&#39;s value depends on the pack around it. Measure it as an addition to what already ships, not on its own.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Arms: Z (the pack), N (the pack with scout and lsp-plus&#39;s <code>blast</code> on), N-scout (without scout), N-blast (without blast). Opus 5.5, click 8.5.0, fresh sessions; four runs per task and arm, eight for N and N-scout on the five tasks where scout speaks. Scout&#39;s calibration script and prompts are in the lab. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ideas.jsonl"><code>results-ideas.jsonl</code></a>, the pack&#39;s runs in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a>: <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/hooks.ts#L712-L738">prompt hook</a> and <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/hooks.ts#L201-L212">post-edit blast radius</a>; issue <a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>.</li>
+<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="03-a-code-graph-on-our-bench.html"><span>Previous</span>A 10,000-star code graph on our bench</a><a class="next" href="05-the-graveyard.html"><span>Next</span>The graveyard</a></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

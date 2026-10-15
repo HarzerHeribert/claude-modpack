@@ -14,9 +14,12 @@ import {
   referencesNote,
 } from './docs'
 import type { Mention } from './docs'
-import { LSP_FILES, codeHits, definitionAt, nudge, symbolSearch, usesAsCode } from './nudge'
+import { LANGUAGES, LSP_FILES, codeHits, definitionAt, nudge, searchPatterns, symbolSearch, usesAsCode } from './nudge'
 import type { SymbolSearch } from './nudge'
 import { answerNote, looksCold, parseIncoming, parseOutline, parseReferences, qualified } from './answer'
+import { TF_FILES, dirOf, inLocals, labelColumn, tfAddress } from './terraform'
+import { blastNote, changedSignatures, headerPattern } from './blast'
+import type { TfSearch } from './terraform'
 
 type Engine = EngineInterface
 type LspInput = { operation?: string; filePath?: string; line?: number; character?: number }
@@ -34,6 +37,7 @@ let drift = true
 let nudging = true
 let answering = false
 let warming = false
+let blasting = false
 // The languages the repository has enough of whose server did not answer the warm-up, as the person reads them.
 let missing: string[] = []
 // Symbols already nudged about this session: the next note is one line.
@@ -144,6 +148,9 @@ async function symbolNote($: Engine, command: string, r: { deny?: string; text?:
   return nudge(search, definitionAt(hits, search.name), again, cells)
 }
 
+/** What the LSP tool says where the server has no call hierarchy for the position. */
+const NO_CALLS = /^No call hierarchy item/
+
 /** One LSP call; its text, or undefined where the server failed, is missing or was refused. */
 async function lsp($: Engine, input: Record<string, unknown>): Promise<string | undefined> {
   const r = await $.tool.call({ tool: 'LSP', ...input } as never).catch(() => undefined)
@@ -190,11 +197,15 @@ async function symbolAnswer($: Engine, search: SymbolSearch, out: string): Promi
   const cwd = await $.session.cwd()
   const def = await definitionOf($, cwd, search.name, hits)
   if (!def) return undefined
-  const callable = /\b(def|function|fn|func)\s/.test(def.text) || /\b(async\s+)?[A-Za-z_$][\w$]*\s*\([^)]*\)\s*[:{]/.test(def.text)
-  const operation = callable ? 'incomingCalls' : 'findReferences'
+  let callable = /\b(def|function|fn|func|fun)\s/.test(def.text) || /\b(async\s+)?[A-Za-z_$][\w$]*\s*\([^)]*\)\s*[:{]/.test(def.text)
   const grepFiles = [...new Set(uses.map(h => h.path))]
-  const ask = () => lsp($, { operation, filePath: join(cwd, def.path), line: def.line, character: def.character })
+  const ask = () => lsp($, { operation: callable ? 'incomingCalls' : 'findReferences', filePath: join(cwd, def.path), line: def.line, character: def.character })
   let text = await ask()
+  // A server without call hierarchy (ruby-lsp, bash-language-server) still has the references.
+  if (callable && (text === undefined || NO_CALLS.test(text))) {
+    callable = false
+    text = await ask()
+  }
   const filesOf = (t: string) => (callable ? parseIncoming(t).map(c => c.file) : parseReferences(t).map(r => r.file))
   for (let tries = 0; text !== undefined && looksCold(filesOf(text), grepFiles, def.path) && tries < 2; tries++) {
     await $.process.run(['sleep', '1.5'])
@@ -215,6 +226,92 @@ async function symbolAnswer($: Engine, search: SymbolSearch, out: string): Promi
     }),
   )
   return answerNote(search.name, { callers: callers.map(c => ({ ...c, qualified: qualified(outlines.get(c.file) ?? [], c.name, c.line) })) })
+}
+
+/** Functions an edit changed the parameters of, asked about at most; rows of callers shown at most. */
+const MAX_CHANGED = 2
+const MAX_BLAST_ROWS = 12
+
+/**
+ * For each function whose parameters an edit changed: who calls it, from the language server
+ * (incomingCalls, or the references where the server has no call hierarchy), as the edit
+ * leaves the file. Nothing where nobody calls it.
+ */
+async function blastNotes($: Engine, filePath: string, before: string, after: string): Promise<string[]> {
+  const changed = changedSignatures(before, after).slice(0, MAX_CHANGED)
+  if (changed.length === 0) return []
+  const lines = ((await $.fs.read(filePath).catch(() => '')) ?? '').split('\n')
+  const notes: string[] = []
+  for (const name of changed) {
+    const header = headerPattern(name.replace(/\$/g, '\\$'))
+    const i = lines.findIndex(l => header.test(l))
+    if (i < 0) continue
+    const m = header.exec(lines[i] as string) as RegExpExecArray
+    const at = { filePath, line: i + 1, character: m.index + m[0].length - name.length + 1 }
+    const calls = await lsp($, { operation: 'incomingCalls', ...at })
+    const rows: string[] = []
+    let count = 0
+    const files = new Set<string>()
+    if (calls !== undefined && !NO_CALLS.test(calls) && parseIncoming(calls).length > 0) {
+      const callers = parseIncoming(calls)
+      for (const f of [...new Set(callers.map(c => c.file))]) {
+        const here = callers.filter(c => c.file === f)
+        count += here.reduce((n, c) => n + Math.max(1, c.at.length), 0)
+        files.add(f)
+        rows.push(`${f}: ${here.map(c => `${c.name} (${c.at.join(', ') || c.line})`).join(', ')}`)
+      }
+    } else {
+      const refs = parseReferences((await lsp($, { operation: 'findReferences', ...at })) ?? '').filter(r => !(filePath.endsWith(r.file) && r.line === at.line))
+      for (const f of [...new Set(refs.map(r => r.file))]) {
+        const here = refs.filter(r => r.file === f)
+        count += here.length
+        files.add(f)
+        rows.push(`${f}: ${here.map(r => r.line).join(', ')}`)
+      }
+    }
+    if (rows.length > 0) notes.push(blastNote(name, rows.slice(0, MAX_BLAST_ROWS), count, files.size))
+  }
+  return notes
+}
+
+/** Declarations asked about at most: an address declared in more modules than this is a grep's job. */
+const MAX_TF_DECLARATIONS = 5
+
+/**
+ * terraform-ls's references for a Terraform address a grep searched for, asked at each declaration
+ * in a directory where the grep found it (a module sees only its own blocks) and merged. The server
+ * leaves the declaration out; where it finds nothing in a directory the grep found uses in, it is
+ * still indexing: asked again for up to three seconds, and without a whole answer there is none.
+ */
+async function tfAnswer($: Engine, tf: TfSearch, out: string): Promise<string | undefined> {
+  const hits = [...out.matchAll(/^([^\s:]+):(\d+):(.*)$/gm)].map(m => ({ path: m[1] as string, line: Number(m[2]) })).filter(h => TF_FILES.test(h.path))
+  if (hits.length === 0) return undefined
+  const dirs = new Set(hits.map(h => dirOf(h.path)))
+  const cwd = await $.session.cwd()
+  const listed = await git($, cwd, ['grep', '--untracked', '-n', '-E', '-e', tf.declares, '--', '*.tf'])
+  if (!listed) return undefined
+  const declarations: Array<{ path: string; line: number; character: number }> = []
+  for (const m of listed.matchAll(/^([^:\n]+):(\d+):(.*)$/gm)) {
+    const [path, line, text] = [m[1] as string, Number(m[2]), m[3] as string]
+    if (!dirs.has(dirOf(path))) continue
+    if (tf.address.startsWith('local.') && !inLocals(((await $.fs.read(join(cwd, path)).catch(() => '')) ?? '').split('\n'), line)) continue
+    const character = labelColumn(text, tf.label)
+    if (character !== undefined) declarations.push({ path, line, character })
+  }
+  if (declarations.length === 0 || declarations.length > MAX_TF_DECLARATIONS) return undefined
+  const references: ReturnType<typeof parseReferences> = []
+  for (const d of declarations) {
+    const ask = () => lsp($, { operation: 'findReferences', filePath: join(cwd, d.path), line: d.line, character: d.character })
+    const usesHere = hits.some(h => dirOf(h.path) === dirOf(d.path) && !(h.path === d.path && h.line === d.line))
+    let text = await ask()
+    for (let tries = 0; text !== undefined && usesHere && parseReferences(text).length === 0 && tries < 2; tries++) {
+      await $.process.run(['sleep', '1.5'])
+      text = await ask()
+    }
+    if (text === undefined || (usesHere && parseReferences(text).length === 0)) return undefined
+    references.push(...parseReferences(text))
+  }
+  return references.length === 0 ? undefined : answerNote(tf.address, { references })
 }
 
 /**
@@ -251,21 +348,8 @@ async function warmUp($: Engine) {
 }
 
 /** Which server a file's extension needs, and the language's name as the person knows it. */
-const LANGUAGES: Array<[RegExp, string, string]> = [
-  [/^(tsx?|jsx?|mjs|cjs|mts|cts)$/, 'ts', 'TypeScript/JavaScript'],
-  [/^pyi?$/, 'py', 'Python'],
-  [/^(c|h|cc|cpp|cxx|hpp|hh)$/, 'c', 'C/C++'],
-  [/^rs$/, 'rs', 'Rust'],
-  [/^swift$/, 'swift', 'Swift'],
-  [/^java$/, 'java', 'Java'],
-  [/^cs$/, 'cs', 'C#'],
-  [/^php$/, 'php', 'PHP'],
-  [/^lua$/, 'lua', 'Lua'],
-]
-
 function languageOf(ext: string): { kind: string; name: string } | undefined {
-  const hit = LANGUAGES.find(([pattern]) => pattern.test(ext))
-  return hit ? { kind: hit[1], name: hit[2] } : undefined
+  return LANGUAGES.find(l => l.exts.includes(ext))
 }
 
 /** A language with fewer files than this (a build script, a fixture) is not worth a server, nor a word. */
@@ -298,6 +382,7 @@ export const register: Register = (on, options) => {
   drift = options.drift !== false
   nudging = options.nudge === true // off unless asked for: never acted on in 45 benchmark notes
   answering = options.answer !== false // measured: 25% fewer requests on a rename, even on a trace
+  blasting = options.blast === true // off until measured
   warming = options.warm !== false
   missing = []
 
@@ -339,17 +424,22 @@ export const register: Register = (on, options) => {
     const r = await next(e)
     if (r.deny !== undefined) return r
     const search = answering ? symbolSearch(e.command) : undefined
-    const answer = search === undefined ? undefined : await symbolAnswer($, search, r.text ?? '').catch(() => undefined)
+    let answer = search === undefined ? undefined : await symbolAnswer($, search, r.text ?? '').catch(() => undefined)
+    // A Terraform address (var.region, aws_s3_bucket.logs) is no identifier; the module's declarations answer it.
+    const tf = answering && answer === undefined ? searchPatterns(e.command).map(tfAddress).find(t => t !== undefined) : undefined
+    if (tf !== undefined) answer = await tfAnswer($, tf, r.text ?? '').catch(() => undefined)
     const text = answer ?? (await symbolNote($, e.command, r))
     return text === undefined ? r : { ...r, context: [...(r.context ?? []), text] }
   }).catch(($, e, next) => next(e))
 
-  // While code is being written: a name the edit took away that the docs still use.
+  // While code is being written: a name the edit took away that the docs still use, and (blast)
+  // who calls a function whose parameters it changed.
   on('tool.call', { tool: 'Edit' }, async ($, e, next) => {
     const r = await next(e)
     const input = e as unknown as { file_path?: string; old_string?: string; new_string?: string }
-    if (!drift || r.deny !== undefined || r.isError || typeof input.file_path !== 'string' || isDoc(input.file_path)) return r
-    const notes = await driftNotes($, await $.session.cwd(), input.old_string ?? '', input.new_string ?? '')
+    if ((!drift && !blasting) || r.deny !== undefined || r.isError || typeof input.file_path !== 'string' || isDoc(input.file_path)) return r
+    const notes = drift ? await driftNotes($, await $.session.cwd(), input.old_string ?? '', input.new_string ?? '') : []
+    if (blasting) notes.push(...(await blastNotes($, input.file_path, input.old_string ?? '', input.new_string ?? '').catch(() => [])))
     return notes.length === 0 ? r : { ...r, context: [...(r.context ?? []), ...notes] }
   }).catch(($, e, next) => next(e))
 

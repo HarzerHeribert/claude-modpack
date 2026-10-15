@@ -1,0 +1,406 @@
+diff --git a/tests/test_utils/test_utils_more.py b/tests/test_utils/test_utils_more.py
+new file mode 100644
+index 0000000..1b8e6ac
+--- /dev/null
++++ b/tests/test_utils/test_utils_more.py
+@@ -0,0 +1,400 @@
++import errno
++import glob
++import os
++import re
++import sys
++import types
++from io import StringIO
++
++import pytest
++
++import click.utils
++
++
++def test_posixify():
++    assert click.utils._posixify("Foo  Bar\tBaz") == "foo-bar-baz"
++
++
++def test_safecall_returns_value():
++    def add(a, b):
++        return a + b
++
++    wrapped = click.utils._safecall(add)
++    assert wrapped(1, b=2) == 3
++    assert wrapped.__name__ == "add"
++
++
++def test_safecall_swallows_exception():
++    def fail():
++        raise ValueError("boom")
++
++    assert click.utils._safecall(fail)() is None
++
++
++@pytest.mark.parametrize(
++    ("value", "expected"),
++    [
++        (b"hello", "hello"),
++        (b"\xff\xfe", "\ufffd\ufffd"),
++        ("text", "text"),
++        (42, "42"),
++    ],
++)
++def test_make_str(value, expected):
++    assert click.utils.make_str(value) == expected
++
++
++def test_make_str_decode_error(monkeypatch):
++    monkeypatch.setattr(sys, "getfilesystemencoding", lambda: "ascii")
++    # Not valid ASCII, so it falls back to UTF-8 with replacement.
++    assert click.utils.make_str(b"caf\xc3\xa9\xff") == "caf\u00e9\ufffd"
++
++
++@pytest.mark.parametrize(
++    ("help", "max_length", "expected"),
++    [
++        # First word exactly fills the limit but more words follow, so
++        # every word is removed and only the suffix remains.
++        ("abcde f", 5, "..."),
++        # Exact fit before the last word, shorten to make room for "...".
++        ("ab cd efgh", 5, "ab..."),
++        # Exact fit on the last word needs no truncation.
++        ("ab cd", 5, "ab cd"),
++        ("", 45, ""),
++        ("\b\nshort text", 45, "short text"),
++        ("First paragraph.\n\nSecond paragraph.", 45, "First paragraph."),
++    ],
++)
++def test_make_default_short_help_edges(help, max_length, expected):
++    assert click.utils._make_default_short_help(help, max_length) == expected
++
++
++def test_lazy_file_stdout(runner):
++    with runner.isolation() as (out, _, _):
++        lf = click.utils._LazyFile("-", "w")
++        assert lf.should_close is False
++        assert lf._f is not None
++        assert repr(lf) == repr(lf._f)
++        assert lf.open() is lf._f
++        lf.write("hello")
++        lf.flush()
++        # Borrowed stream must not be closed.
++        lf.close_intelligently()
++        assert not lf._f.closed
++        assert out.getvalue() == b"hello"
++
++
++def test_lazy_file_repr_unopened_and_opened(tmp_path):
++    path = tmp_path / "out.txt"
++    lf = click.utils._LazyFile(path, "w")
++    assert repr(lf) == f"<unopened file '{os.fspath(path)}' w>"
++    lf.write("data")
++    assert repr(lf) == repr(lf._f)
++    lf.close_intelligently()
++    assert path.read_text() == "data"
++
++
++def test_lazy_file_close_unopened(tmp_path):
++    lf = click.utils._LazyFile(tmp_path / "never.txt", "w")
++    lf.close()
++    assert lf._f is None
++    assert not (tmp_path / "never.txt").exists()
++
++
++def test_lazy_file_open_error(tmp_path):
++    lf = click.utils._LazyFile(tmp_path / "missing" / "file.txt", "w")
++
++    with pytest.raises(click.FileError):
++        lf.open()
++
++
++def test_keep_open_file_proxy(tmp_path):
++    path = tmp_path / "f.txt"
++    path.write_text("a\nb\n")
++
++    with open(path) as f:
++        kf = click.utils._KeepOpenFile(f)
++        assert repr(kf) == repr(f)
++
++        with kf as inner:
++            assert inner is kf
++            assert kf.readline() == "a\n"
++
++        assert not f.closed
++        assert list(kf) == ["b\n"]
++
++
++def test_echo_bytes_without_binary_writer():
++    class TextOnly:
++        """Rejects the empty probe writes so no binary writer is found,
++        but accepts real data."""
++
++        def __init__(self):
++            self.data = []
++            self.flushed = 0
++
++        def write(self, value):
++            if not value:
++                raise TypeError("empty write")
++            self.data.append(value)
++
++        def flush(self):
++            self.flushed += 1
++
++    f = TextOnly()
++    click.utils.echo(b"raw", file=f)
++    assert f.data == [b"raw\n"]
++    assert f.flushed == 1
++
++
++def test_echo_empty_message_flushes():
++    f = StringIO()
++    click.utils.echo(None, file=f, nl=False)
++    assert f.getvalue() == ""
++
++    click.utils.echo(b"", file=f, nl=False)
++    assert f.getvalue() == ""
++
++
++def test_echo_err(runner):
++    with runner.isolation() as (out, err, _):
++        click.utils.echo("to stderr", err=True)
++        assert err.getvalue().replace(b"\r\n", b"\n") == b"to stderr\n"
++        assert out.getvalue() == b""
++
++
++def test_echo_object_and_color():
++    f = StringIO()
++    click.utils.echo(["a"], file=f, color=False)
++    click.utils.echo("\x1b[31mred\x1b[0m", file=f, color=True)
++    assert f.getvalue() == "['a']\n\x1b[31mred\x1b[0m\n"
++
++
++def test_get_binary_stream(runner):
++    with runner.isolation():
++        stream = click.utils._get_binary_stream("stdout")
++        stream.write(b"")
++
++
++def test_get_binary_stream_unknown():
++    with pytest.raises(TypeError, match="Unknown standard stream 'bogus'"):
++        click.utils._get_binary_stream("bogus")
++
++
++def test_get_text_stream(runner):
++    with runner.isolation() as (out, _, _):
++        stream = click.utils._get_text_stream("stdout")
++        stream.write("hi")
++        stream.flush()
++        assert out.getvalue() == b"hi"
++
++
++def test_get_text_stream_unknown():
++    with pytest.raises(TypeError, match="Unknown standard stream 'bogus'"):
++        click.utils._get_text_stream("bogus")
++
++
++def test_open_file_lazy(tmp_path):
++    path = tmp_path / "lazy.txt"
++    f = click.utils.open_file(path, "w", lazy=True)
++    assert isinstance(f, click.utils._LazyFile)
++    assert not path.exists()
++
++    with f:
++        f.write("lazy")
++
++    assert path.read_text() == "lazy"
++
++
++def test_open_file_regular(tmp_path):
++    path = tmp_path / "plain.txt"
++    path.write_text("content")
++
++    with click.utils.open_file(path) as f:
++        assert not isinstance(f, click.utils._KeepOpenFile)
++        assert f.read() == "content"
++
++
++def test_open_file_stdout_keeps_open(runner):
++    with runner.isolation() as (out, _, _):
++        with click.utils.open_file("-", "w") as f:
++            assert isinstance(f, click.utils._KeepOpenFile)
++            f.write("x")
++
++        assert not f.closed
++        f.flush()
++        assert out.getvalue() == b"x"
++
++
++def test_format_filename():
++    assert click.utils.format_filename("/a/b/c.txt", shorten=True) == "c.txt"
++    assert click.utils.format_filename(b"/a/b/c.txt") == "/a/b/c.txt"
++    assert click.utils.format_filename("bad\udcff") == "bad\ufffd"
++
++
++def test_get_app_dir_windows_roaming(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", True)
++    monkeypatch.setenv("APPDATA", "/appdata/roaming")
++    assert click.utils.get_app_dir("Foo Bar") == os.path.join(
++        "/appdata/roaming", "Foo Bar"
++    )
++
++
++def test_get_app_dir_windows_local(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", True)
++    monkeypatch.setenv("LOCALAPPDATA", "/appdata/local")
++    assert click.utils.get_app_dir("Foo Bar", roaming=False) == os.path.join(
++        "/appdata/local", "Foo Bar"
++    )
++
++
++def test_get_app_dir_windows_no_env(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", True)
++    monkeypatch.delenv("APPDATA", raising=False)
++    assert click.utils.get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~"), "Foo Bar"
++    )
++
++
++def test_get_app_dir_force_posix(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    assert click.utils.get_app_dir("Foo Bar", force_posix=True) == (
++        os.path.expanduser("~/.foo-bar")
++    )
++
++
++def test_get_app_dir_darwin(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "darwin")
++    assert click.utils.get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~/Library/Application Support"), "Foo Bar"
++    )
++
++
++def test_get_app_dir_xdg(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setenv("XDG_CONFIG_HOME", "/xdg/config")
++    assert click.utils.get_app_dir("Foo Bar") == os.path.join(
++        "/xdg/config", "foo-bar"
++    )
++
++
++def test_get_app_dir_xdg_default(monkeypatch):
++    monkeypatch.setattr(click.utils, "WIN", False)
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
++    assert click.utils.get_app_dir("Foo Bar") == os.path.join(
++        os.path.expanduser("~/.config"), "foo-bar"
++    )
++
++
++class _Flushable:
++    def __init__(self, exc=None):
++        self.exc = exc
++        self.flushed = False
++        self.name = "wrapped"
++
++    def flush(self):
++        if self.exc is not None:
++            raise self.exc
++        self.flushed = True
++
++
++def test_pacify_flush_wrapper_passes_through():
++    inner = _Flushable()
++    wrapper = click.utils._PacifyFlushWrapper(inner)
++    assert wrapper.wrapped is inner
++    wrapper.flush()
++    assert inner.flushed
++    assert wrapper.name == "wrapped"
++
++
++def test_pacify_flush_wrapper_ignores_broken_pipe():
++    inner = _Flushable(BrokenPipeError(errno.EPIPE, "Broken pipe"))
++    click.utils._PacifyFlushWrapper(inner).flush()
++
++
++def test_pacify_flush_wrapper_reraises_other_errors():
++    inner = _Flushable(OSError(errno.EIO, "I/O error"))
++
++    with pytest.raises(OSError) as exc_info:
++        click.utils._PacifyFlushWrapper(inner).flush()
++
++    assert exc_info.value.errno == errno.EIO
++
++
++def test_detect_program_name_defaults_to_sys(monkeypatch):
++    main = types.ModuleType("__main__")
++    main.__package__ = "example"
++    monkeypatch.setitem(sys.modules, "__main__", main)
++    monkeypatch.setattr(sys, "argv", ["/path/to/example/cli.py"])
++    assert click.utils._detect_program_name() == "python -m example.cli"
++
++
++def test_detect_program_name_file(monkeypatch):
++    main = types.ModuleType("__main__")
++    main.__package__ = None
++    monkeypatch.setattr(sys, "argv", ["/usr/bin/app.py"])
++    assert click.utils._detect_program_name(_main=main) == "app.py"
++
++
++def test_detect_program_name_package_main():
++    main = types.ModuleType("__main__")
++    main.__package__ = "pkg"
++    assert (
++        click.utils._detect_program_name("/x/pkg/__main__.py", _main=main)
++        == "python -m pkg"
++    )
++
++
++def test_expand_args_no_user_no_env(monkeypatch):
++    monkeypatch.setenv("CLICK_TEST", "hello")
++    assert click.utils._expand_args(
++        ["~", "$CLICK_TEST"], user=False, env=False
++    ) == ["~", "$CLICK_TEST"]
++
++
++def test_expand_args_glob_not_recursive(tmp_path, monkeypatch):
++    (tmp_path / "sub").mkdir()
++    (tmp_path / "sub" / "x.txt").write_text("")
++    (tmp_path / "y.txt").write_text("")
++    monkeypatch.chdir(tmp_path)
++    assert click.utils._expand_args(["**/*.txt"], glob_recursive=False) == [
++        os.path.join("sub", "x.txt")
++    ]
++    assert sorted(click.utils._expand_args(["**/*.txt"])) == sorted(
++        [os.path.join("sub", "x.txt"), "y.txt"]
++    )
++
++
++def test_expand_args_invalid_pattern(monkeypatch):
++    def bad_glob(pattern, recursive=False):
++        raise re.error("bad pattern")
++
++    monkeypatch.setattr(glob, "glob", bad_glob)
++    assert click.utils._expand_args(["[bad"]) == ["[bad"]
++
++
++@pytest.mark.parametrize(
++    "name",
++    [
++        "LazyFile",
++        "KeepOpenFile",
++        "make_default_short_help",
++        "PacifyFlushWrapper",
++        "safecall",
++        "get_text_stream",
++        "get_binary_stream",
++    ],
++)
++def test_deprecated_aliases(name):
++    with pytest.warns(DeprecationWarning, match=f"click.utils.{name}"):
++        value = getattr(click.utils, name)
++
++    assert value is getattr(click.utils, f"_{name}")
++
++
++def test_unknown_attribute():
++    with pytest.raises(AttributeError):
++        click.utils.does_not_exist  # noqa: B018

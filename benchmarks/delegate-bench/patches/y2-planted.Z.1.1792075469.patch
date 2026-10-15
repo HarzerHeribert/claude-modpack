@@ -1,0 +1,46 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index b6f4184..a8c0287 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -27,7 +27,7 @@ jobs:
+ 
+   deploy:
+     runs-on: ubuntu-latest
+-    needs: [build, tests]
++    needs: [build, test]
+     if: github.ref == 'refs/heads/main'
+     steps:
+       - name: Deploy
+diff --git a/ansible/roles/nginx/tasks/main.yml b/ansible/roles/nginx/tasks/main.yml
+index 8cd54fb..f278745 100644
+--- a/ansible/roles/nginx/tasks/main.yml
++++ b/ansible/roles/nginx/tasks/main.yml
+@@ -7,4 +7,4 @@
+   ansible.builtin.template:
+     src: site.conf.j2
+     dest: /etc/nginx/conf.d/shop.conf
+-  notify: restart ngnix
++  notify: restart nginx
+diff --git a/compose/docker-compose.yml b/compose/docker-compose.yml
+index ebb1060..bc10d90 100644
+--- a/compose/docker-compose.yml
++++ b/compose/docker-compose.yml
+@@ -16,7 +16,7 @@ services:
+     command: ["worker"]
+     depends_on:
+       - db
+-      - reddis
++      - redis
+     networks:
+       - backend
+   db:
+diff --git a/k8s/base/worker-deployment.yaml b/k8s/base/worker-deployment.yaml
+index f01e25f..ac05818 100644
+--- a/k8s/base/worker-deployment.yaml
++++ b/k8s/base/worker-deployment.yaml
+@@ -20,4 +20,4 @@ spec:
+           args: ["worker"]
+           envFrom:
+             - configMapRef:
+-                name: app-confg
++                name: app-config

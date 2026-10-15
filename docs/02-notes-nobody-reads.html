@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes nobody reads · Lab notes</title>
+<meta name="description" content="Lab notes 2 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/02-notes-nobody-reads.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="notes-nobody-reads">Notes nobody reads</h1>
+<p><em>Lab notes 2 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>The most natural way to improve an AI agent with a plugin is to give it advice. Notice it doing something slow, tell it the faster way. We built two mods on that idea. Both measurements came back with the same number: zero.</p>
+<h2 id="45-hints-0-followed">45 hints, 0 followed</h2>
+<p>When Claude searches code with <code>grep</code>, it gets every line that contains the text: definitions, calls, comments, strings, a variable that happens to share the name. A language server knows the difference. It can list exactly the functions that call <code>format_filename</code>, without the noise.</p>
+<p>So lsp-plus watched for greps that looked for a code symbol and attached a short note to the result: <em>this is a code symbol; <code>LSP findReferences</code> on utils.py:442 lists exactly its uses</em>. Correct, specific, one call away.</p>
+<p>In every benchmark run with the pack, that note fired 45 times. Claude acted on it 0 times (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#quiet-where-it-has-no-proof-q">SUITE.md</a>).</p>
+<p>Looking at the transcripts, the reason is plain economics, the model&#39;s own. The note arrives after the grep has already answered. Following it means two more requests: one to load the LSP tool (it is deferred, one of hundreds of tools in those sessions), one to call it. Two steps to get an answer Claude believes it already has. From where the model stands, ignoring the note is the efficient choice.</p>
+<h2 id="answers-instead-of-advice">Answers instead of advice</h2>
+<p>So we stopped advising and started answering. When a grep looks for a code symbol, lsp-plus now asks the language server itself, inside the hook, and attaches the server&#39;s answer to the grep&#39;s result: the callers, each named by its class and method, or the references by file (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-language-server-answers-the-grep-y">SUITE.md</a>).</p>
+<pre><code>`resolve_color_default` per the language server: called from 5 functions in 3 files (code only: strings, comments, docs and namesakes are in the grep above):
+src/click/exceptions.py: ClickException.__init__ (48)
+src/click/termui.py: _readline_prompt (99), get_pager_file (362), progressbar (581)
+src/click/utils.py: echo (342)
+</code></pre>
+<p>No extra step for Claude: the answer is in the place it was already reading. On the rename task that cut requests by 25% and cost by 6.5%. Where no grep asked for a symbol, it said nothing and cost nothing. The note that asked Claude to do the same thing itself was switched off.</p>
+<h2 id="174-runs-0-delegations">174 runs, 0 delegations</h2>
+<p>The second idea was bigger. Opus is expensive; Sonnet and Haiku are much cheaper. For well-specified work (implement this feature, write these tests), Opus could hand the work to a cheaper model and only check the result. The delegate mod offers exactly that: a <code>hand_off</code> tool, with the evidence (the diff, the test run) coming back for Opus to judge.</p>
+<p>Asked to hand off, it works: a feature cost 27–37% less, every result correct. The question was whether Opus would hand off without being asked. We tried everything we could think of (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#why-opus-does-not-hand-off-x">SUITE.md</a>):</p>
+<table>
+<thead>
+<tr>
+<th>What we tried</th>
+<th>Runs</th>
+<th>Hand-offs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The tool offered</td>
+<td>24</td>
+<td>0</td>
+</tr>
+<tr>
+<td>The tool offered, with its measured savings in its description</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>A routing rule in the system prompt naming the work to hand off</td>
+<td>14</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Claude Code&#39;s whole system prompt replaced by one sentence and that rule</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>The person ending every prompt with &quot;Delegate where you see fit.&quot;</td>
+<td>28</td>
+<td>0</td>
+</tr>
+<tr>
+<td>The same tool described as an ability, <code>implement_spec</code>, with no word of delegation</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Telling Opus what each of its requests costs in this session</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Claude Code&#39;s own Agent tool, available in every run</td>
+<td>174</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>It is not the harness: with Claude Code&#39;s system prompt gone, nothing changed. It is not permission: the person&#39;s own words in the prompt changed nothing. Opus 5.5 does not give away work it can do itself.</p>
+<p>On small work that is the right call: a hand-off takes two to five requests of its own, so a small question handed off costs up to three and a half times as much. Opus only misses the big, specified work.</p>
+<h2 id="an-order-works">An order works</h2>
+<p>One thing did work, every time. When a mod attached an order to the prompt, phrased as the person&#39;s (&quot;The person approved this plan; implement it through hand_off&quot;), Opus handed off in 8 of 8 runs, and the feature cost 27% less (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#getting-opus-to-hand-off-hf-mo-ic-ps">SUITE.md</a>).</p>
+<p>That became the design. When you approve a plan of 20 lines or more in plan mode, delegate gives that order: the plan becomes the worker&#39;s spec. Claude does not decide to delegate; your approval does.</p>
+<h2 id="other-tools-found-the-same-thing">Other tools found the same thing</h2>
+<p>We are not the only ones who learned this. The code-graph tool Trail-Code (formerly graft) injects an instruction to <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts#L254-L255">&quot;reach for trail first&quot;</a> at session start, and with prompts adds pointers or a reminder to run <code>trail ask</code> &quot;before grepping&quot;. Its own source has a comment from an investigated session: <em>&quot;the agent did not pull. It grepped 38 times.&quot;</em> (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts#L176-L184"><code>src/claude/format.ts</code></a>). Its maintainer, on Hacker News: <em>&quot;claude never actually uses them as it&#39;s trained to use grep&quot;</em> (<a href="https://news.ycombinator.com/item?id=49299985">HN</a>). graphify, another code-graph tool, injects a note before searches: <em>&quot;MANDATORY: … You MUST run <code>graphify query &quot;&lt;question&gt;&quot;</code> before grepping raw files&quot;</em> (<a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/cli.py#L18-L28"><code>graphify/cli.py</code></a>).</p>
+<p>Three projects, the same observation: an agent trained to grep keeps grepping. Shouting does not change that. Answering inside the grep does.</p>
+<h2 id="what-this-changed">What this changed</h2>
+<ul>
+<li>A mod that wants Claude to behave differently must change what Claude sees in the place it already looks, not ask it to look elsewhere.</li>
+<li>Advice is not free. Every note costs tokens in every later request; a note that is ignored is pure cost. Our rule since: a mod speaks only where it has proof that speaking helps.</li>
+<li>When a choice really is the person&#39;s (delegating, spending), make the person&#39;s action the trigger, not a model&#39;s judgment the model has shown it won&#39;t make.</li>
+</ul>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Click 8.5.0, Opus 5.5, headless Claude Code; hand-off counts read from transcripts. &quot;0 hand-offs&quot; holds for these tasks and this model version; a future model may behave differently, and the harness to check is public. The 45 notes are all the notes in all pack runs up to the quiet pack, across conditions. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-quiet.jsonl"><code>results-quiet.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-answer.jsonl"><code>results-answer.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prompt.jsonl"><code>results-prompt.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-fit.jsonl"><code>results-fit.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-delegation-ideas.jsonl"><code>results-delegation-ideas.jsonl</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a>, source at <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts"><code>ead585b</code></a> (checked 15 Oct 2026).</li>
+<li><a href="https://news.ycombinator.com/item?id=49299985">Show HN discussion of graft</a>, maintainer comments.</li>
+<li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/cli.py#L18-L28"><code>graphify/cli.py</code></a> (the hook-guard note).</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="01-the-cheapest-step.html"><span>Previous</span>The cheapest step is the one Claude never takes</a><a class="next" href="03-a-code-graph-on-our-bench.html"><span>Next</span>A 10,000-star code graph on our bench</a></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

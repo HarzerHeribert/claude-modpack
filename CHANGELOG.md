@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 (2026-10-15)
+
+route, the first mod that decides when Claude hands work off; language servers for five more languages; and the lab notes, nine write-ups of what we tried and why most of it did not ship.
+
+- **route 0.1.0** (new, off until you turn it on): a fast classifier (ScaleDown) reads each prompt, and only feature or test work gets delegate's order to hand it to the cheaper worker. On click's eight jobs: every routing decision right (8 of 8 orders, 0 of 24 wrong ones), −17% over the pack, −40% on features and tests, all 32 results correct. Turned on, each prompt's text goes to ScaleDown, a US service; it needs a ScaleDown key.
+- **lsp-plus 0.4.0**: Go, Kotlin and Ruby in the grep answer (receivers and `fun`, `val`, `object`, `module`), with references where a server has no call hierarchy; servers for shell scripts (bash-language-server) and Terraform (terraform-ls), whose grep answer takes an address such as `var.region` or `module.vpc`; `blast`, off: after an edit changes a function's parameters, its callers.
+- **modpack 0.5.0**: installs route, and an update now installs a mod new in the release.
+- **README**: the numbers measured again on 15 October and pooled with 13 October's (200 runs, all correct): −33% in a long session (was −26%); quick questions in a fresh session are about even (+2%, was +5%: −4% on the second day). Replicated on a TypeScript library (−7.6%) and on 30 SWE-bench Verified bug reports (23% fewer steps).
+- **Lab notes**: [harzerheribert.github.io/claude-modpack](https://harzerheribert.github.io/claude-modpack/), each also as PDF: where the money in a session goes, why tools' advice is ignored, a 10,000-star code graph on our bench, the ideas we borrowed, the graveyard, language servers per extension, small models as plumbing, our plain runs that were not plain, and the comparisons on code beyond click.
+
 ## 0.4.0 (2026-10-14)
 
 A guard against other plugins' hooks that hang, `/mods` from the keyboard, and rows above the prompt that always end.

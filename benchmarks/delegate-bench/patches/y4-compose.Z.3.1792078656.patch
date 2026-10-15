@@ -1,0 +1,33 @@
+diff --git a/compose/docker-compose.yml b/compose/docker-compose.yml
+index 9f8ef35..47008a0 100644
+--- a/compose/docker-compose.yml
++++ b/compose/docker-compose.yml
+@@ -2,8 +2,12 @@ services:
+   api:
+     image: ghcr.io/shop/api:2.3.0
+     depends_on:
+-      - db
+-      - redis
++      db:
++        condition: service_started
++      redis:
++        condition: service_started
++      migrate:
++        condition: service_completed_successfully
+     networks:
+       - backend
+       - frontend
+@@ -94,6 +98,13 @@ services:
+     image: redis:7
+     networks:
+       - backend
++  migrate:
++    image: ghcr.io/shop/api:2.3.0
++    command: ["./manage", "migrate"]
++    depends_on:
++      - db
++    networks:
++      - backend
+ 
+ networks:
+   backend: {}

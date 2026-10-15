@@ -2,11 +2,36 @@
 // language server covers: the search runs as asked, and Claude is told which LSP
 // call answers it exactly. A nudge, never a block.
 
-/** Source files the installed language servers read (TypeScript/JS, Python, Rust, Swift, C/C++, Java, C#, PHP, Lua). */
-export const LSP_FILES = /\.(tsx?|jsx?|mjs|cjs|mts|cts|py|pyi|rs|swift|c|h|cc|cpp|cxx|hpp|hh|java|cs|php|lua)$/
+/**
+ * The languages a language server reads, by file extension: the server the warm-up starts
+ * once per `kind`, and the language's name as the person knows it. The extensions are those
+ * the servers' plugins claim (the official ones, and lsp-plus's own).
+ */
+export const LANGUAGES: ReadonlyArray<{ exts: readonly string[]; kind: string; name: string }> = [
+  { exts: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'mts', 'cts'], kind: 'ts', name: 'TypeScript/JavaScript' },
+  { exts: ['py', 'pyi'], kind: 'py', name: 'Python' },
+  { exts: ['c', 'h', 'cc', 'cpp', 'cxx', 'hpp', 'hh', 'hxx'], kind: 'c', name: 'C/C++' },
+  { exts: ['rs'], kind: 'rs', name: 'Rust' },
+  { exts: ['go'], kind: 'go', name: 'Go' },
+  { exts: ['swift'], kind: 'swift', name: 'Swift' },
+  { exts: ['java'], kind: 'java', name: 'Java' },
+  { exts: ['kt', 'kts'], kind: 'kt', name: 'Kotlin' },
+  { exts: ['cs'], kind: 'cs', name: 'C#' },
+  { exts: ['php'], kind: 'php', name: 'PHP' },
+  { exts: ['rb', 'rake', 'gemspec', 'ru'], kind: 'rb', name: 'Ruby' },
+  { exts: ['lua'], kind: 'lua', name: 'Lua' },
+  { exts: ['sh', 'bash'], kind: 'sh', name: 'shell' },
+  { exts: ['tf', 'tfvars'], kind: 'tf', name: 'Terraform' },
+]
+
+/** Source files a language server reads. */
+export const LSP_FILES = new RegExp(`\\.(${LANGUAGES.flatMap(l => l.exts).join('|')})$`)
 
 const SEARCHERS = /^(?:grep|egrep|fgrep|rg|ag|ack)$/
-const DEF_WORDS = '(?:def|function|class|fn|func|const|let|var|interface|type|struct|enum|trait)'
+const DEF_WORDS = '(?:def|function|class|fn|func|fun|const|let|var|val|interface|type|struct|enum|trait|protocol|object|module)'
+// What may stand between the keyword and the name: Go's receiver `func (s *Server) Name`, Kotlin's
+// type parameters and receiver type `fun <T> List<T>.name`, Ruby's `def self.name`.
+const RECEIVER = '(?:\\([^)]*\\)\\s*|<[^>]*>\\s*)?(?:[\\w$]+(?:<[^>]*>)?\\??\\.)?'
 
 export type SymbolSearch = { name: string; kind: 'uses' | 'definition' }
 
@@ -42,13 +67,12 @@ function grepPattern(args: string[]): string | undefined {
 }
 
 /**
- * Whether a shell command searches for one code symbol. Any command of the line
- * counts (after `cd …&&`, behind `xargs`, in a pipeline): grep, egrep, rg, ag,
- * ack, git grep, and sed or awk printing what matches. Its pattern must name
- * one identifier (bare, `-w`, `\bname\b`, `name(`, `.name`) or its definition
- * (`def name`, `function name`); alternations and free text are not symbols.
+ * The pattern of each command of the line that searches files: after `cd …&&`,
+ * behind `xargs`, in a pipeline; grep, egrep, rg, ag, ack, git grep, and sed or
+ * awk printing what matches.
  */
-export function symbolSearch(command: string): SymbolSearch | undefined {
+export function searchPatterns(command: string): string[] {
+  const patterns: string[] = []
   // Each command of the line; in a pipeline only its head or an xargs stage reads files (a grep fed by a pipe filters text).
   const stages = command
     .split(/\s*(?:&&|\|\||;)\s*/)
@@ -66,7 +90,18 @@ export function symbolSearch(command: string): SymbolSearch | undefined {
     if (tool === 'git' && args[1] === 'grep') pattern = grepPattern(args.slice(2))
     else if (SEARCHERS.test(tool)) pattern = grepPattern(args.slice(1))
     else if ((tool === 'sed' && args.includes('-n')) || tool === 'awk') pattern = scriptPattern(tool, args.slice(1))
-    if (pattern === undefined) continue
+    if (pattern !== undefined) patterns.push(pattern)
+  }
+  return patterns
+}
+
+/**
+ * Whether a shell command searches for one code symbol. Its pattern must name
+ * one identifier (bare, `-w`, `\bname\b`, `name(`, `.name`) or its definition
+ * (`def name`, `function name`); alternations and free text are not symbols.
+ */
+export function symbolSearch(command: string): SymbolSearch | undefined {
+  for (const pattern of searchPatterns(command)) {
     const found = asSymbol(pattern)
     if (found !== undefined) return found
   }
@@ -75,7 +110,7 @@ export function symbolSearch(command: string): SymbolSearch | undefined {
 
 function asSymbol(pattern: string): SymbolSearch | undefined {
   const p = pattern.replace(/\\b|\\<|\\>/g, '').replace(/^\^\s*/, '')
-  const def = new RegExp(`^(?:export\\s+)?${DEF_WORDS}\\s+([A-Za-z_$][\\w$]*)\\b`).exec(p)
+  const def = new RegExp(`^(?:export\\s+)?${DEF_WORDS}\\s+(?:\\\\?\\([^)]*\\)\\s*)?(?:[\\w$]+\\\\?\\.)?([A-Za-z_$][\\w$]*)\\b`).exec(p)
   if (def) return { name: def[1] as string, kind: 'definition' }
   const use = /^\.?([A-Za-z_$][\w$]*)(?:\\?\(|\s*\\?\()?$/.exec(p)
   if (use && (use[1] as string).length >= 3) return { name: use[1] as string, kind: 'uses' }
@@ -106,7 +141,7 @@ export function usesAsCode(text: string, name: string): boolean {
 
 /** Among the hits, where `name` is defined, at the column the LSP tool asks for (1-based). */
 export function definitionAt(hits: readonly Hit[], name: string): { path: string; line: number; character: number } | undefined {
-  const re = new RegExp(`\\b${DEF_WORDS}\\s+(${name.replace(/\$/g, '\\$')})\\b`)
+  const re = new RegExp(`\\b${DEF_WORDS}\\s+${RECEIVER}(${name.replace(/\$/g, '\\$')})\\b`)
   for (const h of hits) {
     const m = re.exec(h.text)
     if (m) return { path: h.path, line: h.line, character: m.index + m[0].length - name.length + 1 }

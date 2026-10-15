@@ -8,7 +8,7 @@
     {
       "name": "modpack",
       "source": "./modpack",
-      "description": "The modpack: statusline, smart-compact, delegate, lsp-plus, cells and eta, installed together and built to work together."
+      "description": "The modpack: statusline, smart-compact, delegate, lsp-plus, cells and eta, installed together and built to work together, and route, off until you turn it on."
     },
     {
       "name": "statusline",
@@ -28,7 +28,7 @@
     {
       "name": "lsp-plus",
       "source": "./lsp-plus",
-      "description": "Extends Claude Code's LSP: references and definitions name the docs that use a symbol, an edit that removes a name the docs still use says so, a grep for a code symbol is told the exact LSP call (or cells' one-step call), /refs finds stale code names and broken links in the docs, and Markdown and SQL get language servers."
+      "description": "Extends Claude Code's LSP: a grep for a code symbol is answered by the language server, references and definitions name the docs that use a symbol, /refs finds stale code names and broken links in the docs, and Markdown, SQL, shell and Terraform get language servers (Go, Kotlin and Ruby through their official plugins)."
     },
     {
       "name": "cells",
@@ -39,6 +39,11 @@
       "name": "eta",
       "source": "./eta",
       "description": "Shows long-running and background jobs with a percentage and an estimated finish time, read live from their output."
+    },
+    {
+      "name": "route",
+      "source": "./route",
+      "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a ScaleDown key."
     }
   ]
 }

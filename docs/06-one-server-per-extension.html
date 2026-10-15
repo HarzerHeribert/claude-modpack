@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One server per extension · Lab notes</title>
+<meta name="description" content="Lab notes 6 · 15 Oct 2026 · written by Claude from this repository's data">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
+  <nav>
+    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
+    <a class="pdf" href="pdf/06-one-server-per-extension.pdf" download>Download PDF</a>
+  </nav>
+</header>
+<main class="note">
+<h1 id="one-server-per-extension">One server per extension</h1>
+<p><em>Lab notes 6 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>lsp-plus answers Claude&#39;s code searches from a language server. That only works where a server answers. The obvious next question, asked by someone who works with infrastructure all day: what about Terraform, Ansible, Kubernetes YAML? This note is about adding languages, and how often &quot;there is a language server for that&quot; turned out to be the start of the work, not the end.</p>
+<h2 id="the-rule-that-shapes-everything">The rule that shapes everything</h2>
+<p>Claude Code picks a language server by file extension, and only by extension: no file patterns, no first-line detection. Each extension gets exactly one server; when two plugins claim the same one, the first registered wins (<a href="https://code.claude.com/docs/en/plugins/components#lsp-servers">plugin docs</a>). For most languages that is fine. For <code>.yaml</code> it is a problem, because Kubernetes manifests, Compose files, GitHub Actions, Ansible playbooks and Helm values all share it.</p>
+<h2 id="five-languages-five-surprises">Five languages, five surprises</h2>
+<p>We gave lsp-plus Go, Kotlin and Ruby (whose servers it could install but whose files its grep answer ignored), and declared servers for shell scripts and Terraform. Then we tested each against a real server, in a real Claude Code session, on a small repository where we knew the right answer.</p>
+<ul>
+<li><strong>Go</strong> worked at once. gopls even found callers through method receivers (<code>func (c *Calculator) Total</code>).</li>
+<li><strong>Shell</strong> worked after one change. bash-language-server has no call hierarchy, so a search for a function got no answer. lsp-plus now falls back to the server&#39;s references when there is no call hierarchy.</li>
+<li><strong>Ruby</strong> crashed with exit code 78 before answering anything. ruby-lsp refuses to start in a project with a <code>Gemfile</code> but no <code>Gemfile.lock</code>. Most apps commit the lock file; many gems do not. Now in the setup guide.</li>
+<li><strong>Terraform</strong> answered symbol searches but found no references. Our own LSP client got the same, so it was the server, not Claude Code. Its log said why: no provider schema for <code>hashicorp/aws</code>. terraform-ls only sees references inside blocks whose schema it knows, and the Homebrew build of terraform-ls ships without the provider schemas HashiCorp&#39;s own build embeds (0 schema entries in the binary against 6). Installed from HashiCorp&#39;s tap, every <code>var.region</code> was found.</li>
+<li><strong>Kotlin</strong> we could not test: JetBrains&#39; Homebrew formula pointed at a download that returned 404 that day. It is covered by tests only.</li>
+</ul>
+<p>Terraform also needed lsp-plus to understand its names. A grep for <code>var.region</code> or <code>aws_s3_bucket.logs</code> searches for an address, not an identifier. lsp-plus now maps an address to the block that declares it, asks the server in each module (directory) where the grep found it, and answers with the references:</p>
+<pre><code>`var.region` per the language server: 4 references in code, in 3 files (code only: strings, comments, docs and namesakes are in the grep above):
+main.tf: 2
+outputs.tf: 2, 6
+providers.tf: 2
+</code></pre>
+<h2 id="ansible-and-kubernetes-no-references-to-give">Ansible and Kubernetes: no references to give</h2>
+<p>For YAML the research came first, and it was sobering (<a href="#sources">sources</a>):</p>
+<ul>
+<li>The <strong>Ansible language server</strong> offers hover, completion, definition and diagnostics, but no references and no symbols; its &quot;definition&quot; jumps from a module name to the module&#39;s Python source. A <a href="https://github.com/ansible/vscode-ansible/pull/2647">pull request</a> adding references for handlers, variables and roles was closed unmerged. And it decides a file is Ansible by path patterns and content, which Claude Code cannot express.</li>
+<li><strong>yaml-language-server</strong> with Kubernetes schemas validates structure (a misspelled field, a string where a number belongs) but has no references: its &quot;definition&quot; only jumps from a YAML alias to its anchor in the same file.</li>
+<li>No language server we found resolves the names that actually connect a Kubernetes deployment: a Service&#39;s selector to the pods it selects, a <code>configMapRef</code> to the ConfigMap, a RoleBinding to its ServiceAccount.</li>
+</ul>
+<p>So the question became: one YAML server for everything is forced on us anyway; could it also check the names?</p>
+<h2 id="yaml-plus">yaml-plus</h2>
+<p>yaml-plus is one server for every <code>.yaml</code> file. It runs yaml-language-server underneath for syntax and schemas, choosing the schema from each file&#39;s content (Kubernetes by <code>apiVersion</code> and <code>kind</code>, Ansible by structure). It skips Helm templates, which are not YAML until rendered. On top it indexes the repository&#39;s names and checks the references between them:</p>
+<ul>
+<li><strong>Kubernetes</strong>: ConfigMaps, ServiceAccounts and volume claims a pod uses; Services and the workloads they select; Ingress backends, autoscaler targets, role bindings; kustomize paths.</li>
+<li><strong>Compose</strong>: <code>depends_on</code>, networks, volumes, configs, secrets.</li>
+<li><strong>GitHub Actions</strong>: <code>needs</code>, <code>needs.X.outputs</code>, <code>steps.X</code>, inputs, local actions.</li>
+<li><strong>Ansible</strong>: handlers and <code>notify</code>, roles, included task files.</li>
+</ul>
+<p>It also answers go-to-definition and find-references for those names.</p>
+<p>Its rule is to say nothing it is not sure of. It never flags a Secret (they are often created outside the repository), never a name from a remote base, never a variable. Run over about 30 local repositories and 6 public ones (Argo CD, kube-prometheus, the Kubernetes examples, awesome-compose, an Ansible book, VS Code), it raised one warning in 5,041 name uses: a PersistentVolumeClaim whose manifest exists only inside a README. It indexes 4,000 manifests in about 0.7 s.</p>
+<p><strong>One thing we did not expect.</strong> In a live session, yaml-plus&#39;s warning reached Claude after an edit:</p>
+<blockquote>
+<p>ConfigMap &quot;cart-confg&quot; (namespace shop) is not declared in this repository (did you mean &quot;cart-config&quot;?)</p>
+</blockquote>
+<p>Reading the same broken file delivered nothing. Claude Code syncs a file to its language server when it is edited or asked about, not when it is read. A checker that only speaks after edits cannot help Claude <em>find</em> a broken reference, only avoid making one. yaml-plus therefore gained hooks: a read of a YAML file gets that file&#39;s name problems, and a grep for a name that hits YAML files gets where it is declared and used, the way lsp-plus answers code searches.</p>
+<h2 id="what-it-measured">What it measured</h2>
+<p>We generated a 54-file deployment repository (ten services across Kubernetes, Compose, two GitHub Actions workflows and six Ansible roles) and four tasks:</p>
+<ul>
+<li>a ConfigMap rename across 11 references;</li>
+<li>six planted broken references, one in each kind of file and two more in Kubernetes;</li>
+<li>&quot;which objects refer to this ServiceAccount&quot;;</li>
+<li>a Compose change.</li>
+</ul>
+<p>Every task was graded by parsing the YAML, never by the server under test.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>yaml-plus added to the pack</th>
+<th>95% interval</th>
+<th>Runs</th>
+<th>Correct</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Opus 5.5</td>
+<td>+2.0% cost</td>
+<td>−1.3% to +5.3%</td>
+<td>64</td>
+<td>all</td>
+</tr>
+<tr>
+<td>Haiku 5.5</td>
+<td>about the same, at roughly one cent a run</td>
+<td></td>
+<td>32</td>
+<td>all</td>
+</tr>
+</tbody></table>
+<p>yaml-plus spoke 56 times in Opus&#39;s runs. Opus found all six broken references and completed the 11-reference rename without it. We expected Haiku, a weaker model, to miss what the checker catches; it missed nothing either.</p>
+<p>Fifty-four files are few enough for any model to read whole, and a checker cannot save what a model never misses. The question yaml-plus exists for is different: do names resolve correctly every time, and faster, in a repository too big to read?</p>
+<p>So we made one. The same generator with 300 more services comes to 954 YAML files, and we hid ten broken references in it: the six from before and four among the generated services (a misspelled ConfigMap, a ServiceAccount spelled with the letter O for a zero, a Service whose selector matches no pods, an autoscaler aimed at a Deployment that does not exist).</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Without yaml-plus</th>
+<th>With yaml-plus</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Opus 5.5</td>
+<td>10 of 10 in every run, $0.61, 10.2 requests</td>
+<td>10 of 10 in every run, $0.70, 10.0 requests</td>
+</tr>
+<tr>
+<td>Haiku 5.5</td>
+<td>10 of 10 in every run, $0.03</td>
+<td>10 of 10 in three runs, 8 in one, $0.03</td>
+</tr>
+</tbody></table>
+<p>Four runs per cell. Opus did not read 954 files. It listed them, read one of each kind, and then <strong>wrote its own reference checker</strong>: about 50 lines of Python with PyYAML, which it ran over the whole repository, and confirmed the result with <code>kubectl kustomize</code>. In one step, it built for this task the tool we had built for every task.</p>
+<p>That is the honest end of this experiment. Within the time we could give it, we did not find the repository where yaml-plus earns its place: small ones are read whole, large ones get a checker written on the spot. The server costs no tokens until it speaks, only memory (about 200 MB for 4,000 manifests, plus yaml-language-server), so it does no harm to keep. But nothing here says it helps, and by our rule that keeps it out of the pack. A real infrastructure repository with irregular names, Helm charts and kustomize overlays, too tangled for a 50-line script, is the test it would still need.</p>
+<h2 id="method--limits">Method &amp; limits</h2>
+<p>Language checks: one headless Claude Code session per language on a small repository with known answers, the hook&#39;s note read from the transcript; terraform-ls also queried directly with a minimal LSP client. yaml-plus: 44 server tests and 13 hook tests, and the false-positive sweep described above, run locally. The YAML benchmark&#39;s generator and grader are in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/yaml_repo.py"><code>yaml_repo.py</code></a>; runs in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml.jsonl"><code>results-yaml.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-b.jsonl"><code>results-yaml-b.jsonl</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-haiku.jsonl"><code>results-yaml-haiku.jsonl</code></a>; the 954-file repository in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-big.jsonl"><code>results-yaml-big.jsonl</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-yaml-big-haiku.jsonl"><code>results-yaml-big-haiku.jsonl</code></a>.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Claude Code, <a href="https://code.claude.com/docs/en/plugins/components#lsp-servers">Plugin components: LSP servers</a>.</li>
+<li>HashiCorp, <a href="https://github.com/hashicorp/terraform-ls">terraform-ls</a>, <a href="https://github.com/hashicorp/terraform-ls/blob/main/docs/schema.md"><code>docs/schema.md</code></a> (provider schemas bundled at compile time in HashiCorp&#39;s released binaries).</li>
+<li>Red Hat, <a href="https://github.com/ansible/vscode-ansible/tree/main/packages/ansible-language-server">ansible-language-server</a>, and <a href="https://github.com/ansible/vscode-ansible/pull/2647">the closed pull request #2647</a>.</li>
+<li>Red Hat, <a href="https://github.com/redhat-developer/yaml-language-server">yaml-language-server</a>.</li>
+<li><a href="https://github.com/Shopify/ruby-lsp">Ruby LSP</a>; <a href="https://github.com/bash-lsp/bash-language-server">bash-language-server</a>; <a href="https://github.com/golang/tools/tree/master/gopls">gopls</a>.</li>
+</ul>
+
+<nav class="pager"><a class="prev" href="05-the-graveyard.html"><span>Previous</span>The graveyard</a><a class="next" href="07-small-models-as-plumbing.html"><span>Next</span>Small models as plumbing</a></nav>
+</main>
+<footer class="site">
+  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+</footer>
+</body>
+</html>

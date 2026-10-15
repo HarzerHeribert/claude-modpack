@@ -22,6 +22,22 @@ for (const [label, incoming, expected] of [
   })
 }
 
+test('a server without call hierarchy answers with the references instead', { options: { answer: true } }, async ($, on) => {
+  const grep = 'lib/auth/token.rb:12:  def self.issue(user)\napp/controllers/sessions_controller.rb:8:    Token.issue(user)\n'
+  const refs = 'Found 2 references across 2 files:\n\nlib/auth/token.rb:\n  Line 12:12\n\napp/controllers/sessions_controller.rb:\n  Line 8:11\n'
+  on('session.cwd', () => ({ value: '/repo' }))
+  on('tool.call', { tool: 'Bash' }, () => ({ result: { stdout: grep, stderr: '', interrupted: false }, text: grep }))
+  const asked: string[] = []
+  on('tool.call', { tool: 'LSP' }, (_$, e) => {
+    const op = (e as unknown as { operation: string }).operation
+    asked.push(op)
+    return { result: {}, text: op === 'incomingCalls' ? 'No call hierarchy item found at this position' : op === 'findReferences' ? refs : '' }
+  })
+  const r = await $.tool.call({ tool: 'Bash', command: 'grep -rn "issue(" lib app' })
+  expect(asked).toEqual(['incomingCalls', 'findReferences'])
+  expect((r.context ?? []).some(n => n.includes('2 references in code, in 2 files') && n.includes('app/controllers/sessions_controller.rb: 8'))).toBe(true)
+})
+
 test('the warm-up asks about the smallest file of each kind, where the server has least to report', { options: { warm: true, answer: false } }, async ($, on) => {
   on('session.start', (_$, e) => ({ cwd: e.cwd }))
   on('session.cwd', () => ({ value: '/repo' }))
@@ -33,6 +49,10 @@ test('the warm-up asks about the smallest file of each kind, where the server ha
     '100644 blob ddd     800\tweb/app.tsx',
     '100644 blob eee     120\tweb/util.ts',
     '100644 blob fff      40\tREADME.md',
+    '100644 blob ggg     300\tcmd/main.go',
+    '100644 blob hhh     200\tscripts/release.sh',
+    '100644 blob iii     500\tinfra/main.tf',
+    '100644 blob jjj      90\tinfra/variables.tf',
   ].join('\0') + '\0'
   on('process.run', (_$, e) => ({ value: { exitCode: 0, stdout: e.argv.includes('ls-tree') ? tree : '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }))
   const asked: string[] = []
@@ -42,8 +62,8 @@ test('the warm-up asks about the smallest file of each kind, where the server ha
   })
   await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
   // The warm-up runs detached from session start.
-  for (let i = 0; i < 500 && asked.length < 2; i++) await Promise.resolve()
-  expect(asked.sort()).toEqual(['/repo/src/pkg/__init__.py', '/repo/web/util.ts'])
+  for (let i = 0; i < 500 && asked.length < 5; i++) await Promise.resolve()
+  expect(asked.sort()).toEqual(['/repo/cmd/main.go', '/repo/infra/variables.tf', '/repo/scripts/release.sh', '/repo/src/pkg/__init__.py', '/repo/web/util.ts'])
 })
 
 test('a language the repository has enough of, without a server: the person is told, and Claude, to offer /lsp-plus:setup', { options: { warm: true, answer: false } }, async ($, on) => {

@@ -1,0 +1,103 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..72f4b94
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,97 @@
++import * as chrono from "../../src";
++import { parseDuration, parseNumberPattern, parseYear } from "../../src/locales/it/constants";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++
++test("Test - Number words in time units", function () {
++    testSingleCase(chrono.it, "un'ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("un'ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 0));
++    });
++
++    testSingleCase(chrono.it, "qualche ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("qualche ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 9, 0));
++    });
++
++    testSingleCase(chrono.it, "mezza ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("mezza ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 30));
++    });
++
++    testSingleCase(chrono.it, "paio di giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("paio di giorni fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 8, 12, 0));
++    });
++
++    testSingleCase(chrono.it, "alcuni giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("alcuni giorni fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 3, 12, 0));
++    });
++});
++
++test("Test - Number words embedded in sentences", function () {
++    testSingleCase(chrono.it, "Sono arrivato un'ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(14);
++        expect(result.text).toBe("un'ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 0));
++    });
++
++    testSingleCase(chrono.it, "Ci vediamo tra qualche giorno", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(11);
++        expect(result.text).toBe("tra qualche giorno");
++        expect(result.start).toBeDate(new Date(2012, 7, 13, 12, 0));
++    });
++});
++
++test("Test - Year with era suffix", function () {
++    testSingleCase(chrono.it, "10 agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++
++    testSingleCase(chrono.it, "10 agosto 500 BC", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 500 BC");
++        expect(result.start.get("year")).toBe(-500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++
++    testSingleCase(chrono.it, "10 agosto 500 AD", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 500 AD");
++        expect(result.start.get("year")).toBe(500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++
++    testSingleCase(chrono.it, "L'evento è del 10 agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(15);
++        expect(result.text).toBe("10 agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++    });
++});
++
++test("Test - Time units without separating space are rejected", function () {
++    testUnexpectedResult(chrono.it, "treore fa", new Date(2012, 7, 10, 12, 0));
++});
++
++test("Test - parseNumberPattern", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++    expect(parseNumberPattern("Qualche")).toBe(3);
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++    expect(parseNumberPattern("paio di")).toBe(2);
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseYear", function () {
++    expect(parseYear("2555 BE")).toBe(2012);
++    expect(parseYear("500 BCE")).toBe(-500);
++    expect(parseYear("500 CE")).toBe(500);
++});
++
++test("Test - parseDuration", function () {
++    expect(parseDuration("")).toBeNull();
++    expect(parseDuration("treore")).toBeNull();
++    expect(parseDuration("2 ore")).toStrictEqual({ hour: 2 });
++});

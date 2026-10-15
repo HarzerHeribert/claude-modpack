@@ -1,0 +1,34 @@
+{
+  "name": "route",
+  "version": "0.1.0",
+  "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a ScaleDown key.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Off until you turn it on (here or in /mods): from then on the text of each prompt you send goes to ScaleDown, a US service, to be classified.",
+      "default": false
+    },
+    "scaledownKey": {
+      "type": "string",
+      "title": "ScaleDown API key",
+      "description": "Else the SCALEDOWN_API_KEY environment variable. The prompt's text is sent to ScaleDown (a US service) to be classified.",
+      "sensitive": true
+    },
+    "minScore": {
+      "type": "number",
+      "title": "Hand off from (classifier score)",
+      "description": "Only a prompt the classifier calls feature or test work with at least this score gets the order.",
+      "default": 0.7
+    },
+    "timeoutMs": {
+      "type": "number",
+      "title": "Wait for the classifier (ms)",
+      "description": "A slower answer adds nothing.",
+      "default": 3000
+    }
+  }
+}

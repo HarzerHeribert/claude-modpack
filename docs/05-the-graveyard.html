@@ -1,26 +1,68 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-mode="plain">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The graveyard · Lab notes</title>
-<meta name="description" content="Lab notes 5 · 15 Oct 2026 · written by Claude from this repository's data">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The graveyard · Lab notes 5 · claude-modpack</title>
+<meta name="description" content="Eight mods ship in this pack. Many more ideas were built, measured and dropped. A project's README usually shows the survivors; this note shows the rest, because the reasons they failed are more usefu">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
 </head>
-<body>
-<header class="site">
-  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
-  <nav>
-    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
-    <a class="pdf" href="pdf/05-the-graveyard.pdf" download>Download PDF</a>
-  </nav>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html" aria-current="page"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
 </header>
-<main class="note">
-<h1 id="the-graveyard">The graveyard</h1>
-<p><em>Lab notes 5 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
-<p>Six mods ship in this pack. Many more ideas were built, measured and dropped. A project&#39;s README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features that worked. Each grave has the idea, why it looked good, and the number that ended it.</p>
-<h2 id="the-checklist-that-said-everything-was-fine">The checklist that said everything was fine</h2>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html" aria-current="page"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+<article class="doc prose note">
+<p class="eyebrow mono"><a href="notes.html">lab notes</a> / 05</p>
+<h1>The graveyard</h1>
+<p class="note-meta"><span>15 Oct 2026, two graves added 16 Oct</span><span>6 min read</span><a class="btn sm" href="pdf/05-the-graveyard.pdf" download><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</a></p>
+<p class="byline small muted">written by Claude from this repository's data</p>
+<details class="toc-mobile"><summary>On this page</summary><ul class="toc-list"><li><a href="#the-checklist-that-said-everything-was-fine">The checklist that said everything was fine</a></li><li><a href="#the-hint-nobody-followed">The hint nobody followed</a></li><li><a href="#four-ways-to-make-opus-delegate">Four ways to make Opus delegate</a></li><li><a href="#handing-off-the-small-stuff">Handing off the small stuff</a></li><li><a href="#the-projection-that-was-wrong">The projection that was wrong</a></li><li><a href="#moving-text-before-the-cache-boundary">Moving text before the cache boundary</a></li><li><a href="#keyword-pointers">Keyword pointers</a></li><li><a href="#the-log-squeezer">The log squeezer</a></li><li><a href="#compression-that-forgets">Compression that forgets</a></li><li><a href="#windows-after-a-search">Windows after a search</a></li><li><a href="#an-order-in-the-middle-of-a-search">An order in the middle of a search</a></li><li><a href="#the-mod-nobody-measured">The mod nobody measured</a></li><li><a href="#what-the-graveyard-teaches">What the graveyard teaches</a></li><li><a href="#method--limits">Method &amp; limits</a></li><li><a href="#sources">Sources</a></li></ul></details>
+<p>Eight mods ship in this pack. Many more ideas were built, measured and dropped. A project&#39;s README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features that worked. Each grave has the idea, why it looked good, and the number that ended it.</p>
+<h2 id="the-checklist-that-said-everything-was-fine"><a class="anchor" href="#the-checklist-that-said-everything-was-fine" aria-hidden="true" tabindex="-1">#</a>The checklist that said everything was fine</h2>
 <p><strong>lastenheft</strong> (German for a requirements specification) turned an order into a list of checkable requirements and refused to let Claude stop until each was proven. Agents that report &quot;done&quot; on half-finished work are a real problem; a gate against it looked like obvious value.</p>
 <p>The first batch looked promising. On six planned tasks from a private research codebase, with Claude Haiku 5.5, the gate lowered &quot;said done while incomplete&quot; from 92% to 75% of runs, a paired difference of −17 points [−33, −4].</p>
 <p>We did not ship it. Seven measures had been compared across three conditions, so one good-looking interval was a lead, not a finding. Before running more, we wrote down the one measure and the rule that would count as a confirmation (<a href="#sources">preregistration</a>; Nosek et al. 2018), then ran the same tasks with fresh repeats:</p>
@@ -30,43 +72,53 @@
 <li>A lighter version, a checklist without the gate, came out the same: −4 points [−14.6, +6.2], not confirmed. And it showed why: in <strong>38 of 43 runs that were incomplete, every point on the list showed passed.</strong> Claude&#39;s own tests passed; they just did not test what was missing. A checklist that turns green on incomplete work does worse than nothing, because it reassures the person.</li>
 </ul>
 <p>lastenheft stays in the lab, switched off. (Its data stays private: the tasks come from a private codebase.)</p>
-<h2 id="the-hint-nobody-followed">The hint nobody followed</h2>
+<h2 id="the-hint-nobody-followed"><a class="anchor" href="#the-hint-nobody-followed" aria-hidden="true" tabindex="-1">#</a>The hint nobody followed</h2>
 <p>lsp-plus&#39;s grep note told Claude which language-server call answers its search exactly. <strong>0 of 45</strong> followed. The story, and what replaced it, is in <a href="02-notes-nobody-reads.html">note 2</a>. The note is off by default.</p>
-<h2 id="four-ways-to-make-opus-delegate">Four ways to make Opus delegate</h2>
+<h2 id="four-ways-to-make-opus-delegate"><a class="anchor" href="#four-ways-to-make-opus-delegate" aria-hidden="true" tabindex="-1">#</a>Four ways to make Opus delegate</h2>
 <p>A rule in the system prompt naming the work to hand off (<strong>0</strong> hand-offs in 18 runs), the person&#39;s own &quot;Delegate where you see fit&quot; (<strong>0 of 28</strong>), the tool presented as an ability, <code>implement_spec(spec, check)</code>, with no word of delegation (<strong>0 of 8</strong>, and the unused tool cost 11–18% to carry), and telling Opus what each of its requests costs (<strong>0 of 4</strong>). Only an order works (<a href="02-notes-nobody-reads.html#174-runs-0-delegations">note 2</a>).</p>
-<h2 id="handing-off-the-small-stuff">Handing off the small stuff</h2>
-<p>If handing off a feature saves a third, why not hand off lookups? We let delegate take read-only work. Told to hand off a lookup, Opus turned it into an edit task (the worker wrote the answer to a file, the check printed the file) and the runs cost <strong>13–33% more</strong>, leaving stray files in the repository. A hand-off takes two to five requests of its own; a lookup takes one. Reverted.</p>
-<h2 id="the-projection-that-was-wrong">The projection that was wrong</h2>
-<p>An early analysis projected that hand-offs save more the fuller the session, <strong>−53%</strong> for the feature at 200k tokens, by assuming each step re-reads more. We measured it in a 233k-token session: the feature saved <strong>37%</strong>, about what it saved fresh, and a small question handed off cost up to <strong>3.6 times</strong> as much (the lookup 2.5 times) (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-hand-off-in-a-long-session-pl-hl">SUITE.md</a>). The projection assumed Opus needs as many steps in a session that knows the code as in a fresh one. It needs far fewer.</p>
-<h2 id="moving-text-before-the-cache-boundary">Moving text before the cache boundary</h2>
+<h2 id="handing-off-the-small-stuff"><a class="anchor" href="#handing-off-the-small-stuff" aria-hidden="true" tabindex="-1">#</a>Handing off the small stuff</h2>
+<p>If handing off a feature saves a quarter to a third, why not hand off lookups? We let delegate take read-only work. Told to hand off a lookup, Opus turned it into an edit task (the worker wrote the answer to a file, the check printed the file) and the runs cost <strong>17–40% more</strong>, leaving stray files in the repository (corrected 16 Oct: worker costs were undercounted; we had 13–33%). A hand-off takes two to five requests of its own; a lookup takes one. Reverted.</p>
+<h2 id="the-projection-that-was-wrong"><a class="anchor" href="#the-projection-that-was-wrong" aria-hidden="true" tabindex="-1">#</a>The projection that was wrong</h2>
+<p>An early analysis projected that hand-offs save more the fuller the session, <strong>−53%</strong> for the feature at 200k tokens, by assuming each step re-reads more. We measured it in a 233k-token session: the feature saved <strong>35%</strong> (37% before the workers&#39; cost was corrected), about what it saved fresh, and a small question handed off cost up to <strong>3.6 times</strong> as much (the lookup 2.5 times) (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-hand-off-in-a-long-session-pl-hl">SUITE.md</a>). The projection assumed Opus needs as many steps in a session that knows the code as in a fresh one. It needs far fewer.</p>
+<h2 id="moving-text-before-the-cache-boundary"><a class="anchor" href="#moving-text-before-the-cache-boundary" aria-hidden="true" tabindex="-1">#</a>Moving text before the cache boundary</h2>
 <p>cells&#39; guidance is the same text in every session. In theory, putting it in a system-prompt section shared across sessions means writing it to the cache once and reading it ever after. Measured: <strong>+1.0% [−5%, +8%]</strong>, no saving; the first request wrote no less. Reverted.</p>
-<h2 id="keyword-pointers">Keyword pointers</h2>
+<h2 id="keyword-pointers"><a class="anchor" href="#keyword-pointers" aria-hidden="true" tabindex="-1">#</a>Keyword pointers</h2>
 <p>BM25 ranking to point Claude at files before it searches. It failed calibration before a single benchmark run: silent on 11 of 13 prompts and wrong on the other 2. The version that survived is deterministic (<a href="04-borrowing-the-good-ideas.html">note 4</a>).</p>
-<h2 id="the-log-squeezer">The log squeezer</h2>
+<h2 id="the-log-squeezer"><a class="anchor" href="#the-log-squeezer" aria-hidden="true" tabindex="-1">#</a>The log squeezer</h2>
 <p><strong>squeeze</strong> replaced a long test log with its failures (file, line, message) and kept the full log on disk. Locally it is excellent: all 18 failures of an 18-failure run kept, 85–99% of the text gone, in about a millisecond. On a task with 18 failing tests it fired <strong>0 times in 4 runs</strong>, because Opus piped every test run through <code>tail</code> or <code>grep</code> itself, 24 times across the 8 runs. We tried Claude Haiku 5.5, expecting a smaller model to dump whole logs: it piped through <code>tail</code> too (44 times in 8 runs), and squeeze fired 0 times again. A tool for a habit neither model has.</p>
-<h2 id="compression-that-forgets">Compression that forgets</h2>
+<h2 id="compression-that-forgets"><a class="anchor" href="#compression-that-forgets" aria-hidden="true" tabindex="-1">#</a>Compression that forgets</h2>
 <p>ScaleDown&#39;s Compress keeps the passages that look relevant to a question. Asked five factual questions about click from a compressed copy, a model answered 4 of 5 when each question had its own compression, and <strong>0–1 of 5</strong> when one compression had to serve all five; one answer was confidently wrong (exit code 1 instead of 2) because the line that said 2 was gone. In a coding session the next question is never known in advance (<a href="07-small-models-as-plumbing.html">note 7</a>).</p>
-<h2 id="the-mod-nobody-measured">The mod nobody measured</h2>
+<h2 id="windows-after-a-search"><a class="anchor" href="#windows-after-a-search" aria-hidden="true" tabindex="-1">#</a>Windows after a search</h2>
+<p>The first versions of <strong>seek</strong> attached to a search&#39;s result the lines around its hits, so Claude would not need a request of its own to read them. seek 0.1 fired in <strong>1 of 36 runs</strong>: Opus&#39;s searches sit behind a <code>cd</code>, in chains and in pipes, and it took only a plain grep. seek 0.2 read any search&#39;s output, fired, saved 7.9% of the requests, and cost <strong>+2.1%</strong> fresh. Priced with what the windows left in the context, re-read by every later request, <strong>+6.3%</strong> [+1.4, +11.2]. Replayed on real sessions, a window held Claude&#39;s next read in 0.5 to 12% of searches. What replaced it is an order at the prompt (<a href="11-what-looking-around-leaves-behind.html">note 11</a>).</p>
+<h2 id="an-order-in-the-middle-of-a-search"><a class="anchor" href="#an-order-in-the-middle-of-a-search" aria-hidden="true" tabindex="-1">#</a>An order in the middle of a search</h2>
+<p><strong>pathfinder</strong> waited for the third consecutive search in a large context, where long chains of looking around spend their money, and then told Claude to hand the rest of the search to a cheaper read worker. The order came in 6 of 12 runs; Claude handed off <strong>once</strong>. Cost <strong>−3.4%</strong> [−11.3, +5.1], not shown. The same kind of order beside the person&#39;s prompt is followed every time; inside Claude&#39;s own search it is not (<a href="11-what-looking-around-leaves-behind.html#where-an-instruction-has-to-ride">note 11</a>).</p>
+<h2 id="the-mod-nobody-measured"><a class="anchor" href="#the-mod-nobody-measured" aria-hidden="true" tabindex="-1">#</a>The mod nobody measured</h2>
 <p><strong>turn-savers</strong> (lighter thinking on routine steps, the code at a failure attached to the failing run) was built and never measured. So it does not ship. A mod without a measurement is a guess with a version number.</p>
-<h2 id="what-the-graveyard-teaches">What the graveyard teaches</h2>
+<h2 id="what-the-graveyard-teaches"><a class="anchor" href="#what-the-graveyard-teaches" aria-hidden="true" tabindex="-1">#</a>What the graveyard teaches</h2>
 <ul>
 <li><strong>The first good number is usually too good.</strong> Write down what would confirm it, then run it again.</li>
 <li><strong>A check that passes is not a check that checks.</strong> Agents&#39; own tests share their blind spots.</li>
 <li><strong>Models have habits.</strong> They grep, they tail logs, they keep work they can do. A feature that fights a habit loses; one that answers inside it wins.</li>
+<li><strong>Count what stays.</strong> A step saved by adding text to the conversation is paid for again by every later request.</li>
 <li><strong>Removing is a result.</strong> Every grave here made the pack cheaper or simpler.</li>
 </ul>
-<h2 id="method--limits">Method &amp; limits</h2>
-<p>Delegate bench results: <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/delegate-bench/</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>. The lastenheft runs used Claude Haiku 5.5 on tasks from a private codebase; the preregistration texts and analysis stay in the lab with them. squeeze: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-squeeze.jsonl"><code>results-squeeze.jsonl</code></a>. ScaleDown measurements: <a href="07-small-models-as-plumbing.html">note 7</a>.</p>
-<h2 id="sources">Sources</h2>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>Delegate bench results: <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/delegate-bench/</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>. The lastenheft runs used Claude Haiku 5.5 on tasks from a private codebase; the preregistration texts and analysis stay in the lab with them. squeeze: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-squeeze.jsonl"><code>results-squeeze.jsonl</code></a>. seek&#39;s windows: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek.jsonl"><code>results-seek.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek2.jsonl"><code>results-seek2.jsonl</code></a>, priced with <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/carry.py"><code>carry.py</code></a>. pathfinder: the PFD runs in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek03-docs.jsonl"><code>results-seek03-docs.jsonl</code></a>. ScaleDown measurements: <a href="07-small-models-as-plumbing.html">note 7</a>.</p>
+<h2 id="sources"><a class="anchor" href="#sources" aria-hidden="true" tabindex="-1">#</a>Sources</h2>
 <ul>
 <li>Nosek, B. A., Ebersole, C. R., DeHaven, A. C., &amp; Mellor, D. T. (2018). The preregistration revolution. <em>PNAS</em>, 115(11), 2600–2606.</li>
 <li>Ioannidis, J. P. A. (2008). Why most discovered true associations are inflated. <em>Epidemiology</em>, 19(5), 640–648.</li>
 </ul>
 
-<nav class="pager"><a class="prev" href="04-borrowing-the-good-ideas.html"><span>Previous</span>Borrowing the good ideas</a><a class="next" href="06-one-server-per-extension.html"><span>Next</span>One server per extension</a></nav>
-</main>
-<footer class="site">
-  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+<nav class="pager" aria-label="Previous and next note"><a href="04-borrowing-the-good-ideas.html"><span>Previous</span><b>Borrowing the good ideas</b></a><a class="next" href="06-one-server-per-extension.html"><span>Next</span><b>One server per extension</b></a></nav>
+</article>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#the-checklist-that-said-everything-was-fine" data-for="the-checklist-that-said-everything-was-fine">The checklist that said everything was fine</a></li><li><a href="#the-hint-nobody-followed" data-for="the-hint-nobody-followed">The hint nobody followed</a></li><li><a href="#four-ways-to-make-opus-delegate" data-for="four-ways-to-make-opus-delegate">Four ways to make Opus delegate</a></li><li><a href="#handing-off-the-small-stuff" data-for="handing-off-the-small-stuff">Handing off the small stuff</a></li><li><a href="#the-projection-that-was-wrong" data-for="the-projection-that-was-wrong">The projection that was wrong</a></li><li><a href="#moving-text-before-the-cache-boundary" data-for="moving-text-before-the-cache-boundary">Moving text before the cache boundary</a></li><li><a href="#keyword-pointers" data-for="keyword-pointers">Keyword pointers</a></li><li><a href="#the-log-squeezer" data-for="the-log-squeezer">The log squeezer</a></li><li><a href="#compression-that-forgets" data-for="compression-that-forgets">Compression that forgets</a></li><li><a href="#windows-after-a-search" data-for="windows-after-a-search">Windows after a search</a></li><li><a href="#an-order-in-the-middle-of-a-search" data-for="an-order-in-the-middle-of-a-search">An order in the middle of a search</a></li><li><a href="#the-mod-nobody-measured" data-for="the-mod-nobody-measured">The mod nobody measured</a></li><li><a href="#what-the-graveyard-teaches" data-for="what-the-graveyard-teaches">What the graveyard teaches</a></li><li><a href="#method--limits" data-for="method--limits">Method &amp; limits</a></li><li><a href="#sources" data-for="sources">Sources</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
 </footer>
+<div class="sl" aria-hidden="true" data-path="notes/05" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

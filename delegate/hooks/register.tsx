@@ -26,6 +26,12 @@ import {
   summarize,
   tokensOf,
   workerPrompt,
+  parseVerify,
+  parsePlaces,
+  checkPlace,
+  readVerdict,
+  testCounts,
+  verdict,
 } from './plan'
 import type { Anchor, HandOff, Kind, Mode, Place, Reach, Usage } from './plan'
 import type { DelegateJob } from '../types'
@@ -53,7 +59,7 @@ const RETURNS = {
 }
 const describe = (wait: Wait) => `Outsources one self-contained task to a cheaper worker model. ${RETURNS[wait]}: for edit work the diff and the result of a check command it runs, where the change reaches (references, callers and doc mentions from the language server), and what the work cost.
 
-Each of your own steps re-reads your whole context; a worker's steps read only its own small one, but the hand-off itself takes you two to five steps (writing the task, reading the evidence, finishing). Measured on real tasks at the same quality: a feature from a precise spec and tests to a coverage target cost 27-37% less handed off, in a fresh session and in one holding 233k tokens; lookups, traces, explanations and small edits cost more handed off, up to 3.6 times as much in a session that already knows the code.
+Each of your own steps re-reads your whole context; a worker's steps read only its own small one, but the hand-off itself takes you two to five steps (writing the task, reading the evidence, finishing). Measured on real tasks at the same quality: a feature from a precise spec and tests to a coverage target cost 23-35% less handed off, in a fresh session and in one holding 233k tokens; lookups, traces, explanations and small edits cost more handed off, up to 3.6 times as much in a session that already knows the code.
 
 Outsource work that is fully specified and would take you many steps in this session, where only the result matters to you: implementing a feature from a precise spec, writing tests to a target, one change applied across many files.
 The "kind" you give decides the worker: read changes no file (find, list, trace, explain); mechanical changes files and the task spells out every change (a rename, one edit applied everywhere, moving code); build changes files and something is left to work out (a feature from a spec, tests to a target).
@@ -85,7 +91,7 @@ const INPUT_SCHEMA = {
       items: { type: 'string' },
       description: 'Symbols or places the task touches: "name", "path#name" or "path:line". The tool asks the language server where they are used.',
     },
-    check: { type: 'string', description: 'Edit mode: a shell command that proves the work (tests, a type check). Run by this tool after the worker finishes.' },
+    check: { type: 'string', description: "Edit mode: a shell command that proves the work, best the project's whole test suite (and its type check). Run by this tool after the worker finishes, with the worker's own new tests run on their own beside it." },
     fresh: { type: 'boolean', description: 'Start a new worker instead of continuing the warm one.' },
     background: {
       type: 'boolean',
@@ -140,7 +146,7 @@ export async function refusedStart($: Engine, deny: string): Promise<{ text: str
 /** The order attached to an approved plan: implement it through a hand-off. */
 export function planOrder(framing: 'hand_off' | 'capability'): string {
   const how = framing === 'capability' ? 'implement_spec' : 'the hand_off tool, kind build (kind mechanical when the plan spells out every change)'
-  return `The person approved this plan, and their setting for approved plans is: implement it through ${how}. The approved plan is the worker's spec: write it into the task so it stands alone, with a check command that proves it, wait for the report, check the evidence, then finish yourself.`
+  return `The person approved this plan, and their setting for approved plans is: implement it through ${how}. The approved plan is the worker's spec: write it into the task so it stands alone, with the project's whole test suite as the check. The tool checks the worker's work itself; when its result says Verified and the diff is what the plan asked for, report to the person without running anything again.`
 }
 
 type Input = { task: string; kind: Kind; mode: Mode; focus: string[]; check?: string; fresh: boolean; background: boolean; worker: string; effort?: string }
@@ -364,21 +370,25 @@ async function startWorker($: Engine, input: Input, prompt: string, description:
     warm.delete(warmKey(input))
     why = sent.reason
   }
-  const r = await $.agent.spawn({ prompt, subagentType: `delegate:${AGENT[kind]}`, description, model: input.worker })
+  // The session's folder, named: a worker whose shell started elsewhere once answered from another checkout on the disk.
+  const r = await $.agent.spawn({ prompt, subagentType: `delegate:${AGENT[kind]}`, description, model: input.worker, cwd: await $.session.cwd() })
   if (r.deny !== undefined || r.agentId === undefined) return { deny: r.deny ?? 'the worker did not start' }
   return { agentId: r.agentId, reused: false, why }
 }
 
 /** The worker's changes against the work tree it started from: what git sees, plus new untracked files. */
 async function gitDiff($: Engine, cwd: string, job: Job & { gitBase: string }): Promise<{ diff: string; files: string[] }> {
-  const run = (args: string[]) => $.process.run(['git', ...args], { cwd, timeoutMs: 15_000 }).then(r => r.stdout).catch(() => '')
+  // From the repository's root: run from a subfolder, ls-files saw only the untracked files below it, and a worker's
+  // new folder elsewhere in the repository was missing from the evidence.
+  const top = ((await $.process.run(['git', 'rev-parse', '--show-toplevel'], { cwd, timeoutMs: 5000 }).then(r => r.stdout, () => '')) || cwd).trim()
+  const run = (args: string[]) => $.process.run(['git', ...args], { cwd: top, timeoutMs: 15_000 }).then(r => r.stdout).catch(() => '')
   const tracked = await run(['diff', '--no-color', '-M', '-U2', job.gitBase])
   const names = (await run(['diff', '--name-only', '-M', job.gitBase])).split('\n').filter(Boolean)
   const before = new Set(job.untracked ?? [])
   const added = (await run(['ls-files', '--others', '--exclude-standard'])).split('\n').filter(f => f && !before.has(f))
   const fresh: string[] = []
   for (const f of added) fresh.push(await run(['diff', '--no-index', '--no-color', '-U2', '--', '/dev/null', f]))
-  return { diff: [tracked, ...fresh].join('').trimEnd(), files: [...names, ...added] }
+  return { diff: [tracked, ...fresh].join('').trimEnd(), files: [...names, ...added].map(f => rel(cwd, join(top, f))) }
 }
 
 /** The worker's changes as one unified diff, paths relative to the session's folder. */
@@ -471,12 +481,13 @@ async function start($: Engine, toolUseId: string, input: Input): Promise<{ text
   const started = await $.clock.now()
   const reach = await reachOf($, cwd, input.focus)
   const reachText = describeReach(reach)
-  const prompt = workerPrompt({ task: input.task, mode: input.mode, reach: reachText, check: input.check })
+  const prompt = workerPrompt({ task: input.task, mode: input.mode, reach: reachText, check: input.check, root: cwd })
   const description = input.task.trim().split('\n')[0]?.slice(0, 60) ?? 'hand-off'
   // The work tree as it is now, so the worker's changes can be told apart, however it makes them (Edit, sed, git mv).
   const stash = input.mode === 'edit' ? await git($, cwd, ['stash', 'create']) : undefined
   const gitBase = stash === undefined ? undefined : stash.trim() || (await git($, cwd, ['rev-parse', 'HEAD']))?.trim() || undefined
-  const untracked = gitBase === undefined ? undefined : ((await git($, cwd, ['ls-files', '--others', '--exclude-standard'])) ?? '').split('\n').filter(Boolean)
+  // Root-relative (--full-name, the whole repository), as gitDiff lists them.
+  const untracked = gitBase === undefined ? undefined : ((await git($, cwd, ['ls-files', '--others', '--exclude-standard', '--full-name', ':/'])) ?? '').split('\n').filter(Boolean)
   const worker = await startWorker($, input, prompt, description)
   if ('deny' in worker) return refusedStart($, worker.deny)
   handedOver.delete(worker.agentId)
@@ -534,7 +545,7 @@ async function deliver($: Engine, job: Job, reportBody: string): Promise<string>
   job.reported = true
   job.ended ??= await $.clock.now()
   if (job.done === undefined || job.done.reason === 'answer') warm.set(warmKey(job.input), { agentId: job.agentId, at: job.ended, requestTokens: job.lastContext })
-  const made = await report($, job).catch(err => ({ text: `The delegate mod could not gather the evidence: ${String(err)}`, record: undefined }))
+  const made = await report($, job, reportBody).catch(err => ({ text: `The delegate mod could not gather the evidence: ${String(err)}`, record: undefined }))
   const rec = made.record
   await setView($, job.toolUseId, () => ({
     state: 'reported',
@@ -561,6 +572,12 @@ export function failedText(n: number, agentId: string, why: string): string {
 export function dropsNotice(handed: ReadonlySet<string>, originKind: string | undefined, text: string): boolean {
   if (originKind === undefined || originKind === 'composer' || originKind === 'bridge' || originKind === 'sdk' || originKind === 'plugin') return false
   return [...handed].some(id => text.includes(id))
+}
+
+/** The second copy of a report the model already has. Inside a running turn (turnId set) it rides along as one line: no yellow row, no extra request; on its own it would start a turn, so it is dropped. */
+export function secondCopy(turnId: string | undefined): { drop: string } | { text: string } {
+  if (turnId === undefined) return { drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' }
+  return { text: 'delegate: the worker\'s report already reached Claude as the hand_off result.' }
 }
 
 /** Nobody waits on the worker (a background hand-off, or a held one past its limit) and its end brought no notice: report it from here. */
@@ -606,7 +623,7 @@ async function hold($: Engine, job: Job, signal: AbortSignal): Promise<string | 
 }
 
 /** The worker's notice arrived: the evidence to read beside its report. */
-async function report($: Engine, job: Job): Promise<{ text: string; record: HandOff }> {
+async function report($: Engine, job: Job, reportBody: string): Promise<{ text: string; record: HandOff }> {
   const cwd = await $.session.cwd()
   // The hand-back reaches the main model before the worker's turn has formally ended.
   const done = job.done ?? { answer: '', reason: 'answer' }
@@ -655,12 +672,27 @@ async function report($: Engine, job: Job): Promise<{ text: string; record: Hand
     Object.assign(record, { files, added: stat.added, removed: stat.removed })
     const check = job.input.check ? await runCheck($, job.input.check) : undefined
     if (check !== undefined && job.input.check !== undefined) record.check = { command: job.input.check, exit: check.exit }
+    const block = parseVerify(reportBody)
+    const tests = block?.tests ? await runCheck($, block.tests) : undefined
+    const checkCounts = check ? testCounts(check.tail) : undefined
+    const testsCounts = tests ? testCounts(tests.tail) : undefined
+    const v = verdict({
+      changed: files,
+      check: check ? { exit: check.exit, counts: checkCounts } : undefined,
+      tests: tests ? { exit: tests.exit, counts: testsCounts } : undefined,
+      // A worker that stopped on an error is not proven by tests that happen to pass.
+      open: [block?.open, done.reason === 'answer' ? undefined : `it did not finish cleanly (${done.reason})`].filter(Boolean).join('; ') || undefined,
+      block: block !== undefined,
+    })
+    record.verified = v.verified
+    parts.splice(1, 0, v.line)
     const outside = job.reach.flatMap(r => [...r.refs, ...r.callers]).filter(p => !files.includes(p.path))
     const fullPath = `${dir}/hand-off-${job.n}.diff`
     if (diff) await $.fs.write(fullPath, diff + '\n')
     const checkText = check ? `Check \`${job.input.check}\` (run by the tool): exit ${check.exit}\n${check.tail}` : 'No check command was given.'
     const outsideText = outside.length > 0 ? `References outside the changed files (does the change keep them right?): ${places(outside)}` : ''
-    const evidence = [diff ? `Diff:\n${diff}` : 'The worker changed no file.', checkText, outsideText].filter(Boolean).join('\n\n')
+    const testsText = tests && block?.tests ? `New tests \`${block.tests}\` (run by the tool): exit ${tests.exit}\n${tests.tail}` : ''
+    const evidence = [diff ? `Diff:\n${diff}` : 'The worker changed no file.', checkText, testsText, outsideText].filter(Boolean).join('\n\n')
     const route = diff ? reviewRoute(review, tokensOf(evidence), contextTokens) : 'inline'
     record.route = route
     for (const f of files) touched.set(join(cwd, f), record)
@@ -673,16 +705,31 @@ async function report($: Engine, job: Job): Promise<{ text: string; record: Hand
       record.verdict = parseVerdict(fork.text)
       parts.push(`Review of the full diff by a fork of you (${money(record.reviewUsd)}):\n${fork.text.trim()}\nFull diff: ${fullPath}`)
       parts.push(checkText)
+      if (testsText) parts.push(testsText)
     } else {
       record.route = 'inline'
       const shown = capLines(diff, DIFF_LINES)
       if (diff) parts.push(`${shown.text}${shown.cut > 0 ? `\n… ${shown.cut} more lines in ${fullPath}` : ''}`)
       parts.push(checkText)
+      if (testsText) parts.push(testsText)
       if (outsideText) parts.push(outsideText)
     }
-    parts.push('Judge the work by the diff and the check, not by the report.')
-  } else if (job.reachText) {
-    parts.push(`It was told where the task reaches:\n${job.reachText}`)
+    if (!v.verified) parts.push('Judge the work by the diff and the check, not by the report.')
+  } else {
+    const named = parsePlaces(reportBody)
+    const fileCache = new Map<string, string[] | undefined>()
+    for (const path of new Set((named ?? []).map(p => p.path))) {
+      fileCache.set(path, await $.fs.read(join(cwd, path)).then(t => String(t).split('\n'), () => undefined))
+    }
+    const lspFiles = job.reach.filter(r => r.via === 'lsp').flatMap(r => filesOf(r.refs))
+    const v = readVerdict({
+      places: (named ?? []).map(p => ({ ...p, result: checkPlace(fileCache.get(p.path), p.line, p.symbol) })),
+      block: named !== undefined,
+      serverFiles: lspFiles.length > 0 ? [...new Set(lspFiles)] : undefined,
+    })
+    record.verified = v.verified
+    parts.splice(1, 0, v.line)
+    if (job.reachText) parts.push(`It was told where the task reaches:\n${job.reachText}`)
   }
 
   records.push(record)
@@ -878,14 +925,18 @@ export const register: Register = (on, options) => {
   on('prompt.submit', async ($, e, next) => {
     const kind = e.origin?.kind
     if (kind === undefined || kind === 'composer' || kind === 'bridge' || kind === 'sdk' || kind === 'plugin') return next(e)
-    if (dropsNotice(handedOver, kind, e.text)) return { drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' }
+    if (dropsNotice(handedOver, kind, e.text)) {
+      const copy = secondCopy(e.turnId)
+      return 'drop' in copy ? { drop: copy.drop } : next({ ...e, text: copy.text })
+    }
     const job = [...jobs.values()].find(j => (!j.reported || (j.returned && j.handback === undefined)) && e.text.includes(j.agentId))
     if (job === undefined) return next(e)
     // Held in the tool call: the report goes back as its result, so the message itself does not enter.
     if (job.holding || job.returned) {
       job.handback = reportText(e.text)
       if (job.returned && job.done !== undefined) jobs.delete(job.agentId)
-      return { drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' }
+      const copy = secondCopy(e.turnId)
+      return 'drop' in copy ? { drop: copy.drop } : next({ ...e, text: copy.text })
     }
     if (job.done !== undefined) jobs.delete(job.agentId)
     const evidence = await deliver($, job, reportText(e.text))

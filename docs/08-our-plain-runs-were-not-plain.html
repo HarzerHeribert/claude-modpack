@@ -1,47 +1,89 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-mode="plain">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Our plain runs were not plain · Lab notes</title>
-<meta name="description" content="Lab notes 8 · 15 Oct 2026 · written by Claude from this repository's data">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Our plain runs were not plain · Lab notes 8 · claude-modpack</title>
+<meta name="description" content="Every comparison in these notes rests on one thing: knowing exactly what loaded in each run. On 15 October we found out that for a day and a half, in one condition, we had not known it. This note is a">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
 </head>
-<body>
-<header class="site">
-  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
-  <nav>
-    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
-    <a class="pdf" href="pdf/08-our-plain-runs-were-not-plain.pdf" download>Download PDF</a>
-  </nav>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html" aria-current="page"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
 </header>
-<main class="note">
-<h1 id="our-plain-runs-were-not-plain">Our plain runs were not plain</h1>
-<p><em>Lab notes 8 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html" aria-current="page"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+<article class="doc prose note">
+<p class="eyebrow mono"><a href="notes.html">lab notes</a> / 08</p>
+<h1>Our plain runs were not plain</h1>
+<p class="note-meta"><span>15 Oct 2026</span><span>4 min read</span><a class="btn sm" href="pdf/08-our-plain-runs-were-not-plain.pdf" download><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</a></p>
+<p class="byline small muted">written by Claude from this repository's data</p>
+<details class="toc-mobile"><summary>On this page</summary><ul class="toc-list"><li><a href="#the-good-news-that-wasnt">The good news that wasn't</a></li><li><a href="#what-had-happened">What had happened</a></li><li><a href="#the-opposite-mistake-the-same-day">The opposite mistake, the same day</a></li><li><a href="#what-we-changed">What we changed</a></li><li><a href="#what-we-keep-from-it">What we keep from it</a></li><li><a href="#method--limits">Method &amp; limits</a></li></ul></details>
 <p>Every comparison in these notes rests on one thing: knowing exactly what loaded in each run. On 15 October we found out that for a day and a half, in one condition, we had not known it. This note is about how that happened, how close it came to becoming a finding, and what we changed.</p>
-<h2 id="the-good-news-that-wasnt">The good news that wasn&#39;t</h2>
+<h2 id="the-good-news-that-wasnt"><a class="anchor" href="#the-good-news-that-wasnt" aria-hidden="true" tabindex="-1">#</a>The good news that wasn&#39;t</h2>
 <p>The bench names what loads in each condition. Our mods are listed in an environment variable; &quot;plain Claude Code&quot; is the same list, empty. That had worked for hundreds of runs.</p>
 <p>On the afternoon of the 15th we re-ran plain Claude Code on the click tasks, to compare the pack against today&#39;s version of Claude Code rather than the one from two days earlier. The result was striking: plain cost the same as the pack (+2.1% for the pack [−2.4%, +7.0%]). The feature task, which plain had needed 14.8 requests for, now took 9.2.</p>
 <p>There was a ready story: Claude Code had caught up. A new version, smarter defaults, the pack&#39;s advantage gone. It would have made a good note.</p>
 <p>Before writing it, we looked at what plain was doing differently, request by request. In the feature runs, plain Claude Code called <code>mcp__cells__run_cell</code> five times. That tool exists only in our cells mod.</p>
-<h2 id="what-had-happened">What had happened</h2>
+<h2 id="what-had-happened"><a class="anchor" href="#what-had-happened" aria-hidden="true" tabindex="-1">#</a>What had happened</h2>
 <p>On 14 October at 00:33, the person running this lab installed the released modpack from its marketplace, to use it day to day. From then on, every headless run that read that person&#39;s settings loaded the installed pack as well.</p>
 <ul>
 <li><strong>In the pack&#39;s conditions</strong> this did no harm. Where the lab&#39;s copy of a mod and the installed copy share a name, only the lab&#39;s copy runs. We checked this rather than assumed it: lsp-plus answered each grep exactly once, before the install and after.</li>
 <li><strong>In plain Claude Code&#39;s condition</strong>, nothing replaced the installed mods. &quot;Plain&quot; was the pack, version 0.4.0. The +2.1% was the pack measured against itself.</li>
 </ul>
-<h2 id="the-opposite-mistake-the-same-day">The opposite mistake, the same day</h2>
+<h2 id="the-opposite-mistake-the-same-day"><a class="anchor" href="#the-opposite-mistake-the-same-day" aria-hidden="true" tabindex="-1">#</a>The opposite mistake, the same day</h2>
 <p>Our other harness, for SWE-bench, avoids this problem by leaving the person&#39;s settings out entirely. That also left out the one thing every condition is meant to have: the official Python language server plugin, which the person&#39;s settings switch on. In the first 45 SWE attempts, lsp-plus had no server to ask and could never answer. We found it by asking the LSP tool directly under the harness&#39;s settings: <em>&quot;No LSP server is configured for .py files.&quot;</em></p>
 <p>A clean environment can remove what a condition needs, just as a dirty one can add what it must not have.</p>
-<h2 id="what-we-changed">What we changed</h2>
+<h2 id="what-we-changed"><a class="anchor" href="#what-we-changed" aria-hidden="true" tabindex="-1">#</a>What we changed</h2>
 <ul>
 <li>Every run of the click bench now switches the person&#39;s installed plugins off explicitly, whatever the condition, and every SWE run switches the official Python language server on explicitly.</li>
 <li>We checked the fix the way we caught the fault, by what loaded. A plain run shows no mod tools at all, and needed 14 requests for the feature, as plain did before the install.</li>
 <li>The contaminated runs are kept, labelled for what they were (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-v-1015-installedpack.jsonl"><code>results-v-1015-installedpack.jsonl</code></a>): the installed pack 0.4.0 against the lab&#39;s pack, the same thing measured twice, a few percent apart. The 45 SWE attempts without a language server are kept apart too.</li>
 </ul>
 <p>With plain Claude Code really plain, today&#39;s numbers are back where the release measured them, and in a long session larger:</p>
-<table>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
 <thead>
 <tr>
 <th>The pack against plain Claude Code, 15 Oct</th>
@@ -59,21 +101,26 @@
 <td><strong>−37.4%</strong></td>
 <td>−40.9% to −33.9%</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>&quot;Warm runs&quot; is the other thing a long session can hide. One of the 46 long runs started with 16k tokens in the cache instead of 220k, because its prepared session had been idle for more than an hour, and paid $1.91 to write the cache again for a five-request task. We report the warm runs and say so; the bench records each run&#39;s first cache read so that this can be checked.</p>
-<h2 id="what-we-keep-from-it">What we keep from it</h2>
+<h2 id="what-we-keep-from-it"><a class="anchor" href="#what-we-keep-from-it" aria-hidden="true" tabindex="-1">#</a>What we keep from it</h2>
 <ul>
 <li><strong>Name what loads, then check what loaded.</strong> The transcripts say which tools each run had. A five-line check would have caught this on the first run.</li>
 <li><strong>Distrust good news about the baseline as much as good news about yourself.</strong> &quot;The competition caught up&quot; was as tempting a story as &quot;our tool saves 40%&quot;, and it was wrong for a mundane reason.</li>
 <li><strong>A setting has two sides.</strong> Removing the person&#39;s settings removed a plugin the conditions needed. Every exclusion needs the same check as every inclusion.</li>
 </ul>
-<h2 id="method--limits">Method &amp; limits</h2>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
 <p>Click 8.5.0, Opus 5.5, headless Claude Code 2.1.299; plain condition re-run with the installed plugins switched off (four runs per task fresh, two in a long session prepared without any mods). Pack runs from the same day (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>). Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-v-1015.jsonl"><code>results-v-1015.jsonl</code></a>; the bench&#39;s switch is <code>neutral()</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
 
-<nav class="pager"><a class="prev" href="07-small-models-as-plumbing.html"><span>Previous</span>Small models as plumbing</a><a class="next" href="09-beyond-click.html"><span>Next</span>Beyond click</a></nav>
-</main>
-<footer class="site">
-  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+<nav class="pager" aria-label="Previous and next note"><a href="07-small-models-as-plumbing.html"><span>Previous</span><b>Small models as plumbing</b></a><a class="next" href="09-beyond-click.html"><span>Next</span><b>Beyond click</b></a></nav>
+</article>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#the-good-news-that-wasnt" data-for="the-good-news-that-wasnt">The good news that wasn&#39;t</a></li><li><a href="#what-had-happened" data-for="what-had-happened">What had happened</a></li><li><a href="#the-opposite-mistake-the-same-day" data-for="the-opposite-mistake-the-same-day">The opposite mistake, the same day</a></li><li><a href="#what-we-changed" data-for="what-we-changed">What we changed</a></li><li><a href="#what-we-keep-from-it" data-for="what-we-keep-from-it">What we keep from it</a></li><li><a href="#method--limits" data-for="method--limits">Method &amp; limits</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
 </footer>
+<div class="sl" aria-hidden="true" data-path="notes/08" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

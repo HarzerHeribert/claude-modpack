@@ -1,0 +1,84 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..e0535a2
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,78 @@
++import {
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++test("Test - parseNumberPattern with integer words", () => {
++    expect(parseNumberPattern("Tre")).toBe(3);
++});
++
++test("Test - parseNumberPattern with apostrophe form", () => {
++    expect(parseNumberPattern("un'")).toBe(1);
++});
++
++test("Test - parseNumberPattern with qualche", () => {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - parseNumberPattern with mezzo", () => {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern with paio", () => {
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - parseNumberPattern with alcuni", () => {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern with digits", () => {
++    expect(parseNumberPattern("2.5")).toBe(2.5);
++});
++
++test("Test - parseOrdinalNumberPattern with word", () => {
++    expect(parseOrdinalNumberPattern("Terzo")).toBe(3);
++});
++
++test("Test - parseOrdinalNumberPattern with numeric suffix", () => {
++    expect(parseOrdinalNumberPattern("32º")).toBe(32);
++});
++
++test("Test - parseYear with Buddhist Era", () => {
++    expect(parseYear("2560 BE")).toBe(2017);
++});
++
++test("Test - parseYear with BC", () => {
++    expect(parseYear("10 BC")).toBe(-10);
++});
++
++test("Test - parseYear with BCE", () => {
++    expect(parseYear("10 BCE")).toBe(-10);
++});
++
++test("Test - parseYear with AD", () => {
++    expect(parseYear("100 AD")).toBe(100);
++});
++
++test("Test - parseYear with CE", () => {
++    expect(parseYear("100 CE")).toBe(100);
++});
++
++test("Test - parseYear with two digits", () => {
++    expect(parseYear("99")).toBe(1999);
++});
++
++test("Test - parseDuration with multiple units", () => {
++    expect(parseDuration("2 ore e 3 minuti")).toEqual({ hour: 2, minute: 3 });
++});
++
++test("Test - parseDuration with no match", () => {
++    expect(parseDuration("niente")).toBeNull();
++});
++
++test("Test - parseDuration ignores letter-only matches", () => {
++    expect(parseDuration("unora")).toBeNull();
++});

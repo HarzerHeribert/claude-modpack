@@ -1,0 +1,86 @@
+diff --git a/src/locales/ar/constants.ts b/src/locales/ar/constants.ts
+index 0053863..ada9035 100644
+--- a/src/locales/ar/constants.ts
++++ b/src/locales/ar/constants.ts
+@@ -339,7 +339,7 @@ export const TIME_UNIT_CONNECTOR_PATTERN = `\\s{0,5},?(?:\\s*و)?\\s{0,5}`;
+ export const TIME_UNITS_PATTERN = repeatedTimeunitPattern(
+     `(?:(?:خلال|في غضون|في خلال|حوالي|تقريباً|تقريبا)\\s{0,3})?`,
+     SINGLE_TIME_UNIT_PATTERN,
+-    TIME_UNIT_CONNECTOR_PATTERN
++    { connector: TIME_UNIT_CONNECTOR_PATTERN }
+ );
+ 
+ export function parseDuration(timeunitText: string): Duration {
+diff --git a/src/locales/en/constants.ts b/src/locales/en/constants.ts
+index 29fb188..00ff7c5 100644
+--- a/src/locales/en/constants.ts
++++ b/src/locales/en/constants.ts
+@@ -265,15 +265,13 @@ const SINGLE_TIME_UNIT_NO_ABBR_PATTERN = `(${NUMBER_PATTERN})\\s{0,3}(${matchAny
+ 
+ const TIME_UNIT_CONNECTOR_PATTERN = `\\s{0,5},?(?:\\s*and)?\\s{0,5}`;
+ 
+-export const TIME_UNITS_PATTERN = repeatedTimeunitPattern(
+-    `(?:(?:about|around)\\s{0,3})?`,
+-    SINGLE_TIME_UNIT_PATTERN,
+-    TIME_UNIT_CONNECTOR_PATTERN
+-);
++export const TIME_UNITS_PATTERN = repeatedTimeunitPattern(`(?:(?:about|around)\\s{0,3})?`, SINGLE_TIME_UNIT_PATTERN, {
++    connector: TIME_UNIT_CONNECTOR_PATTERN,
++});
+ export const TIME_UNITS_NO_ABBR_PATTERN = repeatedTimeunitPattern(
+     `(?:(?:about|around)\\s{0,3})?`,
+     SINGLE_TIME_UNIT_NO_ABBR_PATTERN,
+-    TIME_UNIT_CONNECTOR_PATTERN
++    { connector: TIME_UNIT_CONNECTOR_PATTERN }
+ );
+ 
+ export function parseDuration(timeunitText): null | Duration {
+diff --git a/src/locales/id/constants.ts b/src/locales/id/constants.ts
+index f8e2616..263b557 100644
+--- a/src/locales/id/constants.ts
++++ b/src/locales/id/constants.ts
+@@ -130,7 +130,9 @@ export function parseYear(match: string): number {
+ const SINGLE_TIME_UNIT_PATTERN = `(?:(${NUMBER_PATTERN})\\s{0,5}|se)(${matchAnyPattern(TIME_UNIT_DICTIONARY)})\\s{0,5}`;
+ const SINGLE_TIME_UNIT_REGEX = new RegExp(SINGLE_TIME_UNIT_PATTERN, "i");
+ 
+-export const TIME_UNITS_PATTERN = repeatedTimeunitPattern("", SINGLE_TIME_UNIT_PATTERN, "\\s{0,5}(?:,|dan)?\\s{0,5}");
++export const TIME_UNITS_PATTERN = repeatedTimeunitPattern("", SINGLE_TIME_UNIT_PATTERN, {
++    connector: "\\s{0,5}(?:,|dan)?\\s{0,5}",
++});
+ 
+ export function parseDuration(timeunitText: string): Duration {
+     const fragments: { [key: string]: number } = {};
+diff --git a/src/locales/it/constants.ts b/src/locales/it/constants.ts
+index 58deb79..56efed2 100644
+--- a/src/locales/it/constants.ts
++++ b/src/locales/it/constants.ts
+@@ -347,12 +347,12 @@ const TIME_UNIT_CONNECTOR_PATTERN = `\\s{0,5},?(?:\\s*e)?\\s{0,5}`;
+ export const TIME_UNITS_PATTERN = repeatedTimeunitPattern(
+     `(?:(?:circa|approssimativamente)\\s{0,3})?`,
+     SINGLE_TIME_UNIT_PATTERN,
+-    TIME_UNIT_CONNECTOR_PATTERN
++    { connector: TIME_UNIT_CONNECTOR_PATTERN }
+ );
+ export const TIME_UNITS_NO_ABBR_PATTERN = repeatedTimeunitPattern(
+     `(?:(?:circa|approssimativamente)\\s{0,3})?`,
+     SINGLE_TIME_UNIT_NO_ABBR_PATTERN,
+-    TIME_UNIT_CONNECTOR_PATTERN
++    { connector: TIME_UNIT_CONNECTOR_PATTERN }
+ );
+ 
+ export function parseDuration(timeunitText): null | Duration {
+diff --git a/src/utils/pattern.ts b/src/utils/pattern.ts
+index 4a1e587..9bdc84e 100644
+--- a/src/utils/pattern.ts
++++ b/src/utils/pattern.ts
+@@ -3,8 +3,9 @@ type DictionaryLike = string[] | { [word: string]: unknown } | Map<string, unkno
+ export function repeatedTimeunitPattern(
+     prefix: string,
+     singleTimeunitPattern: string,
+-    connectorPattern = "\\s{0,5},?\\s{0,5}"
++    options: { connector?: string } = {}
+ ): string {
++    const { connector: connectorPattern = "\\s{0,5},?\\s{0,5}" } = options;
+     const singleTimeunitPatternNoCapture = singleTimeunitPattern.replace(/\((?!\?)/g, "(?:");
+     return `${prefix}${singleTimeunitPatternNoCapture}(?:${connectorPattern}${singleTimeunitPatternNoCapture}){0,10}`;
+ }

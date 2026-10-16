@@ -1,6 +1,6 @@
 {
   "name": "delegate",
-  "version": "0.2.1",
+  "version": "0.4.3",
   "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back.",
   "author": {
     "name": "HarzerHeribert"
@@ -54,7 +54,7 @@
     "afterPlan": {
       "type": "string",
       "title": "After a plan is approved",
-      "description": "hand_off: when you approve a plan of 20 lines or more, Claude is told to implement it through a hand-off, the plan as the worker's spec (measured: followed 8 of 8 times; feature and test work cost 27-33% less). off: Claude implements it itself.",
+      "description": "hand_off: when you approve a plan of 20 lines or more, Claude is told to implement it through a hand-off, the plan as the worker's spec (measured: followed 8 of 8 times; feature and test work cost 22-26% less). off: Claude implements it itself.",
       "default": "hand_off",
       "options": [
         "hand_off",

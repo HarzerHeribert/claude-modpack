@@ -1,33 +1,75 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-mode="plain">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The cheapest step is the one Claude never takes · Lab notes</title>
-<meta name="description" content="Lab notes 1 · 15 Oct 2026 · written by Claude from this repository's data">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The cheapest step is the one Claude never takes · Lab notes 1 · claude-modpack</title>
+<meta name="description" content="Ask most people what makes a Claude Code session expensive and they will say tokens: big files, long answers, a chatty model. That is true, but it points at the wrong lever. Our first useful result wa">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
 </head>
-<body>
-<header class="site">
-  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
-  <nav>
-    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
-    <a class="pdf" href="pdf/01-the-cheapest-step.pdf" download>Download PDF</a>
-  </nav>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html" aria-current="page"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
 </header>
-<main class="note">
-<h1 id="the-cheapest-step-is-the-one-claude-never-takes">The cheapest step is the one Claude never takes</h1>
-<p><em>Lab notes 1 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html" aria-current="page"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+<article class="doc prose note">
+<p class="eyebrow mono"><a href="notes.html">lab notes</a> / 01</p>
+<h1>The cheapest step is the one Claude never takes</h1>
+<p class="note-meta"><span>15 Oct 2026</span><span>4 min read</span><a class="btn sm" href="pdf/01-the-cheapest-step.pdf" download><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</a></p>
+<p class="byline small muted">written by Claude from this repository's data</p>
+<details class="toc-mobile"><summary>On this page</summary><ul class="toc-list"><li><a href="#every-step-re-reads-everything">Every step re-reads everything</a></li><li><a href="#what-the-pack-actually-saves">What the pack actually saves</a></li><li><a href="#which-mod-does-it">Which mod does it</a></li><li><a href="#the-quick-question-tax">The quick-question tax</a></li><li><a href="#the-biggest-saving-was-not-a-mod">The biggest saving was not a mod</a></li><li><a href="#what-this-changed">What this changed</a></li><li><a href="#method--limits">Method &amp; limits</a></li><li><a href="#sources">Sources</a></li></ul></details>
 <p>Ask most people what makes a Claude Code session expensive and they will say tokens: big files, long answers, a chatty model. That is true, but it points at the wrong lever. Our first useful result was learning where the money actually goes.</p>
-<h2 id="every-step-re-reads-everything">Every step re-reads everything</h2>
+<h2 id="every-step-re-reads-everything"><a class="anchor" href="#every-step-re-reads-everything" aria-hidden="true" tabindex="-1">#</a>Every step re-reads everything</h2>
 <p>A Claude Code session is a loop. Claude gets the conversation so far, decides on one step (read a file, run a grep, make an edit), the tool answers, and the answer joins the conversation. Then the whole conversation goes back to the model for the next step.</p>
 <p>The whole conversation, every time. Prompt caching makes the re-read cheap per token: a cached token costs $0.20 per million instead of $4 on Opus 5.5. It does not make it free, and it multiplies. In a session holding 220,000 tokens, every step costs about $0.044 before Claude has thought about anything. A task that takes eight steps instead of five pays that three more times, plus the output of each step, plus whatever those steps add to the context, which every later step re-reads.</p>
 <p>So the unit of cost is the <strong>request</strong>: a step of the main model. That shaped everything else. A mod that makes each tool answer 10% shorter saves a little. A mod that removes a step saves a whole re-read of everything.</p>
-<h2 id="what-the-pack-actually-saves">What the pack actually saves</h2>
+<h2 id="what-the-pack-actually-saves"><a class="anchor" href="#what-the-pack-actually-saves" aria-hidden="true" tabindex="-1">#</a>What the pack actually saves</h2>
 <p>The pack&#39;s first measurements came out exactly along that line (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#results">SUITE.md</a>). Tokens per request barely moved. Requests did: 5.2 per task with the pack against 7.2 without, on the same seven tasks, every run graded correct.</p>
 <p>The release measurement of version 0.3.0, 116 runs, put numbers on it (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-pack-as-it-ships-in-030-v-z-vl-pl">SUITE.md</a>):</p>
-<table>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
 <thead>
 <tr>
 <th></th>
@@ -50,37 +92,42 @@
 <td><strong>+5.5%</strong></td>
 <td>+1.2% to +10.2%</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>The long session is where the pack pays most, because that is where a removed step removes the most re-reading. In a long session Claude needed 3.5 requests per task with the pack instead of 5.4.</p>
-<h2 id="which-mod-does-it">Which mod does it</h2>
+<h2 id="which-mod-does-it"><a class="anchor" href="#which-mod-does-it" aria-hidden="true" tabindex="-1">#</a>Which mod does it</h2>
 <p>An ablation takes one mod out at a time and measures what is lost (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#which-mod-earns-it-the-ablation-z">SUITE.md</a>). The answer was not the mod we expected.</p>
 <ul>
 <li><strong>cells</strong> lets Claude make several edits and run the tests in one step, through Claude Code&#39;s own edit tool. Taking it out made the pack 8.9% more expensive [+2.1%, +16.4%], and 16% on multi-step work. The feature task took 14.2 requests without it instead of 9.8.</li>
 <li><strong>lsp-plus</strong>, which answers code searches from the language server, showed no net effect on the whole (−0.6% [−7.2%, +6.7%]). On the one task where it fires most, a rename, the pack without it needed 5.0 requests instead of 3.2. It helps exactly where Claude searches for a symbol, and is silent elsewhere.</li>
 </ul>
-<h2 id="the-quick-question-tax">The quick-question tax</h2>
+<h2 id="the-quick-question-tax"><a class="anchor" href="#the-quick-question-tax" aria-hidden="true" tabindex="-1">#</a>The quick-question tax</h2>
 <p>The +5.5% on quick questions is the other side of the same arithmetic. The pack&#39;s tools, their descriptions and its guidance are about 4,000 tokens: 30.6k in the first request of a session instead of 26.7k. Cached, that is about $0.001 per request. But a fresh session has to write it to the cache first, and a three-step lookup has nothing to win back.</p>
 <p>We could have hidden this in an average. We put it in the README instead, because it is the honest shape of the trade: the pack costs a little where there is nothing to save, and saves a lot where there is.</p>
 <p>Then it did not replicate. Measured again two days later with the next version of the pack (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>), quick questions cost <strong>3.6% less</strong> [−8.2%, +1.3%], and on a TypeScript library 9.9% less (<a href="09-beyond-click.html">note 9</a>). Both days pooled: +2.3% [−1.1%, +6.0%], an interval across zero. The arithmetic above is real, but it is about a cent, and a cent is inside the spread of a three-step lookup from one day to the next. The README now says &quot;about even&quot;. The long session replicated in the other direction: −39.9% on the second day, −33.2% [−38.9%, −26.9%] pooled.</p>
-<h2 id="the-biggest-saving-was-not-a-mod">The biggest saving was not a mod</h2>
+<h2 id="the-biggest-saving-was-not-a-mod"><a class="anchor" href="#the-biggest-saving-was-not-a-mod" aria-hidden="true" tabindex="-1">#</a>The biggest saving was not a mod</h2>
 <p>While measuring that tax, we found a bigger one we were paying without knowing it. The person running this lab had six claude.ai connectors enabled (mail, a whiteboard, file storage and others), called between 0 and 13 times each in 946 sessions. Turning them off took the deferred tools offered to every session from 378 to 15, about 6,000 tokens of names and instructions, and cut the cost of the four quick tasks by 34%, with the same number of requests (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#unused-connectors">SUITE.md</a>). That is more than any mod in this pack saves on small work. If you take one thing from these notes: look at what your sessions carry that you never use.</p>
-<h2 id="what-this-changed">What this changed</h2>
+<h2 id="what-this-changed"><a class="anchor" href="#what-this-changed" aria-hidden="true" tabindex="-1">#</a>What this changed</h2>
 <ul>
 <li>We count requests first, tokens second. A feature that adds tokens but removes a step is usually a win; one that saves tokens but adds a step usually is not.</li>
 <li>We measure in long sessions, not only fresh ones. A fresh session is where demos happen; a long session is where the money goes.</li>
 <li>A mod has to pay for its own prompt. Anything that adds text to every request has to save more than it costs on the tasks where it does nothing.</li>
 </ul>
-<h2 id="method--limits">Method &amp; limits</h2>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
 <p>Click 8.5.0, Opus 5.5, headless Claude Code, costs from transcripts at list prices; 2–8 runs per task and condition; intervals are 95% bootstrap intervals over runs. The connector measurement compared runs from different hours, so the cache&#39;s state may differ a little; the size of the effect is not in doubt. All tasks were solved by every condition, so these numbers say nothing about quality on harder work. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-030.jsonl"><code>results-030.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ablation.jsonl"><code>results-ablation.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-noconn.jsonl"><code>results-noconn.jsonl</code></a>; harness: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
-<h2 id="sources">Sources</h2>
+<h2 id="sources"><a class="anchor" href="#sources" aria-hidden="true" tabindex="-1">#</a>Sources</h2>
 <ul>
 <li>Anthropic, <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Prompt caching</a>: how cached prompt prefixes are written and read, and what each costs.</li>
 </ul>
 
-<nav class="pager"><span></span><a class="next" href="02-notes-nobody-reads.html"><span>Next</span>Notes nobody reads</a></nav>
-</main>
-<footer class="site">
-  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+<nav class="pager" aria-label="Previous and next note"><a href="notes.html"><span>Back</span><b>The series</b></a><a class="next" href="02-notes-nobody-reads.html"><span>Next</span><b>Notes nobody reads</b></a></nav>
+</article>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#every-step-re-reads-everything" data-for="every-step-re-reads-everything">Every step re-reads everything</a></li><li><a href="#what-the-pack-actually-saves" data-for="what-the-pack-actually-saves">What the pack actually saves</a></li><li><a href="#which-mod-does-it" data-for="which-mod-does-it">Which mod does it</a></li><li><a href="#the-quick-question-tax" data-for="the-quick-question-tax">The quick-question tax</a></li><li><a href="#the-biggest-saving-was-not-a-mod" data-for="the-biggest-saving-was-not-a-mod">The biggest saving was not a mod</a></li><li><a href="#what-this-changed" data-for="what-this-changed">What this changed</a></li><li><a href="#method--limits" data-for="method--limits">Method &amp; limits</a></li><li><a href="#sources" data-for="sources">Sources</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
 </footer>
+<div class="sl" aria-hidden="true" data-path="notes/01" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

@@ -1,0 +1,212 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..87cb6e3
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,206 @@
++import {
++    FULL_MONTH_NAME_DICTIONARY,
++    MONTH_DICTIONARY,
++    ORDINAL_NUMBER_PATTERN,
++    TIME_UNIT_DICTIONARY,
++    WEEKDAY_DICTIONARY,
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++//-----------------------------
++// Dictionaries
++
++test("Test - Weekday dictionary - accented and unaccented names", () => {
++    expect(WEEKDAY_DICTIONARY["lunedì"]).toBe(1);
++    expect(WEEKDAY_DICTIONARY["lunedi"]).toBe(1);
++    expect(WEEKDAY_DICTIONARY["sab."]).toBe(6);
++});
++
++test("Test - Month dictionary - includes full month names", () => {
++    expect(MONTH_DICTIONARY["dicembre"]).toBe(FULL_MONTH_NAME_DICTIONARY["dicembre"]);
++    expect(MONTH_DICTIONARY["sett."]).toBe(9);
++});
++
++test("Test - Time unit dictionary - includes abbreviations", () => {
++    expect(TIME_UNIT_DICTIONARY["gg"]).toBe("day");
++    expect(TIME_UNIT_DICTIONARY["trim"]).toBe("quarter");
++    expect(TIME_UNIT_DICTIONARY["anni"]).toBe("year");
++});
++
++//-----------------------------
++// parseNumberPattern
++
++test("Test - parseNumberPattern - integer word", () => {
++    expect(parseNumberPattern("tre")).toBe(3);
++});
++
++test("Test - parseNumberPattern - uppercase integer word", () => {
++    expect(parseNumberPattern("Dodici")).toBe(12);
++});
++
++test("Test - parseNumberPattern - elided article", () => {
++    expect(parseNumberPattern("un'")).toBe(1);
++});
++
++test("Test - parseNumberPattern - uppercase elided article", () => {
++    expect(parseNumberPattern("UN'")).toBe(1);
++});
++
++test("Test - parseNumberPattern - qualche", () => {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - parseNumberPattern - mezzo", () => {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern - mezza", () => {
++    expect(parseNumberPattern("mezza")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern - paio di", () => {
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - parseNumberPattern - alcuni", () => {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern - digits", () => {
++    expect(parseNumberPattern("15")).toBe(15);
++});
++
++test("Test - parseNumberPattern - decimal", () => {
++    expect(parseNumberPattern("2.5")).toBe(2.5);
++});
++
++//-----------------------------
++// parseOrdinalNumberPattern
++
++test("Test - parseOrdinalNumberPattern - masculine word", () => {
++    expect(parseOrdinalNumberPattern("primo")).toBe(1);
++});
++
++test("Test - parseOrdinalNumberPattern - uppercase feminine word", () => {
++    expect(parseOrdinalNumberPattern("Ventunesima")).toBe(21);
++});
++
++test("Test - parseOrdinalNumberPattern - degree sign suffix", () => {
++    expect(parseOrdinalNumberPattern("15°")).toBe(15);
++});
++
++test("Test - parseOrdinalNumberPattern - feminine ordinal indicator suffix", () => {
++    expect(parseOrdinalNumberPattern("3ª")).toBe(3);
++});
++
++test("Test - parseOrdinalNumberPattern - masculine ordinal indicator suffix", () => {
++    expect(parseOrdinalNumberPattern("7º")).toBe(7);
++});
++
++test("Test - parseOrdinalNumberPattern - plain digits", () => {
++    expect(parseOrdinalNumberPattern("28")).toBe(28);
++});
++
++test("Test - ORDINAL_NUMBER_PATTERN - matches masculine ordinal indicator", () => {
++    const match = new RegExp(ORDINAL_NUMBER_PATTERN).exec("il 7º giorno");
++    expect(match).not.toBeNull();
++    expect(match.index).toBe(3);
++    expect(match[0]).toBe("7º");
++});
++
++//-----------------------------
++// parseYear
++
++test("Test - parseYear - Buddhist Era", () => {
++    expect(parseYear("2555 BE")).toBe(2012);
++});
++
++test("Test - parseYear - Buddhist Era without space", () => {
++    expect(parseYear("2555be")).toBe(2012);
++});
++
++test("Test - parseYear - Before Christ", () => {
++    expect(parseYear("500 BC")).toBe(-500);
++});
++
++test("Test - parseYear - Before Common Era", () => {
++    expect(parseYear("500 BCE")).toBe(-500);
++});
++
++test("Test - parseYear - Anno Domini", () => {
++    expect(parseYear("2012 AD")).toBe(2012);
++});
++
++test("Test - parseYear - Common Era", () => {
++    expect(parseYear("2012 CE")).toBe(2012);
++});
++
++test("Test - parseYear - full year", () => {
++    expect(parseYear("1997")).toBe(1997);
++});
++
++test("Test - parseYear - two digits in the 1900s", () => {
++    expect(parseYear("97")).toBe(1997);
++});
++
++test("Test - parseYear - two digits in the 2000s", () => {
++    expect(parseYear("12")).toBe(2012);
++});
++
++//-----------------------------
++// parseDuration
++
++test("Test - parseDuration - single unit", () => {
++    expect(parseDuration("5 giorni")).toStrictEqual({ day: 5 });
++});
++
++test("Test - parseDuration - abbreviated unit", () => {
++    expect(parseDuration("2h")).toStrictEqual({ hour: 2 });
++});
++
++test("Test - parseDuration - uppercase words", () => {
++    expect(parseDuration("DUE ORE")).toStrictEqual({ hour: 2 });
++});
++
++test("Test - parseDuration - multiple units", () => {
++    expect(parseDuration("2 ore e 30 minuti")).toStrictEqual({ hour: 2, minute: 30 });
++});
++
++test("Test - parseDuration - decimal number", () => {
++    expect(parseDuration("1.5 ore")).toStrictEqual({ hour: 1.5 });
++});
++
++test("Test - parseDuration - elided article", () => {
++    expect(parseDuration("un'ora")).toStrictEqual({ hour: 1 });
++});
++
++test("Test - parseDuration - mezzo", () => {
++    expect(parseDuration("mezzo minuto")).toStrictEqual({ minute: 0.5 });
++});
++
++test("Test - parseDuration - qualche", () => {
++    expect(parseDuration("qualche giorno")).toStrictEqual({ day: 3 });
++});
++
++test("Test - parseDuration - paio di", () => {
++    expect(parseDuration("paio di settimane")).toStrictEqual({ week: 2 });
++});
++
++test("Test - parseDuration - alcuni", () => {
++    expect(parseDuration("alcuni mesi")).toStrictEqual({ month: 7 });
++});
++
++test("Test - parseDuration - quarter", () => {
++    expect(parseDuration("3 trimestri")).toStrictEqual({ quarter: 3 });
++});
++
++test("Test - parseDuration - no time unit", () => {
++    expect(parseDuration("niente")).toBeNull();
++});
++
++test("Test - parseDuration - word number glued to unit is ignored", () => {
++    expect(parseDuration("dueore")).toBeNull();
++});

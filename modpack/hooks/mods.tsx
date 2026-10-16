@@ -19,7 +19,8 @@ export const MODS = [
   ['lsp-plus', 'the language server\'s answers for greps, docs in references'],
   ['cells', 'several edits and their check in one step'],
   ['eta', 'a percentage and finish time for long-running jobs'],
-  ['route', 'sends feature and test work to delegate\'s worker (ScaleDown; off until you turn it on)'],
+  ['seek', 'has Claude look around your code in few, lean steps'],
+  ['route', 'sends feature and test work to delegate\'s worker (Jev or ScaleDown; off until you turn it on)'],
 ] as const
 
 export type ModRow = {

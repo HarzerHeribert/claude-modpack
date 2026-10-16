@@ -35,7 +35,7 @@
 
 **Opus does not delegate by itself.** In B, C and G it handed off 0 times in 24 runs, even on the 15-request feature task, and even after the tool's description stated the measured savings. Outsourcing has to be decided by a rule or by the person, not left to Opus.
 
-**When it does delegate, cost depends on the size of the task and of the session.** "@600k" is the same run in a session already holding 600k tokens: every main request (and every forked review) re-reads them, at $0.20/M from the cache. This is a projection, and it proved too kind: measured in a 233k-token session (SUITE.md, *The hand-off in a long session*), the feature and the tests saved what they save fresh (−37%, −27%), and everything else cost more, because a session that knows the code needs far fewer steps.
+**When it does delegate, cost depends on the size of the task and of the session.** "@600k" is the same run in a session already holding 600k tokens: every main request (and every forked review) re-reads them, at $0.20/M from the cache. This is a projection, and it proved too kind: measured in a 233k-token session (SUITE.md, *The hand-off in a long session*), the feature and the tests saved what they save fresh (−35%, −23%; −37% and −27% before worker costs were corrected on 16 Oct, see CORRECTION-1016.md), and everything else cost more, because a session that knows the code needs far fewer steps.
 
 | Task | A: alone | best hand-off | change | A @600k | hand-off @600k | change |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -51,7 +51,7 @@
 - **Where it doesn't.** On lookups and tracing it saves nothing in a fresh session; in a long session it saves 10–18%. Opus tends to re-check an explore report it cannot verify cheaply. In one D run it redid the whole trace itself.
 - **How the hand-off waits matters.** With the report arriving as a message (D, E), Opus spent 4–8 requests per hand-off. Waiting inside the tool call (F, I) brought that down to 3–5.
 - **Forked reviews are expensive.** A fork read only the system prompt and tools from the cache and paid the conversation again: 18,446 tokens uncached against 14,680 from cache, at a 32k context. That makes it $0.03–0.38 per review in these small sessions, and about $2 at 600k. Reviewing inline is now the default.
-- **Sonnet vs Haiku as the worker.** Sonnet did the long tasks in fewer requests (5.5–7.5 vs 13.5–15) and less time (91 s vs 139 s on the feature), at about 5–10 times the worker cost; either way the worker is a small part of the total. Given the choice in I, Opus sent the rename to Haiku and the feature and tests to Sonnet.
+- **Sonnet vs Haiku as the worker.** Sonnet did the long tasks in fewer requests (5.5–7.5 vs 13.5–15) and less time (91 s vs 139 s on the feature), at about 5–10 times the worker cost; either way the worker is the smaller part of the total (corrected 16 Oct: the worker column here is from the transcripts, which record a worker's output as each response began; counted in full, a Sonnet worker came to 15–23% of a run's cost; the totals are Claude Code's own and stand). Given the choice in I, Opus sent the rename to Haiku and the feature and tests to Sonnet.
 
 **LSP.** In all runs neither Opus nor any worker called the LSP tool; they used grep, and once an AST script. The language server answered only delegate's own blast-radius step. With the nudge (N), 8 notes named the exact LSP call and Opus followed none. Quality held, and the cost did not rise.
 

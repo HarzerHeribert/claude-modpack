@@ -1,0 +1,263 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..05f05cb
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,257 @@
++import * as chrono from "../../src";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++import {
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++// --------------------------------------------------
++// Number words in time unit expressions (parseNumberPattern)
++// --------------------------------------------------
++
++test("Test - Elided 'un'' number word", function () {
++    testSingleCase(chrono.it, "Ho chiamato un'ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(12);
++        expect(result.text).toBe("un'ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 0));
++    });
++});
++
++test("Test - Elided 'Un'' number word with uppercase", function () {
++    testSingleCase(chrono.it, "Un'ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("Un'ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 0));
++    });
++});
++
++test("Test - Elided 'un'' number word within", function () {
++    testSingleCase(chrono.it, "Ci vediamo tra un'ora", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(11);
++        expect(result.text).toBe("tra un'ora");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 13, 0));
++    });
++});
++
++test("Test - 'qualche' number word (minutes ago)", function () {
++    testSingleCase(chrono.it, "qualche minuto fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("qualche minuto fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 57));
++    });
++});
++
++test("Test - 'qualche' number word (days ago)", function () {
++    testSingleCase(chrono.it, "L'ho visto qualche giorno fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(11);
++        expect(result.text).toBe("qualche giorno fa");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(7);
++    });
++});
++
++test("Test - 'qualche' number word within", function () {
++    testSingleCase(chrono.it, "tra qualche giorno", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("tra qualche giorno");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(13);
++    });
++});
++
++test("Test - 'mezza' number word", function () {
++    testSingleCase(chrono.it, "mezza ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("mezza ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 30));
++    });
++});
++
++test("Test - 'mezzo' number word", function () {
++    testSingleCase(chrono.it, "mezzo minuto fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("mezzo minuto fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 59, 30));
++    });
++});
++
++test("Test - 'mezz' number word within", function () {
++    testSingleCase(chrono.it, "tra mezz ora", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("tra mezz ora");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 12, 30));
++    });
++});
++
++test("Test - 'paio di' number word", function () {
++    testSingleCase(chrono.it, "paio di giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("paio di giorni fa");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(8);
++    });
++});
++
++test("Test - 'un paio di' number word", function () {
++    testSingleCase(chrono.it, "un paio di giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(8);
++    });
++});
++
++test("Test - 'alcuni' number word (days ago)", function () {
++    testSingleCase(chrono.it, "alcuni giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("alcuni giorni fa");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(3);
++    });
++});
++
++test("Test - 'alcuni' number word within", function () {
++    testSingleCase(chrono.it, "tra alcuni minuti", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("tra alcuni minuti");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 12, 7));
++    });
++});
++
++test("Test - Mixed number words in multiple time units", function () {
++    testSingleCase(chrono.it, "2 giorni e mezzo minuto fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.text).toBe("2 giorni e mezzo minuto fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 8, 11, 59, 30));
++    });
++});
++
++test("Test - Time unit glued to a number word is not a duration", function () {
++    testUnexpectedResult(chrono.it, "unora fa", new Date(2012, 7, 10, 12, 0));
++});
++
++// --------------------------------------------------
++// Year suffixes (parseYear)
++// --------------------------------------------------
++
++test("Test - Buddhist Era year (BE) with little endian date", function () {
++    testSingleCase(chrono.it, "10 agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Buddhist Era year (BE) with month name only", function () {
++    testSingleCase(chrono.it, "agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(1);
++    });
++});
++
++test("Test - Before Christ year (BC)", function () {
++    testSingleCase(chrono.it, "10 agosto 500 BC", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 500 BC");
++        expect(result.start.get("year")).toBe(-500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Before Common Era year (BCE)", function () {
++    testSingleCase(chrono.it, "10 agosto 500 BCE", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("10 agosto 500 BCE");
++        expect(result.start.get("year")).toBe(-500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Before Christ year (BC) with middle endian date", function () {
++    testSingleCase(chrono.it, "agosto 10, 500 BC", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("agosto 10, 500 BC");
++        expect(result.start.get("year")).toBe(-500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Anno Domini year (AD)", function () {
++    testSingleCase(chrono.it, "Nato 10 agosto 2012 AD", new Date(2010, 0, 1), (result) => {
++        expect(result.index).toBe(5);
++        expect(result.text).toBe("10 agosto 2012 AD");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Common Era year (CE)", function () {
++    testSingleCase(chrono.it, "10 agosto 2012 CE", new Date(2010, 0, 1), (result) => {
++        expect(result.text).toBe("10 agosto 2012 CE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++// --------------------------------------------------
++// Direct unit tests of the exported helpers
++// --------------------------------------------------
++
++test("Test - parseNumberPattern with dictionary words", function () {
++    expect(parseNumberPattern("due")).toBe(2);
++    expect(parseNumberPattern("Dodici")).toBe(12);
++    expect(parseNumberPattern("una")).toBe(1);
++});
++
++test("Test - parseNumberPattern with elided 'un''", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++    expect(parseNumberPattern("UN'")).toBe(1);
++});
++
++test("Test - parseNumberPattern with vague quantity words", function () {
++    expect(parseNumberPattern("qualche")).toBe(3);
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++    expect(parseNumberPattern("mezza ")).toBe(0.5);
++    expect(parseNumberPattern("paio di")).toBe(2);
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern with digits", function () {
++    expect(parseNumberPattern("5")).toBe(5);
++    expect(parseNumberPattern("1.5")).toBe(1.5);
++});
++
++test("Test - parseOrdinalNumberPattern", function () {
++    expect(parseOrdinalNumberPattern("primo")).toBe(1);
++    expect(parseOrdinalNumberPattern("Trentunesima")).toBe(31);
++    expect(parseOrdinalNumberPattern("3°")).toBe(3);
++    expect(parseOrdinalNumberPattern("21º")).toBe(21);
++    expect(parseOrdinalNumberPattern("15")).toBe(15);
++});
++
++test("Test - parseYear with era suffixes", function () {
++    expect(parseYear("2555 BE")).toBe(2012);
++    expect(parseYear("500 BC")).toBe(-500);
++    expect(parseYear("500 bce")).toBe(-500);
++    expect(parseYear("2012 AD")).toBe(2012);
++    expect(parseYear("2012 CE")).toBe(2012);
++});
++
++test("Test - parseYear without era suffix", function () {
++    expect(parseYear("2012")).toBe(2012);
++    expect(parseYear("95")).toBe(1995);
++    expect(parseYear("12")).toBe(2012);
++});
++
++test("Test - parseDuration with multiple time units", function () {
++    expect(parseDuration("2 giorni e 3 ore")).toStrictEqual({ day: 2, hour: 3 });
++    expect(parseDuration("un'ora, 15 min")).toStrictEqual({ hour: 1, minute: 15 });
++});
++
++test("Test - parseDuration without any time unit", function () {
++    expect(parseDuration("niente")).toBeNull();
++});
++
++test("Test - parseDuration ignores time unit glued to a number word", function () {
++    expect(parseDuration("unora")).toBeNull();
++});

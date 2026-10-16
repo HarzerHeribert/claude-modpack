@@ -1,0 +1,149 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..a51f56a
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,143 @@
++import * as chrono from "../../src";
++import { testSingleCase } from "../test_util";
++import {
++    NUMBER_PATTERN,
++    ORDINAL_NUMBER_PATTERN,
++    YEAR_PATTERN,
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++test("Test - parseNumberPattern with integer words", function () {
++    expect(parseNumberPattern("due")).toBe(2);
++    expect(parseNumberPattern("DIECI")).toBe(10);
++    expect(parseNumberPattern("un")).toBe(1);
++});
++
++test("Test - parseNumberPattern with elided article", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++    expect(parseNumberPattern("Un'")).toBe(1);
++});
++
++test("Test - parseNumberPattern with 'qualche'", function () {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - parseNumberPattern with 'mezzo' / 'mezza'", function () {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++    expect(parseNumberPattern("mezza")).toBe(0.5);
++    expect(parseNumberPattern("mezz")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern with 'paio'", function () {
++    expect(parseNumberPattern("paio")).toBe(2);
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - parseNumberPattern with 'alcuni'", function () {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern with digits", function () {
++    expect(parseNumberPattern("15")).toBe(15);
++    expect(parseNumberPattern("2.5")).toBe(2.5);
++});
++
++test("Test - NUMBER_PATTERN matching", function () {
++    const regex = new RegExp(`^${NUMBER_PATTERN}$`, "i");
++    expect(regex.test("qualche")).toBe(true);
++    expect(regex.test("alcuni")).toBe(true);
++    expect(regex.test("paio di")).toBe(true);
++    expect(regex.test("un'")).toBe(true);
++    expect(regex.test("1.5")).toBe(true);
++    expect(regex.test("molti")).toBe(false);
++});
++
++test("Test - parseOrdinalNumberPattern with ordinal words", function () {
++    expect(parseOrdinalNumberPattern("primo")).toBe(1);
++    expect(parseOrdinalNumberPattern("Trentunesima")).toBe(31);
++    expect(parseOrdinalNumberPattern("15°")).toBe(15);
++    expect(parseOrdinalNumberPattern("2ª")).toBe(2);
++});
++
++test("Test - parseOrdinalNumberPattern with digits and suffixes", function () {
++    expect(parseOrdinalNumberPattern("5º")).toBe(5);
++    expect(parseOrdinalNumberPattern("22")).toBe(22);
++});
++
++test("Test - ORDINAL_NUMBER_PATTERN matching", function () {
++    const regex = new RegExp(`^${ORDINAL_NUMBER_PATTERN}$`, "i");
++    expect(regex.test("ventesimo")).toBe(true);
++    expect(regex.test("7º")).toBe(true);
++    expect(regex.test("123")).toBe(false);
++});
++
++test("Test - parseYear with Buddhist Era", function () {
++    expect(parseYear("2555 BE")).toBe(2012);
++    expect(parseYear("2555be")).toBe(2012);
++});
++
++test("Test - parseYear with Before Christ", function () {
++    expect(parseYear("500 BC")).toBe(-500);
++    expect(parseYear("44 BCE")).toBe(-44);
++    expect(parseYear("44bce")).toBe(-44);
++});
++
++test("Test - parseYear with Anno Domini / Common Era", function () {
++    expect(parseYear("2000 AD")).toBe(2000);
++    expect(parseYear("1990 CE")).toBe(1990);
++    expect(parseYear("33ad")).toBe(33);
++});
++
++test("Test - parseYear without era", function () {
++    expect(parseYear("1990")).toBe(1990);
++    expect(parseYear("95")).toBe(1995);
++    expect(parseYear("20")).toBe(2020);
++});
++
++test("Test - YEAR_PATTERN matching", function () {
++    const regex = new RegExp(`^${YEAR_PATTERN}$`, "i");
++    expect(regex.test("2555 BE")).toBe(true);
++    expect(regex.test("500 BC")).toBe(true);
++    expect(regex.test("2012")).toBe(true);
++    expect(regex.test("30")).toBe(false);
++});
++
++test("Test - parseDuration with a single unit", function () {
++    expect(parseDuration("5 giorni")).toStrictEqual({ day: 5 });
++    expect(parseDuration("3 sett")).toStrictEqual({ week: 3 });
++});
++
++test("Test - parseDuration with multiple units", function () {
++    expect(parseDuration("2 ore e 30 minuti")).toStrictEqual({ hour: 2, minute: 30 });
++    expect(parseDuration("1 anno, 2 mesi")).toStrictEqual({ year: 1, month: 2 });
++});
++
++test("Test - parseDuration with word numbers", function () {
++    expect(parseDuration("un'ora")).toStrictEqual({ hour: 1 });
++    expect(parseDuration("qualche minuto")).toStrictEqual({ minute: 3 });
++    expect(parseDuration("mezzo minuto")).toStrictEqual({ minute: 0.5 });
++    expect(parseDuration("paio di giorni")).toStrictEqual({ day: 2 });
++    expect(parseDuration("alcuni anni")).toStrictEqual({ year: 7 });
++    expect(parseDuration("1.5 ore")).toStrictEqual({ hour: 1.5 });
++});
++
++test("Test - parseDuration ignores number and unit glued into a single word", function () {
++    expect(parseDuration("dueore")).toBeNull();
++});
++
++test("Test - parseDuration without any time unit", function () {
++    expect(parseDuration("")).toBeNull();
++    expect(parseDuration("niente")).toBeNull();
++});
++
++test("Test - Casual number word in relative expression", function () {
++    testSingleCase(chrono.it, "Ci vediamo tra qualche minuto", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(11);
++        expect(result.text).toBe("tra qualche minuto");
++        expect(result.start.get("hour")).toBe(12);
++        expect(result.start.get("minute")).toBe(3);
++    });
++});

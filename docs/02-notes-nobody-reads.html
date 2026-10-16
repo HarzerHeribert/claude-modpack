@@ -1,31 +1,73 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-mode="plain">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Notes nobody reads · Lab notes</title>
-<meta name="description" content="Lab notes 2 · 15 Oct 2026 · written by Claude from this repository's data">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Notes nobody reads · Lab notes 2 · claude-modpack</title>
+<meta name="description" content="The most natural way to improve an AI agent with a plugin is to give it advice. Notice it doing something slow, tell it the faster way. We built two mods on that idea. Both measurements came back with">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
 </head>
-<body>
-<header class="site">
-  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
-  <nav>
-    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
-    <a class="pdf" href="pdf/02-notes-nobody-reads.pdf" download>Download PDF</a>
-  </nav>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html" aria-current="page"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
 </header>
-<main class="note">
-<h1 id="notes-nobody-reads">Notes nobody reads</h1>
-<p><em>Lab notes 2 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html" aria-current="page"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+<article class="doc prose note">
+<p class="eyebrow mono"><a href="notes.html">lab notes</a> / 02</p>
+<h1>Notes nobody reads</h1>
+<p class="note-meta"><span>15 Oct 2026</span><span>4 min read</span><a class="btn sm" href="pdf/02-notes-nobody-reads.pdf" download><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</a></p>
+<p class="byline small muted">written by Claude from this repository's data</p>
+<details class="toc-mobile"><summary>On this page</summary><ul class="toc-list"><li><a href="#45-hints-0-followed">45 hints, 0 followed</a></li><li><a href="#answers-instead-of-advice">Answers instead of advice</a></li><li><a href="#174-runs-0-delegations">174 runs, 0 delegations</a></li><li><a href="#an-order-works">An order works</a></li><li><a href="#other-tools-found-the-same-thing">Other tools found the same thing</a></li><li><a href="#what-this-changed">What this changed</a></li><li><a href="#method--limits">Method &amp; limits</a></li><li><a href="#sources">Sources</a></li></ul></details>
 <p>The most natural way to improve an AI agent with a plugin is to give it advice. Notice it doing something slow, tell it the faster way. We built two mods on that idea. Both measurements came back with the same number: zero.</p>
-<h2 id="45-hints-0-followed">45 hints, 0 followed</h2>
+<h2 id="45-hints-0-followed"><a class="anchor" href="#45-hints-0-followed" aria-hidden="true" tabindex="-1">#</a>45 hints, 0 followed</h2>
 <p>When Claude searches code with <code>grep</code>, it gets every line that contains the text: definitions, calls, comments, strings, a variable that happens to share the name. A language server knows the difference. It can list exactly the functions that call <code>format_filename</code>, without the noise.</p>
 <p>So lsp-plus watched for greps that looked for a code symbol and attached a short note to the result: <em>this is a code symbol; <code>LSP findReferences</code> on utils.py:442 lists exactly its uses</em>. Correct, specific, one call away.</p>
 <p>In every benchmark run with the pack, that note fired 45 times. Claude acted on it 0 times (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#quiet-where-it-has-no-proof-q">SUITE.md</a>).</p>
 <p>Looking at the transcripts, the reason is plain economics, the model&#39;s own. The note arrives after the grep has already answered. Following it means two more requests: one to load the LSP tool (it is deferred, one of hundreds of tools in those sessions), one to call it. Two steps to get an answer Claude believes it already has. From where the model stands, ignoring the note is the efficient choice.</p>
-<h2 id="answers-instead-of-advice">Answers instead of advice</h2>
+<h2 id="answers-instead-of-advice"><a class="anchor" href="#answers-instead-of-advice" aria-hidden="true" tabindex="-1">#</a>Answers instead of advice</h2>
 <p>So we stopped advising and started answering. When a grep looks for a code symbol, lsp-plus now asks the language server itself, inside the hook, and attaches the server&#39;s answer to the grep&#39;s result: the callers, each named by its class and method, or the references by file (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-language-server-answers-the-grep-y">SUITE.md</a>).</p>
 <pre><code>`resolve_color_default` per the language server: called from 5 functions in 3 files (code only: strings, comments, docs and namesakes are in the grep above):
 src/click/exceptions.py: ClickException.__init__ (48)
@@ -33,10 +75,10 @@ src/click/termui.py: _readline_prompt (99), get_pager_file (362), progressbar (5
 src/click/utils.py: echo (342)
 </code></pre>
 <p>No extra step for Claude: the answer is in the place it was already reading. On the rename task that cut requests by 25% and cost by 6.5%. Where no grep asked for a symbol, it said nothing and cost nothing. The note that asked Claude to do the same thing itself was switched off.</p>
-<h2 id="174-runs-0-delegations">174 runs, 0 delegations</h2>
+<h2 id="174-runs-0-delegations"><a class="anchor" href="#174-runs-0-delegations" aria-hidden="true" tabindex="-1">#</a>174 runs, 0 delegations</h2>
 <p>The second idea was bigger. Opus is expensive; Sonnet and Haiku are much cheaper. For well-specified work (implement this feature, write these tests), Opus could hand the work to a cheaper model and only check the result. The delegate mod offers exactly that: a <code>hand_off</code> tool, with the evidence (the diff, the test run) coming back for Opus to judge.</p>
-<p>Asked to hand off, it works: a feature cost 27–37% less, every result correct. The question was whether Opus would hand off without being asked. We tried everything we could think of (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#why-opus-does-not-hand-off-x">SUITE.md</a>):</p>
-<table>
+<p>Asked to hand off, it works: a feature cost 22–35% less, every result correct (corrected 16 Oct: worker costs were undercounted; we had 27–37%). The question was whether Opus would hand off without being asked. We tried everything we could think of (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#why-opus-does-not-hand-off-x">SUITE.md</a>):</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
 <thead>
 <tr>
 <th>What we tried</th>
@@ -84,34 +126,39 @@ src/click/utils.py: echo (342)
 <td>174</td>
 <td>0</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>It is not the harness: with Claude Code&#39;s system prompt gone, nothing changed. It is not permission: the person&#39;s own words in the prompt changed nothing. Opus 5.5 does not give away work it can do itself.</p>
 <p>On small work that is the right call: a hand-off takes two to five requests of its own, so a small question handed off costs up to three and a half times as much. Opus only misses the big, specified work.</p>
-<h2 id="an-order-works">An order works</h2>
-<p>One thing did work, every time. When a mod attached an order to the prompt, phrased as the person&#39;s (&quot;The person approved this plan; implement it through hand_off&quot;), Opus handed off in 8 of 8 runs, and the feature cost 27% less (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#getting-opus-to-hand-off-hf-mo-ic-ps">SUITE.md</a>).</p>
+<h2 id="an-order-works"><a class="anchor" href="#an-order-works" aria-hidden="true" tabindex="-1">#</a>An order works</h2>
+<p>One thing did work, every time. When a mod attached an order to the prompt, phrased as the person&#39;s (&quot;The person approved this plan; implement it through hand_off&quot;), Opus handed off in 8 of 8 runs, and the feature cost 22% less (27% before the workers&#39; cost was corrected; <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#getting-opus-to-hand-off-hf-mo-ic-ps">SUITE.md</a>).</p>
 <p>That became the design. When you approve a plan of 20 lines or more in plan mode, delegate gives that order: the plan becomes the worker&#39;s spec. Claude does not decide to delegate; your approval does.</p>
-<h2 id="other-tools-found-the-same-thing">Other tools found the same thing</h2>
+<h2 id="other-tools-found-the-same-thing"><a class="anchor" href="#other-tools-found-the-same-thing" aria-hidden="true" tabindex="-1">#</a>Other tools found the same thing</h2>
 <p>We are not the only ones who learned this. The code-graph tool Trail-Code (formerly graft) injects an instruction to <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts#L254-L255">&quot;reach for trail first&quot;</a> at session start, and with prompts adds pointers or a reminder to run <code>trail ask</code> &quot;before grepping&quot;. Its own source has a comment from an investigated session: <em>&quot;the agent did not pull. It grepped 38 times.&quot;</em> (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts#L176-L184"><code>src/claude/format.ts</code></a>). Its maintainer, on Hacker News: <em>&quot;claude never actually uses them as it&#39;s trained to use grep&quot;</em> (<a href="https://news.ycombinator.com/item?id=49299985">HN</a>). graphify, another code-graph tool, injects a note before searches: <em>&quot;MANDATORY: … You MUST run <code>graphify query &quot;&lt;question&gt;&quot;</code> before grepping raw files&quot;</em> (<a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/cli.py#L18-L28"><code>graphify/cli.py</code></a>).</p>
 <p>Three projects, the same observation: an agent trained to grep keeps grepping. Shouting does not change that. Answering inside the grep does.</p>
-<h2 id="what-this-changed">What this changed</h2>
+<h2 id="what-this-changed"><a class="anchor" href="#what-this-changed" aria-hidden="true" tabindex="-1">#</a>What this changed</h2>
 <ul>
 <li>A mod that wants Claude to behave differently must change what Claude sees in the place it already looks, not ask it to look elsewhere.</li>
 <li>Advice is not free. Every note costs tokens in every later request; a note that is ignored is pure cost. Our rule since: a mod speaks only where it has proof that speaking helps.</li>
 <li>When a choice really is the person&#39;s (delegating, spending), make the person&#39;s action the trigger, not a model&#39;s judgment the model has shown it won&#39;t make.</li>
 </ul>
-<h2 id="method--limits">Method &amp; limits</h2>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
 <p>Click 8.5.0, Opus 5.5, headless Claude Code; hand-off counts read from transcripts. &quot;0 hand-offs&quot; holds for these tasks and this model version; a future model may behave differently, and the harness to check is public. The 45 notes are all the notes in all pack runs up to the quiet pack, across conditions. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-quiet.jsonl"><code>results-quiet.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-answer.jsonl"><code>results-answer.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prompt.jsonl"><code>results-prompt.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-fit.jsonl"><code>results-fit.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-delegation-ideas.jsonl"><code>results-delegation-ideas.jsonl</code></a>.</p>
-<h2 id="sources">Sources</h2>
+<h2 id="sources"><a class="anchor" href="#sources" aria-hidden="true" tabindex="-1">#</a>Sources</h2>
 <ul>
 <li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a>, source at <a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/claude/format.ts"><code>ead585b</code></a> (checked 15 Oct 2026).</li>
 <li><a href="https://news.ycombinator.com/item?id=49299985">Show HN discussion of graft</a>, maintainer comments.</li>
 <li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/cli.py#L18-L28"><code>graphify/cli.py</code></a> (the hook-guard note).</li>
 </ul>
 
-<nav class="pager"><a class="prev" href="01-the-cheapest-step.html"><span>Previous</span>The cheapest step is the one Claude never takes</a><a class="next" href="03-a-code-graph-on-our-bench.html"><span>Next</span>A 10,000-star code graph on our bench</a></nav>
-</main>
-<footer class="site">
-  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+<nav class="pager" aria-label="Previous and next note"><a href="01-the-cheapest-step.html"><span>Previous</span><b>The cheapest step is the one Claude never takes</b></a><a class="next" href="03-a-code-graph-on-our-bench.html"><span>Next</span><b>A 10,000-star code graph on our bench</b></a></nav>
+</article>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#45-hints-0-followed" data-for="45-hints-0-followed">45 hints, 0 followed</a></li><li><a href="#answers-instead-of-advice" data-for="answers-instead-of-advice">Answers instead of advice</a></li><li><a href="#174-runs-0-delegations" data-for="174-runs-0-delegations">174 runs, 0 delegations</a></li><li><a href="#an-order-works" data-for="an-order-works">An order works</a></li><li><a href="#other-tools-found-the-same-thing" data-for="other-tools-found-the-same-thing">Other tools found the same thing</a></li><li><a href="#what-this-changed" data-for="what-this-changed">What this changed</a></li><li><a href="#method--limits" data-for="method--limits">Method &amp; limits</a></li><li><a href="#sources" data-for="sources">Sources</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
 </footer>
+<div class="sl" aria-hidden="true" data-path="notes/02" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

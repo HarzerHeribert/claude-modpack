@@ -1,0 +1,98 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..bb332c9
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,92 @@
++import {
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++test("Test - parseNumberPattern with integer words", function () {
++    expect(parseNumberPattern("due")).toBe(2);
++    expect(parseNumberPattern("Dodici")).toBe(12);
++});
++
++test("Test - parseNumberPattern with elided article", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++});
++
++test("Test - parseNumberPattern with qualche", function () {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - parseNumberPattern with mezzo", function () {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++    expect(parseNumberPattern("mezza")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern with paio", function () {
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - parseNumberPattern with alcuni", function () {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern with digits", function () {
++    expect(parseNumberPattern("15")).toBe(15);
++    expect(parseNumberPattern("2.5")).toBe(2.5);
++});
++
++test("Test - parseOrdinalNumberPattern", function () {
++    expect(parseOrdinalNumberPattern("primo")).toBe(1);
++    expect(parseOrdinalNumberPattern("Trentunesima")).toBe(31);
++    expect(parseOrdinalNumberPattern("15ª")).toBe(15);
++    expect(parseOrdinalNumberPattern("3º")).toBe(3);
++    expect(parseOrdinalNumberPattern("21")).toBe(21);
++});
++
++test("Test - parseYear with Buddhist Era", function () {
++    expect(parseYear("2555 BE")).toBe(2012);
++});
++
++test("Test - parseYear with Before Christ", function () {
++    expect(parseYear("500 BC")).toBe(-500);
++});
++
++test("Test - parseYear with Before Common Era", function () {
++    expect(parseYear("44 BCE")).toBe(-44);
++});
++
++test("Test - parseYear with Anno Domini", function () {
++    expect(parseYear("2012 AD")).toBe(2012);
++});
++
++test("Test - parseYear with Common Era", function () {
++    expect(parseYear("1999 CE")).toBe(1999);
++});
++
++test("Test - parseYear with plain years", function () {
++    expect(parseYear("2015")).toBe(2015);
++    expect(parseYear("99")).toBe(1999);
++    expect(parseYear("12")).toBe(2012);
++});
++
++test("Test - parseDuration with single unit", function () {
++    expect(parseDuration("5 giorni")).toStrictEqual({ day: 5 });
++});
++
++test("Test - parseDuration with multiple units", function () {
++    expect(parseDuration("2 ore e 30 minuti")).toStrictEqual({ hour: 2, minute: 30 });
++});
++
++test("Test - parseDuration with qualche", function () {
++    expect(parseDuration("qualche settimana")).toStrictEqual({ week: 3 });
++});
++
++test("Test - parseDuration without any time unit", function () {
++    expect(parseDuration("")).toBeNull();
++    expect(parseDuration("domani")).toBeNull();
++});
++
++test("Test - parseDuration ignores number and unit words without separator", function () {
++    expect(parseDuration("dueore")).toBeNull();
++});

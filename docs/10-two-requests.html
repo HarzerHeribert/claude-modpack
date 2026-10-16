@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" data-default-mode="plain">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Two requests · Lab notes 10 · claude-modpack</title>
+<meta name="description" content="A hand-off to a cheaper worker saves money because the worker does the building. But the main model still pays for every request it makes around the hand-off, and in a long session each of those re-re">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
+</head>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html" aria-current="page"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+</header>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html" aria-current="page"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+<article class="doc prose note">
+<p class="eyebrow mono"><a href="notes.html">lab notes</a> / 10</p>
+<h1>Two requests</h1>
+<p class="note-meta"><span>15 Oct 2026</span><span>5 min read</span><a class="btn sm" href="pdf/10-two-requests.pdf" download><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</a></p>
+<p class="byline small muted">written by Claude from this repository's data</p>
+<details class="toc-mobile"><summary>On this page</summary><ul class="toc-list"><li><a href="#claude-does-not-hand-off-on-its-own">Claude does not hand off on its own</a></li><li><a href="#where-the-requests-went">Where the requests went</a></li><li><a href="#a-report-in-a-fixed-form">A report in a fixed form</a></li><li><a href="#handing-off-before-reading-the-code">Handing off before reading the code</a></li><li><a href="#what-it-measured">What it measured</a></li><li><a href="#a-classifier-that-hesitated">A classifier that hesitated</a></li><li><a href="#what-this-does-not-show">What this does not show</a></li><li><a href="#method--limits">Method &amp; limits</a></li><li><a href="#sources">Sources</a></li></ul></details>
+<p>A hand-off to a cheaper worker saves money because the worker does the building. But the main model still pays for every request it makes around the hand-off, and in a long session each of those re-reads the whole conversation. This note is about getting those requests down to the two that cannot go: handing the work over, and answering.</p>
+<h2 id="claude-does-not-hand-off-on-its-own"><a class="anchor" href="#claude-does-not-hand-off-on-its-own" aria-hidden="true" tabindex="-1">#</a>Claude does not hand off on its own</h2>
+<p>Measured again with this release&#39;s delegate: in 16 runs on the feature and test tasks of click and of a TypeScript library, with delegate loaded and nobody asking, Claude handed off <strong>0 times</strong>. Before that, 0 of 174 (<a href="02-notes-nobody-reads.html">note 2</a>). In the person&#39;s own sessions since the pack was installed, Claude called <code>hand_off</code> 70 times; 66 came after an order or after the person had asked for it in one of their last six prompts, and 4 did not. And the Claude writing this note, in a long session full of fully specified build work, did not hand off once until the person asked why not.</p>
+<p>An order is followed every time; an invitation almost never. So everything below is about what happens after an order: delegate&#39;s own, when a plan is approved, or route&#39;s, when a classifier says a prompt is feature or test work (<a href="07-small-models-as-plumbing.html">note 7</a>).</p>
+<h2 id="where-the-requests-went"><a class="anchor" href="#where-the-requests-went" aria-hidden="true" tabindex="-1">#</a>Where the requests went</h2>
+<p>We took the 16 routed runs of the feature and the coverage task and listed every request of the main model. On average: <strong>1.6 requests looking around</strong> before the hand-off, the hand-off itself, and <strong>2.5 after it</strong>, the final answer included.</p>
+<p>The requests after were not blind re-runs. They were questions the evidence had left open:</p>
+<ul>
+<li>&quot;The run reports <strong>31,000 deselected</strong>, so I&#39;ll confirm the new tests actually ran&quot; (4 of 16 runs).</li>
+<li>&quot;Run the new test file <strong>on its own</strong>&quot;: the check had run the whole suite.</li>
+<li>&quot;Pyright flagged new lines, I&#39;ll check whether that matters.&quot;</li>
+<li>And real review: &quot;one assertion is always true, I&#39;ll make it a real one&quot;. That request is worth paying for.</li>
+</ul>
+<p>delegate already ran the check command itself and showed the diff. What it did not do was answer those questions.</p>
+<h2 id="a-report-in-a-fixed-form"><a class="anchor" href="#a-report-in-a-fixed-form" aria-hidden="true" tabindex="-1">#</a>A report in a fixed form</h2>
+<p>The idea came from the person running this lab: let the worker answer in a fixed form that a program can check. The worker now ends its report with a block:</p>
+<pre><code>VERIFY
+tests: PYTHONPATH=src python -m pytest -q tests/test_duration.py
+open: none
+</code></pre>
+<p>delegate runs that command beside the check, counts both outputs, and puts one line first in its result:</p>
+<blockquote>
+<p>Verified: the check passed (2020 passed); the new tests passed on their own (27 passed); nothing left open. If the diff is what you asked for, report to the person now: nothing is left to run.</p>
+</blockquote>
+<p>Or <code>Not verified:</code>, with each reason: a check that failed, new tests that did not run (0 selected is not a pass), test files changed without a command that ran them alone, a worker that stopped on an error, or what the worker itself left open. The parsers are strict on purpose: an output they do not recognise is &quot;not counted&quot;, never &quot;passed&quot;.</p>
+<p>The order changed with it: make the project&#39;s whole test suite the check, and on a Verified result with the right diff, report without running anything again.</p>
+<h2 id="handing-off-before-reading-the-code"><a class="anchor" href="#handing-off-before-reading-the-code" aria-hidden="true" tabindex="-1">#</a>Handing off before reading the code</h2>
+<p>With the verified report, the requests after a hand-off fell to one. But in the same runs a second thing showed: <strong>allowed to look around first, Claude kept the work in 5 of 16 runs</strong>. It read the code, judged the job small enough, and did it itself in 6 to 9 requests.</p>
+<p>So the order now says to hand off before reading the code: the worker reads it, and the task is written from the request as given. Claude followed that <strong>24 of 24 times</strong>.</p>
+<h2 id="what-it-measured"><a class="anchor" href="#what-it-measured" aria-hidden="true" tabindex="-1">#</a>What it measured</h2>
+<p>All 52 runs below were correct.</p>
+<p>On click, one batch:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Feature and coverage</th>
+<th>Route as released</th>
+<th>+ verified report</th>
+<th>+ hand off before reading</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Handed off</td>
+<td>6 of 8</td>
+<td>5 of 8</td>
+<td><strong>8 of 8</strong></td>
+</tr>
+<tr>
+<td>Main-model requests</td>
+<td>5.9</td>
+<td>5.0</td>
+<td><strong>2.6</strong></td>
+</tr>
+<tr>
+<td>Cost per job</td>
+<td>$0.53</td>
+<td>$0.47</td>
+<td><strong>$0.38</strong></td>
+</tr>
+</tbody></table></div>
+<p>The last column against the first: cost −28% [−42%, −10%], main-model requests −55% [−68%, −36%], time −12% (not shown).</p>
+<p>Corrected 16 Oct: worker costs were undercounted. A worker&#39;s transcript records its output as each response began; counted in full, from Claude Code&#39;s own totals, every cost with a worker in it rose. Here the three columns were $0.50, $0.44 and $0.34, and the saving −33%; below, the feature with Sonnet was $0.43 (−57%) and the tests $0.27 (−40%) (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/CORRECTION-1016.md">CORRECTION-1016.md</a>).</p>
+<p>On TypeScript, against the pack alone in the same batch:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th></th>
+<th>Pack alone</th>
+<th>Route, Sonnet worker</th>
+<th>Route, Haiku worker</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Writing tests: cost</td>
+<td>$0.45</td>
+<td>$0.29 (−36%)</td>
+<td>$0.24 (−46%)</td>
+</tr>
+<tr>
+<td>Writing tests: main-model requests</td>
+<td>6.2</td>
+<td>2.0</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>A feature: cost</td>
+<td>$0.99</td>
+<td>$0.48 (−51%)</td>
+<td>$0.44 (−55%)</td>
+</tr>
+<tr>
+<td>A feature: main-model requests</td>
+<td>11.0</td>
+<td><strong>2.0</strong></td>
+<td>2.8</td>
+</tr>
+<tr>
+<td>A feature: time</td>
+<td>214 s</td>
+<td><strong>125 s (−42%)</strong></td>
+<td>178 s</td>
+</tr>
+</tbody></table></div>
+<p>Two requests is the floor: one to hand over, one to answer. Writing tests reached it everywhere; the feature reached it with Sonnet as the worker.</p>
+<p><strong>Haiku or Sonnet.</strong> On writing tests Haiku was cheaper (−16%). On the feature it needed almost twice the steps (12 against 7), cost about the same (8% less, within the runs&#39; spread: [−24%, +8%]), took longer, and twice left points open that Claude then had to settle. One of them was worth it: the task&#39;s example contradicted its own rule about week 53, and Haiku said so. Build work stays with Sonnet, for the steps, the time and the open points, not for the cost.</p>
+<h2 id="a-classifier-that-hesitated"><a class="anchor" href="#a-classifier-that-hesitated" aria-hidden="true" tabindex="-1">#</a>A classifier that hesitated</h2>
+<p>The first TypeScript feature runs never handed off. route had asked ScaleDown what the prompt was, and it said &quot;feature&quot; with a score of <strong>0.66</strong>, under route&#39;s threshold of 0.7: a long, detailed specification read less like &quot;a feature&quot; than a one-line request does. TypeSafe&#39;s Jev, asked the same, said &quot;feature&quot; with a probability of <strong>1.0</strong>. On our 25 calibration prompts both were right 50 times out of 50; Jev answered in 0.25 s against 1.15 s. route now takes Jev when its key is set.</p>
+<h2 id="what-this-does-not-show"><a class="anchor" href="#what-this-does-not-show" aria-hidden="true" tabindex="-1">#</a>What this does not show</h2>
+<ul>
+<li>Four runs per task and condition. The direction is the same on every task; the sizes have wide ranges.</li>
+<li><strong>Time improved less than cost</strong> (−12% on click, −42% on the TypeScript feature): the worker now does the reading, in its own requests.</li>
+<li><strong>Handing off before reading removes Claude&#39;s own look at the code.</strong> Every prompt in our benchmarks is a complete specification. On a vague request (&quot;make the export faster&quot;), a task written without reading the code may be a worse task. We have not tested that. It is the next thing route should ask its classifier: is this request fully specified?</li>
+</ul>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>Arms RT (route as in 0.5.0), RTV (with delegate 0.3.0&#39;s verified report), RTD (and the order to hand off before reading), RTDH (RTD with Haiku as every worker), Z (the pack alone), all with the person&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>). Each comparison ran in one batch, so times compare too. Opus 5.5, click 8.5.0 and chrono 2.10.3. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-route-verify.jsonl"><code>results-route-verify.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ts-route.jsonl"><code>results-ts-route.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ts-route-jev.jsonl"><code>results-ts-route-jev.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-unasked.jsonl"><code>results-unasked.jsonl</code></a>; the classifiers in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/classifiers/jev-vs-scaledown.json"><code>classifiers/jev-vs-scaledown.json</code></a>.</p>
+<h2 id="sources"><a class="anchor" href="#sources" aria-hidden="true" tabindex="-1">#</a>Sources</h2>
+<ul>
+<li>TypeSafe AI, <a href="https://docs.typesafe.ai/introduction/quickstart">Jev documentation</a> and <a href="https://typesafe.ai/legal/privacy-policy">privacy policy</a>.</li>
+<li>ScaleDown, <a href="https://docs.scaledown.ai/api-reference/classify">Classify reference</a>.</li>
+</ul>
+
+<nav class="pager" aria-label="Previous and next note"><a href="09-beyond-click.html"><span>Previous</span><b>Beyond click</b></a><a class="next" href="11-what-looking-around-leaves-behind.html"><span>Next</span><b>What looking around leaves behind</b></a></nav>
+</article>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#claude-does-not-hand-off-on-its-own" data-for="claude-does-not-hand-off-on-its-own">Claude does not hand off on its own</a></li><li><a href="#where-the-requests-went" data-for="where-the-requests-went">Where the requests went</a></li><li><a href="#a-report-in-a-fixed-form" data-for="a-report-in-a-fixed-form">A report in a fixed form</a></li><li><a href="#handing-off-before-reading-the-code" data-for="handing-off-before-reading-the-code">Handing off before reading the code</a></li><li><a href="#what-it-measured" data-for="what-it-measured">What it measured</a></li><li><a href="#a-classifier-that-hesitated" data-for="a-classifier-that-hesitated">A classifier that hesitated</a></li><li><a href="#what-this-does-not-show" data-for="what-this-does-not-show">What this does not show</a></li><li><a href="#method--limits" data-for="method--limits">Method &amp; limits</a></li><li><a href="#sources" data-for="sources">Sources</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
+</footer>
+<div class="sl" aria-hidden="true" data-path="notes/10" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
+</body>
+</html>

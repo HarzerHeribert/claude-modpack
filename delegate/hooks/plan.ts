@@ -144,13 +144,178 @@ export const WORKER_RULES = `You work for another Claude, which handed you one t
 - Do not claim you ran or verified anything you did not run. The other Claude runs the check itself and reads the diff.
 - End with a short report: what you found or changed, each with file:line, and anything you are unsure of. No preamble, no summary of the task.`
 
-export function workerPrompt(args: { task: string; mode: Mode; reach: string; check?: string }): string {
+const VERIFY_INSTRUCTION = `Your report must end with this block, exactly, no code fence:
+VERIFY
+tests: <one shell command, run from the project's root, that runs only the tests you added or changed; or none>
+open: <what you left undone or are unsure of, in one line; or none>`
+
+const PLACES_INSTRUCTION = `Your report must end with this block, exactly, no code fence, one line per place the answer names:
+PLACES
+<path relative to the project root>:<line> <the symbol as it appears on that line>`
+
+export function workerPrompt(args: { task: string; mode: Mode; reach: string; check?: string; root?: string }): string {
   const mode =
     args.mode === 'edit'
-      ? `Mode: edit. Change the files the task needs and nothing else.${args.check ? ` Afterwards this check will run: \`${args.check}\`; you may run it too.` : ''}`
-      : 'Mode: explore. Read only: change no file. Find what the task asks and report it with file:line.'
+      ? `Mode: edit. Change the files the task needs and nothing else.${args.check ? ` Afterwards this check will run: \`${args.check}\`; you may run it too.` : ''}\n\n${VERIFY_INSTRUCTION}`
+      : `Mode: explore. Read only: change no file. Find what the task asks and report it with file:line.\n\n${PLACES_INSTRUCTION}`
   const reach = args.reach ? `\n\nWhere this reaches (from the language server; places that use what the task touches):\n${args.reach}` : ''
-  return `${args.task.trim()}\n\n${mode}${reach}`
+  // Also for a warm worker resumed with a new task: its shell may have been left in another folder.
+  const root = args.root ? `\n\nThe project is ${args.root}: work there, never in another copy you may find on the disk.` : ''
+  return `${args.task.trim()}\n\n${mode}${root}${reach}`
+}
+
+type Counts = { passed: number; failed: number }
+
+/** The worker's VERIFY block: the last one in the report, `none` or empty read as absent. */
+export function parseVerify(report: string): { tests?: string; open?: string } | undefined {
+  const lines = report.split('\n')
+  let at = -1
+  lines.forEach((l, i) => {
+    if (l.trim() === 'VERIFY') at = i
+  })
+  if (at < 0) return undefined
+  const out: { tests?: string; open?: string } = {}
+  for (const l of lines.slice(at + 1)) {
+    const m = /^\s*(tests|open):\s*(.*)$/i.exec(l)
+    if (!m) continue
+    const v = (m[2] as string).trim()
+    if (v === '' || v.toLowerCase() === 'none') continue
+    out[(m[1] as string).toLowerCase() as 'tests' | 'open'] = v
+  }
+  return out
+}
+
+/** The pass and fail counts of the last test summary in a runner's output, or undefined where none is recognised. */
+export function testCounts(output: string): Counts | undefined {
+  const lines = output.split('\n')
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const l = lines[i] as string
+    if (/no tests ran/i.test(l)) return { passed: 0, failed: 0 }
+    // pytest
+    if (/\b\d+ (passed|failed|errors?|skipped|deselected|xfailed|xpassed)\b/.test(l) && /\bin [\d.]+s/.test(l)) {
+      return { passed: num(l, /(\d+) passed/), failed: num(l, /(\d+) failed/) + num(l, /(\d+) errors?\b/) }
+    }
+    // jest
+    if (/^\s*Tests:\s/.test(l)) return { passed: num(l, /(\d+) passed/), failed: num(l, /(\d+) failed/) }
+    // vitest
+    if (/^\s*Tests\s+\d/.test(l)) return { passed: num(l, /(\d+) passed/), failed: num(l, /(\d+) failed/) }
+    // node:test
+    if (/^\s*# (pass|fail) \d+/.test(l)) {
+      const all = lines.join('\n')
+      const last = (k: string) => [...all.matchAll(new RegExp(`^\\s*# ${k} (\\d+)`, 'gm'))].at(-1)
+      const p = last('pass')
+      const f = last('fail')
+      if (p || f) return { passed: Number(p?.[1] ?? 0), failed: Number(f?.[1] ?? 0) }
+    }
+    // bun
+    if (/^\s*\d+ (pass|fail)\s*$/.test(l)) {
+      const all = lines.join('\n')
+      const last = (k: string) => [...all.matchAll(new RegExp(`^\\s*(\\d+) ${k}\\s*$`, 'gm'))].at(-1)
+      return { passed: Number(last('pass')?.[1] ?? 0), failed: Number(last('fail')?.[1] ?? 0) }
+    }
+  }
+  return undefined
+}
+
+const num = (line: string, re: RegExp) => Number(re.exec(line)?.[1] ?? 0)
+
+/** Whether a path is a test file by where it lives or how it is named. */
+export function isTestFile(path: string): boolean {
+  if (/(^|\/)(tests?|__tests__|spec)\//.test(path)) return true
+  const name = path.split('/').at(-1) ?? ''
+  return /^test_.*\.py$/.test(name) || /_test\.(py|go)$/.test(name) || /\.(test|spec)\.(js|jsx|ts|tsx|mjs)$/.test(name)
+}
+
+type Ran = { exit: number; counts?: Counts }
+
+/** The one line that tells the main model whether the worker's work is proven, and what to look at if not. */
+export function verdict(args: { changed: string[]; check?: Ran; tests?: Ran; open?: string; block: boolean }): { verified: boolean; line: string } {
+  const bad: string[] = []
+  const good: string[] = []
+  const n = (c?: Counts) => (c ? ` (${c.passed} passed)` : '')
+  if (args.changed.length === 0) bad.push('the worker changed no file')
+  const c = args.check
+  if (!c) bad.push('the check was not given')
+  else if (c.exit !== 0) bad.push(`the check failed with exit ${c.exit}`)
+  else if (c.counts && c.counts.failed > 0) bad.push(`the check had ${c.counts.failed} failing`)
+  else good.push(`the check passed${n(c.counts)}`)
+  const t = args.tests
+  if (t) {
+    if (t.exit !== 0) bad.push(`the new tests failed with exit ${t.exit}`)
+    else if (t.counts && t.counts.failed > 0) bad.push(`the new tests had ${t.counts.failed} failing`)
+    else if (t.counts && t.counts.passed === 0) bad.push('the new tests did not run (0 selected)')
+    else good.push(`the new tests passed on their own${n(t.counts)}`)
+  } else if (args.changed.some(isTestFile)) bad.push('test files changed but no command ran them on their own')
+  if (!args.block) bad.push("the worker's report had no VERIFY block")
+  if (args.open) bad.push(`the worker left open: ${args.open}`)
+  if (bad.length === 0) {
+    return { verified: true, line: `Verified: ${good.join('; ')}; nothing left open. If the diff is what you asked for, report to the person now: nothing is left to run.` }
+  }
+  return { verified: false, line: `Not verified: ${bad.join('; ')}. Look at these before you report.` }
+}
+
+type PlaceResult = 'found' | { near: number } | 'missing'
+
+/** The places in the worker's PLACES block: the last one in the report; undefined where there is none. */
+export function parsePlaces(report: string): { path: string; line: number; symbol: string }[] | undefined {
+  const lines = report.split('\n')
+  let at = -1
+  lines.forEach((l, i) => {
+    if (l.trim() === 'PLACES') at = i
+  })
+  if (at < 0) return undefined
+  const out: { path: string; line: number; symbol: string }[] = []
+  for (const l of lines.slice(at + 1)) {
+    const m = /^\s*(\S+?):(\d+)\s+(\S+)/.exec(l)
+    if (!m) break
+    out.push({ path: m[1] as string, line: Number(m[2]), symbol: (m[3] as string).replace(/`/g, '') })
+  }
+  return out
+}
+
+/** Whether the symbol is on the given 1-based line of the file, or near it, or nowhere close. */
+export function checkPlace(fileLines: string[] | undefined, line: number, symbol: string): PlaceResult {
+  if (!fileLines || symbol === '') return 'missing'
+  const esc = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const re = /^\w+$/.test(symbol) ? new RegExp(`\\b${esc}\\b`) : new RegExp(esc)
+  const has = (n: number) => n >= 1 && n <= fileLines.length && re.test(fileLines[n - 1] as string)
+  if (has(line)) return 'found'
+  for (let d = 1; d <= 3; d++) {
+    if (has(line - d)) return { near: line - d }
+    if (has(line + d)) return { near: line + d }
+  }
+  return 'missing'
+}
+
+/** The one line that tells the main model whether a lookup answer is proven in the code, and what to open if not. */
+export function readVerdict(args: {
+  places: { path: string; line: number; symbol: string; result: PlaceResult }[]
+  block: boolean
+  serverFiles?: string[]
+}): { verified: boolean; line: string } {
+  const bad: string[] = []
+  const missing = args.places.filter(p => p.result === 'missing')
+  const near = args.places.filter(p => typeof p.result === 'object')
+  const named = new Set(args.places.map(p => p.path))
+  const unnamed = (args.serverFiles ?? []).filter(f => !named.has(f))
+  if (!args.block) bad.push('no PLACES block')
+  else if (args.places.length === 0) bad.push('the answer named no places')
+  if (missing.length > 0) {
+    const shown = missing.slice(0, 5).map(p => `${p.path}:${p.line} \`${p.symbol}\``).join(', ')
+    bad.push(`${missing.length} place${missing.length === 1 ? '' : 's'} not found at the line given: ${shown}${missing.length > 5 ? ', …' : ''}`)
+  }
+  // Files the server finds references in that the answer leaves out are named, not held against it: a question about
+  // src/ rightly leaves the tests out, and only the main model knows what the question covers.
+  const also = unnamed.length > 0 ? `; the language server also finds references in files the answer does not name (check whether the question covers them): ${unnamed.slice(0, 5).join(', ')}${unnamed.length > 5 ? ', …' : ''}` : ''
+  if (bad.length === 0) {
+    const off = near.length > 0 ? ` (${near.length} ${near.length === 1 ? 'was' : 'were'} a line or two off)` : ''
+    const server = args.serverFiles && args.serverFiles.length > 0 && unnamed.length === 0 ? "; the language server's references fall in the files the answer names" : also
+    return {
+      verified: true,
+      line: `Verified: all ${args.places.length} places checked in the code (the symbol is on each line named)${off}${server}. If this answers the question, answer the person from it now: nothing is left to open.`,
+    }
+  }
+  return { verified: false, line: `Not verified: ${bad.join('; ')}${also}. Open only these before you answer.` }
 }
 
 /** $/M tokens. Cache writes at the 5-minute rate (1.25x input). */
@@ -271,6 +436,8 @@ export type HandOff = {
   /** The fork's tokens: whether it read the session's cache or paid for the whole context again. */
   reviewUsage?: Usage
   verdict?: string
+  /** Whether the tool's own checks passed and nothing was left open. */
+  verified?: boolean
   /** Edits the main model made afterwards, before the person's next prompt, to files the worker changed. */
   reworkEdits: number
   outcome: 'answer' | 'aborted' | 'error' | 'timeout' | 'refused'

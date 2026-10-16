@@ -1,0 +1,75 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..2417b2f
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,69 @@
++import { parseNumberPattern, parseYear, parseDuration } from "../../src/locales/it/constants";
++
++test("Test - parseNumberPattern - un apostrophe", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++});
++
++test("Test - parseNumberPattern - una", function () {
++    expect(parseNumberPattern("una")).toBe(1);
++});
++
++test("Test - parseNumberPattern - uno", function () {
++    expect(parseNumberPattern("uno")).toBe(1);
++});
++
++test("Test - parseNumberPattern - qualche", function () {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - parseNumberPattern - mezzo", function () {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern - mezza", function () {
++    expect(parseNumberPattern("mezza")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern - paio", function () {
++    expect(parseNumberPattern("paio")).toBe(2);
++});
++
++test("Test - parseNumberPattern - paio di", function () {
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - parseNumberPattern - alcuni", function () {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern - numeric fallback", function () {
++    expect(parseNumberPattern("2.5")).toBe(2.5);
++});
++
++test("Test - parseYear - Buddhist Era", function () {
++    expect(parseYear("2000 BE")).toBe(1457);
++});
++
++test("Test - parseYear - BC", function () {
++    expect(parseYear("44 BC")).toBe(-44);
++});
++
++test("Test - parseYear - BCE", function () {
++    expect(parseYear("44 BCE")).toBe(-44);
++});
++
++test("Test - parseYear - AD", function () {
++    expect(parseYear("44 AD")).toBe(44);
++});
++
++test("Test - parseYear - CE", function () {
++    expect(parseYear("44 CE")).toBe(44);
++});
++
++test("Test - parseDuration - empty text returns null", function () {
++    expect(parseDuration("")).toBeNull();
++});
++
++test("Test - parseDuration - purely alphabetic fragment is ignored and returns null", function () {
++    expect(parseDuration("unora")).toBeNull();
++});

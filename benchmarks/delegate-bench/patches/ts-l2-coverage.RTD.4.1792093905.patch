@@ -1,0 +1,44 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..2f1a370
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,38 @@
++import {
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++test("Test - parseNumberPattern", () => {
++    expect(parseNumberPattern("Tre")).toBe(3);
++    expect(parseNumberPattern("un'")).toBe(1);
++    expect(parseNumberPattern("qualche")).toBe(3);
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++    expect(parseNumberPattern("paio di")).toBe(2);
++    expect(parseNumberPattern("alcuni")).toBe(7);
++    expect(parseNumberPattern("3.5")).toBe(3.5);
++});
++
++test("Test - parseOrdinalNumberPattern", () => {
++    expect(parseOrdinalNumberPattern("Terzo")).toBe(3);
++    expect(parseOrdinalNumberPattern("5º")).toBe(5);
++    expect(parseOrdinalNumberPattern("12")).toBe(12);
++});
++
++test("Test - parseYear", () => {
++    expect(parseYear("2560 BE")).toBe(2017);
++    expect(parseYear("10 BC")).toBe(-10);
++    expect(parseYear("10 BCE")).toBe(-10);
++    expect(parseYear("100 AD")).toBe(100);
++    expect(parseYear("100 CE")).toBe(100);
++    expect(parseYear("2020")).toBe(2020);
++    expect(parseYear("99")).toBe(1999);
++});
++
++test("Test - parseDuration", () => {
++    expect(parseDuration("3 giorni e 2 ore")).toEqual({ day: 3, hour: 2 });
++    expect(parseDuration("mezzoore")).toBeNull();
++    expect(parseDuration("niente")).toBeNull();
++});

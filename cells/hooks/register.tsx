@@ -11,6 +11,7 @@ import { PROBE_SCRIPT, bwrapArgv, choose, offLine, offNote, parseProbe, runnerAr
 import type { Bwrap, Isolation } from './isolation'
 import { Budget, costOf, kindOf, missed, noteFor } from './nudge'
 import type { Step } from './nudge'
+import { SUBAGENT_CELLS, SUBAGENT_CHAINING, reaches, withSetting } from './subagents'
 import { cellCard, parseReport, resultBody, seconds, stateOf } from './view'
 import type { Card } from './view'
 
@@ -22,6 +23,8 @@ const LIVE = atom({ plugin: 'cells', key: 'live' } as const, {} as Record<string
 let mode: Mode = 'cells'
 let visuals = true
 let nudging = true
+// Whether a subagent's task carries the chaining guidance (its own system prompt never has it).
+let subagents = true
 // The cells running now, and those the model is still writing, for the redraw that animates them.
 const running = new Set<string>()
 const writing = new Set<string>()
@@ -51,6 +54,7 @@ function readOptions(o: PluginOptions) {
   mode = o.mode === 'nudge' || o.mode === 'off' ? o.mode : 'cells'
   visuals = o.visuals !== false
   nudging = o.nudges !== false
+  subagents = o.subagents !== false
 }
 
 /** Redraws at 8 fps while a cell is written or runs; at rest nothing moves. */
@@ -516,6 +520,14 @@ export const register: Register = (on, options) => {
     const off = isolation ? offReason() : undefined
     const offSection = off ? [{ id: 'cells-off', text: offNote(off.why, off.fix), scope: 'session' as const }] : []
     return { sections: [...composed.sections, { id: 'cells-chaining', text, scope: 'session' as const }, ...offSection] }
+  }).catch(($, e, next) => next(e))
+
+  // A subagent's task: the guidance, in the person's name, since the system prompt above never reaches it; run_cell
+  // named only where the session has it.
+  on('agent.spawn', async ($, e, next) => {
+    if (!subagents || mode === 'off' || !reaches(e)) return next(e)
+    const line = cellsOn() ? `${SUBAGENT_CHAINING} ${SUBAGENT_CELLS}` : SUBAGENT_CHAINING
+    return next({ ...e, prompt: withSetting(e.prompt, line) })
   }).catch(($, e, next) => next(e))
 
   // Handles live for one prompt, as sterna's do.

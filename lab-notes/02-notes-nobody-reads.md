@@ -31,7 +31,7 @@ No extra step for Claude: the answer is in the place it was already reading. On 
 
 The second idea was bigger. Opus is expensive; Sonnet and Haiku are much cheaper. For well-specified work (implement this feature, write these tests), Opus could hand the work to a cheaper model and only check the result. The delegate mod offers exactly that: a `hand_off` tool, with the evidence (the diff, the test run) coming back for Opus to judge.
 
-Asked to hand off, it works: a feature cost 27–37% less, every result correct. The question was whether Opus would hand off without being asked. We tried everything we could think of ([SUITE.md](../benchmarks/delegate-bench/SUITE.md#why-opus-does-not-hand-off-x)):
+Asked to hand off, it works: a feature cost 22–35% less, every result correct (corrected 16 Oct: worker costs were undercounted; we had 27–37%). The question was whether Opus would hand off without being asked. We tried everything we could think of ([SUITE.md](../benchmarks/delegate-bench/SUITE.md#why-opus-does-not-hand-off-x)):
 
 | What we tried | Runs | Hand-offs |
 | --- | --- | --- |
@@ -50,7 +50,7 @@ On small work that is the right call: a hand-off takes two to five requests of i
 
 ## An order works
 
-One thing did work, every time. When a mod attached an order to the prompt, phrased as the person's ("The person approved this plan; implement it through hand_off"), Opus handed off in 8 of 8 runs, and the feature cost 27% less ([SUITE.md](../benchmarks/delegate-bench/SUITE.md#getting-opus-to-hand-off-hf-mo-ic-ps)).
+One thing did work, every time. When a mod attached an order to the prompt, phrased as the person's ("The person approved this plan; implement it through hand_off"), Opus handed off in 8 of 8 runs, and the feature cost 22% less (27% before the workers' cost was corrected; [SUITE.md](../benchmarks/delegate-bench/SUITE.md#getting-opus-to-hand-off-hf-mo-ic-ps)).
 
 That became the design. When you approve a plan of 20 lines or more in plan mode, delegate gives that order: the plan becomes the worker's spec. Claude does not decide to delegate; your approval does.
 

@@ -1,6 +1,6 @@
 {
   "name": "lsp-plus",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Extends Claude Code's LSP: references and definitions name the docs that use a symbol, an edit that removes a name the docs still use says so, /refs finds stale code names and broken links in the docs, a grep for a code symbol gets a note naming the exact LSP call, and Markdown, SQL, shell scripts and Terraform get language servers.",
   "author": {
     "name": "HarzerHeribert"

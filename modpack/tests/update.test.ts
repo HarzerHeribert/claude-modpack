@@ -69,8 +69,9 @@ test('auto installs a new release in the background and says so in one line', { 
   expect(h.seen.fetched).toEqual(['https://api.github.com/repos/HarzerHeribert/claude-modpack/releases/latest'])
   const cmds = h.seen.ran.filter(a => a[0] === 'claude').map(a => a.slice(1).join(' '))
   expect(cmds[0]).toBe('plugin marketplace update claude-modpack')
-  expect(cmds.length).toBe(9)
+  expect(cmds.length).toBe(10)
   expect(cmds).toContain('plugin update eta@claude-modpack')
+  expect(cmds).toContain('plugin update seek@claude-modpack')
   expect(cmds.filter(c => c.startsWith('plugin install'))).toEqual([])
   expect(h.seen.logs.length).toBe(1)
   expect(h.seen.logs[0]).toContain('claude-modpack 0.3.0 is installed (you were on 0.2.0)')
@@ -78,11 +79,11 @@ test('auto installs a new release in the background and says so in one line', { 
 })
 
 test('a mod new in the release, which update cannot reach, is installed', { options: { updates: 'auto' } }, async ($, on) => {
-  const h = host(on, { root: CACHE, missing: 'route' })
+  const h = host(on, { root: CACHE, missing: 'seek' })
   on('session.start', (_$, e) => ({ cwd: e.cwd }))
   await start($, h)
   const cmds = h.seen.ran.filter(a => a[0] === 'claude').map(a => a.slice(1).join(' '))
-  expect(cmds.filter(c => c.startsWith('plugin install'))).toEqual(['plugin install route@claude-modpack'])
+  expect(cmds.filter(c => c.startsWith('plugin install'))).toEqual(['plugin install seek@claude-modpack'])
   expect(h.seen.logs[0]).toContain('is installed')
 })
 

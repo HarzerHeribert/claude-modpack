@@ -1,0 +1,88 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..d8461ab
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,82 @@
++import {
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++test("Test - Italian parseNumberPattern elision 'un''", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++});
++
++test("Test - Italian parseNumberPattern 'un'", function () {
++    expect(parseNumberPattern("un")).toBe(1);
++});
++
++test("Test - Italian parseNumberPattern 'qualche'", function () {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - Italian parseNumberPattern 'mezzo'", function () {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++});
++
++test("Test - Italian parseNumberPattern 'mezza'", function () {
++    expect(parseNumberPattern("mezza")).toBe(0.5);
++});
++
++test("Test - Italian parseNumberPattern 'paio di'", function () {
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - Italian parseNumberPattern 'alcuni'", function () {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - Italian parseNumberPattern numeric fallback", function () {
++    expect(parseNumberPattern("4.5")).toBe(4.5);
++});
++
++test("Test - Italian parseYear Buddhist Era", function () {
++    expect(parseYear("2567 BE")).toBe(2024);
++});
++
++test("Test - Italian parseYear BC", function () {
++    expect(parseYear("50 BC")).toBe(-50);
++});
++
++test("Test - Italian parseYear BCE", function () {
++    expect(parseYear("50 BCE")).toBe(-50);
++});
++
++test("Test - Italian parseYear AD", function () {
++    expect(parseYear("50 AD")).toBe(50);
++});
++
++test("Test - Italian parseYear CE", function () {
++    expect(parseYear("1999 CE")).toBe(1999);
++});
++
++test("Test - Italian parseYear plain two-digit year", function () {
++    expect(parseYear("99")).toBe(1999);
++});
++
++test("Test - Italian parseOrdinalNumberPattern dictionary word", function () {
++    expect(parseOrdinalNumberPattern("terzo")).toBe(3);
++});
++
++test("Test - Italian parseOrdinalNumberPattern numeric with suffix", function () {
++    expect(parseOrdinalNumberPattern("3°")).toBe(3);
++});
++
++test("Test - Italian parseDuration returns null for unmatched text", function () {
++    expect(parseDuration("")).toBeNull();
++});
++
++test("Test - Italian parseDuration returns null for alphabetic-only match", function () {
++    expect(parseDuration("unora")).toBeNull();
++});
++
++test("Test - Italian parseDuration parses a single unit", function () {
++    expect(parseDuration("2 giorni")).toEqual({ day: 2 });
++});

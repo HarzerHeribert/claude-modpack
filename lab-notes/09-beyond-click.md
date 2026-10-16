@@ -48,7 +48,7 @@ Trail-Code, measured where it reports its own SWE-bench results, again cost more
 - **The pack's saving holds** on a second language, on real bug reports and on code it was not built around: fewer requests at equal quality, everywhere we looked. Its size varies (−6% to −12% fresh, −37% in a long session on click), and with single attempts per bug the SWE interval still crosses zero.
 - **Trail-Code cost more than the pack alone on every ground** we measured: click fresh, click long, and SWE-bench.
 - **The ideas we borrowed did not survive replication.** Scout's small saving on click did not appear on real issues. yaml-plus found nothing a model did not find itself.
-- **The router (route) has not been replicated yet.** Its −17% is from click alone; bug reports are mostly neither features nor tests, so SWE-bench is the wrong ground for it, and a set of real feature requests is the right one.
+- **The router (route) has not been replicated yet.** Its −14% (−17% before worker costs were corrected on 16 Oct) is from click alone; bug reports are mostly neither features nor tests, so SWE-bench is the wrong ground for it, and a set of real feature requests is the right one.
 
 ## Method & limits
 

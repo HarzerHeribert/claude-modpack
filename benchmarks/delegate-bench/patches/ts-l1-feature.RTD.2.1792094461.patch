@@ -1,0 +1,514 @@
+diff --git a/src/locales/en/configuration.ts b/src/locales/en/configuration.ts
+index 2edeeff..2e8b313 100644
+--- a/src/locales/en/configuration.ts
++++ b/src/locales/en/configuration.ts
+@@ -28,6 +28,7 @@ import ENExtractYearSuffixRefiner from "./refiners/ENExtractYearSuffixRefiner";
+ import ENUnlikelyFormatFilter from "./refiners/ENUnlikelyFormatFilter";
+ import ENEndOfPeriodRefiner from "./refiners/ENEndOfPeriodRefiner";
+ import ENEndOfCurrentMonthParser from "./parsers/ENEndOfCurrentMonthParser";
++import ENISOWeekDateParser from "./parsers/ENISOWeekDateParser";
+ 
+ export default class ENDefaultConfiguration {
+     /**
+@@ -67,6 +68,7 @@ export default class ENDefaultConfiguration {
+                     new ENTimeUnitAgoFormatParser(strictMode),
+                     new ENTimeUnitLaterFormatParser(strictMode),
+                     new ENYearMonthNameParser(),
++                    new ENISOWeekDateParser(),
+                 ],
+                 refiners: [new ENMergeDateTimeRefiner()],
+             },
+diff --git a/src/locales/en/parsers/ENISOWeekDateParser.ts b/src/locales/en/parsers/ENISOWeekDateParser.ts
+new file mode 100644
+index 0000000..b32a018
+--- /dev/null
++++ b/src/locales/en/parsers/ENISOWeekDateParser.ts
+@@ -0,0 +1,57 @@
++import { ParsingContext } from "../../../chrono";
++import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
++
++// Dashed: YYYY-Www or YYYY-Www-D. Compact: YYYYWww or YYYYWwwD.
++const PATTERN = new RegExp("(\\d{4})(?:-w(\\d{2})(?:-(\\d))?|w(\\d{2})(\\d)?)(?!\\w|-\\d)", "i");
++
++const YEAR_GROUP = 1;
++const DASHED_WEEK_GROUP = 2;
++const DASHED_WEEKDAY_GROUP = 3;
++const COMPACT_WEEK_GROUP = 4;
++const COMPACT_WEEKDAY_GROUP = 5;
++
++/**
++ * Parser for ISO 8601 week dates.
++ * - 2020-W10-3
++ * - 2020-W10
++ * - 2020W103
++ * - 2020W10
++ */
++export default class ENISOWeekDateParser extends AbstractParserWithWordBoundaryChecking {
++    innerPattern(): RegExp {
++        return PATTERN;
++    }
++
++    innerExtract(context: ParsingContext, match: RegExpMatchArray) {
++        const isoYear = parseInt(match[YEAR_GROUP]);
++        const week = parseInt(match[DASHED_WEEK_GROUP] ?? match[COMPACT_WEEK_GROUP]);
++        const weekdayText = match[DASHED_WEEKDAY_GROUP] ?? match[COMPACT_WEEKDAY_GROUP];
++        const isoWeekday = weekdayText === undefined ? 1 : parseInt(weekdayText);
++
++        if (week < 1 || week > weeksInIsoYear(isoYear) || isoWeekday < 1 || isoWeekday > 7) {
++            return null;
++        }
++
++        // Monday of ISO week 1 is the Monday on or before Jan 4th.
++        const jan4 = new Date(Date.UTC(isoYear, 0, 4));
++        const jan4Weekday = jan4.getUTCDay() || 7;
++        const date = new Date(Date.UTC(isoYear, 0, 4 - (jan4Weekday - 1) + (week - 1) * 7 + (isoWeekday - 1)));
++
++        const result = context.createParsingResult(match.index, match.index + match[0].length);
++        result.start.assign("year", date.getUTCFullYear());
++        result.start.assign("month", date.getUTCMonth() + 1);
++        result.start.assign("day", date.getUTCDate());
++        result.start.assign("weekday", date.getUTCDay());
++        result.start.addTag("parser/ENISOWeekDateParser");
++        return result;
++    }
++}
++
++function weeksInIsoYear(year: number): number {
++    // Dec 28th always falls in the last ISO week of its year.
++    const dec28 = new Date(Date.UTC(year, 11, 28));
++    const jan4 = new Date(Date.UTC(year, 0, 4));
++    const jan4Weekday = jan4.getUTCDay() || 7;
++    const week1Monday = Date.UTC(year, 0, 4 - (jan4Weekday - 1));
++    return Math.floor((dec28.getTime() - week1Monday) / (7 * 24 * 3600 * 1000)) + 1;
++}
+diff --git a/test/en/en_iso_week_date.test.ts b/test/en/en_iso_week_date.test.ts
+new file mode 100644
+index 0000000..8073f45
+--- /dev/null
++++ b/test/en/en_iso_week_date.test.ts
+@@ -0,0 +1,425 @@
++import * as chrono from "../../src";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++
++const REF = new Date(2012, 7, 10);
++
++test("dashed with weekday", () => {
++    testSingleCase(chrono, "2020-W10-3", REF, (result) => {
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("dashed with weekday (strict)", () => {
++    testSingleCase(chrono.strict, "2020-W10-3", REF, (result) => {
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("dashed without weekday is Monday", () => {
++    testSingleCase(chrono, "2020-W10", REF, (result) => {
++        expect(result.text).toBe("2020-W10");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(2);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 2, 12));
++    });
++});
++
++test("dashed without weekday is Monday (strict)", () => {
++    testSingleCase(chrono.strict, "2020-W10", REF, (result) => {
++        expect(result.text).toBe("2020-W10");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(2);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 2, 12));
++    });
++});
++
++test("compact with weekday", () => {
++    testSingleCase(chrono, "2020W103", REF, (result) => {
++        expect(result.text).toBe("2020W103");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("compact with weekday (strict)", () => {
++    testSingleCase(chrono.strict, "2020W103", REF, (result) => {
++        expect(result.text).toBe("2020W103");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("compact without weekday", () => {
++    testSingleCase(chrono, "2020W10", REF, (result) => {
++        expect(result.text).toBe("2020W10");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(2);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 2, 12));
++    });
++});
++
++test("lowercase w dashed", () => {
++    testSingleCase(chrono, "2020-w10-3", REF, (result) => {
++        expect(result.text).toBe("2020-w10-3");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("lowercase w compact", () => {
++    testSingleCase(chrono, "2020w103", REF, (result) => {
++        expect(result.text).toBe("2020w103");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("week 1 starts in previous year", () => {
++    testSingleCase(chrono, "2020-W01-1", REF, (result) => {
++        expect(result.text).toBe("2020-W01-1");
++        expect(result.start.get("year")).toBe(2019);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(30);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2019, 11, 30, 12));
++    });
++});
++
++test("week 1 starts in previous year (2026)", () => {
++    testSingleCase(chrono, "2026-W01", REF, (result) => {
++        expect(result.text).toBe("2026-W01");
++        expect(result.start.get("year")).toBe(2025);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(29);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2025, 11, 29, 12));
++    });
++});
++
++test("week 1 starting in current year", () => {
++    testSingleCase(chrono, "2021-W01-1", REF, (result) => {
++        expect(result.text).toBe("2021-W01-1");
++        expect(result.start.get("year")).toBe(2021);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2021, 0, 4, 12));
++    });
++});
++
++test("week 53 ending in next year", () => {
++    testSingleCase(chrono, "2020-W53-7", REF, (result) => {
++        expect(result.text).toBe("2020-W53-7");
++        expect(result.start.get("year")).toBe(2021);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(3);
++        expect(result.start.get("weekday")).toBe(0);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2021, 0, 3, 12));
++    });
++});
++
++test("week 53 ending in next year (compact)", () => {
++    testSingleCase(chrono, "2020W537", REF, (result) => {
++        expect(result.text).toBe("2020W537");
++        expect(result.start.get("year")).toBe(2021);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(3);
++        expect(result.start.get("weekday")).toBe(0);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2021, 0, 3, 12));
++    });
++});
++
++test("week 53 in 53-week year", () => {
++    testSingleCase(chrono, "2026-W53-4", REF, (result) => {
++        expect(result.text).toBe("2026-W53-4");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(31);
++        expect(result.start.get("weekday")).toBe(4);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2026, 11, 31, 12));
++    });
++});
++
++test("week 53 in 53-week year 2015", () => {
++    testSingleCase(chrono, "2015-W53", REF, (result) => {
++        expect(result.text).toBe("2015-W53");
++        expect(result.start.get("year")).toBe(2015);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2015, 11, 28, 12));
++    });
++});
++
++test("week 52 in 52-week year", () => {
++    testSingleCase(chrono, "2021-W52-7", REF, (result) => {
++        expect(result.text).toBe("2021-W52-7");
++        expect(result.start.get("year")).toBe(2022);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(2);
++        expect(result.start.get("weekday")).toBe(0);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2022, 0, 2, 12));
++    });
++});
++
++test("embedded dashed", () => {
++    testSingleCase(chrono, "Meet on 2020-W10-3 please", REF, (result) => {
++        expect(result.index).toBe(8);
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("embedded compact", () => {
++    testSingleCase(chrono, "Meet on 2020W103 please", REF, (result) => {
++        expect(result.index).toBe(8);
++        expect(result.text).toBe("2020W103");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("embedded without weekday, punctuation", () => {
++    testSingleCase(chrono, "See (2020-W10), ok", REF, (result) => {
++        expect(result.index).toBe(5);
++        expect(result.text).toBe("2020-W10");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(2);
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 2, 12));
++    });
++});
++
++test("embedded strict", () => {
++    testSingleCase(chrono.strict, "Meet on 2020-W10-3 please", REF, (result) => {
++        expect(result.index).toBe(8);
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start).toBeDate(new Date(2020, 2, 4, 12));
++    });
++});
++
++test("invalid: week 00 (2020-W00)", () => {
++    testUnexpectedResult(chrono, "2020-W00", REF);
++});
++
++test("invalid: week 54 (2020-W54)", () => {
++    testUnexpectedResult(chrono, "2020-W54", REF);
++});
++
++test("invalid: week 53 in 52-week year (2021-W53)", () => {
++    testUnexpectedResult(chrono, "2021-W53", REF);
++});
++
++test("invalid: week 53 in 52-week year compact (2021W53)", () => {
++    testUnexpectedResult(chrono, "2021W53", REF);
++});
++
++test("invalid: weekday 0 (2020-W10-0)", () => {
++    testUnexpectedResult(chrono, "2020-W10-0", REF);
++});
++
++test("invalid: weekday 8 (2020-W10-8)", () => {
++    testUnexpectedResult(chrono, "2020-W10-8", REF);
++});
++
++test("invalid: weekday 9 (2020-W10-9)", () => {
++    testUnexpectedResult(chrono, "2020-W10-9", REF);
++});
++
++test("invalid: weekday 0 compact (2020W100)", () => {
++    testUnexpectedResult(chrono, "2020W100", REF);
++});
++
++test("invalid: weekday 8 compact (2020W108)", () => {
++    testUnexpectedResult(chrono, "2020W108", REF);
++});
++
++test("invalid: weekday 9 compact (2020W109)", () => {
++    testUnexpectedResult(chrono, "2020W109", REF);
++});
++
++test("invalid: trailing digit (2020-W101)", () => {
++    testUnexpectedResult(chrono, "2020-W101", REF);
++});
++
++test("invalid: trailing digit compact (2020W1012)", () => {
++    testUnexpectedResult(chrono, "2020W1012", REF);
++});
++
++test("invalid: two-digit weekday (2020-W10-12)", () => {
++    testUnexpectedResult(chrono, "2020-W10-12", REF);
++});
++
++test("invalid: weekday 8 (strict)", () => {
++    testUnexpectedResult(chrono.strict, "2020-W10-8", REF);
++});
++
++test("invalid: week 53 in 52-week year (strict)", () => {
++    testUnexpectedResult(chrono.strict, "2021-W53", REF);
++});

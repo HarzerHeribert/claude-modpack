@@ -10,13 +10,20 @@ import {
   parseWorker,
   parseLocations,
   parseVerdict,
+  parseVerify,
+  testCounts,
+  isTestFile,
+  verdict,
+  parsePlaces,
+  checkPlace,
+  readVerdict,
   reviewRoute,
   summarize,
   workerPrompt,
 } from '../hooks/plan'
 import type { HandOff } from '../hooks/plan'
 import type { DelegateJob } from '../types'
-import { dropsNotice, failedText, handOverText, etaStatusLine, isAutoModeBlock, lostEntries, planOrder, trackInEta } from '../hooks/register'
+import { dropsNotice, secondCopy, failedText, handOverText, etaStatusLine, isAutoModeBlock, lostEntries, planOrder, trackInEta } from '../hooks/register'
 
 const CWD = '/repo'
 
@@ -78,8 +85,11 @@ describe('reading the language server', () => {
 
 describe('the worker prompt', () => {
   test('explore reads only; edit names the check', () => {
-    expect(workerPrompt({ task: 'Find X.', mode: 'explore', reach: '' })).toBe('Find X.\n\nMode: explore. Read only: change no file. Find what the task asks and report it with file:line.')
+    const explore = workerPrompt({ task: 'Find X.', mode: 'explore', reach: '' })
+    expect(explore).toStartWith('Find X.\n\nMode: explore. Read only: change no file. Find what the task asks and report it with file:line.')
+    expect(explore).toContain('\nPLACES\n<path relative to the project root>:<line> <the symbol as it appears on that line>')
     expect(workerPrompt({ task: 'Rename X.', mode: 'edit', reach: '- `X`', check: 'npm test' })).toContain('this check will run: `npm test`')
+    expect(workerPrompt({ task: 'Find X.', mode: 'explore', reach: '', root: '/repo' })).toContain('The project is /repo: work there')
   })
 })
 
@@ -375,5 +385,98 @@ describe('a background hand-off ending without a notice', () => {
     expect(dropsNotice(new Set(['w1']), 'task', 'done w1')).toBe(true)
     expect(dropsNotice(new Set(['w1']), 'plugin', 'Hand-off 1 (w1) has ended')).toBe(false)
     expect(dropsNotice(new Set(['w1']), 'task', 'done w2')).toBe(false)
+    expect(secondCopy(undefined)).toEqual({ drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' })
+    expect(secondCopy('t1')).toEqual({ text: 'delegate: the worker\'s report already reached Claude as the hand_off result.' })
+  })
+})
+
+describe('verify', () => {
+  test('parseVerify reads the block, none values, a missing block, the last block', () => {
+    expect(parseVerify('done\nVERIFY\ntests: pytest t.py\nopen: the docs')).toEqual({ tests: 'pytest t.py', open: 'the docs' })
+    expect(parseVerify('x\nVERIFY\ntests: None\nopen: ')).toEqual({})
+    expect(parseVerify('no block here')).toBeUndefined()
+    expect(parseVerify('VERIFY\ntests: a\nopen: b\nmore\nVERIFY\ntests: c\nopen: none')).toEqual({ tests: 'c' })
+  })
+
+  test('testCounts reads the last summary of each runner', () => {
+    expect(testCounts('..\n==== 12 passed in 0.5s ====')).toEqual({ passed: 12, failed: 0 })
+    expect(testCounts('==== 1 failed, 10 passed, 2 errors in 1.2s ====')).toEqual({ passed: 10, failed: 3 })
+    expect(testCounts('============ no tests ran in 0.01s ============')).toEqual({ passed: 0, failed: 0 })
+    expect(testCounts('Tests:  3 failed, 24 passed, 27 total')).toEqual({ passed: 24, failed: 3 })
+    expect(testCounts(' Tests  27 passed (27)')).toEqual({ passed: 27, failed: 0 })
+    expect(testCounts(' 5 pass\n 0 fail\nRan 5 tests')).toEqual({ passed: 5, failed: 0 })
+    expect(testCounts('# tests 5\n# pass 5\n# fail 0')).toEqual({ passed: 5, failed: 0 })
+    expect(testCounts('all good')).toBeUndefined()
+  })
+
+  test('isTestFile', () => {
+    for (const p of ['tests/a.ts', 'x/test/b.py', 'src/__tests__/c.js', 'spec/d.rb', 'test_a.py', 'a_test.py', 'a_test.go', 'a.test.tsx', 'b.spec.mjs']) expect(isTestFile(p)).toBe(true)
+    for (const p of ['src/a.ts', 'latest/a.ts', 'a.test.md', 'contest.py']) expect(isTestFile(p)).toBe(false)
+  })
+
+  test('verdict', () => {
+    const ok = { exit: 0, counts: { passed: 2020, failed: 0 } }
+    const green = verdict({ changed: ['a.ts', 'tests/a.test.ts'], check: ok, tests: { exit: 0, counts: { passed: 27, failed: 0 } }, block: true })
+    expect(green.verified).toBe(true)
+    expect(green.line).toStartWith('Verified:')
+    expect(green.line).toContain('nothing is left to run')
+    expect(verdict({ changed: ['a.ts'], check: { exit: 1 }, block: true }).line).toContain('check failed with exit 1')
+    expect(verdict({ changed: ['a.ts'], block: true }).line).toContain('check was not given')
+    const zero = verdict({ changed: ['a.ts'], check: ok, tests: { exit: 0, counts: { passed: 0, failed: 0 } }, block: true })
+    expect(zero.verified).toBe(false)
+    expect(zero.line).toContain('0 selected')
+    const untested = verdict({ changed: ['tests/a.test.ts'], check: ok, block: true })
+    expect(untested.verified).toBe(false)
+    expect(untested.line).toContain('no command ran them on their own')
+    const open = verdict({ changed: ['a.ts'], check: ok, open: 'docs', block: true })
+    expect(open.verified).toBe(false)
+    expect(open.line).toContain('left open: docs')
+    expect(open.line).toEndWith('Look at these before you report.')
+    expect(verdict({ changed: [], check: ok, block: true }).verified).toBe(false)
+    expect(verdict({ changed: ['a.ts'], check: ok, block: false }).line).toContain('no VERIFY block')
+  })
+})
+
+describe('read verify', () => {
+  test('parsePlaces reads the last block, stops at a blank line, strips backticks', () => {
+    const r = 'x\nPLACES\nold.py:1 old\n\nfound\nPLACES\na.py:10 `foo`\nb/c.ts:3 bar baz\n\nthanks'
+    expect(parsePlaces(r)).toEqual([
+      { path: 'a.py', line: 10, symbol: 'foo' },
+      { path: 'b/c.ts', line: 3, symbol: 'bar' },
+    ])
+    expect(parsePlaces('PLACES\na.py:1 x\nnot a place\nb.py:2 y')).toEqual([{ path: 'a.py', line: 1, symbol: 'x' }])
+    expect(parsePlaces('no block\na.py:1 x')).toBeUndefined()
+  })
+
+  test('checkPlace finds the symbol on the line, near it, or not at all', () => {
+    const f = ['a', 'foobar', 'foo()', 'b', 'c', 'd', 'e', 'f']
+    expect(checkPlace(f, 3, 'foo')).toBe('found')
+    expect(checkPlace(f, 2, 'foo')).toEqual({ near: 3 })
+    expect(checkPlace(f, 2, 'foobar')).toBe('found')
+    expect(checkPlace(['foobar'], 1, 'foo')).toBe('missing')
+    expect(checkPlace(f, 7, 'foo')).toBe('missing')
+    expect(checkPlace(['a.b()'], 1, 'a.b(')).toBe('found')
+    expect(checkPlace(undefined, 1, 'foo')).toBe('missing')
+  })
+
+  const at = { path: 'a.py', line: 10, symbol: 'foo' }
+  test('readVerdict verifies only a block of places all found', () => {
+    const ok = readVerdict({ places: [{ ...at, result: 'found' }], block: true })
+    expect(ok.verified).toBe(true)
+    expect(ok.line).toContain('nothing is left to open')
+    expect(readVerdict({ places: [{ ...at, result: 'missing' }], block: true }).line).toContain('1 place not found at the line given: a.py:10 `foo`')
+    expect(readVerdict({ places: [], block: false }).line).toContain('no PLACES block')
+    expect(readVerdict({ places: [], block: true }).line).toContain('named no places')
+    const srv = readVerdict({ places: [{ ...at, result: 'found' }], block: true, serverFiles: ['a.py', 'x.py'] })
+    // Named, not held against the answer: only the main model knows whether the question covers x.py.
+    expect(srv.verified).toBe(true)
+    expect(srv.line).toContain('check whether the question covers them): x.py')
+    expect(srv.line).toEndWith('nothing is left to open.')
+    const both = readVerdict({ places: [{ ...at, result: 'missing' }], block: true, serverFiles: ['x.py'] })
+    expect(both.verified).toBe(false)
+    expect(both.line).toContain('x.py')
+    const near = readVerdict({ places: [{ ...at, result: { near: 11 } }, { ...at, result: 'found' }], block: true, serverFiles: ['a.py'] })
+    expect(near.verified).toBe(true)
+    expect(near.line).toContain('1 was a line or two off')
   })
 })

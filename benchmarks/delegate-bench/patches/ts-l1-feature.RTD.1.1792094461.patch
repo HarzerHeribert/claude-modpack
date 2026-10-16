@@ -1,0 +1,335 @@
+diff --git a/src/locales/en/configuration.ts b/src/locales/en/configuration.ts
+index 2edeeff..0554b1e 100644
+--- a/src/locales/en/configuration.ts
++++ b/src/locales/en/configuration.ts
+@@ -5,6 +5,7 @@ import ENMonthNameLittleEndianParser from "./parsers/ENMonthNameLittleEndianPars
+ import ENMonthNameMiddleEndianParser from "./parsers/ENMonthNameMiddleEndianParser";
+ import ENMonthNameParser from "./parsers/ENMonthNameParser";
+ import ENYearMonthDayParser from "./parsers/ENYearMonthDayParser";
++import ENISOWeekDateParser from "./parsers/ENISOWeekDateParser";
+ import ENYearMonthNameParser from "./parsers/ENYearMonthNameParser";
+ import ENSlashMonthFormatParser from "./parsers/ENSlashMonthFormatParser";
+ import ENTimeExpressionParser from "./parsers/ENTimeExpressionParser";
+@@ -73,6 +74,7 @@ export default class ENDefaultConfiguration {
+             strictMode
+         );
+         options.parsers.unshift(new ENYearMonthDayParser(/*strictMonthDateOrder=*/ strictMode));
++        options.parsers.unshift(new ENISOWeekDateParser());
+ 
+         // These relative-dates consideration should be done before other common refiners.
+         options.refiners.unshift(new ENMergeRelativeFollowByDateRefiner());
+diff --git a/src/locales/en/parsers/ENISOWeekDateParser.ts b/src/locales/en/parsers/ENISOWeekDateParser.ts
+new file mode 100644
+index 0000000..93b8c70
+--- /dev/null
++++ b/src/locales/en/parsers/ENISOWeekDateParser.ts
+@@ -0,0 +1,63 @@
++import { ParsingContext } from "../../../chrono";
++import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
++
++/*
++    ISO 8601 week dates
++    - YYYY-Www
++    - YYYY-Www-D
++    - YYYYWww
++    - YYYYWwwD
++*/
++// The week and weekday digits are captured loosely; invalid values are rejected in innerExtract,
++// so that a shorter prefix (e.g. "2026-W01" in "2026-W01-8") is never matched.
++const PATTERN = new RegExp(
++    `([0-9]{4})(?:-[Ww]([0-9]{2})(?:-([0-9]))?|[Ww]([0-9]{2})([0-9])?)` + `(?![0-9A-Za-z]|-[0-9])`
++);
++
++const YEAR_GROUP = 1;
++const EXTENDED_WEEK_GROUP = 2;
++const EXTENDED_WEEKDAY_GROUP = 3;
++const COMPACT_WEEK_GROUP = 4;
++const COMPACT_WEEKDAY_GROUP = 5;
++
++function isoWeekdayOfJan1(year: number): number {
++    // 1 = Monday ... 7 = Sunday
++    return new Date(Date.UTC(year, 0, 1)).getUTCDay() || 7;
++}
++
++function weeksInYear(year: number): number {
++    const jan1 = isoWeekdayOfJan1(year);
++    const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
++    return jan1 === 4 || (isLeap && jan1 === 3) ? 53 : 52;
++}
++
++export default class ENISOWeekDateParser extends AbstractParserWithWordBoundaryChecking {
++    innerPattern(): RegExp {
++        return PATTERN;
++    }
++
++    innerExtract(context: ParsingContext, match: RegExpMatchArray) {
++        const year = parseInt(match[YEAR_GROUP]);
++        const week = parseInt(match[EXTENDED_WEEK_GROUP] ?? match[COMPACT_WEEK_GROUP]);
++        const weekdayText = match[EXTENDED_WEEKDAY_GROUP] ?? match[COMPACT_WEEKDAY_GROUP];
++        const isoWeekday = weekdayText === undefined ? 1 : parseInt(weekdayText);
++
++        if (week < 1 || week > weeksInYear(year) || isoWeekday < 1 || isoWeekday > 7) {
++            return null;
++        }
++
++        // Week 1 is the week containing January 4th.
++        const jan4 = Date.UTC(year, 0, 4);
++        const jan4Weekday = new Date(Date.UTC(year, 0, 4)).getUTCDay() || 7;
++        const dayOffset = (week - 1) * 7 + (isoWeekday - 1) - (jan4Weekday - 1);
++        const date = new Date(jan4 + dayOffset * 24 * 60 * 60 * 1000);
++
++        const components = context.createParsingComponents({
++            "year": date.getUTCFullYear(),
++            "month": date.getUTCMonth() + 1,
++            "day": date.getUTCDate(),
++            "weekday": isoWeekday % 7,
++        });
++        return components.addTag("parser/ENISOWeekDateParser");
++    }
++}
+diff --git a/test/en/en_iso_week_date.test.ts b/test/en/en_iso_week_date.test.ts
+new file mode 100644
+index 0000000..3b7ae63
+--- /dev/null
++++ b/test/en/en_iso_week_date.test.ts
+@@ -0,0 +1,240 @@
++import * as chrono from "../../src";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++
++test("Test - ISO week date 2026-W05 (casual) #0", function () {
++    testSingleCase(chrono.casual, "2026-W05", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W05");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(26);
++        expect(result.start.get("weekday")).toBe(1);
++    });
++});
++
++test("Test - ISO week date 2026-W05-3 (casual) #1", function () {
++    testSingleCase(chrono.casual, "2026-W05-3", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W05-3");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(3);
++    });
++});
++
++test("Test - ISO week date 2026W05 (casual) #2", function () {
++    testSingleCase(chrono.casual, "2026W05", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026W05");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(26);
++        expect(result.start.get("weekday")).toBe(1);
++    });
++});
++
++test("Test - ISO week date 2026W053 (casual) #3", function () {
++    testSingleCase(chrono.casual, "2026W053", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026W053");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(3);
++    });
++});
++
++test("Test - ISO week date 2026-w05-3 (casual) #4", function () {
++    testSingleCase(chrono.casual, "2026-w05-3", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-w05-3");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(3);
++    });
++});
++
++test("Test - ISO week date 2026w053 (casual) #5", function () {
++    testSingleCase(chrono.casual, "2026w053", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026w053");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(3);
++    });
++});
++
++test("Test - ISO week date 2026-W01-1 (casual) #6", function () {
++    testSingleCase(chrono.casual, "2026-W01-1", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W01-1");
++        expect(result.start.get("year")).toBe(2025);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(29);
++        expect(result.start.get("weekday")).toBe(1);
++    });
++});
++
++test("Test - ISO week date 2026-W01 (casual) #7", function () {
++    testSingleCase(chrono.casual, "2026-W01", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W01");
++        expect(result.start.get("year")).toBe(2025);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(29);
++        expect(result.start.get("weekday")).toBe(1);
++    });
++});
++
++test("Test - ISO week date 2020-W53-7 (casual) #8", function () {
++    testSingleCase(chrono.casual, "2020-W53-7", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2020-W53-7");
++        expect(result.start.get("year")).toBe(2021);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(3);
++        expect(result.start.get("weekday")).toBe(0);
++    });
++});
++
++test("Test - ISO week date 2026-W53-7 (casual) #9", function () {
++    testSingleCase(chrono.casual, "2026-W53-7", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W53-7");
++        expect(result.start.get("year")).toBe(2027);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(3);
++        expect(result.start.get("weekday")).toBe(0);
++    });
++});
++
++test("Test - ISO week date 2026-W05-7 (casual) #10", function () {
++    testSingleCase(chrono.casual, "2026-W05-7", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W05-7");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(2);
++        expect(result.start.get("day")).toBe(1);
++        expect(result.start.get("weekday")).toBe(0);
++    });
++});
++
++test("Test - ISO week date 2026-W05-3 (strict) #11", function () {
++    testSingleCase(chrono.strict, "2026-W05-3", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026-W05-3");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(3);
++    });
++});
++
++test("Test - ISO week date 2026W053 (strict) #12", function () {
++    testSingleCase(chrono.strict, "2026W053", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.text).toBe("2026W053");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++        expect(result.start.get("weekday")).toBe(3);
++    });
++});
++
++test("Test - ISO week date embedded in a sentence", function () {
++    testSingleCase(chrono.casual, "The report is due 2026-W05-3, please.", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.index).toBe(18);
++        expect(result.text).toBe("2026-W05-3");
++        expect(result.start.get("year")).toBe(2026);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(28);
++    });
++});
++
++test("Test - ISO week date embedded in a sentence (compact, strict)", function () {
++    testSingleCase(chrono.strict, "Due on 2026W053.", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.index).toBe(7);
++        expect(result.text).toBe("2026W053");
++        expect(result.start.get("day")).toBe(28);
++    });
++});
++
++test("Test - ISO week date tag and certainty", function () {
++    testSingleCase(chrono.casual, "2026-W05-3", new Date(2026, 5, 15, 12), (result) => {
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.start.isCertain("minute")).toBe(false);
++        expect(result.start.isCertain("second")).toBe(false);
++        expect(result.start.isCertain("millisecond")).toBe(false);
++    });
++});
++
++test("Test - Invalid ISO week date 2026-W00", function () {
++    testUnexpectedResult(chrono.casual, "2026-W00", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026W00", function () {
++    testUnexpectedResult(chrono.casual, "2026W00", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W54", function () {
++    testUnexpectedResult(chrono.casual, "2026-W54", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026W54", function () {
++    testUnexpectedResult(chrono.casual, "2026W54", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2021-W53", function () {
++    testUnexpectedResult(chrono.casual, "2021-W53", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2021W53", function () {
++    testUnexpectedResult(chrono.casual, "2021W53", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2021-W53-1", function () {
++    testUnexpectedResult(chrono.casual, "2021-W53-1", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2025-W53", function () {
++    testUnexpectedResult(chrono.casual, "2025-W53", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W01-0", function () {
++    testUnexpectedResult(chrono.casual, "2026-W01-0", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W01-8", function () {
++    testUnexpectedResult(chrono.casual, "2026-W01-8", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W01-9", function () {
++    testUnexpectedResult(chrono.casual, "2026-W01-9", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026W010", function () {
++    testUnexpectedResult(chrono.casual, "2026W010", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026W018", function () {
++    testUnexpectedResult(chrono.casual, "2026W018", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026W019", function () {
++    testUnexpectedResult(chrono.casual, "2026W019", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W0123", function () {
++    testUnexpectedResult(chrono.casual, "2026-W0123", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W011", function () {
++    testUnexpectedResult(chrono.casual, "2026-W011", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026W01-1", function () {
++    testUnexpectedResult(chrono.casual, "2026W01-1", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date 2026-W01-12", function () {
++    testUnexpectedResult(chrono.casual, "2026-W01-12", new Date(2026, 5, 15, 12));
++});
++
++test("Test - Invalid ISO week date (strict)", function () {
++    testUnexpectedResult(chrono.strict, "2026-W01-8", new Date(2026, 5, 15, 12));
++});

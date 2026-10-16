@@ -1,34 +1,76 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-mode="plain">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Beyond click · Lab notes</title>
-<meta name="description" content="Lab notes 9 · 15 Oct 2026 · written by Claude from this repository's data">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beyond click · Lab notes 9 · claude-modpack</title>
+<meta name="description" content="Every number in the first eight notes comes mostly from one library: click, 79 files of Python, tasks we wrote ourselves. A fair reader's first objection is the obvious one. Maybe the pack is tuned to">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
 </head>
-<body>
-<header class="site">
-  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
-  <nav>
-    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
-    <a class="pdf" href="pdf/09-beyond-click.pdf" download>Download PDF</a>
-  </nav>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html" aria-current="page"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
 </header>
-<main class="note">
-<h1 id="beyond-click">Beyond click</h1>
-<p><em>Lab notes 9 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html" aria-current="page"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+<article class="doc prose note">
+<p class="eyebrow mono"><a href="notes.html">lab notes</a> / 09</p>
+<h1>Beyond click</h1>
+<p class="note-meta"><span>15 Oct 2026</span><span>4 min read</span><a class="btn sm" href="pdf/09-beyond-click.pdf" download><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</a></p>
+<p class="byline small muted">written by Claude from this repository's data</p>
+<details class="toc-mobile"><summary>On this page</summary><ul class="toc-list"><li><a href="#three-new-grounds">Three new grounds</a></li><li><a href="#the-pack-on-typescript">The pack on TypeScript</a></li><li><a href="#the-pack-on-real-bugs">The pack on real bugs</a></li><li><a href="#deployment-configuration">Deployment configuration</a></li><li><a href="#what-holds-and-what-does-not">What holds, and what does not</a></li><li><a href="#method--limits">Method &amp; limits</a></li><li><a href="#sources">Sources</a></li></ul></details>
 <p>Every number in the first eight notes comes mostly from one library: click, 79 files of Python, tasks we wrote ourselves. A fair reader&#39;s first objection is the obvious one. Maybe the pack is tuned to click. Maybe the code-graph tools would look better on code they were built for. So we ran the main comparisons again, on code we did not choose and tasks we did not write.</p>
-<h2 id="three-new-grounds">Three new grounds</h2>
+<h2 id="three-new-grounds"><a class="anchor" href="#three-new-grounds" aria-hidden="true" tabindex="-1">#</a>Three new grounds</h2>
 <ul>
 <li><strong>A TypeScript library.</strong> chrono, a natural-language date parser (267 TypeScript source files, 753 tests, jest), at release v2.10.3. Eight tasks of the same kinds as click&#39;s (trace the callers, rename, explain, look up, list subclasses, a feature to a spec, raise coverage, change a signature), each graded by hidden tests or fixed answers. Every grader was checked both ways: 0 on the untouched code, 1.0 on a reference solution.</li>
 <li><strong>Real bug reports.</strong> 30 tasks from SWE-bench Verified (Jimenez et al. 2024; OpenAI 2024): issues filed against django, sympy and other Python projects, each stated as the original issue text, graded by the project&#39;s own hidden tests. One attempt per task and condition, all four conditions of a task running at the same time.</li>
 <li><strong>Deployment configuration.</strong> The YAML repository from <a href="06-one-server-per-extension.html">note 6</a>, small and large.</li>
 </ul>
-<h2 id="the-pack-on-typescript">The pack on TypeScript</h2>
+<h2 id="the-pack-on-typescript"><a class="anchor" href="#the-pack-on-typescript" aria-hidden="true" tabindex="-1">#</a>The pack on TypeScript</h2>
 <p>64 runs, Opus 5.5, four per task and condition (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ts.jsonl"><code>results-ts.jsonl</code></a>):</p>
-<table>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
 <thead>
 <tr>
 <th></th>
@@ -51,12 +93,12 @@
 <td><strong>−9.9%</strong></td>
 <td>−13.7% to −5.9%</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>The pack took fewer requests on all eight tasks: the feature in 10.5 instead of 13.2, the rename in 4.2 instead of 6.0. Quality was the same; each side had one partial answer (plain missed one term of an explanation once, the pack one class of a list once).</p>
 <p>One difference from click stands out. On click&#39;s quick questions the pack cost 5.5% more on one day and 3.6% less on another, about even (<a href="01-the-cheapest-step.html">note 1</a>). On TypeScript it saved 9.9% on them. Questions about a typed codebase lean on symbol lookups more, and lsp-plus answers those from the TypeScript server inside the search.</p>
-<h2 id="the-pack-on-real-bugs">The pack on real bugs</h2>
+<h2 id="the-pack-on-real-bugs"><a class="anchor" href="#the-pack-on-real-bugs" aria-hidden="true" tabindex="-1">#</a>The pack on real bugs</h2>
 <p>120 attempts, Opus 5.5 at its highest effort, as the harness runs SWE-bench (<a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/swe-bench"><code>swe-bench/2026-10-15-swe</code></a>):</p>
-<table>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
 <thead>
 <tr>
 <th>Condition</th>
@@ -94,31 +136,36 @@
 <td>11.5</td>
 <td>162 s</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>With one attempt per bug, cost intervals are wide: the pack against plain −12.3% [−32.5%, +11.9%]. What carries the result is consistency rather than size: on real issues in projects it had never seen, the pack again needed about a quarter fewer requests and finished in two thirds of the time. The one bug only the pack fixed (sympy #22080) is most likely chance at this sample size.</p>
 <p>Trail-Code, measured where it reports its own SWE-bench results, again cost more than the pack alone: +10.8% [0.0%, +25.5%]. Scout, the definition pointers from <a href="04-borrowing-the-good-ideas.html">note 4</a>, spoke on 20 of the 30 issues, which name functions and classes far more often than our tasks; it still saved nothing (+7.3% against the pack [−6.7%, +20.7%]). That settles scout: it stays out.</p>
-<h2 id="deployment-configuration">Deployment configuration</h2>
+<h2 id="deployment-configuration"><a class="anchor" href="#deployment-configuration" aria-hidden="true" tabindex="-1">#</a>Deployment configuration</h2>
 <p><a href="06-one-server-per-extension.html">Note 6</a> has the details. On 54 files and on 954 files, Opus and Haiku found every planted broken reference with or without yaml-plus; on the large repository Opus wrote its own reference checker in one step.</p>
-<h2 id="what-holds-and-what-does-not">What holds, and what does not</h2>
+<h2 id="what-holds-and-what-does-not"><a class="anchor" href="#what-holds-and-what-does-not" aria-hidden="true" tabindex="-1">#</a>What holds, and what does not</h2>
 <ul>
 <li><strong>The pack&#39;s saving holds</strong> on a second language, on real bug reports and on code it was not built around: fewer requests at equal quality, everywhere we looked. Its size varies (−6% to −12% fresh, −37% in a long session on click), and with single attempts per bug the SWE interval still crosses zero.</li>
 <li><strong>Trail-Code cost more than the pack alone on every ground</strong> we measured: click fresh, click long, and SWE-bench.</li>
 <li><strong>The ideas we borrowed did not survive replication.</strong> Scout&#39;s small saving on click did not appear on real issues. yaml-plus found nothing a model did not find itself.</li>
-<li><strong>The router (route) has not been replicated yet.</strong> Its −17% is from click alone; bug reports are mostly neither features nor tests, so SWE-bench is the wrong ground for it, and a set of real feature requests is the right one.</li>
+<li><strong>The router (route) has not been replicated yet.</strong> Its −14% (−17% before worker costs were corrected on 16 Oct) is from click alone; bug reports are mostly neither features nor tests, so SWE-bench is the wrong ground for it, and a set of real feature requests is the right one.</li>
 </ul>
-<h2 id="method--limits">Method &amp; limits</h2>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
 <p>TypeScript: chrono-node v2.10.3, tasks and graders in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/ts_repo.py"><code>ts_repo.py</code></a>; runs with the person&#39;s installed plugins switched off and the official TypeScript language server on. SWE-bench: 30 validated SWE-bench Verified tasks, the harness in <code>pilot/swe.py</code> of the lab (each condition loads frozen copies of the mods; the official Python language server switched on in every condition, see <a href="08-our-plain-runs-were-not-plain.html">note 8</a>); one attempt per task and condition, so per-task differences are noise and only totals carry weight. All costs at list prices from transcripts.</p>
-<h2 id="sources">Sources</h2>
+<h2 id="sources"><a class="anchor" href="#sources" aria-hidden="true" tabindex="-1">#</a>Sources</h2>
 <ul>
 <li>Jimenez, C. E., et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? <em>ICLR 2024</em>.</li>
 <li>OpenAI (2024). Introducing SWE-bench Verified.</li>
 <li><a href="https://github.com/wanasit/chrono">chrono</a>, natural-language date parser, release v2.10.3.</li>
 </ul>
 
-<nav class="pager"><a class="prev" href="08-our-plain-runs-were-not-plain.html"><span>Previous</span>Our plain runs were not plain</a><span></span></nav>
-</main>
-<footer class="site">
-  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+<nav class="pager" aria-label="Previous and next note"><a href="08-our-plain-runs-were-not-plain.html"><span>Previous</span><b>Our plain runs were not plain</b></a><a class="next" href="10-two-requests.html"><span>Next</span><b>Two requests</b></a></nav>
+</article>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#three-new-grounds" data-for="three-new-grounds">Three new grounds</a></li><li><a href="#the-pack-on-typescript" data-for="the-pack-on-typescript">The pack on TypeScript</a></li><li><a href="#the-pack-on-real-bugs" data-for="the-pack-on-real-bugs">The pack on real bugs</a></li><li><a href="#deployment-configuration" data-for="deployment-configuration">Deployment configuration</a></li><li><a href="#what-holds-and-what-does-not" data-for="what-holds-and-what-does-not">What holds, and what does not</a></li><li><a href="#method--limits" data-for="method--limits">Method &amp; limits</a></li><li><a href="#sources" data-for="sources">Sources</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
 </footer>
+<div class="sl" aria-hidden="true" data-path="notes/09" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

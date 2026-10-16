@@ -1,7 +1,7 @@
 {
   "name": "route",
-  "version": "0.1.0",
-  "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a ScaleDown key.",
+  "version": "0.3.1",
+  "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (TypeSafe's Jev or ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a key for one of them.",
   "author": {
     "name": "HarzerHeribert"
   },
@@ -9,8 +9,21 @@
     "enabled": {
       "type": "boolean",
       "title": "On",
-      "description": "Off until you turn it on (here or in /mods): from then on the text of each prompt you send goes to ScaleDown, a US service, to be classified.",
+      "description": "Off until you turn it on (here or in /mods): from then on the start of each prompt you send (up to 8,000 characters) goes to the classifier, a US service, to be classified.",
       "default": false
+    },
+    "classifier": {
+      "type": "string",
+      "title": "Classifier",
+      "description": "auto: TypeSafe's Jev when its key is set (0.25 s median, measured), else ScaleDown (1.15 s). Both were right on all 50 test prompts. TypeSafe keeps inputs as long as it needs them and never trains on them; ScaleDown's terms promise zero retention.",
+      "options": ["auto", "jev", "scaledown"],
+      "default": "auto"
+    },
+    "typesafeKey": {
+      "type": "string",
+      "title": "TypeSafe API key",
+      "description": "For Jev. Else the TYPESAFE_API_KEY environment variable.",
+      "sensitive": true
     },
     "scaledownKey": {
       "type": "string",
@@ -23,6 +36,12 @@
       "title": "Hand off from (classifier score)",
       "description": "Only a prompt the classifier calls feature or test work with at least this score gets the order.",
       "default": 0.7
+    },
+    "direct": {
+      "type": "boolean",
+      "title": "Hand off before reading the code",
+      "description": "The order tells Claude to hand the work off at once and let the worker read the code, instead of looking around first. Measured (15 Oct): followed in 24 of 24 runs (looking around first, Opus kept the work in 5 of 16); 2 main-model requests on the TypeScript feature instead of 11 with the pack alone, all correct.",
+      "default": true
     },
     "timeoutMs": {
       "type": "number",

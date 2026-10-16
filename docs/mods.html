@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-default-mode="plain">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The mods · claude-modpack</title>
+<meta name="description" content="statusline, smart-compact, delegate, lsp-plus, cells, eta, seek and route, and the modpack that installs them.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
+</head>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html" aria-current="page">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html" aria-current="true">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+</header>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html" aria-current="page">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+
+<div class="doc">
+  <p class="eyebrow">Mods</p>
+  <h1>Eight mods and the pack</h1>
+  <p class="lead">Each works on its own, finds the others through Claude Code itself, and switches off with <code>/mods &lt;mod&gt; off</code>.</p>
+  <div class="table-wrap"><table class="table mtab"><thead><tr><th scope="col">Mod</th><th scope="col">What it does</th><th scope="col">Kind</th><th scope="col">Measured</th></tr></thead><tbody><tr><th scope="row"><a class="mono mod-link" href="mods/cells.html">cells</a></th><td>Several edits and their test run in one step</td><td><span class="badge ">flow</span></td><td class="mtab-m"><a class="mtab-n neutral" href="evidence.html#f-cells-out"><span class="num">+8.9%</span><svg class="strip s-higher" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="+8.9%, 95% interval +2.1% to +16.4%"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="37.1" x2="44.7" y1="7" y2="7"/><circle class="s-mark" cx="40.7" cy="7" r="3.6"/></svg></a><span class="mtab-l">cost of taking it out</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/lsp-plus.html">lsp-plus</a></th><td>A search for a name answered by the language server</td><td><span class="badge ">code intelligence</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-lsp-answer-rename-requests"><span class="num">−25%</span><svg class="strip s-no-interval" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−25%, no interval in the source"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><rect class="s-mark" x="19.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 22.7 7)"/></svg></a><span class="mtab-l">requests on a rename</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/seek.html">seek</a></th><td>Look around in few, lean steps</td><td><span class="badge ">cost</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-seek-fresh"><span class="num">−11.9%</span><svg class="strip s-lower" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−11.9%, 95% interval −17.2 to −5.9"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="26.8" x2="32.9" y1="7" y2="7"/><circle class="s-mark" cx="29.7" cy="7" r="3.6"/></svg></a><span class="mtab-l">fresh, against the pack</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/delegate.html">delegate</a></th><td>A cheaper model builds what you approved</td><td><span class="badge ">cost</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-delegate-order-feature"><span class="num">−22%</span><svg class="strip s-lower" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−22%, 95% interval −33% to −11%"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="18.4" x2="30.1" y1="7" y2="7"/><circle class="s-mark" cx="24.3" cy="7" r="3.6"/></svg></a><span class="mtab-l">a feature, handed off</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/route.html">route</a></th><td>Feature and test work goes to the cheaper model by itself</td><td><span class="badge ">cost, opt-in</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-route-click-pack"><span class="num">−14.2%</span><svg class="strip s-lower" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−14.2%, 95% interval −17.9% to −10.1%"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="26.5" x2="30.6" y1="7" y2="7"/><circle class="s-mark" cx="28.4" cy="7" r="3.6"/></svg></a><span class="mtab-l">eight jobs, against the pack</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/smart-compact.html">smart-compact</a></th><td>Keeps the cache warm, or compacts before it expires</td><td><span class="badge ">cost</span></td><td class="mtab-m"><span class="muted">worked out, not measured</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/statusline.html">statusline</a></th><td>One line under the prompt with what matters</td><td><span class="badge ">interface</span></td><td class="mtab-m"><span class="muted">interface only</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/eta.html">eta</a></th><td>Jobs with a percentage and a finish time above the prompt</td><td><span class="badge ">interface</span></td><td class="mtab-m"><span class="muted">interface only</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/modpack.html">modpack</a></th><td>Installs the others, switches them, keeps them current</td><td><span class="badge ">the pack</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-modpack-hook-guard"><span class="num">10 s</span></a><span class="mtab-l">until a hanging hook is skipped</span></td></tr></tbody></table></div>
+  <h2 id="together">How they fit together</h2>
+  <ul class="plain-list">
+    <li><b class="mono">statusline</b> is the line the others write on: smart-compact adds its ready or cold there.</li>
+    <li><b class="mono">lsp-plus</b> answers a search for a name from the language server and warms each language’s server at the start, so cells’ lookups and delegate’s look at where a change reaches meet a warm server.</li>
+    <li><b class="mono">cells</b> makes its edits through the Edit tool, so lsp-plus’s check for docs that still use a removed name runs on them.</li>
+    <li><b class="mono">smart-compact</b> keeps long sessions’ caches warm, where delegate and cells pay most.</li>
+    <li><b class="mono">route</b> gives delegate’s order for feature and test prompts; <b class="mono">seek</b>’s setting rides with the same prompt.</li>
+    <li><b class="mono">eta</b> shows background jobs, including those a cell starts.</li>
+  </ul>
+  <h2 id="cut">What makes the cut</h2>
+  <p>A mod joins the pack only when it was measured and cost no quality, saves cost or time or makes the work more reliable (or only adds interface), works with the others and without them, and stays quiet where it has no proof. Every option of every mod: <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">the README</a>.</p>
+</div>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#together" data-for="together">How they fit together</a></li><li><a href="#cut" data-for="cut">What makes the cut</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
+</footer>
+<div class="sl" aria-hidden="true" data-path="mods" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
+</body>
+</html>

@@ -40,6 +40,18 @@ Arms (lsp-plus is loaded in all three, from CLAUDE_CODE_PLUGIN_DIRS):
   PS  as PL (the long session prepared with the pack), with a test mod (BENCH_EXTRA_DIRS) telling Claude the
      session's size and what each of its requests re-reads (BENCH_SESSION_TOKENS): information, no advice.
      Unasked: does knowing its own cost make Opus hand off?
+  PD, PFD  a long session over one part of click and tasks in another: it read docs/ and tests/ with the pack loaded
+     (`prepare --docs`), nothing under src/click, so a task's code has to be located first. PD: the pack alone.
+     PFD: the pack and pathfinder, which, from the 3rd exploration request in a row on (150k context or more), attaches
+     the person's setting to hand the rest of the search to a read worker. Run long, against each other.
+  seek 0.3 (looking around priced by context; pilot/explore-mining round 3). Fresh, against Z: ZKO its order from the
+     first prompt (minContext 0), ZKM its map from the first search (minContext 0, priced as if it saved every request);
+     ZK is seek at its defaults, silent in a fresh session. Long: KL (the src/ session, against PL); KDO (its defaults:
+     the order alone), KDM (the map alone) and KD (both) in the docs-and-tests session, against PD beside PFD. Judge them with carry.py: what a run leaves in the context is re-read ~140 times in the person's sessions.
+  SA-off, SA-on  the pack as 0.6.0 ships it (SHIPPED, seek, route off), every run told to hand the whole task to one
+     general-purpose subagent: SA-off with cells' and seek's `subagents` option off (the subagent's task as Claude wrote
+     it), SA-on with it on (the chaining guidance and seek's order appended to the task, in the person's name). Run with
+     BENCH_RESULTS=results-subagent.jsonl; subagent_report.py checks the text reached each subagent and what they did.
 
 Each run: a fresh copy of click, `claude -p` on Opus with the person's own
 settings, the task graded by a fixed rule, and its cost priced from the
@@ -105,6 +117,30 @@ ABLATION["ZS"] = SHIPPED + ("squeeze",)
 # The pack with route: ScaleDown's classifier reads the prompt, and feature or test work gets the hand-off order (needs
 # SCALEDOWN_API_KEY in the environment). Against Z: does it hand off where that pays, and stay out of the rest?
 ABLATION["RT"] = SHIPPED + ("route",)
+# RTV: RT with delegate's verified hand-off (the worker's VERIFY block run by the tool, a verdict first) and the order that
+# says to report on a Verified result without running anything again. RTD: RTV, and the order hands off before Claude reads
+# the code. Both against RT: how many main-model requests are left around a hand-off?
+ABLATION["RTV"] = ABLATION["RTD"] = SHIPPED + ("route",)
+# ZK: the pack with seek, which attaches the follow-up Claude would spend a request on to its own searches (a scoped
+# grep's windows, the top file of a discovery grep, a wider retry of an empty one), learned from 975 local sessions
+# (pilot/explore-mining). Against Z: fewer exploration requests, at what cost in tokens?
+ABLATION["ZK"] = SHIPPED + ("seek",)
+# RTDH: RTD with Haiku at low effort as every worker, build work included (the default gives build work to Sonnet).
+ABLATION["RTDH"] = SHIPPED + ("route",)
+# seek 0.3 fresh, where it is silent at its defaults (a fresh session is under its 150k): its two parts switched on from
+# the start, to see whether Opus follows the order (ZKO) and uses the map (ZKM). Against Z.
+SEEK_FRESH = {"ZKO": {"minContext": 0}, "ZKM": {"minContext": 0, "order": False, "map": True, "saveRate": 1}}
+ABLATION.update({arm: SHIPPED + ("seek",) for arm in SEEK_FRESH})
+# The pack as 0.6.0 ships it (route loaded and off, as installed), every run through one general-purpose subagent:
+# cells' and seek's `subagents` option off (SA-off) or on (SA-on). Does the guidance and the order in the subagent's task
+# make the subagent cheaper?
+SUBAGENT_ARMS = {"SA-off": False, "SA-on": True}
+ABLATION.update({arm: SHIPPED + ("seek", "route") for arm in SUBAGENT_ARMS})
+# The prompt's fixed lead in those arms, so that every run goes through a subagent and the grading still holds (the answer
+# is the main's final message, the edits are on disk).
+VIA_SUBAGENT = ("Hand this whole task to one general-purpose subagent with the Agent tool (subagent_type \"general-purpose\"): "
+                "give it the task below word for word, let it do all of the work, any edits included, wait for it to finish, "
+                "and give its answer as your final reply. Do none of the task yourself.")
 
 # f1-fix: three one-line bugs planted in src/ (18 tests fail, ~49k characters of `pytest -q`): (file, as released, as planted).
 F1_BUGS = [
@@ -428,24 +464,90 @@ def reviews(session_id: str) -> tuple[int, float]:
     return len(mine), sum(r.get("reviewUsd") or 0 for r in mine)
 
 
+# What cells and seek append to a subagent's task (SA-on): the block's head and each mod's line, as they begin.
+SETTINGS_HEAD = "The person's settings for this work:"
+CELLS_LINE = "Fewer round-trips: every response you make re-reads"
+RUN_CELL_LINE = "Where you have the run_cell tool"
+SEEK_LINE = "Lean looking around: whatever you read stays"
+
+
+def chained(command: str) -> bool:
+    """A Bash call that runs several commands: joined with ;, && or ||, or on several lines (a pipe is one command)."""
+    return bool(re.search(r";|&&|\|\||\n", re.sub(r"^\s*cd\s+\S+\s*&&\s*", "", command).strip()))
+
+
+def subagent_of(path: str, since: float = 0) -> dict:
+    """One subagent's transcript (Agent tool or delegate's worker): its type, task, requests, cost and tool calls."""
+    meta_path = Path(path).with_suffix(".meta.json")
+    meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
+    reqs = requests_of(path, since)
+    task, calls = None, {}
+    for line in open(path, errors="replace"):
+        try:
+            o = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        m = o.get("message") or {}
+        if task is None and o.get("type") == "user":
+            c = m.get("content")
+            task = c if isinstance(c, str) else "\n".join(b.get("text", "") for b in c or [] if isinstance(b, dict) and b.get("type") == "text")
+        if o.get("type") == "assistant":
+            for b in m.get("content") or []:
+                if isinstance(b, dict) and b.get("type") == "tool_use":
+                    calls[b.get("id")] = (b.get("name"), b.get("input") or {})
+    bash = [i.get("command") or "" for n, i in calls.values() if n == "Bash"]
+    task = task or ""
+    return {
+        "type": meta.get("agentType", ""),
+        "requests": len(reqs),
+        "usd": sum(cost_of(r) for r in reqs),
+        "tools": len(calls),
+        "bash": len(bash),
+        "bash_chained": sum(1 for c in bash if chained(c)),
+        "run_cell": sum(1 for n, _ in calls.values() if n == "mcp__cells__run_cell"),
+        "reads": sum(1 for n, _ in calls.values() if n == "Read"),
+        "searches": sum(1 for n, _ in calls.values() if n in ("Grep", "Glob")),
+        "edits": sum(1 for n, _ in calls.values() if n in ("Edit", "Write", "MultiEdit")),
+        "task_chars": len(task),
+        "settings": SETTINGS_HEAD in task,
+        "cells_line": CELLS_LINE in task,
+        "run_cell_line": RUN_CELL_LINE in task,
+        "seek_line": SEEK_LINE in task,
+    }
+
+
 def account(session_id: str, since: float = 0) -> dict:
-    """What a run cost, request by request; a run that forked a long session counts from its start (`since`)."""
+    """What a run cost, request by request; a run that forked a long session counts from its start (`since`).
+
+    worker_* counts every subagent transcript (<session>/subagents/*.jsonl): delegate's workers and the Agent tool's
+    subagents alike; subagent_* the Agent tool's alone (any type but delegate:*), each also listed in `subagents`."""
     mains = glob.glob(str(PROJECTS / "*" / f"{session_id}.jsonl"))
     if not mains:
         return {"found": False}
     main = requests_of(mains[0], since)
-    workers = [r for f in glob.glob(str(Path(mains[0]).with_suffix("") / "subagents" / "*.jsonl")) for r in requests_of(f, since)]
+    sub_files = sorted(glob.glob(str(Path(mains[0]).with_suffix("") / "subagents" / "*.jsonl")))
+    workers = [r for f in sub_files for r in requests_of(f, since)]
+    subs = [s for s in (subagent_of(f, since) for f in sub_files) if not s["type"].startswith("delegate:")]
     tools = [t for r in main for t in r["tools"]]
     forks, review_usd = reviews(session_id)
+    recorded: dict[str, int] = {}
+    for r in main + workers:
+        fam = family(r["model"])
+        recorded[fam] = recorded.get(fam, 0) + (r["usage"].get("output_tokens") or 0)
     return {
         "found": True,
         "forks": forks,
+        # Output tokens as the transcripts hold them, per model family: settle() prices what they left out.
+        "recorded_output": recorded,
         "review_usd": review_usd,
         "main_requests": len(main),
         "main_usd": sum(cost_of(r) for r in main),
         "main_models": sorted({r["model"] for r in main}),
         "worker_requests": len(workers),
         "worker_usd": sum(cost_of(r) for r in workers),
+        "subagent_requests": sum(s["requests"] for s in subs),
+        "subagent_usd": sum(s["usd"] for s in subs),
+        "subagents": subs,
         "hand_offs": sum(1 for t in tools if t and (t.endswith("hand_off") or t.endswith("implement_spec"))),
         "agents": sum(1 for t in tools if t == "Agent"),
         "lsp_calls": sum(1 for t in tools if t == "LSP"),
@@ -457,6 +559,49 @@ def account(session_id: str, since: float = 0) -> dict:
         # What the task left in the main context: every later step of the session re-reads it.
         "added_context": (ctx(main[-1]) + main[-1]["usage"].get("output_tokens", 0) - ctx(main[0])) if main else 0,
     }
+
+
+def family(model: str) -> str:
+    return next((k for k in PRICES if k in model), "opus")
+
+
+def settle(c: dict, model_usage: dict | None, reported: float | None) -> dict:
+    """Prices the output the subagent transcripts left out, into worker_usd and subagent_usd. Fresh runs only.
+
+    A subagent's transcript (the Agent tool's and delegate's workers alike) records each request's output tokens as the
+    response began (a few tokens), not as it ended; the main transcript records them in full. Checked 16 Oct: cache reads
+    and writes over all transcripts match Claude Code's own modelUsage to the token, and the output is short by exactly
+    the subagent's; in every run without subagents reported_usd equals the counted cost. So what modelUsage holds beyond
+    the recorded output is the subagents' (priced at its model's output price); without modelUsage (rows before 16 Oct),
+    reported_usd less the counted cost is, at Opus prices. worker_usd_transcript and subagent_usd_transcript keep the
+    figures as the transcripts give them; with one Agent subagent, its own row's usd is completed too."""
+    if not c.get("found") or "unrecorded_usd" in c:
+        return c
+    tokens, usd = 0, 0.0
+    if model_usage:
+        by_family: dict[str, int] = {}
+        for model, u in model_usage.items():
+            by_family[family(model)] = by_family.get(family(model), 0) + (u.get("outputTokens") or 0)
+        for fam, n in by_family.items():
+            extra = max(0, n - c.get("recorded_output", {}).get(fam, 0))
+            tokens += extra
+            usd += extra * PRICES[fam]["out"] / 1e6
+    elif reported is not None:
+        usd = max(0.0, reported - (c["main_usd"] + c["worker_usd"] + c.get("review_usd", 0)))
+        tokens = round(usd / (PRICES["opus"]["out"] / 1e6))
+    c["unrecorded_output_tokens"], c["unrecorded_usd"] = tokens, usd
+    c["worker_usd_transcript"] = c["worker_usd"]
+    c["worker_usd"] += usd
+    subs = c.get("subagents", [])
+    c["subagent_usd_transcript"] = c.get("subagent_usd", 0)
+    if subs and c.get("subagent_requests", 0) == c.get("worker_requests", 0):
+        # Every worker transcript is an Agent subagent's: the output left out is theirs.
+        c["subagent_usd"] = c.get("subagent_usd", 0) + usd
+        if len(subs) == 1:
+            subs[0]["usd_transcript"] = subs[0]["usd"]
+            subs[0]["usd"] += usd
+            subs[0]["output_unrecorded"] = tokens
+    return c
 
 
 def ctx(req: dict) -> int:
@@ -476,7 +621,8 @@ def ts_base() -> Path:
 
 
 def run_one(task: str, arm: str, rep: int) -> dict:
-    run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
+    # The process id too: two bench processes running one arm name started the same task in the same second and shared a folder.
+    run_id = f"{task}.{arm}.{rep}.{int(time.time())}.{os.getpid()}"
     repo = WORK / "runs" / run_id
     if task in yaml_repo.TASKS:
         big = yaml_repo.TASKS[task].get("big", False)
@@ -501,6 +647,8 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     prompt = {**TASKS, **yaml_repo.TASKS, **ts_repo.TASKS, **EXTRA_TASKS}[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
     if arm == "HF" or arm in WORKER_ARMS:
         prompt = f"{FORCE}\n\n{prompt}"
+    if arm in SUBAGENT_ARMS:
+        prompt = f"{VIA_SUBAGENT}\n\n{prompt}"
     # BENCH_MODEL runs a whole batch on another main model (does a mod help a weaker one?); W is Sonnet by definition.
     model = os.environ.get("BENCH_MODEL") or ("sonnet" if arm == "W" else "opus")
     cmd = ["claude", "-p", prompt, "--model", model, "--permission-mode", "auto", "--output-format", "json"]
@@ -520,10 +668,19 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         if arm in IDEAS:
             blast = {"options": {"blast": IDEAS[arm][1]}}
             settings["pluginConfigs"] = {"lsp-plus": blast, "lsp-plus@inline": blast}
-        if arm == "RT":
+        if arm in SEEK_FRESH:
+            seek = {"options": SEEK_FRESH[arm]}
+            settings["pluginConfigs"] = {"seek": seek, "seek@inline": seek}
+        if arm in ("RT", "RTV", "RTD", "RTDH"):
             # route is off until turned on; its key comes from SCALEDOWN_API_KEY in the environment, never the command line.
-            on = {"options": {"enabled": True}}
+            on = {"options": {"enabled": True, **({"direct": True} if arm in ("RTD", "RTDH") else {})}}
             settings["pluginConfigs"] = {"route": on, "route@inline": on}
+        if arm == "RTDH":
+            haiku = {"options": {"readWorker": "haiku:low", "mechanicalWorker": "haiku:low", "buildWorker": "haiku:low"}}
+            settings["pluginConfigs"] |= {"delegate": haiku, "delegate@inline": haiku}
+        if arm in SUBAGENT_ARMS:
+            sub = {"options": {"subagents": SUBAGENT_ARMS[arm]}}
+            settings["pluginConfigs"] = {f"{m}{s}": sub for m in ("cells", "seek") for s in ("", "@inline")}
         if arm in WORKER_ARMS:
             worker = WORKER_ARMS[arm]
             options = {"options": {"readWorker": worker, "mechanicalWorker": worker, "buildWorker": worker}}
@@ -570,8 +727,11 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         subprocess.run(["git", "add", "-A", "-N", "."], cwd=repo, capture_output=True)
         diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", ".", ":(exclude).coverage", ":(exclude)*.pyc", ":(exclude)__pycache__"], cwd=repo, capture_output=True, text=True).stdout
         (HERE / "patches" / f"{run_id}.patch").write_text(diff)
+    # Claude Code's own token count per model, the subagents' whole output included (see settle()).
+    row["model_usage"] = {m: {k: u.get(k) for k in ("inputTokens", "outputTokens", "cacheReadInputTokens", "cacheCreationInputTokens", "costUSD")}
+                          for m, u in (res.get("modelUsage") or {}).items()}
     if row["session"]:
-        row["cost"] = account(row["session"])
+        row["cost"] = settle(account(row["session"]), row["model_usage"], row["reported_usd"])
     return row
 
 
@@ -590,15 +750,35 @@ LONG_TRAIL = WORK / "long-trail"
 LONG_TRAIL_REPO = LONG_TRAIL / "repo"
 LONG_SESSION_TRAIL = LONG_TRAIL / "session.txt"
 
+# The docs-and-tests session (PD, PFD): click's docs/ and tests/ read in full with the pack loaded, nothing under src/,
+# so the tasks' code (src/click) is in none of the context and has to be located. Its own folder: the history holds it.
+LONG_DOCS = WORK / "long-docs"
+LONG_DOCS_REPO = LONG_DOCS / "repo"
+LONG_DOCS_SESSION = LONG_DOCS / "session-pack.txt"
+DOCS_ARMS = ("PD", "PFD")
+DOCS_PREP_PROMPT = ("Read every .md file under docs/ and every .py file under tests/ in full with the Read tool, the largest first, "
+                    "several files per response. Do not open anything under src/. Then reply with the single word: ready.")
+# Where its tasks touch code it has not read: the explanation, the feature, the trace (a find-all list, where read
+# hand-offs did not pay before) and the lookup (docs/ names the variable; only its file:line is left to find).
+DOCS_TASKS = ("t3-explain", "l1-feature", "t1-trace", "t4-lookup")
+
+
+# seek 0.3 in the docs-and-tests session (against PD, beside PFD): KDO at its defaults (the order alone), KDM the map
+# alone, KD both.
+SEEK_DOCS = {"KDO": {}, "KDM": {"order": False, "map": True}, "KD": {"map": True}}
+DOCS_ARMS = DOCS_ARMS + tuple(SEEK_DOCS)
+
 
 def session_file(arm: str) -> Path:
     if arm == "TL":
         return LONG_SESSION_TRAIL
-    return LONG_SESSION_PACK if arm in ("PL", "HL", "DL", "PS") else LONG_SESSION
+    if arm in DOCS_ARMS:
+        return LONG_DOCS_SESSION
+    return LONG_SESSION_PACK if arm in ("PL", "HL", "DL", "PS", "RTL", "KL") else LONG_SESSION
 
 
 def long_repo(arm: str) -> Path:
-    return LONG_TRAIL_REPO if arm == "TL" else LONG_REPO
+    return LONG_TRAIL_REPO if arm == "TL" else LONG_DOCS_REPO if arm in DOCS_ARMS else LONG_REPO
 PREP_PROMPT = "Read every .py file under src/click in full with the Read tool, the largest first, several files per response. Then reply with the single word: ready."
 
 
@@ -609,17 +789,59 @@ def conditions(arm: str) -> list[str]:
     if arm == "PS":
         env["CLAUDE_CODE_PLUGIN_DIRS"] += "".join(f":{d}" for d in os.environ.get("BENCH_EXTRA_DIRS", "").split(":") if d)
         env["BENCH_SESSION_TOKENS"] = os.environ.get("BENCH_SESSION_TOKENS", "")
-    cmd = ["--settings", json.dumps({"env": env, "disableClaudeAiConnectors": False})]
+    settings = {"env": env, "disableClaudeAiConnectors": False}
+    if arm == "RTL":
+        # RTL: the pack with route turned on, forked from the pack's prepared long session; against PL.
+        env["CLAUDE_CODE_PLUGIN_DIRS"] += ":" + str(PACK_ROOT / "route")
+        on = {"options": {"enabled": True}}
+        settings["pluginConfigs"] = {"route": on, "route@inline": on}
+    if arm == "KL":
+        # KL: the pack with seek, forked from the pack's prepared long session; against PL. seek adds hooks, no tools.
+        env["CLAUDE_CODE_PLUGIN_DIRS"] += ":" + str(PACK_ROOT / "seek")
+    if arm == "PFD":
+        # PFD: the pack with pathfinder, forked from the docs-and-tests session; against PD. pathfinder adds hooks, no tools.
+        env["CLAUDE_CODE_PLUGIN_DIRS"] += ":" + str(PACK_ROOT / "pathfinder")
+    if arm in SEEK_DOCS:
+        # KD, KDO, KDM: the pack with seek 0.3, forked from the docs-and-tests session; against PD. seek adds hooks, no tools.
+        env["CLAUDE_CODE_PLUGIN_DIRS"] += ":" + str(PACK_ROOT / "seek")
+        if SEEK_DOCS[arm]:
+            settings["pluginConfigs"] = {"seek": {"options": SEEK_DOCS[arm]}, "seek@inline": {"options": SEEK_DOCS[arm]}}
+    cmd = ["--settings", json.dumps(settings)]
     # A resumed session takes no appended system prompt (checked 13 Oct: the instruction never reached the model),
     # so RL ran without its rule, and H puts its instruction in the prompt, as the person would ask (run_long).
-    if base == "R":
+    if base == "R" and arm != "RTL":
         cmd += ["--append-system-prompt", ROUTING]
     if arm in TRAIL_ARMS:
         cmd += trail_mcp()
     return cmd
 
 
+def prepare_docs(args):
+    """The docs-and-tests session PD and PFD fork: the pack loaded, docs/ and tests/ read, src/ left unread (checked)."""
+    if not LONG_DOCS_REPO.exists():
+        LONG_DOCS.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(BASE, LONG_DOCS_REPO, symlinks=True)
+    p = subprocess.run(neutral(["claude", "-p", DOCS_PREP_PROMPT, "--model", args.model, "--permission-mode", "auto", "--output-format", "json", *conditions("PD")]),
+                       cwd=LONG_DOCS_REPO, capture_output=True, text=True, timeout=3600, stdin=subprocess.DEVNULL)
+    res = json.loads(p.stdout)
+    LONG_DOCS_SESSION.write_text(res["session_id"])
+    a = account(res["session_id"])
+    # Every tool call of the preparation that named src/ (a read, a grep): none should.
+    src = set()
+    for f in glob.glob(str(PROJECTS / "*" / f"{res['session_id']}.jsonl")):
+        for line in open(f, errors="replace"):
+            for b in (json.loads(line).get("message") or {}).get("content") or []:
+                if isinstance(b, dict) and b.get("type") == "tool_use" and "src/" in json.dumps(b.get("input")):
+                    i = b.get("input") or {}
+                    src.add(f"{b.get('name')}: {i.get('file_path') or i.get('command') or i.get('pattern') or ''}"[:160])
+    src = sorted(src)
+    print(f"prepared {res['session_id']}: {a.get('main_requests')} requests, context {a.get('peak_context')}, ${res.get('total_cost_usd', 0):.2f}"
+          + (f"; WARNING, it touched src/: {src}" if src else "; nothing under src/ opened"))
+
+
 def cmd_prepare(args):
+    if getattr(args, "docs", False):
+        return prepare_docs(args)
     if args.trail:
         # The copy of click Trail's fresh runs start from, and the long session's own repository.
         if not BASE_TRAIL.exists():
@@ -648,7 +870,8 @@ def reset_long(repo: Path = LONG_REPO):
 def run_long(task: str, arm: str, rep: int) -> dict:
     repo = long_repo(arm)
     reset_long(repo)
-    run_id = f"{task}.{arm}.{rep}.{int(time.time())}"
+    # The process id too: two bench processes running one arm name started the same task in the same second and shared a folder.
+    run_id = f"{task}.{arm}.{rep}.{int(time.time())}.{os.getpid()}"
     prompt = TASKS[task]["prompt"]
     if arm.startswith("H"):
         prompt = f"{FORCE}\n\n{prompt}"
@@ -670,7 +893,7 @@ def run_long(task: str, arm: str, rep: int) -> dict:
     answer = res.get("result") or ""
     row = {
         "run": run_id, "task": task, "arm": arm, "rep": rep, "wall_s": round(wall, 1), "long": True,
-        "prepared": "trail" if arm == "TL" else "pack" if session_file(arm) == LONG_SESSION_PACK else "plain",
+        "prepared": "trail" if arm == "TL" else "docs" if arm in DOCS_ARMS else "pack" if session_file(arm) == LONG_SESSION_PACK else "plain",
         "session": res.get("session_id"), "reported_usd": res.get("total_cost_usd"), "is_error": res.get("is_error", True),
         "answer": answer[:4000], "stderr": err[-500:] if err else "",
     }
@@ -691,7 +914,7 @@ def cmd_long(args):
     arms, tasks = args.arms.split(","), args.tasks.split(",") if args.tasks else list(TASKS)
     for a in arms:
         if not session_file(a).exists():
-            sys.exit(f"no prepared session for {a}: run bench.py prepare{' --pack' if session_file(a) == LONG_SESSION_PACK else ''} first")
+            sys.exit(f"no prepared session for {a}: run bench.py prepare{' --docs' if a in DOCS_ARMS else ' --pack' if session_file(a) == LONG_SESSION_PACK else ''} first")
     plan = [(t, a, r) for r in range(1, args.reps + 1) for t in tasks for a in arms]
     print(f"{len(plan)} long runs, one at a time", flush=True)
     with open(RESULTS, "a") as f:
@@ -725,9 +948,9 @@ def cmd_report(_args):
     # Costs are frozen into results.jsonl; recomputed from the transcripts where they are still on this machine.
     for r in rows:
         if r.get("session"):
-            c = account(r["session"])
-            if c.get("found"):
-                r["cost"] = c
+            c = account(r["session"], since=0)
+            if c.get("found") and not r.get("long"):
+                r["cost"] = settle(c, r.get("model_usage"), r.get("reported_usd"))
     rows = [r for r in rows if r.get("cost", {}).get("found")]
     if not rows:
         sys.exit("no results")
@@ -769,6 +992,7 @@ if __name__ == "__main__":
     pr.add_argument("--model", default="opus")
     pr.add_argument("--pack", action="store_true", help="prepare with the pack loaded, for PL and HL")
     pr.add_argument("--trail", action="store_true", help="prepare Trail-Code's copies of click and its long session (pack and Trail loaded), for T and TL")
+    pr.add_argument("--docs", action="store_true", help="prepare the docs-and-tests session (pack loaded, src/ unread), for PD and PFD")
     lo = sub.add_parser("long")
     lo.add_argument("--reps", type=int, default=2)
     lo.add_argument("--arms", default="VL,RL")

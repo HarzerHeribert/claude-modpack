@@ -1,6 +1,7 @@
 import type { Register } from 'claude-code'
 
 import { HAND_OFF, classify, order } from './classify'
+import type { Classifier } from './classify'
 
 /** delegate's tool: without it there is nothing to hand off to, and route stays out of the way. */
 const HAND_OFF_TOOL = 'mcp__delegate__hand_off'
@@ -10,9 +11,12 @@ const MIN_CHARS = 40
 export const register: Register = (on, options) => {
   // Off unless the person turned it on: turned on, every prompt's text leaves the machine.
   if (options.enabled !== true) return
-  const configured = typeof options.scaledownKey === 'string' ? options.scaledownKey : ''
+  const scaledownKey = typeof options.scaledownKey === 'string' ? options.scaledownKey : ''
+  const typesafeKey = typeof options.typesafeKey === 'string' ? options.typesafeKey : ''
+  const choice = options.classifier === 'jev' || options.classifier === 'scaledown' ? options.classifier : 'auto'
   const minScore = typeof options.minScore === 'number' ? options.minScore : 0.7
   const timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 3000
+  const direct = options.direct !== false
 
   // The person's own prompt (typed, from the phone, or a `claude -p` turn): feature or test work gets the order.
   on('prompt.submit', async ($, e, next) => {
@@ -20,11 +24,14 @@ export const register: Register = (on, options) => {
     if (kind !== 'composer' && kind !== 'bridge' && kind !== 'sdk') return next(e)
     const text = e.text.trim()
     if (text.length < MIN_CHARS || text.startsWith('/')) return next(e)
-    const key = configured || ((await $.env.get('SCALEDOWN_API_KEY')) ?? '')
+    // auto: Jev when its key is there (the faster of the two, measured), else ScaleDown.
+    const jevKey = choice === 'scaledown' ? '' : typesafeKey || ((await $.env.get('TYPESAFE_API_KEY')) ?? '')
+    const sdKey = choice === 'jev' ? '' : scaledownKey || ((await $.env.get('SCALEDOWN_API_KEY')) ?? '')
+    const [classifier, key]: [Classifier, string] = jevKey !== '' ? ['jev', jevKey] : ['scaledown', sdKey]
     if (key === '') return next(e)
     if (!(await $.tool.list().catch(() => [])).some(t => t.name === HAND_OFF_TOOL)) return next(e)
-    const v = await classify($, key, text, timeoutMs)
+    const v = await classify($, classifier, key, text, timeoutMs)
     if (v === undefined || !HAND_OFF.has(v.label) || v.score < minScore) return next(e)
-    return next({ ...e, context: [...(e.context ?? []), order(v.label)] })
+    return next({ ...e, context: [...(e.context ?? []), order(v.label, direct)] })
   }).catch(($, e, next) => next(e))
 }

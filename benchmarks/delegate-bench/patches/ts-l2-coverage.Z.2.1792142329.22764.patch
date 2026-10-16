@@ -1,0 +1,159 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..1732815
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,153 @@
++import * as chrono from "../../src";
++import { testSingleCase } from "../test_util";
++import {
++    parseDuration,
++    parseNumberPattern,
++    parseOrdinalNumberPattern,
++    parseYear,
++} from "../../src/locales/it/constants";
++
++test("Test - parseNumberPattern with integer words", function () {
++    expect(parseNumberPattern("due")).toBe(2);
++    expect(parseNumberPattern("Dodici")).toBe(12);
++    expect(parseNumberPattern("una")).toBe(1);
++});
++
++test("Test - parseNumberPattern with elided article", function () {
++    expect(parseNumberPattern("un'")).toBe(1);
++    expect(parseNumberPattern("UN'")).toBe(1);
++});
++
++test("Test - parseNumberPattern with qualche", function () {
++    expect(parseNumberPattern("qualche")).toBe(3);
++});
++
++test("Test - parseNumberPattern with mezzo/mezza", function () {
++    expect(parseNumberPattern("mezzo")).toBe(0.5);
++    expect(parseNumberPattern("mezza")).toBe(0.5);
++    expect(parseNumberPattern("mezz")).toBe(0.5);
++});
++
++test("Test - parseNumberPattern with paio", function () {
++    expect(parseNumberPattern("paio")).toBe(2);
++    expect(parseNumberPattern("paio di")).toBe(2);
++});
++
++test("Test - parseNumberPattern with alcuni", function () {
++    expect(parseNumberPattern("alcuni")).toBe(7);
++});
++
++test("Test - parseNumberPattern with digits", function () {
++    expect(parseNumberPattern("15")).toBe(15);
++    expect(parseNumberPattern("2.5")).toBe(2.5);
++});
++
++test("Test - parseOrdinalNumberPattern with ordinal words", function () {
++    expect(parseOrdinalNumberPattern("primo")).toBe(1);
++    expect(parseOrdinalNumberPattern("Trentunesima")).toBe(31);
++    expect(parseOrdinalNumberPattern("1°")).toBe(1);
++    expect(parseOrdinalNumberPattern("12ª")).toBe(12);
++});
++
++test("Test - parseOrdinalNumberPattern with digits and suffixes", function () {
++    expect(parseOrdinalNumberPattern("5")).toBe(5);
++    expect(parseOrdinalNumberPattern("23º")).toBe(23);
++    expect(parseOrdinalNumberPattern("31°")).toBe(31);
++});
++
++test("Test - parseYear with Buddhist Era", function () {
++    expect(parseYear("2555 BE")).toBe(2012);
++    expect(parseYear("2555be")).toBe(2012);
++});
++
++test("Test - parseYear with Before Christ", function () {
++    expect(parseYear("500 BC")).toBe(-500);
++    expect(parseYear("500 BCE")).toBe(-500);
++    expect(parseYear("44bc")).toBe(-44);
++});
++
++test("Test - parseYear with Anno Domini", function () {
++    expect(parseYear("2012 AD")).toBe(2012);
++    expect(parseYear("79 CE")).toBe(79);
++    expect(parseYear("800ad")).toBe(800);
++});
++
++test("Test - parseYear with plain numbers", function () {
++    expect(parseYear("2012")).toBe(2012);
++    expect(parseYear("97")).toBe(1997);
++    expect(parseYear("12")).toBe(2012);
++});
++
++test("Test - parseDuration with single unit", function () {
++    expect(parseDuration("5 giorni")).toStrictEqual({ day: 5 });
++    expect(parseDuration("un'ora")).toStrictEqual({ hour: 1 });
++    expect(parseDuration("mezz'ora")).toBeNull();
++});
++
++test("Test - parseDuration with multiple units", function () {
++    expect(parseDuration("2 ore e 30 minuti")).toStrictEqual({ hour: 2, minute: 30 });
++    expect(parseDuration("1 anno, 2 mesi e 3 settimane")).toStrictEqual({ year: 1, month: 2, week: 3 });
++});
++
++test("Test - parseDuration with abbreviated units", function () {
++    expect(parseDuration("3h 15min")).toStrictEqual({ hour: 3, minute: 15 });
++    expect(parseDuration("2 gg")).toStrictEqual({ day: 2 });
++    expect(parseDuration("1 trim")).toStrictEqual({ quarter: 1 });
++});
++
++test("Test - parseDuration ignores letters-only matches", function () {
++    expect(parseDuration("dueore")).toBeNull();
++    expect(parseDuration("treanni")).toBeNull();
++});
++
++test("Test - parseDuration without time units", function () {
++    expect(parseDuration("")).toBeNull();
++    expect(parseDuration("niente da fare")).toBeNull();
++});
++
++test("Test - Year with Before Christ era", function () {
++    testSingleCase(chrono.it, "Accadde il 10 agosto 500 BC", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(8);
++        expect(result.text).toBe("il 10 agosto 500 BC");
++        expect(result.start.get("year")).toBe(-500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Year with Anno Domini era", function () {
++    testSingleCase(chrono.it, "Accadde il 10 agosto 2012 AD", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(8);
++        expect(result.text).toBe("il 10 agosto 2012 AD");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Year with Buddhist Era", function () {
++    testSingleCase(chrono.it, "Accadde il 10 agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(8);
++        expect(result.text).toBe("il 10 agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Time units with qualche", function () {
++    testSingleCase(chrono.it, "qualche giorno fa", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("qualche giorno fa");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(7);
++    });
++});
++
++test("Test - Time units with paio di", function () {
++    testSingleCase(chrono.it, "un paio di giorni fa", new Date(2012, 7, 10), (result) => {
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(8);
++    });
++});

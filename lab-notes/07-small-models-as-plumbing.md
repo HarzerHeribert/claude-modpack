@@ -34,7 +34,7 @@ Extract with a schema (failing test, file, line, message) got the test logs righ
 
 Classify sorts a text into labels you give it. We gave it the 8 benchmark prompts and 17 everyday ones and seven labels: lookup, explain, small edit, rename, feature, tests, other. Asked one prompt at a time: **25 of 25** right, median 0.42 s, $0.00003 a call. (In one batch call of all 25 it got one wrong, though [the documentation](https://docs.scaledown.ai/api-reference/classify) says calibration is the same as for single calls.)
 
-That is exactly the missing piece from [note 2](02-notes-nobody-reads.md): Opus never hands work to a cheaper model unless told, and an order from a mod is followed every time. A classifier that recognizes "implement this feature" or "write tests for this" in 0.4 s could give that order for exactly the work where a hand-off pays (27–37% less on features and tests), and stay silent on small questions, where a hand-off costs up to 3.6 times as much.
+That is exactly the missing piece from [note 2](02-notes-nobody-reads.md): Opus never hands work to a cheaper model unless told, and an order from a mod is followed every time. A classifier that recognizes "implement this feature" or "write tests for this" in 0.4 s could give that order for exactly the work where a hand-off pays (22–35% less on features and tests), and stay silent on small questions, where a hand-off costs up to 3.6 times as much.
 
 So we built it. **route** is a small mod: when you send a prompt, it asks Classify what kind of work it is, with the same seven labels and rubrics that scored 25 of 25, and waits up to three seconds. If the answer is feature or test work with a score of at least 0.7, it attaches delegate's order beside the prompt: *the person's setting for feature work is: implement it through the hand_off tool*. Anything else, or no answer in time, adds nothing.
 
@@ -42,11 +42,13 @@ On our eight click tasks, four runs each, all 32 correct ([`results-route.jsonl`
 
 | | The order given | Hand-offs | Cost, the pack → the pack with route |
 | --- | --- | --- | --- |
-| The feature | 4 of 4 | 4 | $0.61 → **$0.41** (9.5 → 5.2 main requests) |
-| The coverage task | 4 of 4 | 4 | $0.67 → **$0.36** (8.5 → 4.2) |
+| The feature | 4 of 4 | 4 | $0.61 → **$0.45** (9.5 → 5.2 main requests) |
+| The coverage task | 4 of 4 | 4 | $0.67 → **$0.41** (8.5 → 4.2) |
 | The six other tasks | 0 of 24 | 0 | about the same |
 
-Every routing decision was right: the order on all eight feature and test prompts, on none of the other 24. On the two tasks it routed, the pack with route cost **39.6% less** than the pack alone [−44.8%, −33.7%]; on the other six, +4.3% [−0.1%, +9.0%], within the runs' spread. Over all eight, **−17.0%** against the pack [−20.5%, −13.1%] and **−21.7% against plain Claude Code** [−24.9%, −18.2%].
+Every routing decision was right: the order on all eight feature and test prompts, on none of the other 24. On the two tasks it routed, the pack with route cost **33.8% less** than the pack alone [−39.4%, −27.4%]; on the other six, +4.3% [−0.1%, +9.0%], within the runs' spread. Over all eight, **−14.2%** against the pack [−17.9%, −10.1%] and **−19.1% against plain Claude Code** [−22.5%, −15.3%].
+
+Corrected 16 Oct: worker costs were undercounted. A worker's transcript records its output as each response began; with it counted in full, from Claude Code's own totals, the routed tasks went from −39.6% to −33.8% and all eight from −17.0% to −14.2% ([CORRECTION-1016.md](../benchmarks/delegate-bench/CORRECTION-1016.md)).
 
 This closes the loop from [note 2](02-notes-nobody-reads.md). Opus never delegates on its own and always follows an order; a 0.4-second classifier decides when an order is worth giving. What it costs: a ScaleDown key, about 0.4 s (up to 3 s) before each prompt starts, $0.00003 a prompt, and the prompt's text leaving the machine. So it can only ever be opt-in.
 
@@ -57,7 +59,7 @@ This closes the loop from [note 2](02-notes-nobody-reads.md). Opus never delegat
 | Compress Claude's context | No | Loses facts the next question needs |
 | Summarize logs or worker reports | No | Drops locations; repeats false claims unless told what to keep |
 | Extract failures from logs | Not needed | A local parser is as right, thousands of times faster, and private |
-| Classify prompts for routing | **Yes, opt-in** | 25 of 25, 0.4 s; routing feature and test work to a cheaper worker: −17% over the pack |
+| Classify prompts for routing | **Yes, opt-in** | 25 of 25, 0.4 s; routing feature and test work to a cheaper worker: −14% over the pack |
 
 Small models make good plumbing where the job is narrow and checkable: a label from a fixed set, on which a stronger model then acts. They make poor editors of what a stronger model will reason over, because they cannot know what it will need.
 

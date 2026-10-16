@@ -1,60 +1,105 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-mode="plain">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab notes · claude-modpack</title>
-<meta name="description" content="What we tried while building a Claude Code modpack, how we measured it, and why most of it did not ship.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>claude-modpack: Claude Code mods, measured</title>
+<meta name="description" content="Eight Claude Code mods that take out steps that need no thinking, each measured on graded runs before it shipped.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="assets/site.js" defer></script>
+<script src="assets/widgets.js" defer></script>
 </head>
-<body>
-<header class="site">
-  <a class="brand" href="index.html"><span class="dot"></span>claude-modpack <span class="sep">/</span> lab notes</a>
-  <nav>
-    <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a>
-    <a class="pdf" href="pdf/lab-notes.pdf" download>All notes as PDF</a>
-  </nav>
+<body class="" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html" aria-current="page">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html" aria-current="true">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
 </header>
-<main class="note">
-<picture class="banner"><source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg"><img alt="claude-modpack" src="assets/banner-light.svg"></picture><h1 id="lab-notes">Lab notes</h1>
-<p>What we tried while building this modpack, how we measured it, and why most of it did not ship.</p>
-<p>The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that made sessions more expensive. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
-<blockquote>
-<p><strong>Who wrote this.</strong> Claude (Opus 5.5) wrote these notes from this repository&#39;s results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.</p>
-</blockquote>
-<h2 id="the-notes">The notes</h2>
-<div class="cards">
-<a class="card" href="01-the-cheapest-step.html"><span class="num">01</span><span class="title">The cheapest step is the one Claude never takes</span><span class="lead">Ask most people what makes a Claude Code session expensive and they will say tokens: big files, long answers, a chatty model. That is true, but it points at the wrong lever. Our first useful result was learning where the…</span></a>
-<a class="card" href="02-notes-nobody-reads.html"><span class="num">02</span><span class="title">Notes nobody reads</span><span class="lead">The most natural way to improve an AI agent with a plugin is to give it advice. Notice it doing something slow, tell it the faster way. We built two mods on that idea. Both measurements came back with the same number: ze…</span></a>
-<a class="card" href="03-a-code-graph-on-our-bench.html"><span class="num">03</span><span class="title">A 10,000-star code graph on our bench</span><span class="lead">A friend asked a fair question: why build our own code tools when projects like graphify (about 127,000 GitHub stars) and Trail-Code (about 10,000) put a whole codebase into a graph that Claude can query, and report larg…</span></a>
-<a class="card" href="04-borrowing-the-good-ideas.html"><span class="num">04</span><span class="title">Borrowing the good ideas</span><span class="lead">The code-graph tools in the last note cost more on our bench than they saved. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: ans…</span></a>
-<a class="card" href="05-the-graveyard.html"><span class="num">05</span><span class="title">The graveyard</span><span class="lead">Six mods ship in this pack. Many more ideas were built, measured and dropped. A project's README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features th…</span></a>
-<a class="card" href="06-one-server-per-extension.html"><span class="num">06</span><span class="title">One server per extension</span><span class="lead">lsp-plus answers Claude's code searches from a language server. That only works where a server answers. The obvious next question, asked by someone who works with infrastructure all day: what about Terraform, Ansible, Ku…</span></a>
-<a class="card" href="07-small-models-as-plumbing.html"><span class="num">07</span><span class="title">Small models as plumbing</span><span class="lead">If every token in Claude's context is paid for again on every step, an obvious trick is to shrink what enters it. A long test log, a big diff, a sprawling grep result: hand it to a small, fast model that compresses or su…</span></a>
-<a class="card" href="08-our-plain-runs-were-not-plain.html"><span class="num">08</span><span class="title">Our plain runs were not plain</span><span class="lead">Every comparison in these notes rests on one thing: knowing exactly what loaded in each run. On 15 October we found out that for a day and a half, in one condition, we had not known it. This note is about how that happen…</span></a>
-<a class="card" href="09-beyond-click.html"><span class="num">09</span><span class="title">Beyond click</span><span class="lead">Every number in the first eight notes comes mostly from one library: click, 79 files of Python, tasks we wrote ourselves. A fair reader's first objection is the obvious one. Maybe the pack is tuned to click. Maybe the co…</span></a>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="index.html" aria-current="page">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="notes.html">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+
+<div class="doc">
+  <p class="eyebrow mono">claude-modpack 0.6.0</p>
+  <h1>Claude Code with fewer wasted steps, and a clear view of what it’s doing.</h1>
+  <p class="lead">Eight free mods for Claude Code and the modpack that installs them. Every number here was measured on graded runs, including where the pack doesn’t help.</p>
+  <div class="cmd"><code id="install-line"><span class="cmd-p" aria-hidden="true">›</span>/plugin install modpack --marketplace HarzerHeribert/claude-modpack</code><button type="button" class="ib copy" data-copy="#install-line" aria-label="Copy the install command"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 3.2V3a1.5 1.5 0 0 0-1.5-1.5H3.5A1.5 1.5 0 0 0 2 3v5.5A1.5 1.5 0 0 0 3.5 10h.3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button></div>
+  <p class="small muted">Then <code>/modpack:setup</code>, or by hand: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/SETUP.md">SETUP.md</a>.</p>
+
+  <dl class="kpis"><div><dt><a href="evidence.html#f-pack-long-pooled"><span class="num big">−33.2%</span></a><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="−33.2%, 95% interval −38.9% to −26.9%"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="19.5" x2="28.3" y1="7" y2="7"/><circle class="s-mark" cx="23.7" cy="7" r="3.6"/></svg></dt><dd>cost per job in a long session, against plain Claude Code<span class="meta">[−38.9%, −26.9%] · Opus 5.5 · 13 and 15 Oct 2026</span></dd></div><div><dt><a href="evidence.html#f-pack-quick-pooled"><span class="num big">+2.3%</span></a><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="+2.3%, 95% interval −1.1% to +6.0%"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="47.2" x2="52.4" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="49.7" cy="7" r="3.6"/></svg></dt><dd>quick questions in a fresh session: about even<span class="meta">[−1.1%, +6.0%] · Opus 5.5 · 13 and 15 Oct 2026</span></dd></div><div><dt><a href="evidence.html#f-graded-runs-total"><span class="num big">730</span></a></dt><dd>graded runs, every result correct with the pack and without<span class="meta">Opus 5.5 · 13 and 15 Oct 2026</span></dd></div></dl>
+
+  <h2 id="why">Why it saves</h2>
+  <p>Every step Claude takes (read a file, run a search, make an edit) sends the whole conversation back to the model. That re-reading is most of what a session costs, so the cheapest step is the one Claude never takes. The pack takes out steps that need no thinking.</p>
+  <div class="widget sim" data-widget="rereader">
+  <div class="sim-h"><p class="sim-t">Re-reading, priced</p><p class="sim-d">Every request re-reads the context. Move the sliders.</p></div>
+  <div class="w-controls">
+    <label class="ctl"><span class="ctl-l">Context the session already holds <output data-o="ctx"></output></span><input type="range" data-in="ctx" min="0" max="10" step="1" value="5"></label>
+    <label class="ctl"><span class="ctl-l">Steps Claude takes <output data-o="steps"></output></span><input type="range" data-in="steps" min="1" max="16" step="1" value="8"></label>
+    <label class="ctl"><span class="ctl-l">What each step adds (a file read, a test log) <output data-o="add"></output></span><input type="range" data-in="add" min="0" max="8" step="1" value="3"></label>
+  </div>
+  <div class="w-stage" aria-hidden="true"><svg class="rr-svg" preserveAspectRatio="none"></svg></div>
+  <p class="w-legend" aria-hidden="true"><span><i class="sw sw-base"></i>re-read: the context the session held</span><span><i class="sw sw-added"></i>re-read: what earlier steps added</span></p>
+  <p class="w-out" aria-live="polite"></p>
+  <p class="w-src">Worked out from Opus 5.5’s list prices: $0.20 per million tokens read from the cache, $8 to write them (one-hour lifetime). <a href="glossary.html#list-prices">List prices</a>. An illustration: what each step adds is your choice here, not a measurement.</p>
+  <noscript><p class="w-note">This explainer needs JavaScript. Its numbers are on the <a href="evidence.html">evidence</a> page.</p></noscript>
 </div>
-<h2 id="how-we-measure">How we measure</h2>
-<p>The same setup runs through every note unless it says otherwise.</p>
-<ul>
-<li><strong>The work.</strong> Seven tasks on <a href="https://github.com/pallets/click">click</a> 8.5.0 (79 files of Python), from a one-line lookup to a feature, later eight with a signature change, plus four tasks on a generated 54-file deployment repository (Kubernetes, Compose, GitHub Actions, Ansible). Every task is graded by a fixed rule: hidden tests for code, a parser for YAML, a term list for explanations. A run that saves money and gets the answer wrong counts as a failure, not a saving.</li>
-<li><strong>The runs.</strong> Headless Claude Code (<code>claude -p</code>), Claude Opus 5.5, one fresh copy of the repository per run. Each condition names exactly which mods load, so nobody&#39;s personal settings decide anything. A <em>long session</em> forks a prepared session that has already read all of click&#39;s source, <code>src/click</code> (about 220k tokens of context), which is where real work spends most of its time.</li>
-<li><strong>The cost.</strong> Read request by request from the transcripts and priced at list prices: Opus 5.5 at $4 per million input tokens, $20 output, $0.20 for a cache read, $8 for a cache write (Claude Code writes with the one-hour lifetime; a five-minute write is $5). On a subscription these are API-equivalent estimates, not a bill.</li>
-<li><strong>The uncertainty.</strong> Two to eight runs per task and condition. Differences are reported for the average task with 95% bootstrap intervals, resampling runs within each task (<a href="#references">Efron &amp; Tibshirani 1993</a>). An interval that crosses zero means <em>not shown</em>, and we say so. Before a confirmation run we wrote down what would count as confirmed (<a href="05-the-graveyard.html#the-checklist-that-said-everything-was-fine">an example</a>).</li>
-<li><strong>The limits.</strong> Mostly one small Python repository and tasks every condition solves (<a href="09-beyond-click.html">note 9</a> repeats the main comparisons on TypeScript and on real bug reports): these benchmarks can show cost and step differences at equal quality. They cannot show where a weaker setup fails on harder work. Each note says what its data can and cannot carry.</li>
-</ul>
-<h2 id="references">References</h2>
-<ul>
-<li>Efron, B., &amp; Tibshirani, R. J. (1993). <em>An Introduction to the Bootstrap</em>. Chapman &amp; Hall.</li>
-<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
-<li>Nosek, B. A., Ebersole, C. R., DeHaven, A. C., &amp; Mellor, D. T. (2018). The preregistration revolution. <em>PNAS</em>, 115(11), 2600–2606.</li>
-</ul>
 
+  <h2 id="mods">The mods</h2>
+  <div class="table-wrap"><table class="table mtab"><thead><tr><th scope="col">Mod</th><th scope="col">What it does</th><th scope="col">Kind</th><th scope="col">Measured</th></tr></thead><tbody><tr><th scope="row"><a class="mono mod-link" href="mods/cells.html">cells</a></th><td>Several edits and their test run in one step</td><td><span class="badge ">flow</span></td><td class="mtab-m"><a class="mtab-n neutral" href="evidence.html#f-cells-out"><span class="num">+8.9%</span><svg class="strip s-higher" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="+8.9%, 95% interval +2.1% to +16.4%"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="37.1" x2="44.7" y1="7" y2="7"/><circle class="s-mark" cx="40.7" cy="7" r="3.6"/></svg></a><span class="mtab-l">cost of taking it out</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/lsp-plus.html">lsp-plus</a></th><td>A search for a name answered by the language server</td><td><span class="badge ">code intelligence</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-lsp-answer-rename-requests"><span class="num">−25%</span><svg class="strip s-no-interval" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−25%, no interval in the source"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><rect class="s-mark" x="19.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 22.7 7)"/></svg></a><span class="mtab-l">requests on a rename</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/seek.html">seek</a></th><td>Look around in few, lean steps</td><td><span class="badge ">cost</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-seek-fresh"><span class="num">−11.9%</span><svg class="strip s-lower" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−11.9%, 95% interval −17.2 to −5.9"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="26.8" x2="32.9" y1="7" y2="7"/><circle class="s-mark" cx="29.7" cy="7" r="3.6"/></svg></a><span class="mtab-l">fresh, against the pack</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/delegate.html">delegate</a></th><td>A cheaper model builds what you approved</td><td><span class="badge ">cost</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-delegate-order-feature"><span class="num">−22%</span><svg class="strip s-lower" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−22%, 95% interval −33% to −11%"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="18.4" x2="30.1" y1="7" y2="7"/><circle class="s-mark" cx="24.3" cy="7" r="3.6"/></svg></a><span class="mtab-l">a feature, handed off</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/route.html">route</a></th><td>Feature and test work goes to the cheaper model by itself</td><td><span class="badge ">cost, opt-in</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-route-click-pack"><span class="num">−14.2%</span><svg class="strip s-lower" width="72" height="14" viewBox="0 0 72 14" role="img" aria-label="−14.2%, 95% interval −17.9% to −10.1%"><line class="s-base" x1="4" x2="68" y1="7" y2="7"/><line class="s-zero" x1="36" x2="36" y1="2" y2="12"/><line class="s-ci" x1="26.5" x2="30.6" y1="7" y2="7"/><circle class="s-mark" cx="28.4" cy="7" r="3.6"/></svg></a><span class="mtab-l">eight jobs, against the pack</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/smart-compact.html">smart-compact</a></th><td>Keeps the cache warm, or compacts before it expires</td><td><span class="badge ">cost</span></td><td class="mtab-m"><span class="muted">worked out, not measured</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/statusline.html">statusline</a></th><td>One line under the prompt with what matters</td><td><span class="badge ">interface</span></td><td class="mtab-m"><span class="muted">interface only</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/eta.html">eta</a></th><td>Jobs with a percentage and a finish time above the prompt</td><td><span class="badge ">interface</span></td><td class="mtab-m"><span class="muted">interface only</span></td></tr><tr><th scope="row"><a class="mono mod-link" href="mods/modpack.html">modpack</a></th><td>Installs the others, switches them, keeps them current</td><td><span class="badge ">the pack</span></td><td class="mtab-m"><a class="mtab-n" href="evidence.html#f-modpack-hook-guard"><span class="num">10 s</span></a><span class="mtab-l">until a hanging hook is skipped</span></td></tr></tbody></table></div>
 
-</main>
-<footer class="site">
-  <p>Written by Claude from this repository's data · <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks">the data</a> · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a></p>
+  <h2 id="next">Read on</h2>
+  <ul class="links">
+    <li><a href="ideas.html"><b>How it saves</b><span>Why fewer steps save money, and what a step leaves behind.</span><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+    <li><a href="evidence.html"><b>Every measured claim</b><span>127 claims with interval, runs, model, date and raw data.</span><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+    <li><a href="graveyard.html"><b>The graveyard</b><span>18 ideas that did not make the cut, and the numbers that stopped them.</span><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+    <li><a href="notes.html"><b>Lab notes</b><span>11 write-ups of how each decision was made.</span><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+  </ul>
+</div>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#why" data-for="why">Why it saves</a></li><li><a href="#mods" data-for="mods">The mods</a></li><li><a href="#next" data-for="next">Read on</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
 </footer>
+<div class="sl" aria-hidden="true" data-path="" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

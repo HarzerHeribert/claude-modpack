@@ -2,7 +2,7 @@
 
 What we tried while building this modpack, how we measured it, and why most of it did not ship.
 
-The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don't make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that made sessions more expensive. These notes are about those decisions. The data behind every number is in [`benchmarks/`](../benchmarks/), with the harness to run it again.
+The modpack is eight mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don't make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that made sessions more expensive. These notes are about those decisions. The data behind every number is in [`benchmarks/`](../benchmarks/), with the harness to run it again.
 
 > **Who wrote this.** Claude (Opus 5.5) wrote these notes from this repository's results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.
 
@@ -12,11 +12,13 @@ The modpack is seven mods for Claude Code. Behind them is a lab where every idea
 2. [Notes nobody reads](02-notes-nobody-reads.md): 45 hints, 0 followed; 174 runs, 0 delegations. Claude does not take advice from tools. It does take answers.
 3. [A 10,000-star code graph on our bench](03-a-code-graph-on-our-bench.md): Trail-Code, measured beside the pack. +13% fresh, +32% in a long session, no answer better.
 4. [Borrowing the good ideas](04-borrowing-the-good-ideas.md): what we took from the code-graph tools, the version that failed in calibration, and what the rest measured.
-5. [The graveyard](05-the-graveyard.md): ten ideas that did not make the cut, and the numbers that stopped them.
+5. [The graveyard](05-the-graveyard.md): twelve ideas that did not make the cut, and the numbers that stopped them.
 6. [One server per extension](06-one-server-per-extension.md): language servers for Go, Ruby, shell, Terraform and YAML, and what each one needed to actually answer.
-7. [Small models as plumbing](07-small-models-as-plumbing.md): a fast summarize/extract/classify API, priced at almost nothing. Where it lost facts, and the one job it did perfectly: deciding when Claude should hand work to a cheaper model (−17%).
+7. [Small models as plumbing](07-small-models-as-plumbing.md): a fast summarize/extract/classify API, priced at almost nothing. Where it lost facts, and the one job it did perfectly: deciding when Claude should hand work to a cheaper model (−14%, corrected from −17%).
 8. [Our plain runs were not plain](08-our-plain-runs-were-not-plain.md): how a mod installed on the lab machine quietly turned the baseline into the thing it was measured against, and how we caught it.
 9. [Beyond click](09-beyond-click.md): the main comparisons again on a TypeScript library and on 30 real bug reports from SWE-bench. What held and what did not.
+10. [Two requests](10-two-requests.md): where Claude's requests around a hand-off went, the fixed-form report that removed them, and why Claude still never hands off on its own.
+11. [What looking around leaves behind](11-what-looking-around-leaves-behind.md): every later request re-reads what a search left in the conversation. Priced that way, a mod that saved requests cost money; an order in the middle of Claude's search was followed once in six, and the same kind of order with the prompt saved 10 to 16%. A subagent never sees the prompt, so its task now carries the order too.
 
 ## How we measure
 

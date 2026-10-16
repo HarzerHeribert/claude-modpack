@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-default-mode="plain">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>statusline: One line under the prompt with what matters · claude-modpack</title>
+<meta name="description" content="While you work, it is hard to see how full the conversation is, or how much of your plan’s 5-hour and weekly limits you have used.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="../assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/widgets.js" defer></script>
+</head>
+<body class="" data-root="../">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="../index.html">Overview</a></li><li><a class="" href="../ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="../mods.html">All mods</a></li><li><a class="mono" href="../mods/cells.html">cells</a></li><li><a class="mono" href="../mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="../mods/seek.html">seek</a></li><li><a class="mono" href="../mods/delegate.html">delegate</a></li><li><a class="mono" href="../mods/route.html">route</a></li><li><a class="mono" href="../mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="../mods/statusline.html" aria-current="page">statusline</a></li><li><a class="mono" href="../mods/eta.html">eta</a></li><li><a class="mono" href="../mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="../evidence.html">Every claim</a></li><li><a class="" href="../graveyard.html">The graveyard</a></li><li><a class="" href="../glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="../notes.html">The series</a></li><li><a class="note-item" href="../01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="../02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="../03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="../04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="../05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="../06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="../07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="../08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="../09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="../10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="../11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="../index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="../index.html">Overview</a><a href="../mods.html" aria-current="true">Mods</a><a href="../evidence.html">Evidence</a><a href="../notes.html">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      </div>
+      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+</header>
+<div class="shell l-doc">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a class="" href="../index.html">Overview</a></li><li><a class="" href="../ideas.html">How it saves</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a class="" href="../mods.html">All mods</a></li><li><a class="mono" href="../mods/cells.html">cells</a></li><li><a class="mono" href="../mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="../mods/seek.html">seek</a></li><li><a class="mono" href="../mods/delegate.html">delegate</a></li><li><a class="mono" href="../mods/route.html">route</a></li><li><a class="mono" href="../mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="../mods/statusline.html" aria-current="page">statusline</a></li><li><a class="mono" href="../mods/eta.html">eta</a></li><li><a class="mono" href="../mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">Evidence</p>
+  <ul><li><a class="" href="../evidence.html">Every claim</a></li><li><a class="" href="../graveyard.html">The graveyard</a></li><li><a class="" href="../glossary.html">Glossary</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a class="" href="../notes.html">The series</a></li><li><a class="note-item" href="../01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="../02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="../03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="../04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="../05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="../06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="../07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="../08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="../09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="../10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="../11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+
+<div class="doc">
+  <p class="eyebrow mono"><a href="../mods.html">mods</a> / statusline</p>
+  <h1 class="mono">statusline</h1>
+  <p class="lead">One line under the prompt with what matters.</p>
+  <p class="tags"><span class="badge ">interface</span><span class="badge mono">v0.2.1</span><span class="muted small">interface only</span></p>
+
+  <div class="only-plain">
+    <h2 id="problem">The problem</h2>
+    <p>While you work, it is hard to see how full the conversation is, or how much of your plan’s 5-hour and weekly limits you have used.</p>
+    <h2 id="change">What it changes</h2>
+    <p>One line under the prompt: the model and its effort, how full the context is, the plan’s 5-hour and weekly use with when each resets, and what other mods add, such as smart-compact’s ready or cold. Narrow terminals drop the least important parts first.</p>
+    <h2 id="see">See it work</h2>
+    <div class="widget sim" data-widget="statusline">
+  <div class="sim-h"><p class="sim-t">The line at any width</p><p class="sim-d">The statusline mod’s own rules, in this page.</p></div>
+  <div class="term" aria-live="polite"><div class="term-line"><span class="hint">⏵⏵ auto mode on</span><span class="sl-line"></span></div></div>
+  <p class="sl-dropped w-out" aria-live="polite"></p>
+  <div class="w-controls">
+    <label class="ctl"><span class="ctl-l">Terminal width <output data-o="cols"></output></span><input type="range" data-in="cols" min="40" max="150" step="1" value="132"></label>
+    <label class="ctl"><span class="ctl-l">Context used <output data-o="ctx"></output></span><input type="range" data-in="ctx" min="0" max="800" step="4" value="412"></label>
+    <label class="ctl"><span class="ctl-l">Plan’s 5-hour window used <output data-o="h5"></output></span><input type="range" data-in="h5" min="0" max="100" step="1" value="34"></label>
+    <label class="ctl"><span class="ctl-l">Plan’s 7-day window used <output data-o="d7"></output></span><input type="range" data-in="d7" min="0" max="100" step="1" value="12"></label>
+    <label class="ctl"><span class="ctl-l">Effort</span><select data-in="effort"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh" selected>xhigh</option><option value="max">max</option></select></label>
+    <label class="ctl"><span class="ctl-l">smart-compact’s segment</span><select data-in="cache"><option value="ready" selected>ready, 44 min to go</option><option value="soon">ready, 4 min to go</option><option value="keep">keeping warm</option><option value="cold">cold</option></select></label>
+  </div>
+  <p class="w-src">The line’s own rules, ported from the mod: tones (quiet under half, plain past it, amber from 80%), segment priorities and how a narrow line drops them. The values are an example; the auto-compact point here is 800k tokens.</p>
+  <noscript><p class="w-note">This explainer needs JavaScript. Its numbers are on the <a href="../evidence.html">evidence</a> page.</p></noscript>
+</div>
+    <h2 id="session">In a real session</h2><figure class="rec">
+  <a class="rec-play" href="../assets/demo-band.gif" data-gif="../assets/demo-band.gif">
+    <img src="../assets/posters/demo-band.webp" alt="A real Claude Code session: Claude starts the stress tests in the background; above the prompt a row shows them with a bar, a percentage and a finish time; under the prompt the status line shows the model, the context, the plan’s 5-hour and weekly use and a green ready dot." width="1200" height="750" loading="lazy" decoding="async">
+    <span class="rec-btn"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 3.5v9l7-4.5z" fill="currentColor"/></svg>Play the recording · 0.6 MB</span>
+  </a>
+  <figcaption>A real Claude Code session: Claude starts the stress tests in the background; above the prompt a row shows them with a bar, a percentage and a finish time; under the prompt the status line shows the model, the context, the plan’s 5-hour and weekly use and a green ready dot.</figcaption>
+</figure>
+    <p class="small muted terms-line">Words used here: <a href="../glossary.html#context">context</a>.</p>
+    <p class="mode-hint"><button type="button" class="link-btn" data-set-mode="numbers">The numbers behind statusline <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
+  </div>
+
+  <div class="only-numbers">
+    <h2 id="measured">What we measured</h2>
+    <p class="muted">No cost measurement: statusline only adds interface, which the pack’s rules allow. It draws nothing in a headless run, so the benchmarks never see it.</p>
+    
+    <p class="mode-hint"><button type="button" class="link-btn" data-set-mode="plain">What statusline does, in plain words <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
+  </div>
+
+  <p class="switch-line small muted">Off or on: <code>/mods statusline off</code> · Options: <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">README</a> · Setup: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/SETUP.md">SETUP.md</a> · Code: <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/statusline">statusline/</a></p>
+  <nav class="pager" aria-label="Other mods"><a href="smart-compact.html"><span>Previous</span><b class="mono">smart-compact</b></a><a class="next" href="eta.html"><span>Next</span><b class="mono">eta</b></a></nav>
+</div>
+  </main>
+  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#problem" data-for="problem">The problem</a></li><li><a href="#change" data-for="change">What it changes</a></li><li><a href="#see" data-for="see">See it work</a></li><li><a href="#session" data-for="session">In a real session</a></li><li><a href="#measured" data-for="measured">What we measured</a></li></ul></aside>
+</div>
+<footer class="ft">
+  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
+  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="../facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
+</footer>
+<div class="sl" aria-hidden="true" data-path="mods/statusline" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
+</body>
+</html>

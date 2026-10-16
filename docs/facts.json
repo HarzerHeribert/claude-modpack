@@ -1,0 +1,4181 @@
+{
+  "about": "Every measured claim the site shows. Each one quotes its source (a README section, a CHANGELOG line, a lab note or a benchmarks write-up) word for word; scripts/notes/build.mjs checks that the source exists, that the quote is in it, that every number shown is in the quote, and that every data file is one the release ships. Numbers are never computed or rounded here.",
+  "facts": [
+    {
+      "id": "graded-runs-total",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Every run graded for the README, with the pack and without",
+      "metric": "quality",
+      "shown": "730",
+      "ci": null,
+      "comparison": "runs with a correct result",
+      "session": "fresh and long",
+      "language": "Python and TypeScript",
+      "tasks": "click, chrono and the other benchmark sets",
+      "runs": "730 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all correct, graded again for the release",
+      "allCorrect": true,
+      "source": {
+        "file": "README.md",
+        "anchor": "questions",
+        "quote": "In every run we graded, 730 in all, the result was correct with the pack and without"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/SUITE.md"
+      ]
+    },
+    {
+      "id": "pack-long-pooled",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack in a long session, both days pooled",
+      "metric": "cost",
+      "shown": "−33.2%",
+      "ci": [
+        "−38.9%",
+        "−26.9%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "2 per job and condition, each day",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "the-quick-question-tax",
+        "quote": "The long session replicated in the other direction: −39.9% on the second day, −33.2% [−38.9%, −26.9%] pooled."
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": [
+          "$0.44 | $0.29 | −33%",
+          "The long session is two runs per job each day"
+        ]
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl",
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-fresh-pooled",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack in a fresh session, both days pooled",
+      "metric": "cost",
+      "shown": "−4%",
+      "ci": [
+        "−7%",
+        "−1%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "224 runs behind the README's table",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all 224 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": [
+          "| In a fresh session | $0.37 | $0.35 | −4% |",
+          "fresh −7% to −1%",
+          "all 224 runs behind this table produced a correct result"
+        ]
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl",
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-big-fresh-pooled",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Bigger jobs (a feature, tests, a rename) in a fresh session",
+      "metric": "cost",
+      "shown": "−8%",
+      "ci": [
+        "−12%",
+        "−3%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature, coverage, rename",
+      "runs": "12 each way",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": [
+          "| Bigger jobs in a fresh session | $0.55 | $0.51 | −8%, and 15% faster |",
+          "bigger jobs fresh −12% to −3%"
+        ]
+      },
+      "also": {
+        "file": "CHANGELOG.md",
+        "anchor": "060-2026-10-16",
+        "quote": "bigger jobs in a fresh session −8% (was −9%, now 12 runs each way)"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl",
+        "benchmarks/delegate-bench/results-bigjobs-1015.jsonl",
+        "benchmarks/delegate-bench/results-v-1015.jsonl"
+      ]
+    },
+    {
+      "id": "pack-big-long-pooled",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Bigger jobs (a feature, tests, a rename) in a long session",
+      "metric": "cost",
+      "shown": "−37%",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature, coverage, rename",
+      "runs": "2 per job and condition, each day",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "| Bigger jobs in a long session (a feature, tests, a rename) | $0.91 | $0.57 | −37% |"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl",
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-quick-pooled",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Quick questions in a fresh session, both days pooled",
+      "metric": "cost",
+      "shown": "+2.3%",
+      "ci": [
+        "−1.1%",
+        "+6.0%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "8 per task and condition on the first day, 4 on the second",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "the-quick-question-tax",
+        "quote": "Both days pooled: +2.3% [−1.1%, +6.0%], an interval across zero."
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "| Quick questions in a fresh session | $0.23 | $0.24 | +2%, about even |"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl",
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-tests-alone",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Writing tests with the pack alone",
+      "metric": "cost",
+      "shown": "−2%",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: raise test coverage",
+      "runs": "12 each way",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "the pack alone saves nothing there (−2%, 12 runs each way): every step waits on the last test run."
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl",
+        "benchmarks/delegate-bench/results-bigjobs-1015.jsonl"
+      ]
+    },
+    {
+      "id": "pack-long-030",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack as it shipped in 0.3.0, in a long session",
+      "metric": "cost",
+      "shown": "−26.2%",
+      "ci": [
+        "−31.3%",
+        "−20.9%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-pack-as-it-ships-in-030-v-z-vl-pl",
+        "quote": "Long session: −26.2% [−31.3%, −20.9%]"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-long-030-multi",
+      "mods": [
+        "pack"
+      ],
+      "claim": "0.3.0 in a long session, multi-step tasks",
+      "metric": "cost",
+      "shown": "−29.1%",
+      "ci": [
+        "−34.6%",
+        "−22.7%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature, coverage, rename",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-pack-as-it-ships-in-030-v-z-vl-pl",
+        "quote": "the multi-step tasks (feature, coverage, rename) −29.1% [−34.6%, −22.7%]"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-long-030-small",
+      "mods": [
+        "pack"
+      ],
+      "claim": "0.3.0 in a long session, quick questions",
+      "metric": "cost",
+      "shown": "−5.4%",
+      "ci": [
+        "−14.8%",
+        "+5.6%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-pack-as-it-ships-in-030-v-z-vl-pl",
+        "quote": "the small ones −5.4% [−14.8%, +5.6%]"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-fresh-030",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack as it shipped in 0.3.0, in a fresh session",
+      "metric": "cost",
+      "shown": "−5.3%",
+      "ci": [
+        "−9.8%",
+        "−0.5%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "4 per task and condition, 8 for the four small tasks",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-pack-as-it-ships-in-030-v-z-vl-pl",
+        "quote": [
+          "Fresh: −5.3% [−9.8%, −0.5%]",
+          "four runs per task and condition, eight for the four small tasks"
+        ]
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-fresh-030-multi",
+      "mods": [
+        "pack"
+      ],
+      "claim": "0.3.0 in a fresh session, multi-step tasks",
+      "metric": "cost",
+      "shown": "−10.9%",
+      "ci": [
+        "−17.2%",
+        "−3.9%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature, coverage, rename",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "what-the-pack-actually-saves",
+        "quote": "| Fresh session, multi-step tasks | −10.9% | −17.2% to −3.9% |"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-fresh-030-small",
+      "mods": [
+        "pack"
+      ],
+      "claim": "0.3.0 in a fresh session, quick questions: the quick-question tax",
+      "metric": "cost",
+      "shown": "+5.5%",
+      "ci": [
+        "+1.2%",
+        "+10.2%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "8 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "what-the-pack-actually-saves",
+        "quote": "| Fresh session, quick questions | +5.5% | +1.2% to +10.2% |"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-fresh-1015",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack on the second day, fresh, with plain really plain",
+      "metric": "cost",
+      "shown": "−5.7%",
+      "ci": [
+        "−9.6%",
+        "−1.6%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task fresh",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/08-our-plain-runs-were-not-plain.md",
+        "anchor": "what-we-changed",
+        "quote": [
+          "| Fresh session, 8 tasks | −5.7% | −9.6% to −1.6% |",
+          "four runs per task fresh"
+        ]
+      },
+      "note": "08-our-plain-runs-were-not-plain.md",
+      "data": [
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-long-1015",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack on the second day, long session (warm runs)",
+      "metric": "cost",
+      "shown": "−37.4%",
+      "ci": [
+        "−40.9%",
+        "−33.9%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "2 per task in a long session",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/08-our-plain-runs-were-not-plain.md",
+        "anchor": "what-we-changed",
+        "quote": [
+          "| Long session, 8 tasks (warm runs) | −37.4% | −40.9% to −33.9% |",
+          "two in a long session prepared without any mods"
+        ]
+      },
+      "note": "08-our-plain-runs-were-not-plain.md",
+      "data": [
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-quick-1015",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Quick questions on the second day: the tax did not replicate",
+      "metric": "cost",
+      "shown": "−3.6%",
+      "ci": [
+        "−8.2%",
+        "+1.3%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "the-quick-question-tax",
+        "quote": "quick questions cost 3.6% less [−8.2%, +1.3%]"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-v-1015.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "pack-ablation-avg",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack of 0.1.1 on the average task: the first interval clear of zero",
+      "metric": "cost",
+      "shown": "−11.2%",
+      "ci": [
+        "−16.6%",
+        "−5.4%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "4 per condition on multi-step tasks, 6 on small ones",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": [
+          "Against plain, the pack: −11.2% [−16.6%, −5.4%] on the average task",
+          "128 graded runs, all correct."
+        ]
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl",
+        "benchmarks/delegate-bench/ablation.py"
+      ]
+    },
+    {
+      "id": "pack-ablation-multi",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack of 0.1.1 on multi-step work",
+      "metric": "cost",
+      "shown": "−17.7%",
+      "ci": [
+        "−25.6%",
+        "−9.3%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature, coverage, rename",
+      "runs": "4 per condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "−17.7% [−25.6%, −9.3%] on the three multi-step tasks"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl",
+        "benchmarks/delegate-bench/ablation.py"
+      ]
+    },
+    {
+      "id": "pack-ablation-small",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack of 0.1.1 on small tasks",
+      "metric": "cost",
+      "shown": "+0.7%",
+      "ci": [
+        "−2.4%",
+        "+4.2%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "6 per condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "+0.7% [−2.4%, +4.2%] on the four small ones"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl",
+        "benchmarks/delegate-bench/ablation.py"
+      ]
+    },
+    {
+      "id": "pack-requests",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Requests per task: the pack saves steps, not tokens per step",
+      "metric": "requests",
+      "shown": "5.2 vs 7.2",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "every run graded correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "what-the-pack-actually-saves",
+        "quote": "Requests did: 5.2 per task with the pack against 7.2 without, on the same seven tasks, every run graded correct."
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite.jsonl"
+      ]
+    },
+    {
+      "id": "pack-long-requests",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Requests per task in a long session (0.3.0)",
+      "metric": "requests",
+      "shown": "3.5 vs 5.4",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-14"
+      ],
+      "correct": "116 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "what-the-pack-actually-saves",
+        "quote": "In a long session Claude needed 3.5 requests per task with the pack instead of 5.4."
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030.jsonl"
+      ]
+    },
+    {
+      "id": "pack-ts-all",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack on a TypeScript library, all eight tasks",
+      "metric": "cost",
+      "shown": "−7.6%",
+      "ci": [
+        "−12.1%",
+        "−3.1%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3, 8 tasks",
+      "runs": "64 runs, 4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "each side had one partial answer",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-typescript",
+        "quote": [
+          "| All eight tasks | −7.6% | −12.1% to −3.1% |",
+          "64 runs, Opus 5.5, four per task and condition",
+          "each side had one partial answer"
+        ]
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts.jsonl",
+        "benchmarks/delegate-bench/ts_repo.py"
+      ]
+    },
+    {
+      "id": "pack-ts-multi",
+      "mods": [
+        "pack"
+      ],
+      "claim": "TypeScript, multi-step tasks",
+      "metric": "cost",
+      "shown": "−6.3%",
+      "ci": [
+        "−12.5%",
+        "+0.8%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3, multi-step tasks",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "each side had one partial answer",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-typescript",
+        "quote": "| Multi-step tasks | −6.3% | −12.5% to +0.8% |"
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts.jsonl"
+      ]
+    },
+    {
+      "id": "pack-ts-quick",
+      "mods": [
+        "pack",
+        "lsp-plus"
+      ],
+      "claim": "TypeScript, quick questions: symbol lookups answered inside the search",
+      "metric": "cost",
+      "shown": "−9.9%",
+      "ci": [
+        "−13.7%",
+        "−5.9%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3, quick questions",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "each side had one partial answer",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-typescript",
+        "quote": "| Quick questions | −9.9% | −13.7% to −5.9% |"
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts.jsonl"
+      ]
+    },
+    {
+      "id": "pack-ts-feature-requests",
+      "mods": [
+        "pack"
+      ],
+      "claim": "TypeScript feature: requests",
+      "metric": "requests",
+      "shown": "10.5 vs 13.2",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: a feature to a spec",
+      "runs": "4 per condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "each side had one partial answer (on other tasks)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-typescript",
+        "quote": "the feature in 10.5 instead of 13.2, the rename in 4.2 instead of 6.0"
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts.jsonl"
+      ]
+    },
+    {
+      "id": "pack-swe-cost",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack on 30 real bug reports (SWE-bench Verified)",
+      "metric": "cost",
+      "shown": "−12.3%",
+      "ci": [
+        "−32.5%",
+        "+11.9%"
+      ],
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "SWE-bench Verified, 30 issues",
+      "runs": "1 attempt per bug and condition",
+      "model": "Opus 5.5 (highest effort)",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "30 fixed with the pack, 29 plain",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-real-bugs",
+        "quote": [
+          "With one attempt per bug, cost intervals are wide: the pack against plain −12.3% [−32.5%, +11.9%].",
+          "One attempt per task and condition"
+        ]
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/swe-bench/2026-10-15-swe/attempts.jsonl"
+      ]
+    },
+    {
+      "id": "pack-swe-fixed",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Bugs fixed out of 30",
+      "metric": "quality",
+      "shown": "30 vs 29",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "SWE-bench Verified, 30 issues",
+      "runs": "1 attempt per bug and condition",
+      "model": "Opus 5.5 (highest effort)",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "graded by each project's own hidden tests",
+      "allCorrect": false,
+      "source": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "On 30 real bug reports from SWE-bench Verified it fixed 30 against 29, with 23% fewer steps"
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/swe-bench/2026-10-15-swe/attempts.jsonl"
+      ]
+    },
+    {
+      "id": "pack-swe-requests",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Requests per bug on SWE-bench Verified",
+      "metric": "requests",
+      "shown": "9.9 vs 12.9",
+      "ci": null,
+      "comparison": "the pack vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "SWE-bench Verified, 30 issues",
+      "runs": "1 attempt per bug and condition",
+      "model": "Opus 5.5 (highest effort)",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "30 fixed with the pack, 29 plain",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-real-bugs",
+        "quote": [
+          "| Plain Claude Code | 29 | $15.01 | 12.9 | 213 s |",
+          "| The pack | 30 | $13.17 | 9.9 | 144 s |"
+        ]
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/swe-bench/2026-10-15-swe/attempts.jsonl"
+      ]
+    },
+    {
+      "id": "pack-contaminated",
+      "mods": [
+        "pack"
+      ],
+      "claim": "A 'plain' baseline that had the pack installed by mistake",
+      "metric": "cost",
+      "shown": "+2.1%",
+      "ci": [
+        "−2.4%",
+        "+7.0%"
+      ],
+      "comparison": "the pack vs a plain run that loaded the installed pack 0.4.0",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "kept apart, labelled for what they were",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/08-our-plain-runs-were-not-plain.md",
+        "anchor": "the-good-news-that-wasnt",
+        "quote": "plain cost the same as the pack (+2.1% for the pack [−2.4%, +7.0%])"
+      },
+      "note": "08-our-plain-runs-were-not-plain.md",
+      "data": [
+        "benchmarks/delegate-bench/results-v-1015-installedpack.jsonl"
+      ]
+    },
+    {
+      "id": "cells-out",
+      "mods": [
+        "cells"
+      ],
+      "claim": "Taking cells out of the pack",
+      "metric": "cost",
+      "shown": "+8.9%",
+      "ci": [
+        "+2.1%",
+        "+16.4%"
+      ],
+      "comparison": "the pack without cells vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "4 per condition on multi-step tasks, 2 on small ones",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "Taking it out costs the pack +8.9% [+2.1%, +16.4%]"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl",
+        "benchmarks/delegate-bench/ablation.py"
+      ]
+    },
+    {
+      "id": "cells-out-multi",
+      "mods": [
+        "cells"
+      ],
+      "claim": "Taking cells out, on multi-step work",
+      "metric": "cost",
+      "shown": "+16.3%",
+      "ci": [
+        "+5.4%",
+        "+29.5%"
+      ],
+      "comparison": "the pack without cells vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature, coverage, rename",
+      "runs": "4 per condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "and +16.3% [+5.4%, +29.5%] on the multi-step work"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "cells-out-feature-requests",
+      "mods": [
+        "cells"
+      ],
+      "claim": "The feature's requests without cells",
+      "metric": "requests",
+      "shown": "14.2 vs 9.8",
+      "ci": null,
+      "comparison": "the pack without cells vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: a feature to a spec",
+      "runs": "4 per condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "the feature takes 14.2 requests instead of 9.8, the rename 7.8 instead of 3.2"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "pack-without-cells",
+      "mods": [
+        "cells",
+        "pack"
+      ],
+      "claim": "The pack without cells, against plain: the saving is gone",
+      "metric": "cost",
+      "shown": "−3.3%",
+      "ci": [
+        "−8.7%",
+        "+2.4%"
+      ],
+      "comparison": "the pack without cells vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "4 per condition on multi-step tasks, 2 on small ones",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "Without cells: −3.3% [−8.7%, +2.4%]."
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "cells-pilot-haiku",
+      "mods": [
+        "cells"
+      ],
+      "claim": "cells' chaining guidance, Haiku on small tasks",
+      "metric": "requests",
+      "shown": "−18%",
+      "ci": null,
+      "comparison": "with the chaining guidance vs without",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "cells pilot: small tasks",
+      "runs": "30 per arm",
+      "model": "Haiku 5.5",
+      "date": [
+        "2026-10-09"
+      ],
+      "correct": "all passed",
+      "allCorrect": true,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "In a pilot it cut Haiku's requests by 18% on small tasks."
+      },
+      "note": null,
+      "data": [
+        "benchmarks/cells-pilot/2026-10-09/summary.md"
+      ]
+    },
+    {
+      "id": "cells-shared-section",
+      "mods": [
+        "cells"
+      ],
+      "claim": "cells' guidance moved before the cache boundary",
+      "metric": "cost",
+      "shown": "+1.0%",
+      "ci": [
+        "−5%",
+        "+8%"
+      ],
+      "comparison": "guidance as a shared system-prompt section vs as it was",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "32 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-14"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-pack-as-it-ships-in-030-v-z-vl-pl",
+        "quote": "32 more runs of the small tasks with it (results-030-shared, all correct) cost +1.0% [−5%, +8%] against the pack as it was"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-030-shared.jsonl"
+      ]
+    },
+    {
+      "id": "cells-sessions-scripts",
+      "mods": [
+        "cells"
+      ],
+      "claim": "In 240 real sessions, files changed by script around the Edit tool",
+      "metric": "count",
+      "shown": "5,996 vs 2,720",
+      "ci": null,
+      "comparison": "Bash scripts that changed files vs Edit and Write calls",
+      "session": "real sessions",
+      "language": "—",
+      "tasks": "240 of the author's own sessions, 32,202 model requests",
+      "runs": "240 sessions",
+      "model": "—",
+      "date": [],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "Models changed files with Python, sed or perl through Bash 5,996 times, against 2,720 Edit and Write calls"
+      },
+      "note": null,
+      "data": []
+    },
+    {
+      "id": "lsp-answer-rename-requests",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "The language server's answer on a rename: requests",
+      "metric": "requests",
+      "shown": "−25%",
+      "ci": null,
+      "comparison": "the pack answering symbol greps vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: rename a function",
+      "runs": "7 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 42 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-language-server-answers-the-grep-y",
+        "quote": [
+          "| t2-rename | $0.221 · 4.6 req (7) | $0.207 · 3.4 (7) | −25% | −6.5% | 7 of 7 |",
+          "All 42 correct."
+        ]
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-answer.jsonl",
+        "benchmarks/delegate-bench/results-noconn.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-answer-rename-cost",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "The language server's answer on a rename: cost",
+      "metric": "cost",
+      "shown": "−6.5%",
+      "ci": null,
+      "comparison": "the pack answering symbol greps vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: rename a function",
+      "runs": "7 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 42 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-language-server-answers-the-grep-y",
+        "quote": "| t2-rename | $0.221 · 4.6 req (7) | $0.207 · 3.4 (7) | −25% | −6.5% | 7 of 7 |"
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-answer.jsonl",
+        "benchmarks/delegate-bench/results-noconn.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-answer-trace-cost",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "The language server's answer on a trace: cost even",
+      "metric": "cost",
+      "shown": "+1%",
+      "ci": null,
+      "comparison": "the pack answering symbol greps vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: trace every caller",
+      "runs": "7 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 42 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-language-server-answers-the-grep-y",
+        "quote": "| t1-trace | $0.215 · 4.3 (7) | $0.217 · 3.9 (7) | −10% | +1% | 5 of 7 |"
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-answer.jsonl",
+        "benchmarks/delegate-bench/results-noconn.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-out",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "Taking lsp-plus out of the pack: no net effect on the whole",
+      "metric": "cost",
+      "shown": "−0.6%",
+      "ci": [
+        "−7.2%",
+        "+6.7%"
+      ],
+      "comparison": "the pack without lsp-plus vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "4 per condition on multi-step tasks, 6 on small ones",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "lsp-plus shows no net effect on the whole: −0.6% [−7.2%, +6.7%] taking it out."
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-warmup-leak",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "lsp-plus's first warm-up leaked a file's diagnostics into small tasks",
+      "metric": "cost",
+      "shown": "−4.5%",
+      "ci": [
+        "−7.1%",
+        "−1.7%"
+      ],
+      "comparison": "the pack without lsp-plus vs the pack (small tasks)",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "6 per condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "128 graded runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-mod-earns-it-the-ablation-z",
+        "quote": "(taking it out: −4.5% [−7.1%, −1.7%])"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-warmfix-small",
+      "mods": [
+        "lsp-plus",
+        "pack"
+      ],
+      "claim": "The warm-up fixed: small tasks against plain",
+      "metric": "cost",
+      "shown": "−2.2%",
+      "ci": [
+        "−5.6%",
+        "+1.5%"
+      ],
+      "comparison": "the pack with the fixed warm-up vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "28 runs of the fixed pack",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-warm-up-fixed-zfix",
+        "quote": "On the small tasks the fixed pack costs −2.2% [−5.6%, +1.5%] against plain"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-warmfix.jsonl",
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-warmfix-vs-without",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "The warm-up fixed: small tasks against the pack without lsp-plus",
+      "metric": "cost",
+      "shown": "+1.7%",
+      "ci": [
+        "−1.5%",
+        "+4.9%"
+      ],
+      "comparison": "the pack with the fixed warm-up vs the pack without lsp-plus",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "28 runs of the fixed pack",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-warm-up-fixed-zfix",
+        "quote": "and +1.7% [−1.5%, +4.9%] against the pack without lsp-plus: the gap is gone."
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-warmfix.jsonl",
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-warmfix-rename",
+      "mods": [
+        "lsp-plus",
+        "pack"
+      ],
+      "claim": "The rename with the fixed pack, against plain",
+      "metric": "cost",
+      "shown": "−19%",
+      "ci": [
+        "−32%",
+        "−4%"
+      ],
+      "comparison": "the pack with the fixed warm-up vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: rename a function",
+      "runs": "28 runs of the fixed pack",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-warm-up-fixed-zfix",
+        "quote": "The rename came to −19% [−32%, −4%] against plain"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-warmfix.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-nudge",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "A note telling Claude which language-server call answers its grep",
+      "metric": "followed",
+      "shown": "0 of 45",
+      "ci": null,
+      "comparison": "notes acted on, of notes shown",
+      "session": "fresh and long",
+      "language": "Python",
+      "tasks": "click 8.5.0, every pack run up to the quiet pack",
+      "runs": "45 notes",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/02-notes-nobody-reads.md",
+        "anchor": "45-hints-0-followed",
+        "quote": "In every benchmark run with the pack, that note fired 45 times. Claude acted on it 0 times"
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-quiet.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-blast",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "blast (callers after a signature change), taken out",
+      "metric": "cost",
+      "shown": "+3.7%",
+      "ci": [
+        "−2.0%",
+        "+11.0%"
+      ],
+      "comparison": "the ideas without blast vs with it",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: change a signature",
+      "runs": "4 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "96 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/04-borrowing-the-good-ideas.md",
+        "anchor": "what-it-measured",
+        "quote": [
+          "| Taking blast out, on the signature task | +3.7% | −2.0% to +11.0% |",
+          "96 runs of the ideas, all correct"
+        ]
+      },
+      "note": "04-borrowing-the-good-ideas.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ideas.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-order-feature",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "An order from a mod to hand off a feature",
+      "metric": "cost",
+      "shown": "−22%",
+      "ci": [
+        "−33%",
+        "−11%"
+      ],
+      "comparison": "ordered hand-off vs the pack, Opus alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: a feature to a spec",
+      "runs": "4 per task (8 hand-offs in 8 runs across both tasks)",
+      "model": "Opus 5.5, worker as delegate picks",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "getting-opus-to-hand-off-hf-mo-ic-ps",
+        "quote": [
+          "| fresh | 8 of 8 | $0.455 (−22%) | $0.438 (−26%) |",
+          "with the workers' output in full, −22% [−33%, −11%] and −26% [−36%, −11%]"
+        ]
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "A plan handed to a cheaper model: −22% on a feature, −26% on tests, against Opus doing it alone with the pack (16 runs, all correct)."
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-delegation-ideas.jsonl",
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-order-tests",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "An order from a mod to hand off tests",
+      "metric": "cost",
+      "shown": "−26%",
+      "ci": [
+        "−36%",
+        "−11%"
+      ],
+      "comparison": "ordered hand-off vs the pack, Opus alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: raise test coverage",
+      "runs": "4 per task",
+      "model": "Opus 5.5, worker as delegate picks",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "getting-opus-to-hand-off-hf-mo-ic-ps",
+        "quote": [
+          "| fresh | 8 of 8 | $0.455 (−22%) | $0.438 (−26%) |",
+          "with the workers' output in full, −22% [−33%, −11%] and −26% [−36%, −11%]"
+        ]
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-delegation-ideas.jsonl",
+        "benchmarks/delegate-bench/results-ablation.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-order-followed",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "An order in the person's name to hand off: followed",
+      "metric": "hand-offs",
+      "shown": "8 of 8",
+      "ci": null,
+      "comparison": "hand-offs, of runs with the order",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature and coverage",
+      "runs": "8 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/02-notes-nobody-reads.md",
+        "anchor": "an-order-works",
+        "quote": "Opus handed off in 8 of 8 runs, and the feature cost 22% less"
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-delegation-ideas.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-unasked-offered",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "The hand-off tool offered, nobody asking",
+      "metric": "hand-offs",
+      "shown": "0 of 24",
+      "ci": null,
+      "comparison": "hand-offs, of runs",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "24 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/02-notes-nobody-reads.md",
+        "anchor": "174-runs-0-delegations",
+        "quote": "| The tool offered | 24 | 0 |"
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-unasked-fit",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Every prompt ending with \"Delegate where you see fit.\"",
+      "metric": "hand-offs",
+      "shown": "0 of 28",
+      "ci": null,
+      "comparison": "hand-offs, of runs",
+      "session": "fresh and long",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "28 runs (14 fresh, 14 long)",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "why-opus-does-not-hand-off-x",
+        "quote": "0 hand-offs in 28 runs (14 fresh, 14 in the long session), all correct."
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-fit.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-unasked-agent",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Claude Code's own Agent tool, available in every run",
+      "metric": "hand-offs",
+      "shown": "0 of 174",
+      "ci": null,
+      "comparison": "uses, of runs",
+      "session": "fresh and long",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "174 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/02-notes-nobody-reads.md",
+        "anchor": "174-runs-0-delegations",
+        "quote": "| Claude Code's own Agent tool, available in every run | 174 | 0 |"
+      },
+      "note": "02-notes-nobody-reads.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite.jsonl",
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-unasked-060",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Measured again with 0.6.0's delegate, nobody asking",
+      "metric": "hand-offs",
+      "shown": "0 of 16",
+      "ci": null,
+      "comparison": "hand-offs, of runs",
+      "session": "fresh",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: feature and test tasks",
+      "runs": "16 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "claude-does-not-hand-off-on-its-own",
+        "quote": "in 16 runs on the feature and test tasks of click and of a TypeScript library, with delegate loaded and nobody asking, Claude handed off 0 times"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-unasked.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-implement-spec",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "The same tool framed as an ability, implement_spec: unused, and dearer to carry",
+      "metric": "cost",
+      "shown": "+18%",
+      "ci": null,
+      "comparison": "the tool as implement_spec vs the pack, Opus alone (feature)",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: a feature to a spec",
+      "runs": "4 per task (0 hand-offs in 8 runs)",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "getting-opus-to-hand-off-hf-mo-ic-ps",
+        "quote": "| fresh | 0 of 8 | $0.689 (+18%) | $0.661 (+11%) |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-delegation-ideas.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-feature",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off a feature in a 233k-token session",
+      "metric": "cost",
+      "shown": "−35%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: a feature to a spec",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": [
+          "| l1-feature | $0.82 · 7.5 req · 140 s | $0.54 · 5.5 + 5.5 worker · 102 s | −35% | −35% |",
+          "Measured in the 233k session, 28 runs, all correct"
+        ]
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-coverage",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off tests in a 233k-token session",
+      "metric": "cost",
+      "shown": "−23%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: raise test coverage",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": "| l2-coverage | $0.73 · 6.5 · 137 s | $0.57 · 4.5 + 5.0 · 121 s | −23% | −28% |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-rename",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off a rename in a long session",
+      "metric": "cost",
+      "shown": "+43%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: rename a function",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": "| t2-rename | $0.26 · 3.5 · 37 s | $0.38 · 4.0 + 5.5 · 75 s | +43% | −9% |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-explain",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off an explanation in a long session",
+      "metric": "cost",
+      "shown": "+103%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: explain a code path",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": "| t3-explain | $0.11 · 1.0 · 31 s | $0.21 · 2.0 + 6.5 · 74 s | +103% | −1% |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-lookup",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off a lookup in a long session",
+      "metric": "cost",
+      "shown": "+150%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: look up a name",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": "| t4-lookup | $0.06 · 1.0 · 9 s | $0.15 · 2.0 + 2.5 · 33 s | +150% | +13% |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-trace",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off a trace in a long session",
+      "metric": "cost",
+      "shown": "+30%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: trace every caller",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": "| t1-trace | $0.14 · 2.0 · 16 s | $0.18 · 2.0 + 4.5 · 55 s | +30% | +3% |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-long-types",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Handing off a type search in a long session",
+      "metric": "cost",
+      "shown": "+261%",
+      "ci": null,
+      "comparison": "told to hand off vs Opus alone with the pack; worker costs corrected 16 Oct",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0: find matching types",
+      "runs": "2 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "28 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "the-hand-off-in-a-long-session-pl-hl",
+        "quote": "| t5-types | $0.06 · 1.0 · 10 s | $0.23 · 3.0 + 3.5 · 46 s | +261% | +10% |"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-suite-long.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-read-handoffs",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Ordered to hand off a lookup, with read-only hand-offs off",
+      "metric": "cost",
+      "shown": "+17% to +40%",
+      "ci": null,
+      "comparison": "ordered hand-off vs the pack alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: read-only tasks",
+      "runs": "12 fresh runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all graded runs correct; stray files left in the repository",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "getting-opus-to-hand-off-hf-mo-ic-ps",
+        "quote": "8 hand-offs in 12 fresh runs, +17% to +40% against the pack alone"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-explore-off-fresh.jsonl",
+        "benchmarks/delegate-bench/results-explore-off.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-worker-haiku-feature",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "A feature built by Haiku at low effort",
+      "metric": "cost",
+      "shown": "−34%",
+      "ci": null,
+      "comparison": "told to hand off vs the pack, Opus alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: a feature to a spec",
+      "runs": "3 per task",
+      "model": "Opus 5.5, worker Haiku 5.5 low",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 41 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-worker-for-which-kind-of-work-wk-",
+        "quote": [
+          "| build | l1-feature | −34% | | −15% | −26% | −29% |",
+          "all 41 correct"
+        ]
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-workers.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-worker-sonnet-feature",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "A feature built by Sonnet at medium effort (the default)",
+      "metric": "cost",
+      "shown": "−26%",
+      "ci": null,
+      "comparison": "told to hand off vs the pack, Opus alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: a feature to a spec",
+      "runs": "3 per task",
+      "model": "Opus 5.5, worker Sonnet 5.5 medium",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 41 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-worker-for-which-kind-of-work-wk-",
+        "quote": "| build | l1-feature | −34% | | −15% | −26% | −29% |"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-workers.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-worker-sonnet-coverage",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "Tests written by Sonnet at medium effort",
+      "metric": "cost",
+      "shown": "−35%",
+      "ci": null,
+      "comparison": "told to hand off vs the pack, Opus alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: raise test coverage",
+      "runs": "3 per task",
+      "model": "Opus 5.5, worker Sonnet 5.5 medium",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 41 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-worker-for-which-kind-of-work-wk-",
+        "quote": "| build | l2-coverage | −44% | | −31% | −35% | −28% |"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-workers.jsonl"
+      ]
+    },
+    {
+      "id": "delegate-worker-rename",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "A small rename handed to Haiku at low effort",
+      "metric": "cost",
+      "shown": "+37%",
+      "ci": null,
+      "comparison": "told to hand off vs the pack, Opus alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: rename a function",
+      "runs": "3 per task",
+      "model": "Opus 5.5, worker Haiku 5.5 low",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all 41 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "which-worker-for-which-kind-of-work-wk-",
+        "quote": "| mechanical | t2-rename | +37% | +56% | +55% | | |"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-workers.jsonl"
+      ]
+    },
+    {
+      "id": "sonnet-alone",
+      "mods": [
+        "other"
+      ],
+      "claim": "Sonnet alone as the main model, on work this size and this well specified",
+      "metric": "cost",
+      "shown": "−65%",
+      "ci": null,
+      "comparison": "Sonnet 5.5 alone vs Opus 5.5 alone, plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "14 runs",
+      "model": "Sonnet 5.5 vs Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "benchmarks/delegate-bench/SUITE.md",
+        "anchor": "sonnet-alone-w",
+        "quote": [
+          "| All | $3.43 · 7.2 · 59 s | $1.21 · 4.6 · 33 s | −65% | −44% |",
+          "on the same seven tasks, fresh, 14 runs, all correct"
+        ]
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-sonnet.jsonl"
+      ]
+    },
+    {
+      "id": "connectors-off",
+      "mods": [
+        "other"
+      ],
+      "claim": "Six unused claude.ai connectors turned off: the biggest saving was not a mod",
+      "metric": "cost",
+      "shown": "−34%",
+      "ci": null,
+      "comparison": "without connectors vs with them (the quiet pack)",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 4 quick questions",
+      "runs": "3 to 7 per task",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "the-biggest-saving-was-not-a-mod",
+        "quote": "cut the cost of the four quick tasks by 34%, with the same number of requests"
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": [
+        "benchmarks/delegate-bench/results-noconn.jsonl",
+        "benchmarks/delegate-bench/results-quiet.jsonl"
+      ]
+    },
+    {
+      "id": "route-click-pack",
+      "mods": [
+        "route"
+      ],
+      "claim": "route 0.1 on click's eight jobs",
+      "metric": "cost",
+      "shown": "−14.2%",
+      "ci": [
+        "−17.9%",
+        "−10.1%"
+      ],
+      "comparison": "the pack with route vs the pack; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "32 runs, 4 per task",
+      "model": "Opus 5.5, classifier ScaleDown",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 32 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/07-small-models-as-plumbing.md",
+        "anchor": "classify-the-one-job-it-did-perfectly",
+        "quote": [
+          "Over all eight, −14.2% against the pack [−17.9%, −10.1%]",
+          "four runs each, all 32 correct"
+        ]
+      },
+      "note": "07-small-models-as-plumbing.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-click-plain",
+      "mods": [
+        "route",
+        "pack"
+      ],
+      "claim": "route 0.1 with the pack, against plain Claude Code",
+      "metric": "cost",
+      "shown": "−19.1%",
+      "ci": [
+        "−22.5%",
+        "−15.3%"
+      ],
+      "comparison": "the pack with route vs plain Claude Code; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "32 runs, 4 per task",
+      "model": "Opus 5.5, classifier ScaleDown",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 32 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/07-small-models-as-plumbing.md",
+        "anchor": "classify-the-one-job-it-did-perfectly",
+        "quote": "and −19.1% against plain Claude Code [−22.5%, −15.3%]"
+      },
+      "note": "07-small-models-as-plumbing.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route.jsonl",
+        "benchmarks/delegate-bench/results-v-1015.jsonl"
+      ]
+    },
+    {
+      "id": "route-click-routed",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "route 0.1 on the two tasks it routed (feature and tests)",
+      "metric": "cost",
+      "shown": "−33.8%",
+      "ci": [
+        "−39.4%",
+        "−27.4%"
+      ],
+      "comparison": "the pack with route vs the pack; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature and coverage",
+      "runs": "4 per task",
+      "model": "Opus 5.5, classifier ScaleDown",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 32 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/07-small-models-as-plumbing.md",
+        "anchor": "classify-the-one-job-it-did-perfectly",
+        "quote": "On the two tasks it routed, the pack with route cost 33.8% less than the pack alone [−39.4%, −27.4%]"
+      },
+      "note": "07-small-models-as-plumbing.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-click-others",
+      "mods": [
+        "route"
+      ],
+      "claim": "route 0.1 on the six tasks it left alone",
+      "metric": "cost",
+      "shown": "+4.3%",
+      "ci": [
+        "−0.1%",
+        "+9.0%"
+      ],
+      "comparison": "the pack with route vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 6 other tasks",
+      "runs": "4 per task",
+      "model": "Opus 5.5, classifier ScaleDown",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 32 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/07-small-models-as-plumbing.md",
+        "anchor": "classify-the-one-job-it-did-perfectly",
+        "quote": "on the other six, +4.3% [−0.1%, +9.0%], within the runs' spread"
+      },
+      "note": "07-small-models-as-plumbing.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-decisions",
+      "mods": [
+        "route"
+      ],
+      "claim": "Routing decisions on click: the order on feature and test prompts only",
+      "metric": "accuracy",
+      "shown": "8 of 8, 0 of 24",
+      "ci": null,
+      "comparison": "orders given on feature/test prompts; wrong orders on the others",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "32 runs",
+      "model": "classifier ScaleDown",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 32 correct",
+      "allCorrect": true,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "050-2026-10-15",
+        "quote": "every routing decision right (8 of 8 orders, 0 of 24 wrong ones)"
+      },
+      "note": "07-small-models-as-plumbing.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-direct-click",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "Verified hand-off and handing off before reading, against route as released",
+      "metric": "cost",
+      "shown": "−28%",
+      "ci": [
+        "−42%",
+        "−10%"
+      ],
+      "comparison": "route 0.3 (verified, direct) vs route 0.1; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature and coverage",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": [
+          "The last column against the first: cost −28% [−42%, −10%]",
+          "All 52 runs below were correct."
+        ]
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route-verify.jsonl"
+      ]
+    },
+    {
+      "id": "route-direct-click-requests",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "Claude's own requests with the verified, direct hand-off",
+      "metric": "requests",
+      "shown": "−55%",
+      "ci": [
+        "−68%",
+        "−36%"
+      ],
+      "comparison": "route 0.3 (verified, direct) vs route 0.1",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: feature and coverage",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": "main-model requests −55% [−68%, −36%], time −12% (not shown)"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route-verify.jsonl"
+      ]
+    },
+    {
+      "id": "route-ts-feature",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "A TypeScript feature routed to a Sonnet worker",
+      "metric": "cost",
+      "shown": "−51%",
+      "ci": null,
+      "comparison": "route (Sonnet worker) vs the pack alone, same batch; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: a feature to a spec",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5, worker Sonnet 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": [
+          "| A feature: cost | $0.99 | $0.48 (−51%) | $0.44 (−55%) |",
+          "Four runs per task and condition."
+        ]
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts-route-jev.jsonl"
+      ]
+    },
+    {
+      "id": "route-ts-feature-time",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "The same TypeScript feature: time",
+      "metric": "time",
+      "shown": "−42%",
+      "ci": null,
+      "comparison": "route (Sonnet worker) vs the pack alone, same batch",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: a feature to a spec",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5, worker Sonnet 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": "| A feature: time | 214 s | 125 s (−42%) | 178 s |"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts-route-jev.jsonl"
+      ]
+    },
+    {
+      "id": "route-ts-feature-requests",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "The same TypeScript feature: Claude's own requests",
+      "metric": "requests",
+      "shown": "11.0 → 2.0",
+      "ci": null,
+      "comparison": "the pack alone → route (Sonnet worker)",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: a feature to a spec",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5, worker Sonnet 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": "| A feature: main-model requests | 11.0 | 2.0 | 2.8 |"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts-route-jev.jsonl"
+      ]
+    },
+    {
+      "id": "route-ts-tests",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "Writing TypeScript tests, routed to a Sonnet worker",
+      "metric": "cost",
+      "shown": "−36%",
+      "ci": null,
+      "comparison": "route (Sonnet worker) vs the pack alone, same batch; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: raise test coverage",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5, worker Sonnet 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": "| Writing tests: cost | $0.45 | $0.29 (−36%) | $0.24 (−46%) |"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-ts-tests-haiku",
+      "mods": [
+        "route",
+        "delegate"
+      ],
+      "claim": "Writing TypeScript tests, routed to a Haiku worker",
+      "metric": "cost",
+      "shown": "−46%",
+      "ci": null,
+      "comparison": "route (Haiku worker) vs the pack alone, same batch; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: raise test coverage",
+      "runs": "4 per task and condition",
+      "model": "Opus 5.5, worker Haiku 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all 52 runs correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "what-it-measured",
+        "quote": "| Writing tests: cost | $0.45 | $0.29 (−36%) | $0.24 (−46%) |"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ts-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-direct-followed",
+      "mods": [
+        "route"
+      ],
+      "claim": "The order to hand off before reading the code: followed",
+      "metric": "hand-offs",
+      "shown": "24 of 24",
+      "ci": null,
+      "comparison": "hand-offs, of runs with the order",
+      "session": "fresh",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: feature and test tasks",
+      "runs": "24 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "handing-off-before-reading-the-code",
+        "quote": "Claude followed that 24 of 24 times."
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route-verify.jsonl",
+        "benchmarks/delegate-bench/results-ts-route.jsonl"
+      ]
+    },
+    {
+      "id": "route-lookfirst-kept",
+      "mods": [
+        "route"
+      ],
+      "claim": "Allowed to look around first, Claude kept the work",
+      "metric": "hand-offs",
+      "shown": "5 of 16",
+      "ci": null,
+      "comparison": "runs where Claude kept the work, of runs with the order",
+      "session": "fresh",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: feature and test tasks",
+      "runs": "16 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "handing-off-before-reading-the-code",
+        "quote": "allowed to look around first, Claude kept the work in 5 of 16 runs"
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/delegate-bench/results-route-verify.jsonl"
+      ]
+    },
+    {
+      "id": "route-classifiers",
+      "mods": [
+        "route"
+      ],
+      "claim": "Both classifiers on 25 prompts, two rounds",
+      "metric": "accuracy",
+      "shown": "50 of 50",
+      "ci": null,
+      "comparison": "right labels, of calls (each classifier)",
+      "session": "—",
+      "language": "—",
+      "tasks": "25 prompts: the bench's 8 and 17 everyday ones",
+      "runs": "50 calls each",
+      "model": "TypeSafe Jev and ScaleDown Classify",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "a-classifier-that-hesitated",
+        "quote": "On our 25 calibration prompts both were right 50 times out of 50; Jev answered in 0.25 s against 1.15 s."
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/classifiers/jev-vs-scaledown.json"
+      ]
+    },
+    {
+      "id": "route-scaledown-hesitated",
+      "mods": [
+        "route"
+      ],
+      "claim": "A long TypeScript feature spec: ScaleDown under the threshold, Jev certain",
+      "metric": "accuracy",
+      "shown": "0.66 vs 1.0",
+      "ci": null,
+      "comparison": "ScaleDown's score vs Jev's, on the same prompt (threshold 0.7)",
+      "session": "—",
+      "language": "TypeScript",
+      "tasks": "chrono v2.10.3: a feature to a spec",
+      "runs": "—",
+      "model": "TypeSafe Jev and ScaleDown Classify",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/10-two-requests.md",
+        "anchor": "a-classifier-that-hesitated",
+        "quote": [
+          "it said \"feature\" with a score of 0.66, under route's threshold of 0.7",
+          "said \"feature\" with a probability of 1.0"
+        ]
+      },
+      "note": "10-two-requests.md",
+      "data": [
+        "benchmarks/classifiers/jev-vs-scaledown.json"
+      ]
+    },
+    {
+      "id": "seek-fresh",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's order in a fresh session",
+      "metric": "cost",
+      "shown": "−11.9%",
+      "ci": [
+        "−17.2",
+        "−5.9"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "fresh",
+      "language": "Python and TypeScript",
+      "tasks": "four click tasks and one TypeScript explanation",
+      "runs": "20 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "every run full marks but two (0.83 on the TypeScript explanation, one with seek, one without)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": [
+          "| Fresh session: four click tasks and one TypeScript explanation | 20 each | −11.9% [−17.2, −5.9] | −18.0% [−23.9, −11.5] |",
+          "two runs of the TypeScript explanation scored 0.83"
+        ]
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-fresh.jsonl"
+      ]
+    },
+    {
+      "id": "seek-fresh-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's order in a fresh session, with what each run left behind",
+      "metric": "cost with carry",
+      "shown": "−18.0%",
+      "ci": [
+        "−23.9",
+        "−11.5"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "fresh",
+      "language": "Python and TypeScript",
+      "tasks": "four click tasks and one TypeScript explanation",
+      "runs": "20 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "every run full marks but two (0.83 on the TypeScript explanation, one with seek, one without)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "| Fresh session: four click tasks and one TypeScript explanation | 20 each | −11.9% [−17.2, −5.9] | −18.0% [−23.9, −11.5] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-fresh.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "seek-docs",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's order in a long session that had read click's docs and tests, not its source",
+      "metric": "cost",
+      "shown": "−10.2%",
+      "ci": [
+        "−17.6",
+        "−2.2"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "long (had not read the source)",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "| Long session that had read click's docs and tests, not its source | 24 each | −10.2% [−17.6, −2.2] | −13.0% [−19.0, −6.8] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-docs.jsonl"
+      ]
+    },
+    {
+      "id": "seek-docs-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "The same, with what each run left behind",
+      "metric": "cost with carry",
+      "shown": "−13.0%",
+      "ci": [
+        "−19.0",
+        "−6.8"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "long (had not read the source)",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "| Long session that had read click's docs and tests, not its source | 24 each | −10.2% [−17.6, −2.2] | −13.0% [−19.0, −6.8] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-docs.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "seek-long",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's order in a long session that had read all of the source",
+      "metric": "cost",
+      "shown": "−15.9%",
+      "ci": [
+        "−22.5",
+        "−8.6"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "24 per arm (warm runs)",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": [
+          "| Long session that had read all of the source | 24 each | −15.9% [−22.5, −8.6] | −17.7% [−24.6, −10.4] |",
+          "runs whose fork had gone cold were left out"
+        ]
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-long.jsonl"
+      ]
+    },
+    {
+      "id": "seek-long-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "The same, with what each run left behind",
+      "metric": "cost with carry",
+      "shown": "−17.7%",
+      "ci": [
+        "−24.6",
+        "−10.4"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "24 per arm (warm runs)",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "| Long session that had read all of the source | 24 each | −15.9% [−22.5, −8.6] | −17.7% [−24.6, −10.4] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-long.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "seek-ts",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's order on a TypeScript library",
+      "metric": "cost",
+      "shown": "−16.4%",
+      "ci": [
+        "−21.8",
+        "−10.5"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono 2.10.3, 8 tasks",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "72 of 72 full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "| Fresh session, TypeScript (chrono), eight tasks | 24 each | −16.4% [−21.8, −10.5] | −23.1% [−28.6, −17.1] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-ts.jsonl"
+      ]
+    },
+    {
+      "id": "seek-ts-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "The same, with what each run left behind",
+      "metric": "cost with carry",
+      "shown": "−23.1%",
+      "ci": [
+        "−28.6",
+        "−17.1"
+      ],
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono 2.10.3, 8 tasks",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "72 of 72 full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "| Fresh session, TypeScript (chrono), eight tasks | 24 each | −16.4% [−21.8, −10.5] | −23.1% [−28.6, −17.1] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-ts.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "seek-ts-feature",
+      "mods": [
+        "seek"
+      ],
+      "claim": "The TypeScript feature with seek's order: requests",
+      "metric": "requests",
+      "shown": "8.3 vs 11.3",
+      "ci": null,
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono 2.10.3: a feature to a spec",
+      "runs": "3 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "72 of 72 full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "The TypeScript feature took 8.3 requests instead of 11.3; writing tests cost 29% less, the rename 26%."
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-ts.jsonl"
+      ]
+    },
+    {
+      "id": "seek-ts-tokens",
+      "mods": [
+        "seek"
+      ],
+      "claim": "What a TypeScript task left in the context, with and without seek's order",
+      "metric": "tokens added",
+      "shown": "13.2k vs 18.6k",
+      "ci": null,
+      "comparison": "the pack with seek's order vs the pack",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono 2.10.3, 8 tasks",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "72 of 72 full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-with-the-prompt",
+        "quote": "On TypeScript, 6.3 → 5.3 requests per task and 18.6k → 13.2k tokens added to the context"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-ts.jsonl"
+      ]
+    },
+    {
+      "id": "seek-followed",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's order with the person's prompt: followed",
+      "metric": "followed",
+      "shown": "44 of 44",
+      "ci": null,
+      "comparison": "runs that got the order",
+      "session": "fresh and long",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono",
+      "runs": "44 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "where-an-instruction-has-to-ride",
+        "quote": "| seek: look around in few, lean steps | the person's prompt | 44 of 44 runs |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-fresh.jsonl",
+        "benchmarks/delegate-bench/results-seek03-ts.jsonl"
+      ]
+    },
+    {
+      "id": "seek-map-ts",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's map (where a search's hits sit) on TypeScript",
+      "metric": "cost",
+      "shown": "−4.5%",
+      "ci": [
+        "−9.9",
+        "+1.2"
+      ],
+      "comparison": "the pack with seek's map vs the pack",
+      "session": "fresh",
+      "language": "TypeScript",
+      "tasks": "chrono 2.10.3, 8 tasks",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "72 of 72 full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "the-map-measured-and-left-off",
+        "quote": "on TypeScript −4.5% [−9.9, +1.2]"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-ts.jsonl"
+      ]
+    },
+    {
+      "id": "seek-map-docs",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek's map on top of the order, in the docs session",
+      "metric": "cost",
+      "shown": "−7.9%",
+      "ci": [
+        "−15.1",
+        "−0.5"
+      ],
+      "comparison": "order and map vs order alone",
+      "session": "long (had not read the source)",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "the-map-measured-and-left-off",
+        "quote": "on top of the order in the docs session −7.9% [−15.1, −0.5]"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-docs.jsonl"
+      ]
+    },
+    {
+      "id": "seek-map-docs-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "The map on top of the order, with what it left behind",
+      "metric": "cost with carry",
+      "shown": "−5.5%",
+      "ci": [
+        "−11.7",
+        "+1.0"
+      ],
+      "comparison": "order and map vs order alone",
+      "session": "long (had not read the source)",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "24 per arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "the-map-measured-and-left-off",
+        "quote": "and with carry −5.5% [−11.7, +1.0], not shown"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-docs.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "seek01-fired",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek 0.1: lines around a plain grep's hits",
+      "metric": "followed",
+      "shown": "1 of 36",
+      "ci": null,
+      "comparison": "runs where it fired",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "36 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct (one partial answer elsewhere)",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "windows-after-a-search",
+        "quote": "It fired in 1 of 36 runs."
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek.jsonl"
+      ]
+    },
+    {
+      "id": "seek02-fresh",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek 0.2: lines around a search's hits, fresh",
+      "metric": "cost",
+      "shown": "+2.1%",
+      "ci": [
+        "−1.4",
+        "+5.5"
+      ],
+      "comparison": "the pack with seek 0.2 vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "not stated in the note; see the data file",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "windows-after-a-search",
+        "quote": "The cost went the other way: +2.1% [−1.4, +5.5] fresh"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek2.jsonl"
+      ]
+    },
+    {
+      "id": "seek02-fresh-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek 0.2 fresh, with what the windows left behind",
+      "metric": "cost with carry",
+      "shown": "+6.3%",
+      "ci": [
+        "+1.4",
+        "+11.2"
+      ],
+      "comparison": "the pack with seek 0.2 vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "not stated in the note; see the data file",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "windows-after-a-search",
+        "quote": "With carry: +6.3% [+1.4, +11.2] fresh"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek2.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "seek02-long",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek 0.2 in a long session",
+      "metric": "cost",
+      "shown": "−4.5%",
+      "ci": [
+        "−7.4",
+        "−1.6"
+      ],
+      "comparison": "the pack with seek 0.2 vs the pack",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "not stated in the note; see the data file",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "windows-after-a-search",
+        "quote": "−4.5% [−7.4, −1.6] in a long session, where a saved request is dearer"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek-long.jsonl"
+      ]
+    },
+    {
+      "id": "seek02-long-carry",
+      "mods": [
+        "seek"
+      ],
+      "claim": "seek 0.2 in a long session, with what the windows left behind",
+      "metric": "cost with carry",
+      "shown": "−2.2%",
+      "ci": [
+        "−5.2",
+        "+0.7"
+      ],
+      "comparison": "the pack with seek 0.2 vs the pack",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "not stated in the note; see the data file",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "windows-after-a-search",
+        "quote": "and −2.2% [−5.2, +0.7] in the long session, no longer shown"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek-long.jsonl",
+        "benchmarks/delegate-bench/carry.py"
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "mods": [
+        "other"
+      ],
+      "claim": "pathfinder: an order mid-search to hand the rest to a read worker",
+      "metric": "cost",
+      "shown": "−3.4%",
+      "ci": [
+        "−11.3",
+        "+5.1"
+      ],
+      "comparison": "the pack with pathfinder vs the pack",
+      "session": "long (had not read the source)",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "12 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "an-order-in-the-middle-of-a-search",
+        "quote": "In the measured batch, in a long session that had read click's docs and tests but none of its source, the order came in 6 of 12 runs and Claude handed off once. Cost −3.4% [−11.3, +5.1], not shown."
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-docs.jsonl"
+      ]
+    },
+    {
+      "id": "pathfinder-followed",
+      "mods": [
+        "other"
+      ],
+      "claim": "pathfinder's order inside Claude's own search: followed",
+      "metric": "followed",
+      "shown": "1 of 6",
+      "ci": null,
+      "comparison": "hand-offs, of runs that got the order",
+      "session": "long (had not read the source)",
+      "language": "Python",
+      "tasks": "click 8.5.0",
+      "runs": "12 runs, the order came in 6",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "where-an-instruction-has-to-ride",
+        "quote": "| pathfinder: hand the rest of this search off | Claude's own search, mid-way | 1 of 6 |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-seek03-docs.jsonl"
+      ]
+    },
+    {
+      "id": "carry-median",
+      "mods": [
+        "seek"
+      ],
+      "claim": "How many later requests re-read a token added to the conversation",
+      "metric": "count",
+      "shown": "143",
+      "ci": null,
+      "comparison": "median before a compaction (interactive sessions; 22 headless)",
+      "session": "real sessions",
+      "language": "—",
+      "tasks": "nearly a thousand of the author's own sessions, counted in aggregate",
+      "runs": "—",
+      "model": "—",
+      "date": [],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "a-tokens-second-life",
+        "quote": [
+          "a token added to the conversation was re-read by a median of 143 later requests before a compaction removed it (interactive sessions; 22 in headless claude -p ones)",
+          "About $37 per million over its life, more than four times what writing it cost."
+        ]
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": []
+    },
+    {
+      "id": "smart-compact-prices",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "An idle 400k-token session on the one-hour cache: let it expire, keep it warm, or compact",
+      "metric": "price",
+      "shown": "$3.20 / $0.09 / ~$0.87",
+      "ci": null,
+      "comparison": "worked out from list prices, not measured",
+      "session": "long",
+      "language": "—",
+      "tasks": "—",
+      "runs": "not measured",
+      "model": "Opus 5.5 list prices",
+      "date": [],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": [
+          "| Let it expire, re-cache on return | $3.20 |",
+          "| One keep-alive (re-read the cached prefix; a read resets the TTL) | $0.09 |",
+          "| Compact before it expires | ~$0.87, plus detail lost to the summary |"
+        ]
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "Not measured: what smart-compact saves you while you're away (worked out from prices, not tested) and Windows."
+      },
+      "note": null,
+      "data": []
+    },
+    {
+      "id": "modpack-hook-guard",
+      "mods": [
+        "modpack"
+      ],
+      "claim": "A permission hook that hangs on purpose, with and without the hook guard",
+      "metric": "time",
+      "shown": "10 s",
+      "ci": null,
+      "comparison": "time until the permission question appeared",
+      "session": "—",
+      "language": "—",
+      "tasks": "a delegate worker that needs a permission, behind a hook that hangs",
+      "runs": "checked live",
+      "model": "—",
+      "date": [
+        "2026-10-14"
+      ],
+      "correct": "the worker finished once approved",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "040-2026-10-14",
+        "quote": "Without the guard no question appeared for more than a minute; with it the question came after 10 s, in default and in auto mode, and the worker finished once approved."
+      },
+      "note": null,
+      "data": []
+    },
+    {
+      "id": "trail-fresh",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code (a 10,000-star code graph) added to the pack, fresh",
+      "metric": "cost",
+      "shown": "+12.8%",
+      "ci": [
+        "+7.5%",
+        "+18.3%"
+      ],
+      "comparison": "the pack with Trail-Code vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "64 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "every answer correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "what-we-measured",
+        "quote": [
+          "| Fresh session | +12.8% cost | +7.5% to +18.3% | 64 |",
+          "Quality was the same: every answer correct."
+        ]
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "trail-long",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code added to the pack, long session",
+      "metric": "cost",
+      "shown": "+32.1%",
+      "ci": [
+        "+21.9%",
+        "+43.6%"
+      ],
+      "comparison": "the pack with Trail-Code vs the pack",
+      "session": "long",
+      "language": "Python",
+      "tasks": "click 8.5.0, 7 tasks",
+      "runs": "28 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "every answer correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "what-we-measured",
+        "quote": "| Long session | +32.1% cost | +21.9% to +43.6% | 28 |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "trail-nohook",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code without its learning hook, fresh",
+      "metric": "cost",
+      "shown": "+4.0%",
+      "ci": [
+        "+0.1%",
+        "+8.0%"
+      ],
+      "comparison": "the pack with Trail-Code (no Stop hook) vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "64 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "every answer correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "what-we-measured",
+        "quote": "| Fresh, without its learning hook | +4.0% cost | +0.1% to +8.0% | 64 |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "trail-swe",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code on 30 real bug reports",
+      "metric": "cost",
+      "shown": "+10.8%",
+      "ci": [
+        "0.0%",
+        "+25.5%"
+      ],
+      "comparison": "the pack with Trail-Code vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "SWE-bench Verified, 30 issues",
+      "runs": "1 attempt per bug and condition",
+      "model": "Opus 5.5 (highest effort)",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "29 of 30 fixed (the pack alone: 30)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-real-bugs",
+        "quote": [
+          "again cost more than the pack alone: +10.8% [0.0%, +25.5%]",
+          "| The pack with Trail-Code | 29 | $14.59 | 11.5 | 162 s |"
+        ]
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/swe-bench/2026-10-15-swe/attempts.jsonl"
+      ]
+    },
+    {
+      "id": "ideas-both",
+      "mods": [
+        "other"
+      ],
+      "claim": "Both borrowed ideas (scout's definition pointers and blast) added to the pack",
+      "metric": "cost",
+      "shown": "−2.5%",
+      "ci": [
+        "−6.9%",
+        "+2.0%"
+      ],
+      "comparison": "the pack with both ideas vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "96 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/04-borrowing-the-good-ideas.md",
+        "anchor": "what-it-measured",
+        "quote": "| The pack with both ideas, against the pack, 8 tasks | −2.5% | −6.9% to +2.0% |"
+      },
+      "note": "04-borrowing-the-good-ideas.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ideas.jsonl",
+        "benchmarks/delegate-bench/results-trail.jsonl"
+      ]
+    },
+    {
+      "id": "ideas-scout-out",
+      "mods": [
+        "other"
+      ],
+      "claim": "Taking scout out, on the five tasks where it speaks",
+      "metric": "cost",
+      "shown": "+3.8%",
+      "ci": [
+        "−1.9%",
+        "+10.3%"
+      ],
+      "comparison": "the ideas without scout vs with it",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: 5 tasks",
+      "runs": "8 per task",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "96 runs, all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/04-borrowing-the-good-ideas.md",
+        "anchor": "what-it-measured",
+        "quote": "| Taking scout out, on the 5 tasks where it speaks | +3.8% | −1.9% to +10.3% |"
+      },
+      "note": "04-borrowing-the-good-ideas.md",
+      "data": [
+        "benchmarks/delegate-bench/results-ideas.jsonl"
+      ]
+    },
+    {
+      "id": "ideas-scout-swe",
+      "mods": [
+        "other"
+      ],
+      "claim": "scout on 30 real bug reports, where it spoke on 20",
+      "metric": "cost",
+      "shown": "+7.3%",
+      "ci": [
+        "−6.7%",
+        "+20.7%"
+      ],
+      "comparison": "the pack with scout and blast vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "SWE-bench Verified, 30 issues",
+      "runs": "1 attempt per bug and condition",
+      "model": "Opus 5.5 (highest effort)",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "29 of 30 fixed (the pack alone: 30)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/09-beyond-click.md",
+        "anchor": "the-pack-on-real-bugs",
+        "quote": "it still saved nothing (+7.3% against the pack [−6.7%, +20.7%])"
+      },
+      "note": "09-beyond-click.md",
+      "data": [
+        "benchmarks/swe-bench/2026-10-15-swe/attempts.jsonl"
+      ]
+    },
+    {
+      "id": "yaml-plus",
+      "mods": [
+        "other"
+      ],
+      "claim": "yaml-plus, a reference checker for deployment YAML, added to the pack",
+      "metric": "cost",
+      "shown": "+2.0%",
+      "ci": [
+        "−1.3%",
+        "+5.3%"
+      ],
+      "comparison": "the pack with yaml-plus vs the pack",
+      "session": "fresh",
+      "language": "YAML",
+      "tasks": "a generated 54-file deployment repository, 4 tasks",
+      "runs": "64 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "all correct",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/06-one-server-per-extension.md",
+        "anchor": "what-it-measured",
+        "quote": "| Opus 5.5 | +2.0% cost | −1.3% to +5.3% | 64 | all |"
+      },
+      "note": "06-one-server-per-extension.md",
+      "data": [
+        "benchmarks/delegate-bench/results-yaml.jsonl",
+        "benchmarks/delegate-bench/results-yaml-b.jsonl",
+        "benchmarks/delegate-bench/yaml_repo.py"
+      ]
+    },
+    {
+      "id": "lastenheft-first",
+      "mods": [
+        "other"
+      ],
+      "claim": "A requirements gate: 'said done while incomplete', first batch",
+      "metric": "quality",
+      "shown": "−17 points",
+      "ci": [
+        "−33",
+        "−4"
+      ],
+      "comparison": "with the gate vs without (paired)",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "six planned tasks from a private research codebase",
+      "runs": "—",
+      "model": "Haiku 5.5",
+      "date": [],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/05-the-graveyard.md",
+        "anchor": "the-checklist-that-said-everything-was-fine",
+        "quote": "the gate lowered \"said done while incomplete\" from 92% to 75% of runs, a paired difference of −17 points [−33, −4]."
+      },
+      "note": "05-the-graveyard.md",
+      "data": []
+    },
+    {
+      "id": "lastenheft-confirm",
+      "mods": [
+        "other"
+      ],
+      "claim": "The same gate in a preregistered confirmation: not confirmed",
+      "metric": "quality",
+      "shown": "−4 points",
+      "ci": [
+        "−12.5",
+        "0.0"
+      ],
+      "comparison": "with the gate vs without (paired)",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "the same six tasks, fresh repeats",
+      "runs": "—",
+      "model": "Haiku 5.5",
+      "date": [],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/05-the-graveyard.md",
+        "anchor": "the-checklist-that-said-everything-was-fine",
+        "quote": "Confirmation: 88% against 92%, −4 points [−12.5, 0.0]. Not confirmed."
+      },
+      "note": "05-the-graveyard.md",
+      "data": []
+    },
+    {
+      "id": "squeeze",
+      "mods": [
+        "other"
+      ],
+      "claim": "squeeze, a test-log squeezer, on a task with 18 failing tests",
+      "metric": "followed",
+      "shown": "0 times in 4 runs",
+      "ci": null,
+      "comparison": "times it fired",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: a task with 18 failing tests",
+      "runs": "4 runs",
+      "model": "Opus 5.5 (and Haiku 5.5: 0 again)",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/05-the-graveyard.md",
+        "anchor": "the-log-squeezer",
+        "quote": "On a task with 18 failing tests it fired 0 times in 4 runs, because Opus piped every test run through tail or grep itself"
+      },
+      "note": "05-the-graveyard.md",
+      "data": [
+        "benchmarks/delegate-bench/results-squeeze.jsonl",
+        "benchmarks/delegate-bench/results-squeeze-haiku.jsonl"
+      ]
+    },
+    {
+      "id": "compress-shared",
+      "mods": [
+        "other"
+      ],
+      "claim": "One compression of click's source for five questions",
+      "metric": "quality",
+      "shown": "0 of 5",
+      "ci": null,
+      "comparison": "questions answered right, 20k-token context (5 of 5 from the original)",
+      "session": "—",
+      "language": "Python",
+      "tasks": "five factual questions about click",
+      "runs": "five runs per case",
+      "model": "Haiku 5.5 answering; ScaleDown Compress",
+      "date": [],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/07-small-models-as-plumbing.md",
+        "anchor": "compress-the-right-passages-for-the-wrong-question",
+        "quote": "| Compressed once for all five questions | 0 of 5 | 1 of 5 |"
+      },
+      "note": "07-small-models-as-plumbing.md",
+      "data": []
+    },
+    {
+      "id": "delegate-read-places",
+      "mods": [
+        "delegate"
+      ],
+      "claim": "A read hand-off checked place by place (PLACES), against Claude doing the lookup itself",
+      "metric": "cost",
+      "shown": "+5%",
+      "ci": null,
+      "comparison": "read hand-off with PLACES vs Claude alone; worker costs corrected 16 Oct",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "lookups",
+      "runs": "not stated",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "a safety net for the answer, not a saving",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "Handed off with it, lookups cost about what they cost Claude alone (+5%, corrected from +4%), so it is a safety net for the answer, not a saving."
+      },
+      "note": null,
+      "data": []
+    },
+    {
+      "id": "subagents-cost",
+      "mods": [
+        "cells",
+        "seek"
+      ],
+      "claim": "Subagents get the pack's settings with their task",
+      "metric": "cost",
+      "shown": "−17.6%",
+      "ci": [
+        "−21.0",
+        "−14.0"
+      ],
+      "comparison": "the pack with cells' and seek's subagents option on vs off",
+      "session": "fresh, every task handed to one general-purpose subagent",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: two features, tests to a coverage target, two explanations",
+      "runs": "20 per arm, 4 per task",
+      "model": "Opus 5.5, its subagent Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "37 of 40 full marks (three 0.83 on the TypeScript explanation, two without the settings)",
+      "allCorrect": false,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "Subagents get the settings too: −17.6% [−21.0, −14.0] on a task handed to one general-purpose subagent, 5 tasks × 4 runs per arm, Opus; subagent requests 10.0 → 6.9; chained Bash 88% → 99%."
+      },
+      "also": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "a-subagents-task",
+        "quote": "| Run cost, main and subagent | $0.729 | $0.600 | −17.6% [−21.0, −14.0] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    },
+    {
+      "id": "subagents-edit",
+      "mods": [
+        "cells",
+        "seek"
+      ],
+      "claim": "Subagents with the settings, on the features and the tests",
+      "metric": "cost",
+      "shown": "−21.8%",
+      "ci": [
+        "−26.0",
+        "−17.4"
+      ],
+      "comparison": "the pack with cells' and seek's subagents option on vs off",
+      "session": "fresh, every task handed to one general-purpose subagent",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: two features, tests to a coverage target, two explanations",
+      "runs": "20 per arm, 4 per task",
+      "model": "Opus 5.5, its subagent Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "37 of 40 full marks (three 0.83 on the TypeScript explanation, two without the settings)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "a-subagents-task",
+        "quote": "| The two features and the tests | $0.850 | $0.664 | −21.8% [−26.0, −17.4] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    },
+    {
+      "id": "subagents-explain",
+      "mods": [
+        "cells",
+        "seek"
+      ],
+      "claim": "Subagents with the settings, on the explanations",
+      "metric": "cost",
+      "shown": "−7.8%",
+      "ci": [
+        "−12.3",
+        "−2.6"
+      ],
+      "comparison": "the pack with cells' and seek's subagents option on vs off",
+      "session": "fresh, every task handed to one general-purpose subagent",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: two features, tests to a coverage target, two explanations",
+      "runs": "20 per arm, 4 per task",
+      "model": "Opus 5.5, its subagent Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "37 of 40 full marks (three 0.83 on the TypeScript explanation, two without the settings)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "a-subagents-task",
+        "quote": "| The two explanations | $0.547 | $0.505 | −7.8% [−12.3, −2.6] |"
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    },
+    {
+      "id": "subagents-requests",
+      "mods": [
+        "cells",
+        "seek"
+      ],
+      "claim": "A subagent's requests, without and with the settings",
+      "metric": "requests",
+      "shown": "10.0 → 6.9",
+      "ci": null,
+      "comparison": "the pack with cells' and seek's subagents option on vs off",
+      "session": "fresh, every task handed to one general-purpose subagent",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: two features, tests to a coverage target, two explanations",
+      "runs": "20 per arm, 4 per task",
+      "model": "Opus 5.5, its subagent Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "37 of 40 full marks (three 0.83 on the TypeScript explanation, two without the settings)",
+      "allCorrect": false,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "Subagents get the settings too: −17.6% [−21.0, −14.0] on a task handed to one general-purpose subagent, 5 tasks × 4 runs per arm, Opus; subagent requests 10.0 → 6.9; chained Bash 88% → 99%."
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    },
+    {
+      "id": "subagents-chained",
+      "mods": [
+        "cells",
+        "seek"
+      ],
+      "claim": "A subagent's Bash calls that chain several commands, without and with the settings",
+      "metric": "count",
+      "shown": "88% → 99%",
+      "ci": null,
+      "comparison": "the pack with cells' and seek's subagents option on vs off",
+      "session": "fresh, every task handed to one general-purpose subagent",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: two features, tests to a coverage target, two explanations",
+      "runs": "20 per arm, 4 per task",
+      "model": "Opus 5.5, its subagent Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "37 of 40 full marks (three 0.83 on the TypeScript explanation, two without the settings)",
+      "allCorrect": false,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "Subagents get the settings too: −17.6% [−21.0, −14.0] on a task handed to one general-purpose subagent, 5 tasks × 4 runs per arm, Opus; subagent requests 10.0 → 6.9; chained Bash 88% → 99%."
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    },
+    {
+      "id": "subagents-reached",
+      "mods": [
+        "cells",
+        "seek"
+      ],
+      "claim": "The settings in the subagent's task: arrived",
+      "metric": "followed",
+      "shown": "20 of 20",
+      "ci": null,
+      "comparison": "subagents whose task held the settings, option on",
+      "session": "fresh, every task handed to one general-purpose subagent",
+      "language": "Python and TypeScript",
+      "tasks": "click and chrono: two features, tests to a coverage target, two explanations",
+      "runs": "20 per arm, 4 per task",
+      "model": "Opus 5.5, its subagent Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "a-subagents-task",
+        "quote": "In 20 of 20 subagents with the option on, in none with it off."
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": [
+        "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    }
+  ]
+}

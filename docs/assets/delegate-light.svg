@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="302" viewBox="0 0 880 302" role="img" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title>Big work handed to a worker</title>
+<desc>Add a feature: $0.59 alone vs $0.46 handed off (−22%); Raise test coverage: $0.59 alone vs $0.44 handed off (−26%), fresh session.</desc>
+<rect x="0.5" y="0.5" width="879" height="301" rx="12" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
+<text x="24.0" y="44.0" font-size="19" font-weight="600" fill="#0b0b0b" text-anchor="start">Big work handed to a worker</text>
+<text x="24.0" y="67.0" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Cost per task with the modpack: Opus alone against a hand-off ordered when the plan is approved.</text>
+<circle cx="29" cy="91" r="5" fill="#898781"/>
+<text x="40.0" y="95.5" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Opus alone</text>
+<circle cx="143.0" cy="91" r="5" fill="#2a78d6"/>
+<text x="154.0" y="95.5" font-size="13" font-weight="400" fill="#52514e" text-anchor="start">Handed to a worker</text>
+<text x="24.0" y="136.0" font-size="14" font-weight="600" fill="#0b0b0b" text-anchor="start">Fresh session</text>
+<text x="856.0" y="136.0" font-size="11" font-weight="400" fill="#898781" text-anchor="end">change</text>
+<line x1="200.0" y1="150" x2="200.0" y2="214" stroke="#e1e0d9" stroke-width="1"/>
+<text x="200.0" y="230.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0</text>
+<line x1="431.8" y1="150" x2="431.8" y2="214" stroke="#e1e0d9" stroke-width="1"/>
+<text x="431.8" y="230.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.25</text>
+<line x1="663.6" y1="150" x2="663.6" y2="214" stroke="#e1e0d9" stroke-width="1"/>
+<text x="663.6" y="230.0" font-size="11" font-weight="400" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">$0.5</text>
+<text x="24.0" y="169.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Add a feature</text>
+<line x1="743.7" y1="165.0" x2="621.9" y2="165.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="743.7" cy="165.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="621.9" cy="165.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="169.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−22%</text>
+<text x="24.0" y="199.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="start">Raise test coverage</text>
+<line x1="750.0" y1="195.0" x2="605.6" y2="195.0" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="750.0" cy="195.0" r="5.5" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="605.6" cy="195.0" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="856.0" y="199.5" font-size="12.5" font-weight="400" fill="#52514e" text-anchor="end" style="font-variant-numeric: tabular-nums">−26%</text>
+<text x="24.0" y="260.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">16 graded runs of Claude Opus 5.5 on click, 16 correct, fresh sessions: Opus alone with the pack,</text>
+<text x="24.0" y="277.0" font-size="11.5" font-weight="400" fill="#898781" text-anchor="start">or handing the work to a cheaper worker as soon as the plan is approved. Cost at list prices, the worker's included.</text>
+</svg>

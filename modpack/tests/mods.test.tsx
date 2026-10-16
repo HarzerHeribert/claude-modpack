@@ -23,7 +23,7 @@ function host(on: On, rows: readonly unknown[] = ROWS) {
   return sets
 }
 
-test('/mods lists all six with on, off or not installed', async ($, on) => {
+test('/mods lists every mod with on, off or not installed', async ($, on) => {
   host(on)
   const r = (await $.command.run({ command: 'mods' } as never)) as { text?: string }
   const t = String(r.text)
@@ -34,6 +34,7 @@ test('/mods lists all six with on, off or not installed', async ($, on) => {
   expect(t).toContain('cells: on')
   expect(t).toContain('eta: not installed')
   expect(t).toContain('/plugin install eta --marketplace HarzerHeribert/claude-modpack')
+  expect(t).toContain('seek: not installed')
   expect(t).not.toContain('/plugin install cells')
 })
 
@@ -101,9 +102,9 @@ test('/mods on a folder-loaded mod points at pluginConfigs', async ($, on) => {
   expect(sets).toEqual([])
 })
 
-test('/mods with an unknown name lists the seven', async ($, on) => {
+test('/mods with an unknown name lists the eight', async ($, on) => {
   const sets = host(on)
   const t = await run($, 'nope off')
-  for (const n of ['statusline', 'smart-compact', 'delegate', 'lsp-plus', 'cells', 'eta', 'route']) expect(t).toContain(n)
+  for (const n of ['statusline', 'smart-compact', 'delegate', 'lsp-plus', 'cells', 'eta', 'seek', 'route']) expect(t).toContain(n)
   expect(sets).toEqual([])
 })

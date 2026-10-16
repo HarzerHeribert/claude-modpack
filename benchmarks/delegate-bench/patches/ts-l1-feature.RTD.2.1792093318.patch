@@ -1,0 +1,318 @@
+diff --git a/src/locales/en/configuration.ts b/src/locales/en/configuration.ts
+index 2edeeff..ed18f3f 100644
+--- a/src/locales/en/configuration.ts
++++ b/src/locales/en/configuration.ts
+@@ -6,6 +6,7 @@ import ENMonthNameMiddleEndianParser from "./parsers/ENMonthNameMiddleEndianPars
+ import ENMonthNameParser from "./parsers/ENMonthNameParser";
+ import ENYearMonthDayParser from "./parsers/ENYearMonthDayParser";
+ import ENYearMonthNameParser from "./parsers/ENYearMonthNameParser";
++import ENISOWeekDateParser from "./parsers/ENISOWeekDateParser";
+ import ENSlashMonthFormatParser from "./parsers/ENSlashMonthFormatParser";
+ import ENTimeExpressionParser from "./parsers/ENTimeExpressionParser";
+ import ENTimeUnitAgoFormatParser from "./parsers/ENTimeUnitAgoFormatParser";
+@@ -67,6 +68,7 @@ export default class ENDefaultConfiguration {
+                     new ENTimeUnitAgoFormatParser(strictMode),
+                     new ENTimeUnitLaterFormatParser(strictMode),
+                     new ENYearMonthNameParser(),
++                    new ENISOWeekDateParser(),
+                 ],
+                 refiners: [new ENMergeDateTimeRefiner()],
+             },
+diff --git a/src/locales/en/parsers/ENISOWeekDateParser.ts b/src/locales/en/parsers/ENISOWeekDateParser.ts
+new file mode 100644
+index 0000000..5c733fa
+--- /dev/null
++++ b/src/locales/en/parsers/ENISOWeekDateParser.ts
+@@ -0,0 +1,69 @@
++import { ParsingContext } from "../../../chrono";
++import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
++
++/*
++    ISO 8601 week date (the date of a weekday in an ISO week-numbering year).
++    - YYYY-Www, YYYY-Www-D (e.g. 2020-W10, 2020-W10-3)
++    - YYYYWww, YYYYWwwD (e.g. 2020W10, 2020W103)
++    The weekday D is 1 (Monday) ... 7 (Sunday). Without it, the date is the Monday of the week.
++*/
++
++// prettier-ignore
++const PATTERN = new RegExp(
++    "([0-9]{4})" +
++    "(?:" +
++        "-W([0-9]{2})(?:-([0-9]))?" + // YYYY-Www or YYYY-Www-D
++        "|" +
++        "W([0-9]{2})([0-9])?" + // YYYYWww or YYYYWwwD
++    ")" +
++    "(?!-[0-9])(?=\\W|$)", // Don't fall back to a shorter match, e.g. "2020-W10" in "2020-W10-12"
++    "i"
++);
++
++const YEAR_NUMBER_GROUP = 1;
++const EXTENDED_WEEK_NUMBER_GROUP = 2;
++const EXTENDED_WEEKDAY_NUMBER_GROUP = 3;
++const BASIC_WEEK_NUMBER_GROUP = 4;
++const BASIC_WEEKDAY_NUMBER_GROUP = 5;
++
++const DAY_MS = 24 * 60 * 60 * 1000;
++
++export default class ENISOWeekDateParser extends AbstractParserWithWordBoundaryChecking {
++    innerPattern(): RegExp {
++        return PATTERN;
++    }
++
++    innerExtract(context: ParsingContext, match: RegExpMatchArray) {
++        const year = parseInt(match[YEAR_NUMBER_GROUP]);
++        const week = parseInt(match[EXTENDED_WEEK_NUMBER_GROUP] ?? match[BASIC_WEEK_NUMBER_GROUP]);
++        const weekdayText = match[EXTENDED_WEEKDAY_NUMBER_GROUP] ?? match[BASIC_WEEKDAY_NUMBER_GROUP];
++        const weekday = weekdayText ? parseInt(weekdayText) : 1;
++
++        const firstMonday = getFirstMondayOfISOYear(year);
++        const weeksInYear = (getFirstMondayOfISOYear(year + 1).getTime() - firstMonday.getTime()) / (7 * DAY_MS);
++        if (week < 1 || week > weeksInYear || weekday < 1 || weekday > 7) {
++            return null;
++        }
++
++        // Calendar arithmetic in UTC, so the system timezone's DST transitions can't shift the day
++        const date = new Date(firstMonday.getTime() + ((week - 1) * 7 + (weekday - 1)) * DAY_MS);
++        const components = context.createParsingComponents({
++            "year": date.getUTCFullYear(),
++            "month": date.getUTCMonth() + 1,
++            "day": date.getUTCDate(),
++            "weekday": date.getUTCDay(),
++        });
++        return components.addTag("parser/ENISOWeekDateParser");
++    }
++}
++
++/**
++ * Returns the Monday (in UTC) of the first week of the ISO week-numbering year, i.e. the week with January 4th.
++ */
++function getFirstMondayOfISOYear(year: number): Date {
++    const date = new Date(0);
++    // Use setUTCFullYear(), as Date.UTC() maps years 0-99 to 1900-1999
++    date.setUTCFullYear(year, 0, 4);
++    date.setUTCDate(4 - ((date.getUTCDay() + 6) % 7));
++    return date;
++}
+diff --git a/test/en/en_iso_week_date.test.ts b/test/en/en_iso_week_date.test.ts
+new file mode 100644
+index 0000000..2dfacde
+--- /dev/null
++++ b/test/en/en_iso_week_date.test.ts
+@@ -0,0 +1,217 @@
++import * as chrono from "../../src";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++
++test("Test - Week date (YYYY-Www-D)", function () {
++    testSingleCase(chrono, "2020-W10-3", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(4);
++        expect(result.start.get("weekday")).toBe(3);
++
++        expect(result.start.isCertain("year")).toBe(true);
++        expect(result.start.isCertain("month")).toBe(true);
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++        expect(result.start.isCertain("minute")).toBe(false);
++
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 4, 12));
++    });
++
++    testSingleCase(chrono, "2020-W10-7", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W10-7");
++        expect(result.start.get("weekday")).toBe(0);
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 8, 12));
++    });
++
++    testSingleCase(chrono, "The sprint starts on 2026-W42-4.", new Date(2026, 10 - 1, 1), (result) => {
++        expect(result.index).toBe(21);
++        expect(result.text).toBe("2026-W42-4");
++        expect(result.start).toBeDate(new Date(2026, 10 - 1, 15, 12));
++    });
++});
++
++test("Test - Week date without weekday (YYYY-Www)", function () {
++    testSingleCase(chrono, "2020-W10", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W10");
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++
++        expect(result.start.get("year")).toBe(2020);
++        expect(result.start.get("month")).toBe(3);
++        expect(result.start.get("day")).toBe(2);
++        expect(result.start.get("weekday")).toBe(1);
++
++        expect(result.start.isCertain("day")).toBe(true);
++        expect(result.start.isCertain("weekday")).toBe(true);
++        expect(result.start.isCertain("hour")).toBe(false);
++
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 2, 12));
++    });
++
++    testSingleCase(chrono, "Release planned for 2020-W10, see the roadmap", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(20);
++        expect(result.text).toBe("2020-W10");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 2, 12));
++    });
++});
++
++test("Test - Compact week date (YYYYWwwD and YYYYWww)", function () {
++    testSingleCase(chrono, "2020W103", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020W103");
++        expect(result.tags()).toContain("parser/ENISOWeekDateParser");
++        expect(result.start.get("weekday")).toBe(3);
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 4, 12));
++    });
++
++    testSingleCase(chrono, "2020W10", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020W10");
++        expect(result.start.get("weekday")).toBe(1);
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 2, 12));
++    });
++
++    testSingleCase(chrono, "Due by 2020W107 at the latest", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(7);
++        expect(result.text).toBe("2020W107");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 8, 12));
++    });
++});
++
++test("Test - Week date with lowercase 'w'", function () {
++    testSingleCase(chrono, "2020-w10-3", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-w10-3");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 4, 12));
++    });
++
++    testSingleCase(chrono, "2020w10", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020w10");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 2, 12));
++    });
++});
++
++test("Test - Week date in a different calendar year", function () {
++    testSingleCase(chrono, "2020-W01-1", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W01-1");
++        expect(result.start.get("year")).toBe(2019);
++        expect(result.start.get("month")).toBe(12);
++        expect(result.start.get("day")).toBe(30);
++        expect(result.start).toBeDate(new Date(2019, 12 - 1, 30, 12));
++    });
++
++    testSingleCase(chrono, "2008-W01-1", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2008-W01-1");
++        expect(result.start).toBeDate(new Date(2007, 12 - 1, 31, 12));
++    });
++
++    testSingleCase(chrono, "2015-W01", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2015-W01");
++        expect(result.start).toBeDate(new Date(2014, 12 - 1, 29, 12));
++    });
++
++    testSingleCase(chrono, "2020-W53-7", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W53-7");
++        expect(result.start.get("year")).toBe(2021);
++        expect(result.start.get("month")).toBe(1);
++        expect(result.start.get("day")).toBe(3);
++        expect(result.start).toBeDate(new Date(2021, 1 - 1, 3, 12));
++    });
++});
++
++test("Test - Week 53 in years with 53 ISO weeks", function () {
++    testSingleCase(chrono, "2020-W53", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W53");
++        expect(result.start).toBeDate(new Date(2020, 12 - 1, 28, 12));
++    });
++
++    testSingleCase(chrono, "2015-W53", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2015-W53");
++        expect(result.start).toBeDate(new Date(2015, 12 - 1, 28, 12));
++    });
++
++    testSingleCase(chrono, "2009W537", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2009W537");
++        expect(result.start).toBeDate(new Date(2010, 1 - 1, 3, 12));
++    });
++
++    testSingleCase(chrono, "2026-W53-5", new Date(2026, 10 - 1, 15), (result) => {
++        expect(result.text).toBe("2026-W53-5");
++        expect(result.start).toBeDate(new Date(2027, 1 - 1, 1, 12));
++    });
++});
++
++test("Test - Week date with strict and casual mode", function () {
++    testSingleCase(chrono.strict, "2020-W10-3", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 4, 12));
++    });
++
++    testSingleCase(chrono.strict, "2020W10", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020W10");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 2, 12));
++    });
++
++    testSingleCase(chrono.casual, "2020-W10-3", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W10-3");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 4, 12));
++    });
++
++    testSingleCase(chrono.casual, "2020W10", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020W10");
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 2, 12));
++    });
++});
++
++test("Test - Week date followed by time", function () {
++    testSingleCase(chrono, "2020-W10-3 at 10:30", new Date(2012, 7, 10), (result) => {
++        expect(result.text).toBe("2020-W10-3 at 10:30");
++        expect(result.start.get("hour")).toBe(10);
++        expect(result.start.get("minute")).toBe(30);
++        expect(result.start).toBeDate(new Date(2020, 3 - 1, 4, 10, 30));
++    });
++});
++
++test("Test - Invalid week", function () {
++    testUnexpectedResult(chrono, "2020-W00", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W00-1", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W00", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W54", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W99-1", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W541", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono.strict, "2020-W54", new Date(2012, 7, 10));
++});
++
++test("Test - Week 53 in years with 52 ISO weeks", function () {
++    testUnexpectedResult(chrono, "2021-W53", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2021-W53-1", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2021W53", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2019-W53-7", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono.strict, "2021-W53", new Date(2012, 7, 10));
++});
++
++test("Test - Invalid weekday", function () {
++    testUnexpectedResult(chrono, "2020-W10-0", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W10-8", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W10-9", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W100", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W108", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W109", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono.strict, "2020-W10-8", new Date(2012, 7, 10));
++});
++
++test("Test - Invalid week date is not recognized as a shorter one", function () {
++    testUnexpectedResult(chrono, "The sprint starts on 2020-W10-8.", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "The sprint starts on 2020W108.", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W10-12", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W103", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W10-3", new Date(2012, 7, 10));
++});
++
++test("Test - Not a week date", function () {
++    testUnexpectedResult(chrono, "2020-W1", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020W1", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "12020-W10", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-W10x", new Date(2012, 7, 10));
++    testUnexpectedResult(chrono, "2020-X10", new Date(2012, 7, 10));
++});

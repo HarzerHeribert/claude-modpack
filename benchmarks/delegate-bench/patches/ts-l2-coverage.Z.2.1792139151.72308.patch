@@ -1,0 +1,82 @@
+diff --git a/test/it/it_constants_more.test.ts b/test/it/it_constants_more.test.ts
+new file mode 100644
+index 0000000..3dbca77
+--- /dev/null
++++ b/test/it/it_constants_more.test.ts
+@@ -0,0 +1,76 @@
++import * as chrono from "../../src";
++import { testSingleCase, testUnexpectedResult } from "../test_util";
++
++test("Test - Duration with 'qualche'", function () {
++    testSingleCase(chrono.it, "entro qualche giorno", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("entro qualche giorno");
++        expect(result.start).toBeDate(new Date(2012, 7, 13, 12, 0));
++    });
++});
++
++test("Test - Duration with 'mezzo'", function () {
++    testSingleCase(chrono.it, "entro mezzo minuto", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("entro mezzo minuto");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 12, 0, 30));
++    });
++});
++
++test("Test - Duration with 'paio di'", function () {
++    testSingleCase(chrono.it, "un paio di giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(3);
++        expect(result.text).toBe("paio di giorni fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 8, 12, 0));
++    });
++});
++
++test("Test - Duration with 'alcuni'", function () {
++    testSingleCase(chrono.it, "alcuni giorni fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("alcuni giorni fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 3, 12, 0));
++    });
++});
++
++test("Test - Duration with elided 'un''", function () {
++    testSingleCase(chrono.it, "un'ora fa", new Date(2012, 7, 10, 12, 0), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("un'ora fa");
++        expect(result.start).toBeDate(new Date(2012, 7, 10, 11, 0));
++    });
++});
++
++test("Test - Year with Buddhist Era suffix", function () {
++    testSingleCase(chrono.it, "10 agosto 2555 BE", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("10 agosto 2555 BE");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Year with BC suffix", function () {
++    testSingleCase(chrono.it, "10 agosto 500 BC", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("10 agosto 500 BC");
++        expect(result.start.get("year")).toBe(-500);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Year with AD suffix", function () {
++    testSingleCase(chrono.it, "10 agosto 2012 AD", new Date(2012, 7, 10), (result) => {
++        expect(result.index).toBe(0);
++        expect(result.text).toBe("10 agosto 2012 AD");
++        expect(result.start.get("year")).toBe(2012);
++        expect(result.start.get("month")).toBe(8);
++        expect(result.start.get("day")).toBe(10);
++    });
++});
++
++test("Test - Number and time unit glued together is not a duration", function () {
++    testUnexpectedResult(chrono.it, "entro dueore", new Date(2012, 7, 10, 12, 0));
++});

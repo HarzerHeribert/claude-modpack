@@ -1,0 +1,58 @@
+{
+  "name": "seek",
+  "version": "0.3.3",
+  "description": "Has Claude look around your code in few, lean steps. Every request re-reads the whole conversation, and whatever Claude reads stays in it for every later request; so your prompt, and the task of a subagent Claude starts, carries your setting to batch the searches and reads Claude can already name, to read definitions or line ranges instead of whole files, and not to read again what the session already holds. Once per session, and again after a compaction or another 150k tokens. Optional, off: a code search's result also names the definitions that hold its hits. Nothing leaves your machine.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Turn this mod off or on; /mods does it for all of the pack.",
+      "default": true
+    },
+    "order": {
+      "type": "boolean",
+      "title": "Lean looking around",
+      "description": "Your prompt carries your setting to look around in few, lean steps: from the first prompt of a session, and again after a compaction or once the context has grown by another 150k tokens. Measured against the pack, all correct: cost -12% fresh on click, -16% on a TypeScript library, -10% and -16% in two kinds of long session.",
+      "default": true
+    },
+    "orderFrom": {
+      "type": "number",
+      "title": "Order from (context tokens)",
+      "description": "The setting comes along from this much context on; 0 is from the first prompt.",
+      "default": 0
+    },
+    "map": {
+      "type": "boolean",
+      "title": "Where the hits sit",
+      "description": "Past the context size below, a code search's result (grep, rg, git grep, the Grep tool; behind a cd, chained or piped) also names the functions, methods and classes that hold its hits, with their lines, in no more tokens than a saved request is worth. The tool's own result is never changed. Off: measured, it saved nothing certain (+1% fresh on click, -4.5% on TypeScript, -5.5% on top of the lean setting in a long session).",
+      "default": false
+    },
+    "minContext": {
+      "type": "number",
+      "title": "Map from (context tokens)",
+      "description": "Below this much context a request is cheap to repeat, and the map stays silent.",
+      "default": 150000
+    },
+    "laterRequests": {
+      "type": "number",
+      "title": "Later requests that re-read a map",
+      "description": "Prices the map: how many later requests re-read what it adds, until a compaction. 143 was the median in the sessions we studied (22 in headless ones).",
+      "default": 140
+    },
+    "saveRate": {
+      "type": "number",
+      "title": "Chance a map saves a request",
+      "description": "Prices the map: it may have as many tokens as this share of a request at the current context is worth over the tokens' life. A first guess.",
+      "default": 0.1
+    },
+    "subagents": {
+      "type": "boolean",
+      "title": "Subagents too",
+      "description": "A subagent Claude starts gets the lean-looking setting with its task, in your name: your prompts, which carry it otherwise, never reach a subagent. With Lean looking around on and Order from 0; not a fork (it has the setting already), a teammate, or delegate's worker.",
+      "default": true
+    }
+  }
+}

@@ -5,6 +5,17 @@
   <img alt="claude-modpack: eight Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, lsp-plus, cells, eta, seek, route." src="assets/banner-light.svg" width="880">
 </picture>
 
+<h3>Install in Claude Code</h3>
+
+```
+/plugin install modpack --marketplace HarzerHeribert/claude-modpack
+```
+
+Answer `y`, then run `/modpack:setup` to set everything up step by step.<br>
+Prefer doing it by hand? [SETUP.md](SETUP.md) has every step.
+
+<br>
+
 [![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![730 graded runs, all correct](https://img.shields.io/badge/graded%20runs-730%2C%20all%20correct-0ca30c?style=flat-square)](benchmarks/delegate-bench/SUITE.md) [![8 mods](https://img.shields.io/badge/mods-8-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-11-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
 
 ### Claude Code with fewer wasted steps, and a clear view of what it's doing.
@@ -89,12 +100,12 @@ In Claude Code, type:
 Answer `y` to add the marketplace, then pick where to install it. That installs all eight. Then, in the project you work in:
 
 ```
-/lsp-plus:setup
+/modpack:setup
 ```
 
-It finds the languages your project uses, installs what is missing for the code answers (it asks first), and checks they work after a restart. Done. `/mods` shows what's on.
+It checks your machine, asks once what you want on (route stays off unless you say yes), sets each mod up in order, including the language servers for the languages your project uses, and checks that each one works. Done. `/mods` shows what's on.
 
-Every mod step by step, with Claude (`/modpack:setup`) or by hand: [SETUP.md](SETUP.md).
+By hand instead: [SETUP.md](SETUP.md) has every step.
 
 <details>
 <summary>One mod alone, or setting the language servers up by hand</summary>

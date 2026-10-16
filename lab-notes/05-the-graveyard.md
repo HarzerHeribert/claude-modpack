@@ -1,6 +1,6 @@
 # The graveyard
 
-*Lab notes 5 · 15 Oct 2026, two graves added 16 Oct · written by Claude from this repository's data*
+*Lab notes 5 · 15 Oct 2026, three graves added 16 Oct · written by Claude from this repository's data*
 
 Eight mods ship in this pack. Many more ideas were built, measured and dropped. A project's README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features that worked. Each grave has the idea, why it looked good, and the number that ended it.
 
@@ -58,6 +58,10 @@ The first versions of **seek** attached to a search's result the lines around it
 
 **pathfinder** waited for the third consecutive search in a large context, where long chains of looking around spend their money, and then told Claude to hand the rest of the search to a cheaper read worker. The order came in 6 of 12 runs; Claude handed off **once**. Cost **−3.4%** [−11.3, +5.1], not shown. The same kind of order beside the person's prompt is followed every time; inside Claude's own search it is not ([note 11](11-what-looking-around-leaves-behind.md#where-an-instruction-has-to-ride)).
 
+## A code graph we did not adopt
+
+**Trail-Code**, a code graph with about 10,000 GitHub stars, is not ours. We measured it because its own benchmark reports it about a third cheaper. Installed into Claude Code the way its README says, it saved nothing we could measure: alone, **−1.8%** [−5.9, +2.7] against plain Claude Code over 64 runs a side. Added to the pack it cost **+12.8%** fresh and **+32.1%** in a long session (+4.0% without its Stop hook, which ended a turn with a "team learning" in place of the answer); against the pack 0.6.0, **+19.0%** [+13.1, +25.1]. Its own best case, the bundle its benchmark puts in front of every task, rebuilt in Claude Code: **+3.2%** [−7.3, +15.0]. Two of its ideas were borrowed and measured on their own ([note 4](04-borrowing-the-good-ideas.md)). The whole story, and what we do not claim, is in [note 3](03-a-code-graph-on-our-bench.md).
+
 ## The mod nobody measured
 
 **turn-savers** (lighter thinking on routine steps, the code at a failure attached to the failing run) was built and never measured. So it does not ship. A mod without a measurement is a guess with a version number.
@@ -68,6 +72,7 @@ The first versions of **seek** attached to a search's result the lines around it
 - **A check that passes is not a check that checks.** Agents' own tests share their blind spots.
 - **Models have habits.** They grep, they tail logs, they keep work they can do. A feature that fights a habit loses; one that answers inside it wins.
 - **Count what stays.** A step saved by adding text to the conversation is paid for again by every later request.
+- **Measure what gets installed.** A tool's own harness measures its mechanism; a person gets the install.
 - **Removing is a result.** Every grave here made the pack cheaper or simpler.
 
 ## Method & limits

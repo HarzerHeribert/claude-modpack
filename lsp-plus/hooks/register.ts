@@ -152,6 +152,23 @@ async function symbolNote($: Engine, command: string, r: { deny?: string; text?:
 const NO_CALLS = /^No call hierarchy item/
 
 /** One LSP call; its text, or undefined where the server failed, is missing or was refused. */
+/**
+ * How long a search's or an edit's result waits for the language server's answer. A cold or slow server (gopls loading
+ * a large Go module took minutes on PocketBase) must never hold the tool's own result: past this the result goes back
+ * without the answer, and Claude Code moved such a grep to the background, leaving Claude to answer before it ended.
+ */
+const BUDGET_MS = 8000
+
+/** The work's value, or undefined once BUDGET_MS has passed; a host without a clock never cuts it short. */
+async function withinBudget<T>($: Engine, work: Promise<T>): Promise<T | undefined> {
+  const quiet = work.catch(() => undefined)
+  const late = $.clock.sleep(BUDGET_MS).then(
+    () => undefined,
+    () => new Promise<undefined>(() => undefined),
+  )
+  return Promise.race([quiet, late])
+}
+
 async function lsp($: Engine, input: Record<string, unknown>): Promise<string | undefined> {
   const r = await $.tool.call({ tool: 'LSP', ...input } as never).catch(() => undefined)
   if (r === undefined || r.deny !== undefined || r.isError) return undefined
@@ -423,12 +440,15 @@ export const register: Register = (on, options) => {
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
     const r = await next(e)
     if (r.deny !== undefined) return r
-    const search = answering ? symbolSearch(e.command) : undefined
-    let answer = search === undefined ? undefined : await symbolAnswer($, search, r.text ?? '').catch(() => undefined)
-    // A Terraform address (var.region, aws_s3_bucket.logs) is no identifier; the module's declarations answer it.
-    const tf = answering && answer === undefined ? searchPatterns(e.command).map(tfAddress).find(t => t !== undefined) : undefined
-    if (tf !== undefined) answer = await tfAnswer($, tf, r.text ?? '').catch(() => undefined)
-    const text = answer ?? (await symbolNote($, e.command, r))
+    const annotate = async () => {
+      const search = answering ? symbolSearch(e.command) : undefined
+      let answer = search === undefined ? undefined : await symbolAnswer($, search, r.text ?? '').catch(() => undefined)
+      // A Terraform address (var.region, aws_s3_bucket.logs) is no identifier; the module's declarations answer it.
+      const tf = answering && answer === undefined ? searchPatterns(e.command).map(tfAddress).find(t => t !== undefined) : undefined
+      if (tf !== undefined) answer = await tfAnswer($, tf, r.text ?? '').catch(() => undefined)
+      return answer ?? (await symbolNote($, e.command, r))
+    }
+    const text = await withinBudget($, annotate())
     return text === undefined ? r : { ...r, context: [...(r.context ?? []), text] }
   }).catch(($, e, next) => next(e))
 
@@ -439,7 +459,7 @@ export const register: Register = (on, options) => {
     const input = e as unknown as { file_path?: string; old_string?: string; new_string?: string }
     if ((!drift && !blasting) || r.deny !== undefined || r.isError || typeof input.file_path !== 'string' || isDoc(input.file_path)) return r
     const notes = drift ? await driftNotes($, await $.session.cwd(), input.old_string ?? '', input.new_string ?? '') : []
-    if (blasting) notes.push(...(await blastNotes($, input.file_path, input.old_string ?? '', input.new_string ?? '').catch(() => [])))
+    if (blasting) notes.push(...((await withinBudget($, blastNotes($, input.file_path, input.old_string ?? '', input.new_string ?? ''))) ?? []))
     return notes.length === 0 ? r : { ...r, context: [...(r.context ?? []), ...notes] }
   }).catch(($, e, next) => next(e))
 

@@ -1,0 +1,252 @@
+diff --git a/apis/file.go b/apis/file.go
+index b18689d..997e74e 100644
+--- a/apis/file.go
++++ b/apis/file.go
+@@ -19,7 +19,7 @@ import (
+ 	"golang.org/x/sync/singleflight"
+ )
+ 
+-var imageContentTypes = []string{"image/png", "image/jpg", "image/jpeg", "image/gif"}
++var imageContentTypes = []string{"image/png", "image/jpg", "image/jpeg", "image/gif", "image/webp"}
+ var defaultThumbSizes = []string{"100x100"}
+ 
+ // bindFileApi registers the file api endpoints and the corresponding handlers.
+diff --git a/apis/file_test.go b/apis/file_test.go
+index a57c2cc..73b4bff 100644
+--- a/apis/file_test.go
++++ b/apis/file_test.go
+@@ -1,6 +1,7 @@
+ package apis_test
+ 
+ import (
++	"image/png"
+ 	"net/http"
+ 	"net/http/httptest"
+ 	"os"
+@@ -13,6 +14,7 @@ import (
+ 	"github.com/pocketbase/pocketbase/apis"
+ 	"github.com/pocketbase/pocketbase/core"
+ 	"github.com/pocketbase/pocketbase/tests"
++	"github.com/pocketbase/pocketbase/tools/filesystem"
+ 	"github.com/pocketbase/pocketbase/tools/types"
+ )
+ 
+@@ -428,6 +430,97 @@ func TestFileDownload(t *testing.T) {
+ 	}
+ }
+ 
++func TestFileDownloadWebpThumb(t *testing.T) {
++	t.Parallel()
++
++	// tiny 4x3 lossless webp
++	webp := []byte{
++		0x52, 0x49, 0x46, 0x46, 0x1c, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
++		0x56, 0x50, 0x38, 0x4c, 0x0f, 0x00, 0x00, 0x00, 0x2f, 0x03, 0x80, 0x00,
++		0x00, 0x07, 0x10, 0xfd, 0x8f, 0xfe, 0x07, 0x22, 0xa2, 0xff, 0x01, 0x00,
++	}
++
++	createWebpRecord := func(t testing.TB, app *tests.TestApp, e *core.ServeEvent) {
++		collection, err := app.FindCollectionByNameOrId("demo1")
++		if err != nil {
++			t.Fatal(err)
++		}
++
++		f, err := filesystem.NewFileFromBytes(webp, "test.webp")
++		if err != nil {
++			t.Fatal(err)
++		}
++		f.Name = "test.webp" // static name to be able to reference it in the url
++
++		record := core.NewRecord(collection)
++		record.Id = "webpthumbtest01"
++		record.Set("file_many", []any{f})
++		if err := app.Save(record); err != nil {
++			t.Fatal(err)
++		}
++	}
++
++	scenarios := []tests.ApiScenario{
++		{
++			Name:            "webp image - without thumb",
++			Method:          http.MethodGet,
++			URL:             "/api/files/demo1/webpthumbtest01/test.webp",
++			BeforeTestFunc:  createWebpRecord,
++			ExpectedStatus:  200,
++			ExpectedContent: []string{string(webp)},
++			ExpectedEvents: map[string]int{
++				"*":                     0,
++				"OnFileDownloadRequest": 1,
++			},
++			AfterTestFunc: func(t testing.TB, app *tests.TestApp, res *http.Response) {
++				if ct := res.Header.Get("Content-Type"); ct != "image/webp" {
++					t.Fatalf("Expected Content-Type %q, got %q", "image/webp", ct)
++				}
++			},
++		},
++		{
++			Name:            "webp image - with thumb (should be generated as png)",
++			Method:          http.MethodGet,
++			URL:             "/api/files/demo1/webpthumbtest01/test.webp?thumb=100x100",
++			BeforeTestFunc:  createWebpRecord,
++			ExpectedStatus:  200,
++			ExpectedContent: []string{"PNG"},
++			ExpectedEvents: map[string]int{
++				"*":                     0,
++				"OnFileDownloadRequest": 1,
++			},
++			AfterTestFunc: func(t testing.TB, app *tests.TestApp, res *http.Response) {
++				if ct := res.Header.Get("Content-Type"); ct != "image/png" {
++					t.Fatalf("Expected Content-Type %q, got %q", "image/png", ct)
++				}
++
++				cfg, err := png.DecodeConfig(res.Body)
++				if err != nil {
++					t.Fatalf("Expected the thumb to be a valid png, got %v", err)
++				}
++				if cfg.Width != 100 || cfg.Height != 100 {
++					t.Fatalf("Expected 100x100 thumb, got %dx%d", cfg.Width, cfg.Height)
++				}
++
++				fsys, err := app.NewFilesystem()
++				if err != nil {
++					t.Fatal(err)
++				}
++				defer fsys.Close()
++
++				thumbKey := "wsmn24bux7wo113/webpthumbtest01/thumbs_test.webp/100x100_test.webp"
++				if exists, _ := fsys.Exists(thumbKey); !exists {
++					t.Fatalf("Missing thumb %q", thumbKey)
++				}
++			},
++		},
++	}
++
++	for _, scenario := range scenarios {
++		scenario.Test(t)
++	}
++}
++
+ func TestConcurrentThumbsGeneration(t *testing.T) {
+ 	t.Parallel()
+ 
+diff --git a/go.mod b/go.mod
+index 429ead3..47fb1c9 100644
+--- a/go.mod
++++ b/go.mod
+@@ -18,6 +18,7 @@ require (
+ 	github.com/spf13/cast v1.7.1
+ 	github.com/spf13/cobra v1.9.1
+ 	golang.org/x/crypto v0.37.0
++	golang.org/x/image v0.26.0
+ 	golang.org/x/net v0.39.0
+ 	golang.org/x/oauth2 v0.29.0
+ 	golang.org/x/sync v0.13.0
+@@ -39,7 +40,6 @@ require (
+ 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+ 	github.com/spf13/pflag v1.0.6 // indirect
+ 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
+-	golang.org/x/image v0.26.0 // indirect
+ 	golang.org/x/mod v0.24.0 // indirect
+ 	golang.org/x/sys v0.32.0 // indirect
+ 	golang.org/x/text v0.24.0 // indirect
+diff --git a/tools/filesystem/filesystem.go b/tools/filesystem/filesystem.go
+index a6ad37d..1e11eb5 100644
+--- a/tools/filesystem/filesystem.go
++++ b/tools/filesystem/filesystem.go
+@@ -21,6 +21,9 @@ import (
+ 	"github.com/pocketbase/pocketbase/tools/filesystem/internal/s3blob"
+ 	"github.com/pocketbase/pocketbase/tools/filesystem/internal/s3blob/s3"
+ 	"github.com/pocketbase/pocketbase/tools/list"
++
++	// explicit webp decoder because disintegration/imaging does not support webp
++	_ "golang.org/x/image/webp"
+ )
+ 
+ // note: the same as blob.ErrNotFound for backward compatibility with earlier versions
+@@ -487,17 +490,18 @@ func (s *System) CreateThumb(originalKey string, thumbKey, thumbSize string) err
+ 		ContentType: r.ContentType(),
+ 	}
+ 
+-	// open a thumb storage writer (aka. prepare for upload)
+-	w, writerErr := s.bucket.NewWriter(s.ctx, thumbKey, opts)
+-	if writerErr != nil {
+-		return writerErr
+-	}
+-
+ 	// try to detect the thumb format based on the original file name
+-	// (fallbacks to png on error)
++	// (fallbacks to png on error, eg. for webp since there is no encoder for it)
+ 	format, err := imaging.FormatFromFilename(thumbKey)
+ 	if err != nil {
+ 		format = imaging.PNG
++		opts.ContentType = "image/png"
++	}
++
++	// open a thumb storage writer (aka. prepare for upload)
++	w, writerErr := s.bucket.NewWriter(s.ctx, thumbKey, opts)
++	if writerErr != nil {
++		return writerErr
+ 	}
+ 
+ 	// thumb encode (aka. upload)
+diff --git a/tools/filesystem/filesystem_test.go b/tools/filesystem/filesystem_test.go
+index c065fe3..05ec995 100644
+--- a/tools/filesystem/filesystem_test.go
++++ b/tools/filesystem/filesystem_test.go
+@@ -782,6 +782,56 @@ func TestFileSystemCreateThumb(t *testing.T) {
+ 	}
+ }
+ 
++func TestFileSystemCreateThumbWebp(t *testing.T) {
++	dir := createTestDir(t)
++	defer os.RemoveAll(dir)
++
++	fsys, err := filesystem.NewLocal(dir)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer fsys.Close()
++
++	// tiny 4x3 lossless webp
++	webp := []byte{
++		0x52, 0x49, 0x46, 0x46, 0x1c, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
++		0x56, 0x50, 0x38, 0x4c, 0x0f, 0x00, 0x00, 0x00, 0x2f, 0x03, 0x80, 0x00,
++		0x00, 0x07, 0x10, 0xfd, 0x8f, 0xfe, 0x07, 0x22, 0xa2, 0xff, 0x01, 0x00,
++	}
++	if err := fsys.Upload(webp, "image.webp"); err != nil {
++		t.Fatal(err)
++	}
++
++	thumbKey := "thumbs_image.webp/100x50_image.webp"
++
++	if err := fsys.CreateThumb("image.webp", thumbKey, "100x50"); err != nil {
++		t.Fatalf("Expected nil error, got %v", err)
++	}
++
++	// webp thumbs are encoded as png
++	attrs, err := fsys.Attributes(thumbKey)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if attrs.ContentType != "image/png" {
++		t.Fatalf("Expected thumb content type %q, got %q", "image/png", attrs.ContentType)
++	}
++
++	r, err := fsys.GetFile(thumbKey)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer r.Close()
++
++	cfg, err := png.DecodeConfig(r)
++	if err != nil {
++		t.Fatalf("Expected the thumb to be a valid png, got %v", err)
++	}
++	if cfg.Width != 100 || cfg.Height != 50 {
++		t.Fatalf("Expected 100x50 thumb, got %dx%d", cfg.Width, cfg.Height)
++	}
++}
++
+ // ---
+ 
+ func createTestDir(t *testing.T) string {

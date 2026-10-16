@@ -1,4 +1,4 @@
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 
 const GREP = 'src/click/utils.py:252:def echo(\nsrc/click/core.py:1412:            echo(ctx.command.name)\nsrc/click/core.py:1564:                    echo(msg, err=True)\n'
 const WHOLE = 'Found 2 incoming calls:\n\nsrc/click/core.py:\n  invoke (Function) - Line 1401 [calls at: 1412:13]\n  main (Function) - Line 1484 [calls at: 1564:17]\n'
@@ -21,6 +21,23 @@ for (const [label, incoming, expected] of [
     expect(notes.some(n => n.includes('src/click/core.py: Command.invoke (1412), Command.main (1564)'))).toBe(expected)
   })
 }
+
+test('a server that does not answer never holds the grep: past the budget it comes back without the answer', { options: { answer: true } }, async ($, on) => {
+  const clock = mock.clock(on, { now: 0 })
+  on('session.cwd', () => ({ value: '/repo' }))
+  on('tool.call', { tool: 'Bash' }, () => ({ result: { stdout: GREP, stderr: '', interrupted: false }, text: GREP }))
+  let asked = 0
+  on('tool.call', { tool: 'LSP' }, () => {
+    asked++
+    return new Promise(() => undefined) as never
+  })
+  const pending = $.tool.call({ tool: 'Bash', command: 'grep -rn "echo(" src' })
+  await clock.advance(8_001)
+  const r = await pending
+  expect(asked).toBeGreaterThan(0)
+  expect(r.text).toBe(GREP)
+  expect((r.context ?? []).some(n => n.includes('per the language server'))).toBe(false)
+})
 
 test('a server without call hierarchy answers with the references instead', { options: { answer: true } }, async ($, on) => {
   const grep = 'lib/auth/token.rb:12:  def self.issue(user)\napp/controllers/sessions_controller.rb:8:    Token.issue(user)\n'

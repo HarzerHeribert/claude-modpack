@@ -1,0 +1,112 @@
+diff --git a/tools/security/random_by_regex.go b/tools/security/random_by_regex.go
+index 41cdaff..0ece575 100644
+--- a/tools/security/random_by_regex.go
++++ b/tools/security/random_by_regex.go
+@@ -127,22 +127,36 @@ func repeatRandomStringByRegex(r *syntax.Regexp, sb *strings.Builder, min int, m
+ 	return nil
+ }
+ 
++// randomRuneFromPairs returns a random rune from the specified [lo, hi] range pairs.
++//
++// The rune is picked from the combined set of all ranges (and not first
++// picking a range and then a rune from it) so that every rune has
++// the same probability regardless of the size of the range it belongs to.
+ func randomRuneFromPairs(pairs []rune) (rune, error) {
+-	idx, err := randomNumber(len(pairs) / 2)
+-	if err != nil {
+-		return 0, err
++	var total int
++	for i := 0; i+1 < len(pairs); i += 2 {
++		total += int(pairs[i+1] - pairs[i] + 1)
+ 	}
+ 
+-	return randomRuneFromRange(pairs[idx*2], pairs[idx*2+1])
+-}
++	if total <= 0 {
++		return 0, fmt.Errorf("empty character class %q", pairs)
++	}
+ 
+-func randomRuneFromRange(min rune, max rune) (rune, error) {
+-	offset, err := randomNumber(int(max - min + 1))
++	offset, err := randomNumber(total)
+ 	if err != nil {
+-		return min, err
++		return 0, err
++	}
++
++	for i := 0; i+1 < len(pairs); i += 2 {
++		size := int(pairs[i+1] - pairs[i] + 1)
++		if offset < size {
++			return pairs[i] + rune(offset), nil
++		}
++		offset -= size
+ 	}
+ 
+-	return min + rune(offset), nil
++	// should be unreachable
++	return 0, fmt.Errorf("failed to pick a random rune from %q", pairs)
+ }
+ 
+ func randomNumber(maxSoft int) (int, error) {
+diff --git a/tools/security/random_by_regex_test.go b/tools/security/random_by_regex_test.go
+index cac7ae1..2b0a937 100644
+--- a/tools/security/random_by_regex_test.go
++++ b/tools/security/random_by_regex_test.go
+@@ -32,6 +32,7 @@ func TestRandomStringByRegex(t *testing.T) {
+ 		{`[a-zA-Z_]*`, nil, false},
+ 		{`[2-9]{5}-\w+`, nil, false},
+ 		{`(a|b|c)`, nil, false},
++		{`[^\x00-\x{10FFFF}]`, nil, true},
+ 	}
+ 
+ 	for i, s := range scenarios {
+@@ -64,3 +65,49 @@ func TestRandomStringByRegex(t *testing.T) {
+ 		})
+ 	}
+ }
++
++func TestRandomStringByRegexCharsDistribution(t *testing.T) {
++	scenarios := []struct {
++		pattern  string
++		alphabet string
++	}{
++		{`[A-Za-z0-9\-_]{1000}`, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"},
++		{`[a-z0-9]{1000}`, "abcdefghijklmnopqrstuvwxyz0123456789"},
++		{`.{1000}`, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
++	}
++
++	// 20k samples per scenario so that the ±50% bounds below are
++	// several standard deviations away from the expected count
++	const iterations = 20
++
++	for _, s := range scenarios {
++		t.Run(s.pattern, func(t *testing.T) {
++			counts := map[rune]int{}
++
++			for i := 0; i < iterations; i++ {
++				str, err := security.RandomStringByRegex(s.pattern)
++				if err != nil {
++					t.Fatal(err)
++				}
++
++				for _, c := range str {
++					counts[c]++
++				}
++			}
++
++			alphabet := []rune(s.alphabet)
++			expected := float64(iterations*1000) / float64(len(alphabet))
++
++			if len(counts) != len(alphabet) {
++				t.Fatalf("Expected %d distinct chars, got %d: %v", len(alphabet), len(counts), counts)
++			}
++
++			for _, c := range alphabet {
++				count := float64(counts[c])
++				if count < expected*0.5 || count > expected*1.5 {
++					t.Errorf("Expected %q to be generated ~%.0f times, got %.0f", c, expected, count)
++				}
++			}
++		})
++	}
++}

@@ -1,0 +1,56 @@
+diff --git a/src/click/globals.py b/src/click/globals.py
+index a2f9172..dc107d2 100644
+--- a/src/click/globals.py
++++ b/src/click/globals.py
+@@ -51,13 +51,13 @@ def pop_context() -> None:
+     _local.stack.pop()
+ 
+ 
+-def resolve_color_default(color: bool | None = None) -> bool | None:
++def resolve_color_default(*, override: bool | None = None) -> bool | None:
+     """Internal helper to get the default value of the color flag.  If a
+     value is passed it's returned unchanged, otherwise it's looked up from
+     the current context.
+     """
+-    if color is not None:
+-        return color
++    if override is not None:
++        return override
+ 
+     ctx = get_current_context(silent=True)
+ 
+diff --git a/src/click/termui.py b/src/click/termui.py
+index e1315f2..f46d7cf 100644
+--- a/src/click/termui.py
++++ b/src/click/termui.py
+@@ -359,7 +359,7 @@ def get_pager_file(
+     """
+     from ._termui_impl import get_pager_file
+ 
+-    color = resolve_color_default(color)
++    color = resolve_color_default(override=color)
+ 
+     return get_pager_file(color=color)
+ 
+@@ -578,7 +578,7 @@ def progressbar(
+     """
+     from ._termui_impl import ProgressBar
+ 
+-    color = resolve_color_default(color)
++    color = resolve_color_default(override=color)
+     return ProgressBar(
+         iterable=iterable,
+         length=length,
+diff --git a/src/click/utils.py b/src/click/utils.py
+index b529eb0..3be4f03 100644
+--- a/src/click/utils.py
++++ b/src/click/utils.py
+@@ -339,7 +339,7 @@ def echo(
+ 
+     # ANSI style code support. For no message or bytes, nothing happens.
+     # When outputting to a file instead of a terminal, strip codes.
+-    elif should_strip_ansi(file, resolve_color_default(color)):
++    elif should_strip_ansi(file, resolve_color_default(override=color)):
+         out = strip_ansi(out)
+ 
+     file.write(out)  # type: ignore

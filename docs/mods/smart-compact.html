@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>smart-compact: Keeps the cache warm, or compacts before it expires · claude-modpack</title>
-<meta name="description" content="When you step away, the conversation’s cache expires: after an hour on a subscription, five minutes on an API key. Your next prompt then writes the whole conversation to the cache again, at a higher price.">
+<meta name="description" content="You step away for lunch with a long session open.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
@@ -23,88 +23,93 @@
       <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
       <div class="m-sheet"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a class="" href="../index.html">Overview</a></li><li><a class="" href="../ideas.html">How it saves</a></li></ul>
+  <ul><li><a href="../index.html">The story</a></li><li><a href="../ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a class="" href="../mods.html">All mods</a></li><li><a class="mono" href="../mods/cells.html">cells</a></li><li><a class="mono" href="../mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="../mods/seek.html">seek</a></li><li><a class="mono" href="../mods/delegate.html">delegate</a></li><li><a class="mono" href="../mods/route.html">route</a></li><li><a class="mono" href="../mods/smart-compact.html" aria-current="page">smart-compact</a></li><li><a class="mono" href="../mods/statusline.html">statusline</a></li><li><a class="mono" href="../mods/eta.html">eta</a></li><li><a class="mono" href="../mods/modpack.html">modpack</a></li></ul>
-  <p class="side-h">Evidence</p>
-  <ul><li><a class="" href="../evidence.html">Every claim</a></li><li><a class="" href="../graveyard.html">The graveyard</a></li><li><a class="" href="../glossary.html">Glossary</a></li></ul>
+  <ul><li><a href="../mods.html">All mods</a></li><li><a href="../mods/cells.html">cells</a></li><li><a href="../mods/lsp-plus.html">lsp-plus</a></li><li><a href="../mods/seek.html">seek</a></li><li><a href="../mods/delegate.html">delegate</a></li><li><a href="../mods/route.html">route</a></li><li><a href="../mods/smart-compact.html" aria-current="page">smart-compact</a></li><li><a href="../mods/statusline.html">statusline</a></li><li><a href="../mods/eta.html">eta</a></li><li><a href="../mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">How we know</p>
+  <ul><li><a href="../graveyard.html">What we dropped</a></li><li><a href="../evidence.html">Every measurement</a></li><li><a href="../glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
-  <ul><li><a class="" href="../notes.html">The series</a></li><li><a class="note-item" href="../01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="../02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="../03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="../04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="../05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="../06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="../07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="../08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="../09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="../10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="../11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+  <ul><li><a href="../notes.html">All lab notes</a></li></ul>
 </nav></div>
     </details>
     <a class="logo" href="../index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
-    <nav class="hd-nav" aria-label="Sections"><a href="../index.html">Overview</a><a href="../mods.html" aria-current="true">Mods</a><a href="../evidence.html">Evidence</a><a href="../notes.html">Lab notes</a></nav>
+    <nav class="hd-nav" aria-label="Sections"><a href="../index.html">Overview</a><a href="../mods.html" aria-current="true">Mods</a><a href="../graveyard.html">How we know</a><a href="../notes.html">Lab notes</a></nav>
     <div class="hd-tools">
-      <div class="mode" role="group" aria-label="Reading mode">
-        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
-        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      <div class="mode" role="group" aria-label="How numbers read">
+        <span class="mode-l" aria-hidden="true">Numbers</span>
+        <button type="button" data-set-mode="plain" aria-pressed="true" title="Numbers in plain words, like “about a third cheaper”">In words</button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false" title="Every number exactly, with its 95% range, and every measurement on each page">Exact</button>
       </div>
-      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <a class="ib gh" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
       <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     </div>
   </div>
 </header>
-<div class="shell l-doc">
+<div class="shell l-story">
   <aside class="side"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a class="" href="../index.html">Overview</a></li><li><a class="" href="../ideas.html">How it saves</a></li></ul>
+  <ul><li><a href="../index.html">The story</a></li><li><a href="../ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a class="" href="../mods.html">All mods</a></li><li><a class="mono" href="../mods/cells.html">cells</a></li><li><a class="mono" href="../mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="../mods/seek.html">seek</a></li><li><a class="mono" href="../mods/delegate.html">delegate</a></li><li><a class="mono" href="../mods/route.html">route</a></li><li><a class="mono" href="../mods/smart-compact.html" aria-current="page">smart-compact</a></li><li><a class="mono" href="../mods/statusline.html">statusline</a></li><li><a class="mono" href="../mods/eta.html">eta</a></li><li><a class="mono" href="../mods/modpack.html">modpack</a></li></ul>
-  <p class="side-h">Evidence</p>
-  <ul><li><a class="" href="../evidence.html">Every claim</a></li><li><a class="" href="../graveyard.html">The graveyard</a></li><li><a class="" href="../glossary.html">Glossary</a></li></ul>
+  <ul><li><a href="../mods.html">All mods</a></li><li><a href="../mods/cells.html">cells</a></li><li><a href="../mods/lsp-plus.html">lsp-plus</a></li><li><a href="../mods/seek.html">seek</a></li><li><a href="../mods/delegate.html">delegate</a></li><li><a href="../mods/route.html">route</a></li><li><a href="../mods/smart-compact.html" aria-current="page">smart-compact</a></li><li><a href="../mods/statusline.html">statusline</a></li><li><a href="../mods/eta.html">eta</a></li><li><a href="../mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">How we know</p>
+  <ul><li><a href="../graveyard.html">What we dropped</a></li><li><a href="../evidence.html">Every measurement</a></li><li><a href="../glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
-  <ul><li><a class="" href="../notes.html">The series</a></li><li><a class="note-item" href="../01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="../02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="../03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="../04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="../05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="../06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="../07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="../08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="../09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="../10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="../11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+  <ul><li><a href="../notes.html">All lab notes</a></li></ul>
 </nav></aside>
   <main id="main" tabindex="-1">
 
-<div class="doc">
-  <p class="eyebrow mono"><a href="../mods.html">mods</a> / smart-compact</p>
-  <h1 class="mono">smart-compact</h1>
+<div class="doc story mod">
+  <p class="eyebrow"><a href="../mods.html">Mods</a></p>
+  <h1>smart-compact</h1>
   <p class="lead">Keeps the cache warm, or compacts before it expires.</p>
-  <p class="tags"><span class="badge ">cost</span><span class="badge mono">v0.1.2</span><span class="muted small">worked out, not measured</span></p>
+  <p class="mod-meta">It comes with <a href="../index.html#try">the pack</a> and is on from the start.</p>
 
-  <div class="only-plain">
-    <h2 id="problem">The problem</h2>
-    <p>When you step away, the conversation’s cache expires: after an hour on a subscription, five minutes on an API key. Your next prompt then writes the whole conversation to the cache again, at a higher price.</p>
-    <h2 id="change">What it changes</h2>
-    <p>A few minutes before the cache expires, smart-compact either keeps it warm with a cheap request, or compacts the conversation while the cache is still warm, whichever costs less. Small sessions it leaves alone. The status line says whether the session is ready or has gone cold.</p>
-    <h2 id="see">See it work</h2>
-    <div class="widget sim" data-widget="smartcompact">
-  <div class="sim-h"><p class="sim-t">While you are away</p><p class="sim-d">smart-compact’s policy, run on your numbers.</p></div>
-  <div class="w-controls">
-    <label class="ctl"><span class="ctl-l">Context of the idle session <output data-o="ctx"></output></span><input type="range" data-in="ctx" min="0" max="10" step="1" value="7"></label>
-    <fieldset class="ctl seg"><legend class="ctl-l">Cache lifetime</legend><div class="seg-row"><label><input type="radio" name="ttl-7" data-in="ttl" value="1h" checked><span>1 hour</span></label><label><input type="radio" name="ttl-7" data-in="ttl" value="5m"><span>5 minutes</span></label></div></fieldset>
-    <label class="ctl"><span class="ctl-l">You are away for <output data-o="away"></output></span><input type="range" data-in="away" min="0" max="11" step="1" value="7"></label>
-  </div>
-  <div class="sc-options" aria-live="polite"></div>
-  <div class="w-stage sc-stage"><svg class="sc-svg" aria-hidden="true"></svg></div>
-  <div class="sc-scrub"><label class="ctl"><span class="ctl-l">What the status line says at <output data-o="at"></output></span><input type="range" data-in="at" min="0" max="1000" step="1" value="0"></label><div class="term small"><div class="term-line"><span class="sc-seg"></span></div></div></div>
-  <p class="w-out" aria-live="polite"></p>
-  <p class="w-src">smart-compact’s own policy (the <code>smart</code> strategy with its defaults) and price formula, run on Opus 5.5 list prices. The cache lives an hour on a subscription, five minutes on an API key. Worked out, not measured: the README says so too.</p>
-  <noscript><p class="w-note">This explainer needs JavaScript. Its numbers are on the <a href="../evidence.html">evidence</a> page.</p></noscript>
-</div>
-    
-    <p class="small muted terms-line">Words used here: <a href="../glossary.html#cache-write">cache write and its lifetime</a>, <a href="../glossary.html#cache-read">cache read</a>, <a href="../glossary.html#compaction">compaction</a>.</p>
-    <p class="mode-hint"><button type="button" class="link-btn" data-set-mode="numbers">The numbers behind smart-compact <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
-  </div>
+  <h2 id="moment">The moment</h2>
+  <p>You step away for lunch with a long session open.</p>
+  <h2 id="without">Without smart-compact</h2>
+  <p>While you’re gone, the conversation’s cache expires: after an hour on a subscription, after five minutes on an API key. Your next prompt then writes the whole conversation to the cache again, at a higher price. For a session of 400k tokens that is <!--n--><span class="fact"><span class="f-w">$3.20</span><a class="f-x r-count" href="../evidence.html#f-sc-lapse" aria-describedby="tip-42">$3.20<span class="f-card" role="tooltip" id="tip-42"><b>$3.20</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n-->, just to pick up where you left off.</p>
+  <h2 id="with">With smart-compact</h2>
+  <p>A few minutes before the cache expires, smart-compact does whichever costs less: it keeps the cache warm with one cheap request, or it compacts the conversation while the cache is still warm. Small sessions it leaves alone. The status line tells you whether your session is ready or has gone cold.</p>
+  <p>Choose how long you are away, and smart-compact’s own rules decide what happens.</p>
+  <figure class="widget" data-widget="smartcompact">
+  <div class="w-bar"><fieldset class="seg"><legend class="seg-l">You are away for</legend><div class="seg-row"><label><input type="radio" name="away-7" data-in="away" value="0"><span>A few minutes</span></label><label><input type="radio" name="away-7" data-in="away" value="1" checked><span>Two hours</span></label><label><input type="radio" name="away-7" data-in="away" value="2"><span>All night</span></label></div></fieldset></div>
+  <div class="sc-stage"><div class="sc-case" data-case="0" hidden>
+      <div class="sc-row"><span class="sc-name">Without smart-compact</span><span class="sc-track" aria-hidden="true"><span class="sc-warm" style="left:0;width:100.00%"></span><span class="sc-needle"></span></span><span class="sc-out">Nothing to pay: you’re back before it expires</span><span class="sc-says">Back at the keyboard: <code><span class="t-good">●</span> ready · cold in 57m</code></span></div>
+      <div class="sc-row"><span class="sc-name">With smart-compact</span><span class="sc-track" aria-hidden="true"><span class="sc-warm" style="left:0;width:100.00%"></span><span class="sc-needle"></span></span><span class="sc-out">Nothing to do yet: the cache is still warm</span><span class="sc-says">Back at the keyboard: <code><span class="t-good">●</span> ready · cold in 57m</code></span></div>
+      <div class="sc-axis" aria-hidden="true"><span>You step away</span><span>You’re back</span></div>
+    </div><div class="sc-case" data-case="1">
+      <div class="sc-row"><span class="sc-name">Without smart-compact</span><span class="sc-track" aria-hidden="true"><span class="sc-warm" style="left:0;width:50.00%"></span><span class="sc-cold" style="left:50.00%;width:calc(100% - 50.00%)"></span><span class="sc-x" style="left:50.00%"></span><span class="sc-needle"></span></span><span class="sc-out"><!--n--><span class="fact"><span class="f-w">$3.20</span><a class="f-x r-count" href="../evidence.html#f-sc-lapse" aria-describedby="tip-43">$3.20<span class="f-card" role="tooltip" id="tip-43"><b>$3.20</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n--> to write it all again when you’re back</span><span class="sc-says">Back at the keyboard: <code><span class="t-warn">○ cold</span></code></span></div>
+      <div class="sc-row"><span class="sc-name">With smart-compact</span><span class="sc-track" aria-hidden="true"><span class="sc-warm" style="left:0;width:100.00%"></span><span class="sc-k" style="left:47.92%"></span><span class="sc-k" style="left:95.83%"></span><span class="sc-needle"></span></span><span class="sc-out">Kept warm twice, at <!--n--><span class="fact"><span class="f-w">$0.09</span><a class="f-x r-count" href="../evidence.html#f-sc-keepalive" aria-describedby="tip-44">$0.09<span class="f-card" role="tooltip" id="tip-44"><b>$0.09</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n--> each</span><span class="sc-says">Back at the keyboard: <code><span class="t-good">●</span> ready</code></span></div>
+      <div class="sc-axis" aria-hidden="true"><span>You step away</span><span>You’re back</span></div>
+    </div><div class="sc-case" data-case="2" hidden>
+      <div class="sc-row"><span class="sc-name">Without smart-compact</span><span class="sc-track" aria-hidden="true"><span class="sc-warm" style="left:0;width:12.50%"></span><span class="sc-cold" style="left:12.50%;width:calc(100% - 12.50%)"></span><span class="sc-x" style="left:12.50%"></span><span class="sc-needle"></span></span><span class="sc-out"><!--n--><span class="fact"><span class="f-w">$3.20</span><a class="f-x r-count" href="../evidence.html#f-sc-lapse" aria-describedby="tip-45">$3.20<span class="f-card" role="tooltip" id="tip-45"><b>$3.20</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n--> to write it all again when you’re back</span><span class="sc-says">Back at the keyboard: <code><span class="t-warn">○ cold</span></code></span></div>
+      <div class="sc-row"><span class="sc-name">With smart-compact</span><span class="sc-track" aria-hidden="true"><span class="sc-warm" style="left:0;width:83.85%"></span><span class="sc-small" style="left:83.85%;width:calc(100% - 83.85%)"></span><span class="sc-c" style="left:83.85%"></span><span class="sc-k" style="left:11.98%"></span><span class="sc-k" style="left:23.96%"></span><span class="sc-k" style="left:35.94%"></span><span class="sc-k" style="left:47.92%"></span><span class="sc-k" style="left:59.90%"></span><span class="sc-k" style="left:71.88%"></span><span class="sc-needle"></span></span><span class="sc-out">Kept warm six times at <!--n--><span class="fact"><span class="f-w">$0.09</span><a class="f-x r-count" href="../evidence.html#f-sc-keepalive" aria-describedby="tip-46">$0.09<span class="f-card" role="tooltip" id="tip-46"><b>$0.09</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n--> each, then compacted while warm for <!--n--><span class="fact"><span class="f-w">about $0.87</span><a class="f-x r-count" href="../evidence.html#f-sc-compact" aria-describedby="tip-47">about $0.87<span class="f-card" role="tooltip" id="tip-47"><b>About $0.87</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n--></span><span class="sc-says">Back at the keyboard: <code><span class="t-accent">◌</span> compacted</code></span></div>
+      <div class="sc-axis" aria-hidden="true"><span>You step away</span><span>You’re back</span></div>
+    </div></div><div class="sc-key" aria-hidden="true"><span><i class="sc-warm"></i>cache warm</span><span><i class="sc-cold"></i>expired</span><span><i class="sc-k"></i>a keep-alive</span><span><i class="sc-c"></i>compacted</span></div>
+  
+</figure>
 
-  <div class="only-numbers">
-    <h2 id="measured">What we measured</h2>
-    <div class="table-wrap"><table class="table ftab"><thead><tr><th scope="col">Claim</th><th scope="col" class="r">Effect</th><th scope="col" class="st"><svg class="strip-axis" width="104" height="14" viewBox="0 0 104 14" aria-hidden="true"><text x="12" y="10" text-anchor="middle">−50</text><line x1="32" x2="32" y1="4" y2="10"/><text x="52" y="10" text-anchor="middle">0</text><line x1="72" x2="72" y1="4" y2="10"/><text x="92" y="10" text-anchor="middle">+50</text></svg></th></tr></thead><tbody><tr><td><a class="claim" href="../evidence.html#f-smart-compact-prices">An idle 400k-token session on the one-hour cache: let it expire, keep it warm, or compact</a><span class="sub">worked out from list prices, not measured · long · not measured</span></td><td class="r"><span class="num">$3.20 / $0.09 / ~$0.87</span></td><td class="st"></td></tr></tbody></table></div><p class="small"><a href="../evidence.html?mod=smart-compact">smart-compact in the evidence table <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
-    
-    <p class="mode-hint"><button type="button" class="link-btn" data-set-mode="plain">What smart-compact does, in plain words <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
-  </div>
+  <h2 id="measured">What it saves</h2>
+  <p>This one is worked out from prices rather than measured. For that session, letting the cache expire costs <!--n--><span class="fact"><span class="f-w">$3.20</span><a class="f-x r-count" href="../evidence.html#f-sc-lapse" aria-describedby="tip-48">$3.20<span class="f-card" role="tooltip" id="tip-48"><b>$3.20</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n-->, one keep-alive <!--n--><span class="fact"><span class="f-w">$0.09</span><a class="f-x r-count" href="../evidence.html#f-sc-keepalive" aria-describedby="tip-49">$0.09<span class="f-card" role="tooltip" id="tip-49"><b>$0.09</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n-->, and compacting <!--n--><span class="fact"><span class="f-w">about $0.87</span><a class="f-x r-count" href="../evidence.html#f-sc-compact" aria-describedby="tip-50">about $0.87<span class="f-card" role="tooltip" id="tip-50"><b>About $0.87</b><br>Not measured<br>Opus 5.5</span></a></span><!--/n-->, plus whatever detail the summary loses.</p>
+  <div class="only-numbers"><h3 id="all">Every measurement for smart-compact</h3><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p><!--n--><ul class="mlist"><li><span class="ml-c"><a href="../evidence.html#f-sc-lapse">Away from an idle 400k-token session: let the cache expire, re-cache on return</a><span>worked out from list prices, not measured</span></span><span class="ml-v"><b>$3.20</b><span>Not measured. Opus 5.5</span></span><span class="ml-s"></span></li><li><span class="ml-c"><a href="../evidence.html#f-sc-keepalive">One keep-alive for the same session: a cheap read resets the cache's clock</a><span>worked out from list prices, not measured</span></span><span class="ml-v"><b>$0.09</b><span>Not measured. Opus 5.5</span></span><span class="ml-s"></span></li><li><span class="ml-c"><a href="../evidence.html#f-sc-compact">Compacting the same session while its cache is still warm</a><span>worked out from list prices, not measured</span></span><span class="ml-v"><b>about $0.87</b><span>Not measured. Opus 5.5</span></span><span class="ml-s"></span></li></ul><!--/n--></div>
+     <p class="only-plain more"><button type="button" class="link-btn" data-set-mode="numbers">See every measurement behind smart-compact</button></p>
 
-  <p class="switch-line small muted">Off or on: <code>/mods smart-compact off</code> · Options: <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">README</a> · Setup: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/SETUP.md">SETUP.md</a> · Code: <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/smart-compact">smart-compact/</a></p>
-  <nav class="pager" aria-label="Other mods"><a href="route.html"><span>Previous</span><b class="mono">route</b></a><a class="next" href="statusline.html"><span>Next</span><b class="mono">statusline</b></a></nav>
+  <h2 id="limits">Where it doesn’t help</h2>
+  <p>A small session has little to save, so it does nothing there. If your computer sleeps past the moment to act, it can’t act, and it marks the cache as cold.</p>
+
+  <h2 id="switch">Turn it on or off</h2>
+  <p><code>/cache</code> shows the live figures and the plan. <code>strategy: keepalive</code> never compacts, and <code>/mods smart-compact off</code> turns it off. Every option is in <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">the README</a>; the code is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/smart-compact">smart-compact/</a>.</p>
+  
+  <nav class="next" aria-label="Next"><a href="statusline.html"><span>Next</span><b>statusline</b><em>One line under the prompt with what matters.</em><svg class="arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></nav>
 </div>
   </main>
-  <aside class="toc" aria-label="On this page"><p class="side-h">On this page</p><ul><li><a href="#problem" data-for="problem">The problem</a></li><li><a href="#change" data-for="change">What it changes</a></li><li><a href="#see" data-for="see">See it work</a></li><li><a href="#measured" data-for="measured">What we measured</a></li></ul></aside>
+  
 </div>
 <footer class="ft">
-  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
-  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="../facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
+  <div class="ft-in">
+    <p><span class="logo-dot" aria-hidden="true"></span><b>claude-modpack</b>, mods for Claude Code, measured before they ship. Free and open source under the <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT licence</a>; the code is <a href="https://github.com/HarzerHeribert/claude-modpack">on GitHub</a>.</p>
+    <p>Written by Claude from the repository’s data and reviewed by its maintainer. Every number on this site is quoted from its source and checked when the site is built (<a href="../facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from anywhere else.</p>
+  </div>
 </footer>
-<div class="sl" aria-hidden="true" data-path="mods/smart-compact" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

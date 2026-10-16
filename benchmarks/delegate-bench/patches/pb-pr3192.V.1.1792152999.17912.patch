@@ -1,0 +1,180 @@
+diff --git a/plugins/migratecmd/migratecmd_test.go b/plugins/migratecmd/migratecmd_test.go
+index d397fd4..6df845f 100644
+--- a/plugins/migratecmd/migratecmd_test.go
++++ b/plugins/migratecmd/migratecmd_test.go
+@@ -382,6 +382,7 @@ migrate((db) => {
+   collection.name = "test456_update"
+   collection.type = "base"
+   collection.listRule = null
++  collection.viewRule = "id = \"2\""
+   collection.deleteRule = "updated > 0 && @request.auth.id != ''"
+   collection.options = {}
+   collection.indexes = [
+@@ -428,6 +429,7 @@ migrate((db) => {
+   collection.name = "test456"
+   collection.type = "auth"
+   collection.listRule = "@request.auth.id != '' && created > 0"
++  collection.viewRule = "id = \"1\""
+   collection.deleteRule = null
+   collection.options = {
+     "allowEmailAuth": false,
+@@ -505,6 +507,8 @@ func init() {
+ 
+ 		collection.ListRule = nil
+ 
++		collection.ViewRule = types.Pointer("id = \"2\"")
++
+ 		collection.DeleteRule = types.Pointer("updated > 0 && @request.auth.id != ''")
+ 
+ 		options := map[string]any{}
+@@ -566,6 +570,8 @@ func init() {
+ 
+ 		collection.ListRule = types.Pointer("@request.auth.id != '' && created > 0")
+ 
++		collection.ViewRule = types.Pointer("id = \"1\"")
++
+ 		collection.DeleteRule = nil
+ 
+ 		options := map[string]any{}
+@@ -684,6 +690,7 @@ func init() {
+ 		collection.Type = models.CollectionTypeBase
+ 		collection.DeleteRule = types.Pointer(`updated > 0 && @request.auth.id != ''`)
+ 		collection.ListRule = nil
++		collection.ViewRule = types.Pointer(`id = "2"`)
+ 		collection.Indexes = types.JsonArray[string]{
+ 			"create index test1 on test456_update (f1_name)",
+ 		}
+diff --git a/plugins/migratecmd/templates.go b/plugins/migratecmd/templates.go
+index 8cfeac5..0695d95 100644
+--- a/plugins/migratecmd/templates.go
++++ b/plugins/migratecmd/templates.go
+@@ -143,7 +143,11 @@ func (p *plugin) jsDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.listRule = %s", varName, strconv.Quote(*old.ListRule)))
+ 		} else if old.ListRule == nil && new.ListRule != nil || *old.ListRule != *new.ListRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.listRule = %s", varName, strconv.Quote(*new.ListRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.listRule = null", varName))
++			if old.ListRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.listRule = %s", varName, strconv.Quote(*old.ListRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.listRule = null", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -153,7 +157,11 @@ func (p *plugin) jsDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.viewRule = %s", varName, strconv.Quote(*old.ViewRule)))
+ 		} else if old.ViewRule == nil && new.ViewRule != nil || *old.ViewRule != *new.ViewRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.viewRule = %s", varName, strconv.Quote(*new.ViewRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.viewRule = null", varName))
++			if old.ViewRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.viewRule = %s", varName, strconv.Quote(*old.ViewRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.viewRule = null", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -163,7 +171,11 @@ func (p *plugin) jsDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.createRule = %s", varName, strconv.Quote(*old.CreateRule)))
+ 		} else if old.CreateRule == nil && new.CreateRule != nil || *old.CreateRule != *new.CreateRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.createRule = %s", varName, strconv.Quote(*new.CreateRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.createRule = null", varName))
++			if old.CreateRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.createRule = %s", varName, strconv.Quote(*old.CreateRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.createRule = null", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -173,7 +185,11 @@ func (p *plugin) jsDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.updateRule = %s", varName, strconv.Quote(*old.UpdateRule)))
+ 		} else if old.UpdateRule == nil && new.UpdateRule != nil || *old.UpdateRule != *new.UpdateRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.updateRule = %s", varName, strconv.Quote(*new.UpdateRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.updateRule = null", varName))
++			if old.UpdateRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.updateRule = %s", varName, strconv.Quote(*old.UpdateRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.updateRule = null", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -183,7 +199,11 @@ func (p *plugin) jsDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.deleteRule = %s", varName, strconv.Quote(*old.DeleteRule)))
+ 		} else if old.DeleteRule == nil && new.DeleteRule != nil || *old.DeleteRule != *new.DeleteRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.deleteRule = %s", varName, strconv.Quote(*new.DeleteRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.deleteRule = null", varName))
++			if old.DeleteRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.deleteRule = %s", varName, strconv.Quote(*old.DeleteRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.deleteRule = null", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -527,7 +547,11 @@ func (p *plugin) goDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.ListRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.ListRule)))
+ 		} else if old.ListRule == nil && new.ListRule != nil || *old.ListRule != *new.ListRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.ListRule = types.Pointer(%s)\n", varName, strconv.Quote(*new.ListRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.ListRule = nil\n", varName))
++			if old.ListRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.ListRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.ListRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.ListRule = nil\n", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -537,7 +561,11 @@ func (p *plugin) goDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.ViewRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.ViewRule)))
+ 		} else if old.ViewRule == nil && new.ViewRule != nil || *old.ViewRule != *new.ViewRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.ViewRule = types.Pointer(%s)\n", varName, strconv.Quote(*new.ViewRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.ViewRule = nil\n", varName))
++			if old.ViewRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.ViewRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.ViewRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.ViewRule = nil\n", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -547,7 +575,11 @@ func (p *plugin) goDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.CreateRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.CreateRule)))
+ 		} else if old.CreateRule == nil && new.CreateRule != nil || *old.CreateRule != *new.CreateRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.CreateRule = types.Pointer(%s)\n", varName, strconv.Quote(*new.CreateRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.CreateRule = nil\n", varName))
++			if old.CreateRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.CreateRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.CreateRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.CreateRule = nil\n", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -557,7 +589,11 @@ func (p *plugin) goDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.UpdateRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.UpdateRule)))
+ 		} else if old.UpdateRule == nil && new.UpdateRule != nil || *old.UpdateRule != *new.UpdateRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.UpdateRule = types.Pointer(%s)\n", varName, strconv.Quote(*new.UpdateRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.UpdateRule = nil\n", varName))
++			if old.UpdateRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.UpdateRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.UpdateRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.UpdateRule = nil\n", varName))
++			}
+ 		}
+ 	}
+ 
+@@ -567,7 +603,11 @@ func (p *plugin) goDiffTemplate(new *models.Collection, old *models.Collection)
+ 			downParts = append(downParts, fmt.Sprintf("%s.DeleteRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.DeleteRule)))
+ 		} else if old.DeleteRule == nil && new.DeleteRule != nil || *old.DeleteRule != *new.DeleteRule {
+ 			upParts = append(upParts, fmt.Sprintf("%s.DeleteRule = types.Pointer(%s)\n", varName, strconv.Quote(*new.DeleteRule)))
+-			downParts = append(downParts, fmt.Sprintf("%s.DeleteRule = nil\n", varName))
++			if old.DeleteRule != nil {
++				downParts = append(downParts, fmt.Sprintf("%s.DeleteRule = types.Pointer(%s)\n", varName, strconv.Quote(*old.DeleteRule)))
++			} else {
++				downParts = append(downParts, fmt.Sprintf("%s.DeleteRule = nil\n", varName))
++			}
+ 		}
+ 	}
+ 

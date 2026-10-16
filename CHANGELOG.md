@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.1 (2026-10-16)
+
+A guided installer, the site told as stories, Trail-Code measured the way people install it, and a fix for slow language servers.
+
+- **modpack 0.6.1**: the release number the self-update compares against.
+- **lsp-plus 0.4.2: a language server never holds a tool's result.** lsp-plus answers Claude's grep for a code symbol, and after an edit names what it touches, by asking the language server. On PocketBase a cold gopls was still loading the module: one grep waited past Claude Code's 120 s, was moved to the background, and the run's last message answered that notice instead of the question (score 0). Every language-server question after a grep or an edit now gets 8 s; past that the tool's result goes back without the answer. Tested with a server that never answers.
+- **Lab notes 3, rewritten** ([A 10,000-star code graph on our bench](lab-notes/03-a-code-graph-on-our-bench.md)): Trail-Code measured the way a person installs it. Beside the pack +12.8% fresh; alone against plain Claude Code −1.8% [−5.9, +2.7] (64 runs a side, two batches); against the pack 0.6.0 +19.0% [+13.1, +25.1]; its own best case, the `trail ask --source` bundle in front of the prompt, +3.2% [−7.3, +15.0] (Sonnet, 8 runs). How Claude used it (its MCP tools never, its command line as a second grep), where its published numbers come from and why they do not carry over to an install, and what we do not claim. The graveyard has its grave.
+- **PocketBase, Trail-Code's own 15 tasks**: its ten questions word for word and its five merged pull requests from their base commits, one run per task as Trail-Code ran them, Opus, gopls in both arms. The pack 0.6.0 against plain Claude Code: $9.98 → $7.88 in total (−21.0%), the average task −18.1% [−26.7, −8.3]; all five pull requests touched the maintainers' files. The runs and the tasks ship in [`benchmarks/`](benchmarks/delegate-bench/) (`results-pb.jsonl`, `pb_repo.py`).
+- **A guided installer**: [`install.sh`](install.sh) installs the marketplace and the pack with Claude Code's own plugin commands, then sets it up: guided (Claude Code starts in your project with `/modpack:setup`), quick (the questions in the terminal) or later. Every command that changes something is shown before it runs, nothing is installed on your system without a question, and route only after its consent text. `--dry-run` shows it all and changes nothing.
+- **The site, rewritten as stories**: the pack and each mod told as the moment it changes, what happens without it and with it, what we measured, and where it does not help. Numbers in words, exact with their ranges on request, each still checked against its source when the site is built.
+- **README**: Trail-Code as measured now; PocketBase beside the other repositories; the quality answer recounted over 2,184 graded runs.
+
 ## 0.6.0 (2026-10-16)
 
 Hand-offs that cost Claude two steps, checked by the tool itself; route handing feature and test work over before Claude reads the code; and seek, a new mod that has Claude look around in few, lean steps.

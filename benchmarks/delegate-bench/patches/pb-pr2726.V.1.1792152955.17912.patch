@@ -1,0 +1,82 @@
+diff --git a/apis/middlewares.go b/apis/middlewares.go
+index 3b8d808..05e1d0f 100644
+--- a/apis/middlewares.go
++++ b/apis/middlewares.go
+@@ -129,14 +129,17 @@ func RequireAdminAuth() echo.MiddlewareFunc {
+ func RequireAdminAuthOnlyIfAny(app core.App) echo.MiddlewareFunc {
+ 	return func(next echo.HandlerFunc) echo.HandlerFunc {
+ 		return func(c echo.Context) error {
++			admin, _ := c.Get(ContextAdminKey).(*models.Admin)
++			if admin != nil {
++				return next(c)
++			}
++
+ 			totalAdmins, err := app.Dao().TotalAdmins()
+ 			if err != nil {
+ 				return NewBadRequestError("Failed to fetch admins info.", err)
+ 			}
+ 
+-			admin, _ := c.Get(ContextAdminKey).(*models.Admin)
+-
+-			if admin != nil || totalAdmins == 0 {
++			if totalAdmins == 0 {
+ 				return next(c)
+ 			}
+ 
+diff --git a/apis/middlewares_test.go b/apis/middlewares_test.go
+index 6dd81fd..61e5a89 100644
+--- a/apis/middlewares_test.go
++++ b/apis/middlewares_test.go
+@@ -1,10 +1,15 @@
+ package apis_test
+ 
+ import (
++	"context"
++	"database/sql"
+ 	"net/http"
++	"strings"
+ 	"testing"
++	"time"
+ 
+ 	"github.com/labstack/echo/v5"
++	"github.com/pocketbase/dbx"
+ 	"github.com/pocketbase/pocketbase/apis"
+ 	"github.com/pocketbase/pocketbase/tests"
+ )
+@@ -452,6 +457,8 @@ func TestRequireAdminAuth(t *testing.T) {
+ }
+ 
+ func TestRequireAdminAuthOnlyIfAny(t *testing.T) {
++	var calledQueries []string
++
+ 	scenarios := []tests.ApiScenario{
+ 		{
+ 			Name:   "guest (while having at least 1 existing admin)",
+@@ -549,6 +556,12 @@ func TestRequireAdminAuthOnlyIfAny(t *testing.T) {
+ 				"Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InN5d2JoZWNuaDQ2cmhtMCIsInR5cGUiOiJhZG1pbiIsImV4cCI6MjIwODk4NTI2MX0.M1m--VOqGyv0d23eeUc0r9xE8ZzHaYVmVFw1VZW6gT8",
+ 			},
+ 			BeforeTestFunc: func(t *testing.T, app *tests.TestApp, e *echo.Echo) {
++				logQuery := func(ctx context.Context, t time.Duration, sql string, rows *sql.Rows, err error) {
++					calledQueries = append(calledQueries, sql)
++				}
++				app.Dao().ConcurrentDB().(*dbx.DB).QueryLogFunc = logQuery
++				app.Dao().NonconcurrentDB().(*dbx.DB).QueryLogFunc = logQuery
++
+ 				e.AddRoute(echo.Route{
+ 					Method: http.MethodGet,
+ 					Path:   "/my/test",
+@@ -560,6 +573,14 @@ func TestRequireAdminAuthOnlyIfAny(t *testing.T) {
+ 					},
+ 				})
+ 			},
++			AfterTestFunc: func(t *testing.T, app *tests.TestApp, e *echo.Echo) {
++				// the total admins count is irrelevant for already authenticated admins
++				for _, q := range calledQueries {
++					if strings.Contains(strings.ToLower(q), "count(") {
++						t.Fatalf("Expected no total admins count query, got %q", q)
++					}
++				}
++			},
+ 			ExpectedStatus:  200,
+ 			ExpectedContent: []string{"test123"},
+ 		},

@@ -2,7 +2,7 @@
 
 *Lab notes 4 · 15 Oct 2026 · written by Claude from this repository's data*
 
-The code-graph tools in the [last note](03-a-code-graph-on-our-bench.md) cost more on our bench than they saved. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: answers placed where it already looks, from sources that are never stale.
+The code graph in the [last note](03-a-code-graph-on-our-bench.md) saved nothing we could measure on our bench, alone or beside the pack. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: answers placed where it already looks, from sources that are never stale.
 
 ## Idea 1: a pointer before the first search
 

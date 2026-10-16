@@ -1,8 +1,9 @@
-/* The interval strip: the site's one unit for a measured number. A hairline at zero, the 95% interval as a line, the
-   effect as a mark, on one fixed scale (−60% to +60%) wherever it appears, so any two strips on the site compare at a
-   glance. A filled mark is an interval clear of zero; a hollow one crosses zero; a diamond had no interval in its
-   source; an arrow runs off the scale. Counts ("8 of 8") get a proportion bar instead. The same code draws strips at
-   build time (build.mjs runs it in Node) and in the evidence table in the browser. */
+/* The range strip, the one way this site draws a measured change, and only where numbers are read exactly (the
+   evidence table, a mod's list of measurements); a legend sits beside it. An upright line at no change, the 95%
+   range as a bar, the change as a dot, on one fixed scale (60% less to 60% more) wherever it appears, so two strips
+   compare at a glance. A hollow dot's range includes no change; a diamond had no range in its source; an arrow runs
+   off the scale. Counts ("8 of 8") get a proportion bar instead. The label a screen reader hears is the change in
+   words (f.label, set by the build). The same code draws strips at build time and in the browser. */
 ;(function (root) {
   'use strict'
   var LO = -60
@@ -21,7 +22,7 @@
     var w = opts.w || 88
     var h = 14
     if (typeof f.effect !== 'number') return ratio(f.shown, w)
-    var label = f.shown + (f.ci ? ', 95% interval ' + f.ci.join(' to ') : ', no interval in the source')
+    var label = f.label || f.shown
     var parts = ['<line class="s-base" x1="4" x2="' + (w - 4) + '" y1="7" y2="7"/>', '<line class="s-zero" x1="' + x(0, w) + '" x2="' + x(0, w) + '" y1="2" y2="12"/>']
     var off = function (v) {
       return v < LO || v > HI

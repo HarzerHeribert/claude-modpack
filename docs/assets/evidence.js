@@ -11,11 +11,7 @@
     var rows = Array.prototype.slice.call(body.querySelectorAll('tr.ev-row')).map(function (tr, i) {
       var d = document.getElementById('d-' + tr.getAttribute('data-id'))
       var strip = tr.querySelector('.strip')
-      var eff = tr.querySelector('.c-eff .num').textContent
-      var m = /^\s*([+−-]?)\s*(\d+(?:\.\d+)?)\s*%\s*$/.exec(eff)
-      var ci = tr.querySelector('.c-int .ci').textContent
-      var cm = /\[([+−-]?)(\d+(?:\.\d+)?)%?, ([+−-]?)(\d+(?:\.\d+)?)%?\]/.exec(ci)
-      var sign = function (s) { return s === '−' || s === '-' ? -1 : 1 }
+      var num = function (k) { var v = tr.getAttribute('data-' + k); return v === '' || v === null ? null : Number(v) }
       return {
         tr: tr,
         detail: d,
@@ -24,8 +20,8 @@
         mods: tr.getAttribute('data-mods').split(' '),
         claim: tr.querySelector('.claim').textContent,
         text: (tr.textContent + ' ' + (d ? d.textContent : '')).toLowerCase(),
-        effect: m ? sign(m[1]) * Number(m[2]) : null,
-        width: cm ? Math.abs(sign(cm[3]) * Number(cm[4]) - sign(cm[1]) * Number(cm[2])) : null,
+        effect: num('effect'),
+        width: num('width'),
         date: tr.getAttribute('data-date') || '',
         strip: strip,
       }

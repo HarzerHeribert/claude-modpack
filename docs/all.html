@@ -22,42 +22,43 @@
       <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
       <div class="m-sheet"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
-  <p class="side-h">Evidence</p>
-  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/lsp-plus.html">lsp-plus</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">How we know</p>
+  <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
-  <ul><li><a class="" href="notes.html" aria-current="page">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+  <ul><li><a href="notes.html" aria-current="page">All lab notes</a></li></ul>
 </nav></div>
     </details>
     <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
-    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="evidence.html">Evidence</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="graveyard.html">How we know</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
     <div class="hd-tools">
-      <div class="mode" role="group" aria-label="Reading mode">
-        <button type="button" data-set-mode="plain" aria-pressed="true"><span class="long">Plain words</span><span class="short">Plain</span></button>
-        <button type="button" data-set-mode="numbers" aria-pressed="false"><span class="long">Hard numbers</span><span class="short">Numbers</span></button>
+      <div class="mode" role="group" aria-label="How numbers read">
+        <span class="mode-l" aria-hidden="true">Numbers</span>
+        <button type="button" data-set-mode="plain" aria-pressed="true" title="Numbers in plain words, like “about a third cheaper”">In words</button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false" title="Every number exactly, with its 95% range, and every measurement on each page">Exact</button>
       </div>
-      <a class="ib" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <a class="ib gh" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
       <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     </div>
   </div>
 </header>
-<div class="shell l-narrow">
+<div class="shell l-story">
   <aside class="side"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a class="" href="index.html">Overview</a></li><li><a class="" href="ideas.html">How it saves</a></li></ul>
+  <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a class="" href="mods.html">All mods</a></li><li><a class="mono" href="mods/cells.html">cells</a></li><li><a class="mono" href="mods/lsp-plus.html">lsp-plus</a></li><li><a class="mono" href="mods/seek.html">seek</a></li><li><a class="mono" href="mods/delegate.html">delegate</a></li><li><a class="mono" href="mods/route.html">route</a></li><li><a class="mono" href="mods/smart-compact.html">smart-compact</a></li><li><a class="mono" href="mods/statusline.html">statusline</a></li><li><a class="mono" href="mods/eta.html">eta</a></li><li><a class="mono" href="mods/modpack.html">modpack</a></li></ul>
-  <p class="side-h">Evidence</p>
-  <ul><li><a class="" href="evidence.html">Every claim</a></li><li><a class="" href="graveyard.html">The graveyard</a></li><li><a class="" href="glossary.html">Glossary</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/lsp-plus.html">lsp-plus</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">How we know</p>
+  <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
-  <ul><li><a class="" href="notes.html" aria-current="page">The series</a></li><li><a class="note-item" href="01-the-cheapest-step.html"><span class="n">01</span>The cheapest step is the one…</a></li><li><a class="note-item" href="02-notes-nobody-reads.html"><span class="n">02</span>Notes nobody reads</a></li><li><a class="note-item" href="03-a-code-graph-on-our-bench.html"><span class="n">03</span>A 10,000-star code graph on our…</a></li><li><a class="note-item" href="04-borrowing-the-good-ideas.html"><span class="n">04</span>Borrowing the good ideas</a></li><li><a class="note-item" href="05-the-graveyard.html"><span class="n">05</span>The graveyard</a></li><li><a class="note-item" href="06-one-server-per-extension.html"><span class="n">06</span>One server per extension</a></li><li><a class="note-item" href="07-small-models-as-plumbing.html"><span class="n">07</span>Small models as plumbing</a></li><li><a class="note-item" href="08-our-plain-runs-were-not-plain.html"><span class="n">08</span>Our plain runs were not plain</a></li><li><a class="note-item" href="09-beyond-click.html"><span class="n">09</span>Beyond click</a></li><li><a class="note-item" href="10-two-requests.html"><span class="n">10</span>Two requests</a></li><li><a class="note-item" href="11-what-looking-around-leaves-behind.html"><span class="n">11</span>What looking around leaves behind</a></li></ul>
+  <ul><li><a href="notes.html" aria-current="page">All lab notes</a></li></ul>
 </nav></aside>
   <main id="main" tabindex="-1">
 <article class="doc prose"><h1 id="lab-notes">Lab notes</h1>
 <p>What we tried while building this modpack, how we measured it, and why most of it did not ship.</p>
-<p>The modpack is eight mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that made sessions more expensive. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
+<p>The modpack is eight mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
 <blockquote>
 <p><strong>Who wrote this.</strong> Claude (Opus 5.5) wrote these notes from this repository&#39;s results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.</p>
 </blockquote>
@@ -229,79 +230,227 @@ src/click/utils.py: echo (342)
 </ul>
 </section>
 <section class="chapter"><h1 id="a-10000-star-code-graph-on-our-bench">A 10,000-star code graph on our bench</h1>
-<p><em>Lab notes 3 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
-<p>A friend asked a fair question: why build our own code tools when projects like graphify (about 127,000 GitHub stars) and Trail-Code (about 10,000) put a whole codebase into a graph that Claude can query, and report large savings doing it? Someone they knew had cut their Claude usage sharply with one of them.</p>
-<p>So we put one on our bench. This note is about what happened, and about how much a benchmark like ours can and cannot say about a tool built for a different job.</p>
-<h2 id="two-tools-one-idea"><a class="anchor" href="#two-tools-one-idea" aria-hidden="true" tabindex="-1">#</a>Two tools, one idea</h2>
-<p>Both tools parse a repository with tree-sitter into a graph of definitions and calls, and hand Claude ways to query it. Neither needs a language model to build the code graph, so an existing project gets one right away; that was one of the myths we had going in.</p>
-<p>They differ in the thing that turned out to matter most: <strong>keeping the graph current</strong>. graphify&#39;s Claude Code setup asks the model, in CLAUDE.md, to run <code>graphify update .</code> after changing code, or relies on opt-in git hooks and a file watcher; its issue tracker has reports of answers from graphs days old (<a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a>, <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a>). Trail-Code checks the working tree before every query (a few milliseconds) and rebuilds what changed, with no model involved (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/graph/refresh.ts#L10-L16"><code>src/graph/refresh.ts</code></a>). We benchmarked Trail-Code, the one whose design does not depend on Claude remembering a chore.</p>
-<h2 id="what-they-claim-and-what-others-measured"><a class="anchor" href="#what-they-claim-and-what-others-measured" aria-hidden="true" tabindex="-1">#</a>What they claim, and what others measured</h2>
-<p>Trail-Code reports a 162-run sweep with Claude Sonnet 5 answering questions about two repositories: 32% lower cost, 46% fewer tool calls, the same correctness (93% vs 93%), judged by another model (<a href="https://github.com/trailhq/Trail-Code#benchmark">README</a>). It also reports SWE-bench Verified, 27 against 33 resolved out of 50; in the Hacker News discussion a commenter put that difference at p≈0.22, and the maintainer explained the growing sample size by usage limits running out (<a href="https://news.ycombinator.com/item?id=49299985">HN</a>).</p>
-<p>graphify&#39;s documented benchmark is &quot;71.5x fewer tokens per query&quot; on a 52-file corpus (<a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/docs/how-it-works.md">docs/how-it-works.md</a>). Its own <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/graphify/benchmark.py">benchmark script</a> compares one query&#39;s output against reading <strong>the whole corpus</strong>, and the same page reports about 1x on a 6-file corpus. That is a ceiling, not what an agent that greps and reads a few files would pay.</p>
-<p>Two independent checks stand out, both from users in Trail-Code&#39;s own issue tracker:</p>
+<p><em>Lab notes 3 · 15 Oct 2026, rewritten 16 Oct with everything measured since · written by Claude from this repository&#39;s data</em></p>
+<p>A friend asked a fair question: why build our own code tools when projects like Trail-Code (about 10,000 GitHub stars) put a whole codebase into a graph that Claude can query, and report large savings doing it? Someone they knew had cut their Claude usage sharply with a tool like it.</p>
+<p>The first version of this note measured one thing: what Trail-Code adds to our pack. A reader could object, fairly, that we never tested Trail-Code without the pack, nor whether the two get in each other&#39;s way, nor Trail-Code at its best. We have measured all three since. This is the whole story.</p>
+<h2 id="what-we-wanted-to-know"><a class="anchor" href="#what-we-wanted-to-know" aria-hidden="true" tabindex="-1">#</a>What we wanted to know</h2>
+<p>One question: <strong>what does a person get when they install Trail-Code into Claude Code the way its README says?</strong> That is how we measure our own mods too: the same graded tasks with and without, several runs of each, an interval around every difference, and every run&#39;s record published.</p>
+<p>That is a narrower question than &quot;is Trail-Code good?&quot;. Its own headline numbers come from a harness of its own. Further down we say where they come from, and why they do not carry over to an install.</p>
+<h2 id="how-it-is-meant-to-be-used"><a class="anchor" href="#how-it-is-meant-to-be-used" aria-hidden="true" tabindex="-1">#</a>How it is meant to be used</h2>
+<p>Its README&#39;s quick start is two commands, <code>npm install -g @trailhq/trail-code</code> and <code>trail init</code>, and then: <em>&quot;That is the whole setup. <code>trail init</code> asks which of your coding agents to wire up, builds the graft map from your code, creates <code>.trail/</code> for the repo&#39;s learnings, and adds a statusline and hooks to Claude Code.&quot;</em> It also registers an MCP server. In Claude Code that gives:</p>
 <ul>
-<li><a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>: on 186 cases built from merged pull requests in four repositories (graft 0.10.1), the tool&#39;s ranking put 48.5% of the files each pull request changed into its top 10, against <strong>66.5% for plain BM25 keyword search over whole files</strong>. A contributor later proposed adopting whole-file BM25 (<a href="https://github.com/trailhq/Trail-Code/issues/257">#257</a>); the maintainers declined after their own re-test found their current ranking as good or better.</li>
-<li><a href="https://github.com/trailhq/Trail-Code/issues/506">#506</a>: on a 291-file Swift/Kotlin repository, the context packs it returned were 2.5–4 times larger than <code>rg</code> plus a targeted read, and its top hit was right in one of three questions.</li>
-</ul>
-<h2 id="our-setup"><a class="anchor" href="#our-setup" aria-hidden="true" tabindex="-1">#</a>Our setup</h2>
-<ul>
-<li>Trail-Code 0.22.1 from npm, wired with its own <code>trail init</code> (skill, hooks, MCP server, its graph of click: 2,028 nodes and 3,221 edges from 79 files, built in about a second). We kept only the repository-level wiring, so its hooks ran once (<a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a> describes them running twice when both levels are installed), started its MCP server from the installed version, and turned its telemetry off.</li>
-<li><strong>Both arms had our pack loaded.</strong> This measures what Trail-Code adds to the pack, not Trail-Code against plain Claude Code. That is the question a pack user has, and it is the harder test for Trail-Code: lsp-plus already answers symbol searches.</li>
-<li>Opus 5.5, click 8.5.0, eight tasks fresh (four runs each) and seven in a long session that had already read the code (two runs each). Every result graded by hidden tests or fixed rules.</li>
+<li><strong>A graph of the code</strong>, the &quot;graft map&quot;, built with tree-sitter and no model: click&#39;s 79 files gave 2,028 nodes and 3,221 edges in about a second. It checks the working tree before every query and rebuilds what changed, so it is never stale (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/graph/refresh.ts#L10-L16"><code>src/graph/refresh.ts</code></a>). That is why we picked it over graphify, whose Claude Code setup asks the model to update the graph after changing code.</li>
+<li><strong>Hooks</strong>: at session start an orientation (&quot;reach for trail first&quot;); with each prompt, likely places in the code, or a reminder to run <code>trail ask</code> before grepping; after an edit, what depends on the file; and once a session, after a turn of real work, a request to save a &quot;team learning&quot; (its Stop hook).</li>
+<li><strong>Tools</strong>: six MCP tools, and a command line, <code>trail</code>, with <code>ask</code>, <code>grep</code>, <code>callers</code>, <code>skeleton</code>, <code>check</code> and more.</li>
 </ul>
 <h2 id="what-we-measured"><a class="anchor" href="#what-we-measured" aria-hidden="true" tabindex="-1">#</a>What we measured</h2>
+<p>Four measurements, each answering the objection the one before it left open. click 8.5.0, eight tasks from a one-line lookup to a feature, graded by hidden tests or fixed rules, Opus 5.5 and fresh sessions with four runs per task and arm unless said.</p>
+<h3 id="added-to-our-pack"><a class="anchor" href="#added-to-our-pack" aria-hidden="true" tabindex="-1">#</a>Added to our pack</h3>
+<p>The first question was the one a pack user has. On 15 Oct, against the pack alone:</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
 <thead>
 <tr>
-<th></th>
 <th>Trail-Code added to the pack</th>
+<th>Cost</th>
 <th>95% interval</th>
 <th>Runs</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Fresh session</td>
-<td><strong>+12.8%</strong> cost</td>
+<td>As installed, fresh session</td>
+<td><strong>+12.8%</strong></td>
 <td>+7.5% to +18.3%</td>
 <td>64</td>
 </tr>
 <tr>
-<td>Long session</td>
-<td><strong>+32.1%</strong> cost</td>
+<td>As installed, long session</td>
+<td><strong>+32.1%</strong></td>
 <td>+21.9% to +43.6%</td>
 <td>28</td>
 </tr>
 <tr>
-<td>Fresh, without its learning hook</td>
-<td>+4.0% cost</td>
+<td>Without its Stop hook, fresh session</td>
+<td>+4.0%</td>
 <td>+0.1% to +8.0%</td>
 <td>64</td>
 </tr>
 </tbody></table></div>
-<p>It cost more on every one of the eight tasks, fresh and long. Quality was the same: every answer correct.</p>
-<h2 id="where-the-extra-cost-came-from"><a class="anchor" href="#where-the-extra-cost-came-from" aria-hidden="true" tabindex="-1">#</a>Where the extra cost came from</h2>
-<p><strong>A learning note that ate the answer.</strong> Trail-Code&#39;s end-of-turn hook stops Claude once per session to write a &quot;team learning&quot; into the repository. On the explanation task, in all four fresh runs, Claude explained how click resolves an option&#39;s value, and then the hook made it write a learning file, so its final message was about the file, not the answer. The note ended with a line for a contributor named from the repository&#39;s history: <em>&quot;Commit what you learned and their agents get to a PR 3x faster&quot;</em> (<a href="https://github.com/trailhq/Trail-Code/blob/ead585b2707055f47f1e97d9b0d4209af5285805/src/notes/notes.ts#L570"><code>src/notes/notes.ts</code></a>). In an interactive session you would see both messages; in a headless run the final message is the result. We graded Trail-Code fairly on all of Claude&#39;s messages (all correct), and measured the hook separately: it accounts for about 8 points of the cost [+4.0%, +13.5%], and 2–4 extra requests on that task. The learning file&#39;s name also contained the git user&#39;s name.</p>
-<p><strong>Context Claude did not need.</strong> Without the learning hook, Trail-Code still cost 4% more. Its hooks put an orientation into the session and pointers into prompts, and every later request re-reads them. In the long session, where Claude had already read every file, that added context repeated what it knew, and the cost difference grew to 32%.</p>
-<p><strong>Tools Claude rarely reached for.</strong> Claude used Trail-Code&#39;s command line in 11 of its 32 fresh runs, mostly on the lookup and explanation tasks, and its six MCP tools in none. On the rename, the feature and the tests it worked as without it. That matches what Trail-Code&#39;s own maintainer wrote (see <a href="02-notes-nobody-reads.html#other-tools-found-the-same-thing">note 2</a>), and what we saw with our own hints.</p>
-<h2 id="what-this-does-and-does-not-say"><a class="anchor" href="#what-this-does-and-does-not-say" aria-hidden="true" tabindex="-1">#</a>What this does and does not say</h2>
-<p>Our bench is a 79-file Python library, and our tasks mostly name what they are about: <code>format_filename</code>, <code>ParamType</code>, an option&#39;s default. Opus with the pack finds such things in two or three steps. That is the situation where a pre-built map has least to add, and the situation our users are in most of the time.</p>
-<p>It says nothing about the job these tools are designed for: a large, unfamiliar repository where the question comes before anyone knows a symbol to search (&quot;where does authentication happen?&quot;). We did not test that, and the one independent test of that step we found (#117) favoured plain keyword search over the graph&#39;s ranking of that version. If you maintain one of these tools and think our setup is unfair to it, the harness is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/</code></a> and we will run what you suggest.</p>
-<p>We measured it once more on real bug reports, where it reports its own SWE-bench results: 30 issues, again more expensive than the pack alone (+10.8% [0.0%, +25.5%]; <a href="09-beyond-click.html">note 9</a>). What we took from these tools is in the <a href="04-borrowing-the-good-ideas.html">next note</a>.</p>
+<p>The Stop hook did the most damage. On the explanation task, in all four runs, Claude answered, then the hook asked it to save a team learning, and its final message was about the learning file. In a headless run the final message is the result; graded on all of Claude&#39;s messages, all four were right. In the long session, where Claude had read every file already, the orientation and pointers repeated what it knew, and every later request re-read them. On 30 SWE-bench Verified issues it cost +10.8% [0.0%, +25.5%] on top of the pack (<a href="09-beyond-click.html">note 9</a>).</p>
+<p>That left the obvious objection: lsp-plus already answers Claude&#39;s symbol searches, so Trail-Code may have had nothing left to add.</p>
+<h3 id="alone-and-both-together"><a class="anchor" href="#alone-and-both-together" aria-hidden="true" tabindex="-1">#</a>Alone, and both together</h3>
+<p>So on 16 Oct we ran all four combinations in one batch: plain Claude Code, Trail-Code alone, the pack alone without seek, and both. Trail-Code ran without its Stop hook: as installed, in a smoke run, the hook replaced the answer again (score 0.17, the final message about a saved learning).</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Against plain Claude Code</th>
+<th>Cost</th>
+<th>95% interval</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Trail-Code alone</td>
+<td>−4.6%</td>
+<td>−9.3% to +0.1%</td>
+</tr>
+<tr>
+<td>The pack, without seek</td>
+<td>−5.6%</td>
+<td>−10.8% to −0.3%</td>
+</tr>
+<tr>
+<td>Both</td>
+<td>−2.8%</td>
+<td>−8.5% to +3.0%</td>
+</tr>
+</tbody></table></div>
+<p>128 runs, all full marks. Alone, Trail-Code came out about where the pack of that day did, its interval just touching zero. Together they did not add up: Trail-Code on top of the pack, +3.0% [−2.7, +9.1]. Both work on the same steps, the first searches, and the second one adds text more than it saves.</p>
+<h3 id="alone-against-todays-pack"><a class="anchor" href="#alone-against-todays-pack" aria-hidden="true" tabindex="-1">#</a>Alone, against today&#39;s pack</h3>
+<p>A −4.6% that touches zero needs a second batch before anyone believes it. We ran Trail-Code alone again, beside plain Claude Code and the pack as 0.6.0 ships, with seek:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Against plain Claude Code</th>
+<th>Cost</th>
+<th>95% interval</th>
+<th>With carry</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The pack 0.6.0</td>
+<td><strong>−15.1%</strong></td>
+<td>−19.8% to −9.7%</td>
+<td>−20.4%</td>
+</tr>
+<tr>
+<td>Trail-Code alone</td>
+<td>+1.1%</td>
+<td>−5.4% to +7.7%</td>
+<td>+0.1%</td>
+</tr>
+</tbody></table></div>
+<p>96 runs, all full marks. Carry adds what each run left in the context, re-read by 140 later requests (<a href="11-what-looking-around-leaves-behind.html">note 11</a>). Trail-Code alone against the pack 0.6.0: <strong>+19.0%</strong> [+13.1, +25.1], with carry +25.7%.</p>
+<p>Pooled over both batches, 64 runs a side, Trail-Code alone against plain Claude Code: <strong>−1.8% [−5.9, +2.7]</strong>. No saving we can measure. The first batch&#39;s −4.6% was chance: the same two arms on the same tasks read −4.6% in one batch and +1.1% in the next.</p>
+<h3 id="its-best-case"><a class="anchor" href="#its-best-case" aria-hidden="true" tabindex="-1">#</a>Its best case</h3>
+<p>Trail-Code&#39;s own benchmark has a variant it calls push: <code>trail ask --source</code> puts a bundle of the likely code in front of the task. The install does not do that; its prompt hook adds pointers when it finds a strong match, and otherwise a reminder. So we built push into plain Claude Code: the bundle, exactly as <code>trail ask --source</code> prints it (about 2,000 tokens), in front of the prompt, on Claude Sonnet 5.5, as their benchmark ran on Sonnet, for the explanation and the feature, two runs each.</p>
+<p><strong>+3.2%</strong> [−7.3, +15.0], the same number of requests as plain Claude Code on both tasks (5.5 and 3.5), all 8 runs full marks. The bundle asks Claude to end its reply with a tally, and every answer did: <em>&quot;🌱 trail saved ~57,792 tokens this turn&quot;</em>. That figure is the bundle (2,086 tokens) set against reading all eight files it drew from whole (59,878 tokens): &quot;97%&quot;. Claude reads no eight files whole for these tasks; it greps and reads a few lines.</p>
+<p>Eight runs is few, and the interval is wide. They show no saving; they cannot rule out a small one.</p>
+<h2 id="how-claude-used-it"><a class="anchor" href="#how-claude-used-it" aria-hidden="true" tabindex="-1">#</a>How Claude used it</h2>
+<p>From the 64 transcripts of the four-way batch with Trail-Code loaded:</p>
+<ul>
+<li><strong>Its MCP tools: 0 calls in 64 runs.</strong> Claude Code keeps an MCP server&#39;s tools behind its tool search until Claude asks for them. Claude never asked.</li>
+<li><strong>Its command line, through Bash: in 24 of 32 runs without the pack (32 calls), and 17 of 32 with it (20 calls).</strong> <code>trail grep</code> 21 times, <code>trail ask</code> 9, <code>callers</code> 8, <code>check</code> 7, <code>skeleton</code> 6, and once <code>trail note</code>, a learning Claude saved without being asked.</li>
+<li><strong>Its prompt hook found &quot;no strong match&quot; for 56 of 64 prompts</strong>, and then asked Claude to run <code>trail ask &quot;&lt;your task&gt;&quot; --source</code> before grepping. For the other 8, all on the signature task, it named starting points.</li>
+</ul>
+<p>So Claude did use Trail-Code, mostly as a second grep, and needed about as many requests as without it: 6.3 and 6.8 per task, against 7.0 and 6.8 plain, in the two batches.</p>
+<h2 id="where-its-published-numbers-come-from"><a class="anchor" href="#where-its-published-numbers-come-from" aria-hidden="true" tabindex="-1">#</a>Where its published numbers come from</h2>
+<p>Trail-Code&#39;s README (version 0.22.1) reports three sets of numbers:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Its claim</th>
+<th>How it was measured</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>32% lower cost, 46% fewer tool calls, 60% less time, the same correctness (93%)</td>
+<td>162 runs of its own agent loop on Claude Sonnet 5, push against cold, an Opus 4.8 judge, two repositories</td>
+</tr>
+<tr>
+<td>SWE-bench Verified: 33 of 50 solved, against 27</td>
+<td>Claude Code on Sonnet 5; cost, tokens and calls &quot;over the instances both arms resolved&quot;</td>
+</tr>
+<tr>
+<td>PocketBase, 15 tasks: $13.91 → $11.02 (−21%), 14% faster</td>
+<td>Claude Code headless on Claude Opus, wired with <code>graft init</code> (its earlier name), &quot;with an empty MCP config&quot;</td>
+</tr>
+</tbody></table></div>
+<p>Why these do not carry over to an install:</p>
+<ul>
+<li><strong>The headline is its own loop with the bundle injected.</strong> The README says so: <em>&quot;The sweep above is our harness measuring our mechanism.&quot;</em> The install does not inject the bundle, and when we injected it ourselves, it saved nothing.</li>
+<li><strong>Single runs.</strong> The SWE-bench comparison reports one result per arm: 33 against 27 of 50 solved is within what chance gives (Fisher&#39;s exact test, p ≈ 0.31). Cost &quot;over the instances both arms resolved&quot; leaves out every instance either arm failed. On our bench the same comparison moved from −4.6% to +1.1% between two batches of 32 runs a side; one run per task moves further.</li>
+<li><strong>One question carries much of PocketBase.</strong> Of the $2.89 gap, $1.35 is one question, <em>&quot;how does auth work across OAuth2 providers&quot;</em>, at $2.19 against $0.84. Without it, the rest is about 13% cheaper.</li>
+</ul>
+<h2 id="their-tasks-in-our-harness-pocketbase"><a class="anchor" href="#their-tasks-in-our-harness-pocketbase" aria-hidden="true" tabindex="-1">#</a>Their tasks in our harness: PocketBase</h2>
+<p>Trail-Code&#39;s README lists its PocketBase tasks: ten developer questions and five merged pull requests. We ran them the way it did, once each, Opus, headless Claude Code: the questions word for word at PocketBase v0.40.5 (the README names no commit), the pull requests re-implemented from each one&#39;s base commit, from a request written from its title and description. Go&#39;s language server ran in both arms. The answer keys were fixed before any run, four to eight terms per question; a pull request scores the share of the maintainers&#39; non-test files it touched.</p>
+<p>We did not run Trail-Code here. This is plain Claude Code against our pack 0.6.0:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>PocketBase, 15 tasks</th>
+<th>Plain Claude Code</th>
+<th>The pack 0.6.0</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Total cost</td>
+<td>$9.98</td>
+<td>$7.88</td>
+<td><strong>−21.0%</strong></td>
+</tr>
+<tr>
+<td>Requests per task</td>
+<td>12.8</td>
+<td>9.4</td>
+<td></td>
+</tr>
+<tr>
+<td>The average task</td>
+<td></td>
+<td></td>
+<td>−18.1% [−26.7, −8.3]</td>
+</tr>
+<tr>
+<td>Ten questions</td>
+<td></td>
+<td></td>
+<td>−17.8%</td>
+</tr>
+<tr>
+<td>Five pull requests</td>
+<td></td>
+<td></td>
+<td>−18.5%</td>
+</tr>
+</tbody></table></div>
+<ul>
+<li><strong>The interval is over tasks.</strong> With one run per task it resamples the 15 tasks, so it is wide. −21.0% is also the figure Trail-Code reports for itself on these tasks; we do not compare the two. The PocketBase, the Claude Code and the Opus differ, and both are single runs.</li>
+<li><strong>Fewer requests on 10 of 15 tasks</strong>, as many on 4, more on 1.</li>
+<li><strong>All five pull requests touched the maintainers&#39; files, in both arms</strong>, and every change built as well as its base commit did (one old base does not build with today&#39;s Go, in either arm).</li>
+<li><strong>One pack run scored 0.</strong> On q10 (&quot;Where are the tests for the record CRUD API…&quot;), lsp-plus answered one of Claude&#39;s greps by asking gopls, which was still loading PocketBase. The grep waited past Claude Code&#39;s 120 s and was moved to the background. Claude answered in full; then the background command&#39;s end arrived, Claude replied to that notice, and that reply became its last message, the one the grader reads. Plain Claude Code scored 0.88 there. The run took 735 s, so the pack&#39;s total time was the longer one, 2,173 s against 1,804 s (without q10, 1,438 s against 1,746 s). Fixed in lsp-plus 0.4.2: every language-server question after a grep or an edit now gets 8 s, and past that the tool&#39;s result goes back without the answer.</li>
+<li><strong>Two questions fell short in both arms</strong>: q4 (0.71 plain, 0.57 with the pack) and q5 (0.75 both). Their answers left out terms of the key.</li>
+</ul>
+<h2 id="what-we-do-not-claim"><a class="anchor" href="#what-we-do-not-claim" aria-hidden="true" tabindex="-1">#</a>What we do not claim</h2>
+<ul>
+<li><strong>Not that Trail-Code&#39;s numbers are wrong.</strong> We did not rerun its harness. Measured its way, in its own loop with the bundle injected, they may hold.</li>
+<li><strong>Not that it saves nothing anywhere.</strong> Its maintainer describes its job as the step before Claude knows a symbol: &quot;where does auth happen&quot;. Its best case is a large repository Claude does not know, an orientation question, Sonnet, and the bundle injected. click has 79 files, our tasks name what they are about, and all but eight of our runs were Opus. It may help there; we did not test it.</li>
+<li><strong>Nothing about team learnings across sessions</strong>, half of what Trail-Code is for. Every bench run starts fresh.</li>
+<li><strong>Nothing about Trail-Code on PocketBase.</strong> We ran the pack there, not Trail-Code.</li>
+</ul>
+<p>What we do claim: installed into Claude Code the way its README says, on our tasks, Trail-Code did not make Claude&#39;s work measurably cheaper. Alone it came to −1.8% [−5.9, +2.7] over 64 runs a side; beside our pack it cost more; its own best case, rebuilt in Claude Code, saved nothing either; and in headless runs its Stop hook replaced Claude&#39;s answer. Every run is published.</p>
+<h2 id="what-we-learned"><a class="anchor" href="#what-we-learned" aria-hidden="true" tabindex="-1">#</a>What we learned</h2>
+<ul>
+<li><strong>A bundle can help only if it arrives with the task.</strong> In Trail-Code&#39;s own harness it does. In the install it does not: the prompt hook found nothing for 56 of 64 prompts, and the tools stayed behind tool search. Where we put the bundle with the task ourselves, on click, it still saved nothing, because Claude&#39;s own first search was already cheap. Where an instruction rides decides whether it counts (<a href="11-what-looking-around-leaves-behind.html#where-an-instruction-has-to-ride">note 11</a>); whether it then saves anything is a second question.</li>
+<li><strong>A plugin must be measured in the harness it ships for.</strong> A person installs it into Claude Code, with its tool search, its hooks and Claude&#39;s habit of grepping. A number from another loop says what the mechanism can do, not what the install will.</li>
+<li><strong>One batch is not a result.</strong> Trail-Code alone read −4.6% in one batch and +1.1% in the next. With one run per task, a single question can carry half a saving.</li>
+<li><strong>Measuring someone else&#39;s tool found a bug in ours.</strong> A cold language server on a large Go project cost the pack a whole answer. lsp-plus now waits 8 s at most.</li>
+</ul>
 <h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
-<p>Arms: Z (the pack as committed), T (the pack and Trail-Code as <code>trail init</code> wires a repository), TG (as T without Trail-Code&#39;s Stop hook), PL and TL (Z and T in a prepared 220k-token session). The four explanation runs of T score 0, 0, 0.33 and 0 in the results file, graded on the final message as the bench does; graded on all of Claude&#39;s messages, from the transcripts that stay in the lab, all four score 1.0. Costs from transcripts at list prices; intervals are 95% bootstrap intervals over runs within tasks. Four runs per task fresh, two in the long session: per-task differences are within the runs&#39; spread; the totals&#39; intervals are not. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a>; setup: <code>trail_init()</code> and <code>TRAIL_ARMS</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
+<p>Arms: V, plain Claude Code; Z, the pack without seek and route, as committed on the day; Z6, the pack as 0.6.0 ships; T, the pack with Trail-Code as <code>trail init</code> wires a repository; TG, T without Trail-Code&#39;s Stop hook; VT and VTG, plain Claude Code with Trail-Code as installed (one smoke run) and without its Stop hook; VP, plain Claude Code with the <code>trail ask --source</code> bundle in front of the prompt, on Sonnet 5.5; PL and TL, Z and T in a prepared 220k-token session. Trail-Code 0.22.1 from npm, wired with <code>trail init --no-agents --no-global --no-statusline</code> (Claude Code only, nothing outside the repository, no status line), its MCP server started from the installed version, its telemetry off; its hooks at repository level only, so they ran once (<a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a>). Plain runs had the lab machine&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>); the plain runs of 16 Oct were checked for any trace of the pack and have none.</p>
+<p>Costs from the transcripts at list prices; 95% bootstrap intervals over runs within tasks, for example <code>python3 -I carry.py V VTG,Z,TG results-trail2x2.jsonl</code> (the ends move by a few tenths with the arms resampled beside); for PocketBase over its 15 tasks. The four explanation runs of T score 0, 0, 0.33 and 0 graded on the final message, as the bench grades; on all of Claude&#39;s messages, all four score 1.0. The counts of Trail-Code&#39;s calls come from the transcripts, which stay in the lab. On click, per-task differences are within the runs&#39; spread; the totals&#39; intervals are not.</p>
+<p>Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail.jsonl"><code>results-trail.jsonl</code></a> (Z, T, TG, PL, TL), <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail2x2.jsonl"><code>results-trail2x2.jsonl</code></a> (V, VTG, Z, TG) with its smoke run <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail2x2-smoke.jsonl"><code>results-trail2x2-smoke.jsonl</code></a> (VT), <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail-vs-060.jsonl"><code>results-trail-vs-060.jsonl</code></a> (V, VTG, Z6), <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-trail-push.jsonl"><code>results-trail-push.jsonl</code></a> (V, VP), <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-pb.jsonl"><code>results-pb.jsonl</code></a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-pb-smoke.jsonl"><code>results-pb-smoke.jsonl</code></a> (V, Z6); the PocketBase tasks, keys and grading in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/pb_repo.py"><code>pb_repo.py</code></a>; setup in <code>trail_init()</code>, <code>trail_bundle()</code> and <code>TRAIL_ARMS</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>.</p>
 <h2 id="sources"><a class="anchor" href="#sources" aria-hidden="true" tabindex="-1">#</a>Sources</h2>
 <ul>
-<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a> (formerly graft), README, source and issues <a href="https://github.com/trailhq/Trail-Code/issues/117">#117</a>, <a href="https://github.com/trailhq/Trail-Code/issues/257">#257</a>, <a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a>, <a href="https://github.com/trailhq/Trail-Code/issues/506">#506</a>; checked 15 Oct 2026.</li>
-<li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, <a href="https://github.com/Graphify-Labs/graphify/blob/10130e79ed9caf8f60d998073e097531eaa1a395/docs/how-it-works.md">docs/how-it-works.md</a>, issues <a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a>, <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a>; checked 15 Oct 2026.</li>
-<li><a href="https://news.ycombinator.com/item?id=49299985">Show HN: graft</a>, discussion of its SWE-bench sample.</li>
-<li>Robertson, S., &amp; Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4), 333–389.</li>
+<li>trailhq, <a href="https://github.com/trailhq/Trail-Code">Trail-Code</a> (formerly graft): the README of <a href="https://www.npmjs.com/package/@trailhq/trail-code/v/0.22.1"><code>@trailhq/trail-code</code> 0.22.1</a> (<a href="https://github.com/trailhq/Trail-Code#quick-start">quick start</a>, <a href="https://github.com/trailhq/Trail-Code#benchmark">benchmark</a>, <a href="https://github.com/trailhq/Trail-Code#swe-bench-verified">SWE-bench Verified</a>, <a href="https://github.com/trailhq/Trail-Code#tested-on-popular-repos">tested on popular repos</a>), source at <a href="https://github.com/trailhq/Trail-Code/tree/ead585b2707055f47f1e97d9b0d4209af5285805"><code>ead585b</code></a>, issue <a href="https://github.com/trailhq/Trail-Code/issues/497">#497</a>; checked 15 and 16 Oct 2026.</li>
+<li>Graphify-Labs, <a href="https://github.com/Graphify-Labs/graphify">graphify</a>, issues <a href="https://github.com/Graphify-Labs/graphify/issues/2216">#2216</a> and <a href="https://github.com/Graphify-Labs/graphify/issues/3718">#3718</a> on stale graphs; checked 15 Oct 2026.</li>
+<li><a href="https://news.ycombinator.com/item?id=49299985">Show HN: graft</a>: the discussion of its SWE-bench sample, and its maintainer&#39;s replies.</li>
+<li><a href="https://github.com/pocketbase/pocketbase">PocketBase</a> v0.40.5 and pull requests <a href="https://github.com/pocketbase/pocketbase/pull/6744">#6744</a>, <a href="https://github.com/pocketbase/pocketbase/pull/6947">#6947</a>, <a href="https://github.com/pocketbase/pocketbase/pull/6690">#6690</a>, <a href="https://github.com/pocketbase/pocketbase/pull/2726">#2726</a>, <a href="https://github.com/pocketbase/pocketbase/pull/3192">#3192</a>.</li>
 <li>Jimenez, C. E., et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? <em>ICLR 2024</em>.</li>
-<li>OpenAI (2024). Introducing SWE-bench Verified.</li>
 </ul>
 </section>
 <section class="chapter"><h1 id="borrowing-the-good-ideas">Borrowing the good ideas</h1>
 <p><em>Lab notes 4 · 15 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
-<p>The code-graph tools in the <a href="03-a-code-graph-on-our-bench.html">last note</a> cost more on our bench than they saved. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: answers placed where it already looks, from sources that are never stale.</p>
+<p>The code graph in the <a href="03-a-code-graph-on-our-bench.html">last note</a> saved nothing we could measure on our bench, alone or beside the pack. That does not make their ideas wrong. Two of them are good, and we tried to carry them over in a form that fits how Claude actually works: answers placed where it already looks, from sources that are never stale.</p>
 <h2 id="idea-1-a-pointer-before-the-first-search"><a class="anchor" href="#idea-1-a-pointer-before-the-first-search" aria-hidden="true" tabindex="-1">#</a>Idea 1: a pointer before the first search</h2>
 <p>Trail-Code&#39;s prompt hook adds a few likely places to a prompt before Claude starts, so it can skip the first search. The step before you know a symbol is the one a language server cannot help with, because it needs a symbol to ask about.</p>
 <p><strong>Our first version failed in calibration.</strong> We started with what the independent evaluation found strongest (<a href="https://github.com/trailhq/Trail-Code/issues/117">Trail-Code #117</a>): BM25 keyword ranking over whole files (<a href="#sources">Robertson &amp; Zaragoza 2009</a>), term counts from <code>git grep</code>, so there is no index to keep fresh. It speaks only when the best file is clearly ahead of the field.</p>
@@ -369,7 +518,7 @@ src/click/utils.py: echo (342)
 </ul>
 </section>
 <section class="chapter"><h1 id="the-graveyard">The graveyard</h1>
-<p><em>Lab notes 5 · 15 Oct 2026, two graves added 16 Oct · written by Claude from this repository&#39;s data</em></p>
+<p><em>Lab notes 5 · 15 Oct 2026, three graves added 16 Oct · written by Claude from this repository&#39;s data</em></p>
 <p>Eight mods ship in this pack. Many more ideas were built, measured and dropped. A project&#39;s README usually shows the survivors; this note shows the rest, because the reasons they failed are more useful than the features that worked. Each grave has the idea, why it looked good, and the number that ended it.</p>
 <h2 id="the-checklist-that-said-everything-was-fine"><a class="anchor" href="#the-checklist-that-said-everything-was-fine" aria-hidden="true" tabindex="-1">#</a>The checklist that said everything was fine</h2>
 <p><strong>lastenheft</strong> (German for a requirements specification) turned an order into a list of checkable requirements and refused to let Claude stop until each was proven. Agents that report &quot;done&quot; on half-finished work are a real problem; a gate against it looked like obvious value.</p>
@@ -401,6 +550,8 @@ src/click/utils.py: echo (342)
 <p>The first versions of <strong>seek</strong> attached to a search&#39;s result the lines around its hits, so Claude would not need a request of its own to read them. seek 0.1 fired in <strong>1 of 36 runs</strong>: Opus&#39;s searches sit behind a <code>cd</code>, in chains and in pipes, and it took only a plain grep. seek 0.2 read any search&#39;s output, fired, saved 7.9% of the requests, and cost <strong>+2.1%</strong> fresh. Priced with what the windows left in the context, re-read by every later request, <strong>+6.3%</strong> [+1.4, +11.2]. Replayed on real sessions, a window held Claude&#39;s next read in 0.5 to 12% of searches. What replaced it is an order at the prompt (<a href="11-what-looking-around-leaves-behind.html">note 11</a>).</p>
 <h2 id="an-order-in-the-middle-of-a-search"><a class="anchor" href="#an-order-in-the-middle-of-a-search" aria-hidden="true" tabindex="-1">#</a>An order in the middle of a search</h2>
 <p><strong>pathfinder</strong> waited for the third consecutive search in a large context, where long chains of looking around spend their money, and then told Claude to hand the rest of the search to a cheaper read worker. The order came in 6 of 12 runs; Claude handed off <strong>once</strong>. Cost <strong>−3.4%</strong> [−11.3, +5.1], not shown. The same kind of order beside the person&#39;s prompt is followed every time; inside Claude&#39;s own search it is not (<a href="11-what-looking-around-leaves-behind.html#where-an-instruction-has-to-ride">note 11</a>).</p>
+<h2 id="a-code-graph-we-did-not-adopt"><a class="anchor" href="#a-code-graph-we-did-not-adopt" aria-hidden="true" tabindex="-1">#</a>A code graph we did not adopt</h2>
+<p><strong>Trail-Code</strong>, a code graph with about 10,000 GitHub stars, is not ours. We measured it because its own benchmark reports it about a third cheaper. Installed into Claude Code the way its README says, it saved nothing we could measure: alone, <strong>−1.8%</strong> [−5.9, +2.7] against plain Claude Code over 64 runs a side. Added to the pack it cost <strong>+12.8%</strong> fresh and <strong>+32.1%</strong> in a long session (+4.0% without its Stop hook, which ended a turn with a &quot;team learning&quot; in place of the answer); against the pack 0.6.0, <strong>+19.0%</strong> [+13.1, +25.1]. Its own best case, the bundle its benchmark puts in front of every task, rebuilt in Claude Code: <strong>+3.2%</strong> [−7.3, +15.0]. Two of its ideas were borrowed and measured on their own (<a href="04-borrowing-the-good-ideas.html">note 4</a>). The whole story, and what we do not claim, is in <a href="03-a-code-graph-on-our-bench.html">note 3</a>.</p>
 <h2 id="the-mod-nobody-measured"><a class="anchor" href="#the-mod-nobody-measured" aria-hidden="true" tabindex="-1">#</a>The mod nobody measured</h2>
 <p><strong>turn-savers</strong> (lighter thinking on routine steps, the code at a failure attached to the failing run) was built and never measured. So it does not ship. A mod without a measurement is a guess with a version number.</p>
 <h2 id="what-the-graveyard-teaches"><a class="anchor" href="#what-the-graveyard-teaches" aria-hidden="true" tabindex="-1">#</a>What the graveyard teaches</h2>
@@ -409,6 +560,7 @@ src/click/utils.py: echo (342)
 <li><strong>A check that passes is not a check that checks.</strong> Agents&#39; own tests share their blind spots.</li>
 <li><strong>Models have habits.</strong> They grep, they tail logs, they keep work they can do. A feature that fights a habit loses; one that answers inside it wins.</li>
 <li><strong>Count what stays.</strong> A step saved by adding text to the conversation is paid for again by every later request.</li>
+<li><strong>Measure what gets installed.</strong> A tool&#39;s own harness measures its mechanism; a person gets the install.</li>
 <li><strong>Removing is a result.</strong> Every grave here made the pack cheaper or simpler.</li>
 </ul>
 <h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
@@ -1092,9 +1244,10 @@ open: none
   
 </div>
 <footer class="ft">
-  <p><span class="logo-dot" aria-hidden="true"></span>claude-modpack · Claude Code mods, measured before they ship · <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT</a> · <a href="https://github.com/HarzerHeribert/claude-modpack">GitHub</a></p>
-  <p>Written by Claude from the repository’s data, reviewed by its maintainer. Every number is quoted from the README, the changelog, the lab notes or the benchmarks (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from elsewhere.</p>
+  <div class="ft-in">
+    <p><span class="logo-dot" aria-hidden="true"></span><b>claude-modpack</b>, mods for Claude Code, measured before they ship. Free and open source under the <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT licence</a>; the code is <a href="https://github.com/HarzerHeribert/claude-modpack">on GitHub</a>.</p>
+    <p>Written by Claude from the repository’s data and reviewed by its maintainer. Every number on this site is quoted from its source and checked when the site is built (<a href="facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from anywhere else.</p>
+  </div>
 </footer>
-<div class="sl" aria-hidden="true" data-path="notes/all" data-claims="127" data-runs="730" data-mods="8"><span class="sl-l"></span><span class="sl-r"></span></div>
 </body>
 </html>

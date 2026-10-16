@@ -74,6 +74,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import pb_repo
 import ts_repo
 import yaml_repo
 
@@ -88,6 +89,8 @@ YAML_BUILD = __import__("threading").Lock()
 # its tasks (ts-*) run only when named with --tasks.
 TS_BASE = WORK / "ts-base"
 TS_BUILD = __import__("threading").Lock()
+# The PocketBase tasks (pb_repo.py: Trail-Code's 15 PocketBase tasks, pb-q1..pb-q10 and pb-pr<n>), their bases built in WORK
+# on first use (pb-src, pb-base-q, pb-base-pr<n>); they run only when named with --tasks.
 VENV = WORK / "venv"
 RESULTS = Path(os.environ.get("BENCH_RESULTS", HERE / "results.jsonl"))
 DELEGATE = HERE.parent.parent / "delegate"
@@ -136,6 +139,9 @@ ABLATION.update({arm: SHIPPED + ("seek",) for arm in SEEK_FRESH})
 # make the subagent cheaper?
 SUBAGENT_ARMS = {"SA-off": False, "SA-on": True}
 ABLATION.update({arm: SHIPPED + ("seek", "route") for arm in SUBAGENT_ARMS})
+# Z6: the pack as 0.6.0 ships it, every option at its default (seek's order on, route loaded and off); against V and
+# VTG in one batch: does Trail-Code alone come close to today's pack? (16 Oct)
+ABLATION["Z6"] = SHIPPED + ("seek", "route")
 # The prompt's fixed lead in those arms, so that every run goes through a subagent and the grading still holds (the answer
 # is the main's final message, the edits are on disk).
 VIA_SUBAGENT = ("Hand this whole task to one general-purpose subagent with the Agent tool (subagent_type \"general-purpose\"): "
@@ -187,7 +193,7 @@ BASE_TRAIL = WORK / "click-trail"
 # TG: Trail without its Stop hook, which asks Claude once per session to write a team learning (in T's runs the
 # learning note became the final reply): what the graph, its prompt pointers and its tools are worth alone.
 BASE_TRAIL_GRAPH = WORK / "click-trail-graph"
-TRAIL_ARMS = ("T", "TL", "TG")
+TRAIL_ARMS = ("T", "TL", "TG", "VT", "VTG")  # VT, VTG: plain Claude Code with Trail as installed / without its Stop hook (16 Oct)
 # Tasks run only when named with --tasks, beside the YAML ones: f1-fix needs its bugs planted first.
 EXTRA_TASKS = {
     "f1-fix": {
@@ -200,7 +206,16 @@ EXTRA_TASKS = {
 # Plugins the person has installed that no condition may load by accident: the modpack from its marketplace (its mods
 # made "plain" runs a pack from 14 Oct on; in pack runs the lab's copies replace them), and Warp (its permission hook
 # hangs outside Warp). Every run's command gets them switched off (neutral()).
-INSTALLED_OFF = {f"{m}@claude-modpack": False for m in ("modpack", "statusline", "smart-compact", "delegate", "lsp-plus", "cells", "eta")}
+# Every installed plugin of the pack's marketplace, read from Claude Code's own list at import (a fixed list missed
+# seek and route once the person updated to 0.6.0, 16 Oct), plus the names known so far in case the file moves.
+def _installed_pack() -> set[str]:
+    try:
+        d = json.loads((Path.home() / ".claude" / "plugins" / "installed_plugins.json").read_text())
+        return {k for k in d.get("plugins", d) if k.endswith("@claude-modpack")}
+    except (OSError, ValueError, AttributeError):
+        return set()
+INSTALLED_OFF = {f"{m}@claude-modpack": False for m in ("modpack", "statusline", "smart-compact", "delegate", "lsp-plus", "cells", "eta", "seek", "route", "pathfinder")}
+INSTALLED_OFF |= {k: False for k in _installed_pack()}
 INSTALLED_OFF["warp@claude-code-warp"] = False
 
 
@@ -237,6 +252,19 @@ def trail_graph_only():
     s["hooks"].pop("Stop", None)
     settings.write_text(json.dumps(s, indent=2) + "\n")
     subprocess.run(["git", "-c", "user.email=bench@local", "-c", "user.name=bench", "commit", "-q", "-am", "trail without its Stop hook"], cwd=BASE_TRAIL_GRAPH, check=True)
+
+
+_BUNDLES: dict = {}
+
+
+def trail_bundle(question: str) -> str:
+    """Trail's best case, its README's "push" variant: `trail ask --source` for the task, put in front of the prompt
+    as their harness does; the run itself is plain Claude Code in plain click (VP). Cached per task."""
+    if question not in _BUNDLES:
+        trail_graph_only()
+        p = subprocess.run([str(TRAIL_BIN), "ask", question, "--source"], cwd=BASE_TRAIL_GRAPH, env=trail_env(), capture_output=True, text=True, timeout=300, check=True)
+        _BUNDLES[question] = p.stdout.strip()
+    return _BUNDLES[question]
 
 
 def trail_init(repo: Path):
@@ -339,6 +367,8 @@ T3_TERMS = ["handle_parse_result", "consume_value", "value_from_envvar|resolve_e
 def grade(task: str, answer: str, repo: Path) -> dict:
     if task in yaml_repo.TASKS:
         return yaml_repo.grade(task, answer, repo)
+    if task in pb_repo.TASKS:
+        return pb_repo.grade(task, answer, repo)
     if task in ts_repo.TASKS:
         return ts_repo.grade(task, answer, repo)
     if task == "f1-fix":
@@ -638,25 +668,29 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         shutil.copytree(base, repo, symlinks=True)
         if yaml_repo.TASKS[task].get("plant"):
             yaml_repo.plant(repo, yaml_repo.PLANTED_BIG if big else yaml_repo.PLANTED)
+    elif task in pb_repo.TASKS:
+        shutil.copytree(pb_repo.base(WORK, task), repo, symlinks=True)
     elif task in ts_repo.TASKS:
         shutil.copytree(ts_base(), repo, symlinks=True)
     else:
-        shutil.copytree(BASE_TRAIL_GRAPH if arm == "TG" else BASE_TRAIL if arm in TRAIL_ARMS else BASE, repo, symlinks=True)
+        shutil.copytree(BASE_TRAIL_GRAPH if arm in ("TG", "VTG") else BASE_TRAIL if arm in TRAIL_ARMS else BASE, repo, symlinks=True)
         if task == "f1-fix":
             plant_bugs(repo)
-    prompt = {**TASKS, **yaml_repo.TASKS, **ts_repo.TASKS, **EXTRA_TASKS}[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
+    prompt = {**TASKS, **yaml_repo.TASKS, **ts_repo.TASKS, **pb_repo.TASKS, **EXTRA_TASKS}[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
     if arm == "HF" or arm in WORKER_ARMS:
         prompt = f"{FORCE}\n\n{prompt}"
     if arm in SUBAGENT_ARMS:
         prompt = f"{VIA_SUBAGENT}\n\n{prompt}"
+    if arm == "VP":
+        prompt = f"{trail_bundle(prompt)}\n\n{prompt}"
     # BENCH_MODEL runs a whole batch on another main model (does a mod help a weaker one?); W is Sonnet by definition.
     model = os.environ.get("BENCH_MODEL") or ("sonnet" if arm == "W" else "opus")
     cmd = ["claude", "-p", prompt, "--model", model, "--permission-mode", "auto", "--output-format", "json"]
-    if arm in ("V", "P", "R", "W", "Q", "DF", "Y"):
+    if arm in ("V", "VT", "VTG", "VP", "P", "R", "W", "Q", "DF", "Y"):
         # The suite's conditions load exactly what they name: nothing (V), or the pack (P, R).
         # Asks for the claude.ai connectors to stay on, as in every run before the person turned them off on 13 Oct
         # (378 deferred tools); the person's own setting wins, so runs from then on (DF, DL, Y, results-noconn) have 15.
-        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "W") else PACK}, "disableClaudeAiConnectors": False})]
+        cmd += ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": "" if arm in ("V", "VT", "VTG", "VP", "W") else PACK}, "disableClaudeAiConnectors": False})]
     if arm in ABLATION or arm in ("HF", "MO", "IC", "T", "TG") or arm in WORKER_ARMS:
         dirs = [str(PACK_ROOT / m) for m in ABLATION.get(arm, SHIPPED)]
         if arm == "MO":
@@ -704,6 +738,9 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         cmd += ["--append-system-prompt", FORCE]
     if arm == "S":
         cmd += ["--append-system-prompt", FORCE + " Give the worker model sonnet."]
+    if task in pb_repo.TASKS:
+        # Go's language server for every arm alike (the official gopls plugin), as swe.py enables pyright.
+        cmd = pb_repo.with_gopls(cmd)
     started = time.time()
     try:
         p = subprocess.run(neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=1800, env=trail_env() if arm in TRAIL_ARMS else None)
@@ -727,6 +764,9 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         subprocess.run(["git", "add", "-A", "-N", "."], cwd=repo, capture_output=True)
         diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", ".", ":(exclude).coverage", ":(exclude)*.pyc", ":(exclude)__pycache__"], cwd=repo, capture_output=True, text=True).stdout
         (HERE / "patches" / f"{run_id}.patch").write_text(diff)
+    if pb_repo.TASKS.get(task, {}).get("kind") == "edit":
+        # Against the PR's base commit (a commit the run made included), PocketBase's data folder left out.
+        (HERE / "patches" / f"{run_id}.patch").write_text(pb_repo.diff(task, repo))
     # Claude Code's own token count per model, the subagents' whole output included (see settle()).
     row["model_usage"] = {m: {k: u.get(k) for k in ("inputTokens", "outputTokens", "cacheReadInputTokens", "cacheCreationInputTokens", "costUSD")}
                           for m, u in (res.get("modelUsage") or {}).items()}

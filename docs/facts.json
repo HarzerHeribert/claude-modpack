@@ -6,31 +6,121 @@
       "mods": [
         "pack"
       ],
-      "claim": "Every run graded for the README, with the pack and without",
+      "claim": "Graded runs that ship with the release",
       "metric": "quality",
-      "shown": "730",
+      "shown": "2,184",
       "ci": null,
-      "comparison": "runs with a correct result",
+      "comparison": "graded runs, 26 short of full marks",
       "session": "fresh and long",
-      "language": "Python and TypeScript",
-      "tasks": "click, chrono and the other benchmark sets",
-      "runs": "730 runs",
+      "language": "Python, TypeScript and Go",
+      "tasks": "click, chrono, PocketBase and the other benchmark sets",
+      "runs": "2,184 runs",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
-        "2026-10-15"
+        "2026-10-16"
       ],
-      "correct": "all correct, graded again for the release",
-      "allCorrect": true,
+      "correct": "26 fell short of full marks, listed in the README",
+      "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "In every run we graded, 730 in all, the result was correct with the pack and without"
+        "quote": "Of all 2,184 graded runs that ship with this release, 26 fell short"
       },
       "note": null,
       "data": [
         "benchmarks/delegate-bench/SUITE.md"
       ]
+    },
+    {
+      "id": "quality-pack",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Runs short of full marks with the pack, in batches that ran the same jobs both ways",
+      "metric": "quality",
+      "shown": "4 of 359",
+      "ci": null,
+      "comparison": "against 4 of 325 without the pack",
+      "session": "fresh and long",
+      "language": "Python, TypeScript and Go",
+      "tasks": "click, chrono, PocketBase and the other benchmark sets",
+      "runs": "359 with the pack, 325 without",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-16"
+      ],
+      "correct": "4 of 359 short of full marks",
+      "allCorrect": false,
+      "source": {
+        "file": "README.md",
+        "anchor": "questions",
+        "quote": "4 of 325 runs without the pack and 4 of 359 with it fell short of full marks"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/SUITE.md"
+      ]
+    },
+    {
+      "id": "quality-plain",
+      "mods": [
+        "pack"
+      ],
+      "claim": "Runs short of full marks without the pack, in the same batches",
+      "metric": "quality",
+      "shown": "4 of 325",
+      "ci": null,
+      "comparison": "against 4 of 359 with the pack",
+      "session": "fresh and long",
+      "language": "Python, TypeScript and Go",
+      "tasks": "click, chrono, PocketBase and the other benchmark sets",
+      "runs": "325 without the pack, 359 with",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-13",
+        "2026-10-16"
+      ],
+      "correct": "4 of 325 short of full marks",
+      "allCorrect": false,
+      "source": {
+        "file": "README.md",
+        "anchor": "questions",
+        "quote": "4 of 325 runs without the pack and 4 of 359 with it fell short of full marks"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/SUITE.md"
+      ]
+    },
+    {
+      "id": "step-220k",
+      "mods": [
+        "pack"
+      ],
+      "claim": "One step in a session that holds 220,000 tokens, before Claude thinks at all",
+      "metric": "price",
+      "shown": "$0.044",
+      "ci": null,
+      "comparison": "worked out from list prices: one cache read of the whole conversation",
+      "session": "long",
+      "language": "—",
+      "tasks": "—",
+      "runs": "worked out, not measured",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-15"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/01-the-cheapest-step.md",
+        "anchor": "every-step-re-reads-everything",
+        "quote": "In a session holding 220,000 tokens, every step costs about $0.044 before Claude has thought about anything."
+      },
+      "note": "01-the-cheapest-step.md",
+      "data": []
     },
     {
       "id": "pack-long-pooled",
@@ -3499,20 +3589,51 @@
       "data": []
     },
     {
-      "id": "smart-compact-prices",
+      "id": "carry-life",
+      "mods": [
+        "seek"
+      ],
+      "claim": "What a token added to the conversation costs over its life, per million tokens",
+      "metric": "price",
+      "shown": "$37",
+      "ci": null,
+      "comparison": "against $8 to write it once; worked out from list prices and the median of 143 later reads",
+      "session": "—",
+      "language": "—",
+      "tasks": "the author's own sessions, counted in aggregate",
+      "runs": "worked out, not measured",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/11-what-looking-around-leaves-behind.md",
+        "anchor": "a-tokens-second-life",
+        "quote": [
+          "On Opus 5.5 a token costs $8 per million to write to the cache once and $0.20 per million each time a request reads it again: 143 re-reads add $28.60.",
+          "About $37 per million over its life, more than four times what writing it cost."
+        ]
+      },
+      "note": "11-what-looking-around-leaves-behind.md",
+      "data": []
+    },
+    {
+      "id": "sc-lapse",
       "mods": [
         "smart-compact"
       ],
-      "claim": "An idle 400k-token session on the one-hour cache: let it expire, keep it warm, or compact",
+      "claim": "Away from an idle 400k-token session: let the cache expire, re-cache on return",
       "metric": "price",
-      "shown": "$3.20 / $0.09 / ~$0.87",
+      "shown": "$3.20",
       "ci": null,
       "comparison": "worked out from list prices, not measured",
       "session": "long",
       "language": "—",
-      "tasks": "—",
+      "tasks": "an idle 400k-token session on the one-hour cache",
       "runs": "not measured",
-      "model": "Opus 5.5 list prices",
+      "model": "Opus 5.5",
       "date": [],
       "correct": "—",
       "allCorrect": null,
@@ -3520,8 +3641,75 @@
         "file": "README.md",
         "anchor": "the-mods-in-depth",
         "quote": [
-          "| Let it expire, re-cache on return | $3.20 |",
-          "| One keep-alive (re-read the cached prefix; a read resets the TTL) | $0.09 |",
+          "For a 400k-token Opus 5.5 session on the 1-hour cache:",
+          "| Let it expire, re-cache on return | $3.20 |"
+        ]
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "Not measured: what smart-compact saves you while you're away (worked out from prices, not tested) and Windows."
+      },
+      "note": null,
+      "data": []
+    },
+    {
+      "id": "sc-keepalive",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "One keep-alive for the same session: a cheap read resets the cache's clock",
+      "metric": "price",
+      "shown": "$0.09",
+      "ci": null,
+      "comparison": "worked out from list prices, not measured",
+      "session": "long",
+      "language": "—",
+      "tasks": "an idle 400k-token session on the one-hour cache",
+      "runs": "not measured",
+      "model": "Opus 5.5",
+      "date": [],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": [
+          "For a 400k-token Opus 5.5 session on the 1-hour cache:",
+          "| One keep-alive (re-read the cached prefix; a read resets the TTL) | $0.09 |"
+        ]
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "Not measured: what smart-compact saves you while you're away (worked out from prices, not tested) and Windows."
+      },
+      "note": null,
+      "data": []
+    },
+    {
+      "id": "sc-compact",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "Compacting the same session while its cache is still warm",
+      "metric": "price",
+      "shown": "~$0.87",
+      "ci": null,
+      "comparison": "worked out from list prices, not measured",
+      "session": "long",
+      "language": "—",
+      "tasks": "an idle 400k-token session on the one-hour cache",
+      "runs": "not measured",
+      "model": "Opus 5.5",
+      "date": [],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": [
+          "For a 400k-token Opus 5.5 session on the 1-hour cache:",
           "| Compact before it expires | ~$0.87, plus detail lost to the summary |"
         ]
       },
@@ -3566,7 +3754,7 @@
       "mods": [
         "other"
       ],
-      "claim": "Trail-Code (a 10,000-star code graph) added to the pack, fresh",
+      "claim": "Trail-Code (a 10,000-star code graph) added to the pack, as installed, fresh",
       "metric": "cost",
       "shown": "+12.8%",
       "ci": [
@@ -3582,14 +3770,14 @@
       "date": [
         "2026-10-15"
       ],
-      "correct": "every answer correct",
+      "correct": "every answer correct, graded on all of Claude's messages",
       "allCorrect": true,
       "source": {
         "file": "lab-notes/03-a-code-graph-on-our-bench.md",
-        "anchor": "what-we-measured",
+        "anchor": "added-to-our-pack",
         "quote": [
-          "| Fresh session | +12.8% cost | +7.5% to +18.3% | 64 |",
-          "Quality was the same: every answer correct."
+          "| As installed, fresh session | +12.8% | +7.5% to +18.3% | 64 |",
+          "graded on all of Claude's messages, all four were right."
         ]
       },
       "note": "03-a-code-graph-on-our-bench.md",
@@ -3602,7 +3790,7 @@
       "mods": [
         "other"
       ],
-      "claim": "Trail-Code added to the pack, long session",
+      "claim": "Trail-Code added to the pack, as installed, long session",
       "metric": "cost",
       "shown": "+32.1%",
       "ci": [
@@ -3622,8 +3810,8 @@
       "allCorrect": true,
       "source": {
         "file": "lab-notes/03-a-code-graph-on-our-bench.md",
-        "anchor": "what-we-measured",
-        "quote": "| Long session | +32.1% cost | +21.9% to +43.6% | 28 |"
+        "anchor": "added-to-our-pack",
+        "quote": "| As installed, long session | +32.1% | +21.9% to +43.6% | 28 |"
       },
       "note": "03-a-code-graph-on-our-bench.md",
       "data": [
@@ -3635,7 +3823,7 @@
       "mods": [
         "other"
       ],
-      "claim": "Trail-Code without its learning hook, fresh",
+      "claim": "Trail-Code without its Stop hook, added to the pack, fresh",
       "metric": "cost",
       "shown": "+4.0%",
       "ci": [
@@ -3655,8 +3843,8 @@
       "allCorrect": true,
       "source": {
         "file": "lab-notes/03-a-code-graph-on-our-bench.md",
-        "anchor": "what-we-measured",
-        "quote": "| Fresh, without its learning hook | +4.0% cost | +0.1% to +8.0% | 64 |"
+        "anchor": "added-to-our-pack",
+        "quote": "| Without its Stop hook, fresh session | +4.0% | +0.1% to +8.0% | 64 |"
       },
       "note": "03-a-code-graph-on-our-bench.md",
       "data": [
@@ -3697,6 +3885,379 @@
       "note": "09-beyond-click.md",
       "data": [
         "benchmarks/swe-bench/2026-10-15-swe/attempts.jsonl"
+      ]
+    },
+    {
+      "id": "trail-alone-first",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code alone (without its Stop hook), first batch",
+      "metric": "cost",
+      "shown": "−4.6%",
+      "ci": [
+        "−9.3%",
+        "+0.1%"
+      ],
+      "comparison": "Trail-Code alone vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 128 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "128 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-and-both-together",
+        "quote": "| Trail-Code alone | −4.6% | −9.3% to +0.1% |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail2x2.jsonl"
+      ]
+    },
+    {
+      "id": "pack-2x2",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack without seek, in the Trail-Code batch",
+      "metric": "cost",
+      "shown": "−5.6%",
+      "ci": [
+        "−10.8%",
+        "−0.3%"
+      ],
+      "comparison": "the pack (without seek) vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 128 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "128 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-and-both-together",
+        "quote": "| The pack, without seek | −5.6% | −10.8% to −0.3% |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail2x2.jsonl"
+      ]
+    },
+    {
+      "id": "trail-both",
+      "mods": [
+        "other"
+      ],
+      "claim": "The pack and Trail-Code together",
+      "metric": "cost",
+      "shown": "−2.8%",
+      "ci": [
+        "−8.5%",
+        "+3.0%"
+      ],
+      "comparison": "the pack with Trail-Code (no Stop hook) vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 128 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "128 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-and-both-together",
+        "quote": "| Both | −2.8% | −8.5% to +3.0% |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail2x2.jsonl"
+      ]
+    },
+    {
+      "id": "trail-on-pack",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code on top of the pack",
+      "metric": "cost",
+      "shown": "+3.0%",
+      "ci": [
+        "−2.7%",
+        "+9.1%"
+      ],
+      "comparison": "the pack with Trail-Code (no Stop hook) vs the pack",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 128 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "128 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-and-both-together",
+        "quote": "Together they did not add up: Trail-Code on top of the pack, +3.0% [−2.7, +9.1]."
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail2x2.jsonl"
+      ]
+    },
+    {
+      "id": "pack-060-plain",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack as 0.6.0 ships, in the Trail-Code batch",
+      "metric": "cost",
+      "shown": "−15.1%",
+      "ci": [
+        "−19.8%",
+        "−9.7%"
+      ],
+      "comparison": "the pack 0.6.0 vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 96 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "96 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-against-todays-pack",
+        "quote": "| The pack 0.6.0 | −15.1% | −19.8% to −9.7% | −20.4% |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail-vs-060.jsonl"
+      ]
+    },
+    {
+      "id": "trail-alone-060",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code alone (without its Stop hook), second batch",
+      "metric": "cost",
+      "shown": "+1.1%",
+      "ci": [
+        "−5.4%",
+        "+7.7%"
+      ],
+      "comparison": "Trail-Code alone vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 96 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "96 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-against-todays-pack",
+        "quote": "| Trail-Code alone | +1.1% | −5.4% to +7.7% | +0.1% |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail-vs-060.jsonl"
+      ]
+    },
+    {
+      "id": "trail-vs-060",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code alone against the pack as 0.6.0 ships",
+      "metric": "cost",
+      "shown": "+19.0%",
+      "ci": [
+        "+13.1%",
+        "+25.1%"
+      ],
+      "comparison": "Trail-Code alone vs the pack 0.6.0",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "4 per task and arm, 96 runs in the batch",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "96 runs, all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-against-todays-pack",
+        "quote": "Trail-Code alone against the pack 0.6.0: +19.0% [+13.1, +25.1], with carry +25.7%."
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail-vs-060.jsonl"
+      ]
+    },
+    {
+      "id": "trail-alone-pooled",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code alone, both batches pooled",
+      "metric": "cost",
+      "shown": "−1.8%",
+      "ci": [
+        "−5.9%",
+        "+2.7%"
+      ],
+      "comparison": "Trail-Code alone vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0, 8 tasks",
+      "runs": "64 runs a side",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "alone-against-todays-pack",
+        "quote": "Pooled over both batches, 64 runs a side, Trail-Code alone against plain Claude Code: −1.8% [−5.9, +2.7]. No saving we can measure."
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "alone −1.8% against plain Claude Code (−5.9% to +2.7%)"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail2x2.jsonl",
+        "benchmarks/delegate-bench/results-trail-vs-060.jsonl"
+      ]
+    },
+    {
+      "id": "trail-push",
+      "mods": [
+        "other"
+      ],
+      "claim": "Trail-Code's best case: its trail ask --source bundle in front of the prompt",
+      "metric": "cost",
+      "shown": "+3.2%",
+      "ci": [
+        "−7.3%",
+        "+15.0%"
+      ],
+      "comparison": "plain Claude Code with the bundle vs plain Claude Code",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "click 8.5.0: the explanation and the feature",
+      "runs": "2 per task and arm, 8 runs",
+      "model": "Sonnet 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "all 8 runs full marks",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "its-best-case",
+        "quote": "+3.2% [−7.3, +15.0], the same number of requests as plain Claude Code on both tasks (5.5 and 3.5), all 8 runs full marks."
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-trail-push.jsonl"
+      ]
+    },
+    {
+      "id": "pb-total",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack 0.6.0 on PocketBase, Trail-Code's own 15 tasks, in total",
+      "metric": "cost",
+      "shown": "−21.0%",
+      "ci": null,
+      "comparison": "the pack 0.6.0 vs plain Claude Code",
+      "session": "fresh",
+      "language": "Go",
+      "tasks": "PocketBase v0.40.5: 10 questions, 5 merged pull requests",
+      "runs": "1 per task and arm, as Trail-Code ran them",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "26 of 30 runs at full marks: two questions short in both arms, one plain run short by a term, one pack run 0 (lsp-plus waiting on a cold language server, fixed in 0.4.2)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "their-tasks-in-our-harness-pocketbase",
+        "quote": "| Total cost | $9.98 | $7.88 | −21.0% |"
+      },
+      "also": {
+        "file": "README.md",
+        "anchor": "honest-numbers",
+        "quote": "On PocketBase, Trail-Code's own 15 tasks: −21% with 0.6.0"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-pb.jsonl",
+        "benchmarks/delegate-bench/pb_repo.py"
+      ]
+    },
+    {
+      "id": "pb-avg",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack 0.6.0 on PocketBase, the average task",
+      "metric": "cost",
+      "shown": "−18.1%",
+      "ci": [
+        "−26.7%",
+        "−8.3%"
+      ],
+      "comparison": "the pack 0.6.0 vs plain Claude Code",
+      "session": "fresh",
+      "language": "Go",
+      "tasks": "PocketBase v0.40.5: 10 questions, 5 merged pull requests",
+      "runs": "1 per task and arm; the interval resamples the 15 tasks",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-16"
+      ],
+      "correct": "26 of 30 runs at full marks; one pack run 0 (lsp-plus, fixed in 0.4.2)",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/03-a-code-graph-on-our-bench.md",
+        "anchor": "their-tasks-in-our-harness-pocketbase",
+        "quote": "| The average task | | | −18.1% [−26.7, −8.3] |"
+      },
+      "note": "03-a-code-graph-on-our-bench.md",
+      "data": [
+        "benchmarks/delegate-bench/results-pb.jsonl",
+        "benchmarks/delegate-bench/pb_repo.py"
       ]
     },
     {

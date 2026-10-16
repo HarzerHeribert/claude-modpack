@@ -1,0 +1,186 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index d6cca1b..e918f92 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,6 +2,8 @@
+ 
+ - Added global JSVM `toBytes()` helper to return the bytes slice representation of a value such as io.Reader or string (_other types are first serialized to Go string_).
+ 
++- Fixed `security.RandomStringByRegex` char class distribution so that each allowed character has the same probability (previously a range was picked first, giving e.g. `-` and `_` in `[A-Za-z0-9\-_]` ~20% chance each and favoring the digits in the default `[a-z0-9]{15}` record id pattern).
++
+ 
+ ## v0.28.3
+ 
+diff --git a/tools/security/random_by_regex.go b/tools/security/random_by_regex.go
+index 41cdaff..4528b3c 100644
+--- a/tools/security/random_by_regex.go
++++ b/tools/security/random_by_regex.go
+@@ -2,6 +2,7 @@ package security
+ 
+ import (
+ 	cryptoRand "crypto/rand"
++	"errors"
+ 	"fmt"
+ 	"math/big"
+ 	"regexp/syntax"
+@@ -127,22 +128,69 @@ func repeatRandomStringByRegex(r *syntax.Regexp, sb *strings.Builder, min int, m
+ 	return nil
+ }
+ 
++// The surrogate halves are not valid runes and are written as
++// utf8.RuneError by [strings.Builder.WriteRune], so they are excluded
++// from the char class ranges (e.g. negated classes contain them).
++const (
++	surrogateMin rune = 0xD800
++	surrogateMax rune = 0xDFFF
++)
++
++// randomRuneFromPairs returns a random rune from the inclusive
++// [lo, hi] range pairs (as stored in [syntax.Regexp.Rune]).
++//
++// Each rune has the same chance of being picked regardless
++// of the size of the range it belongs to.
+ func randomRuneFromPairs(pairs []rune) (rune, error) {
+-	idx, err := randomNumber(len(pairs) / 2)
++	var total int
++	for i := 0; i < len(pairs); i += 2 {
++		total += rangeSize(pairs[i], pairs[i+1])
++	}
++
++	if total == 0 {
++		return 0, errors.New("empty character class")
++	}
++
++	n, err := randomNumber(total)
+ 	if err != nil {
+ 		return 0, err
+ 	}
+ 
+-	return randomRuneFromRange(pairs[idx*2], pairs[idx*2+1])
++	for i := 0; i < len(pairs); i += 2 {
++		size := rangeSize(pairs[i], pairs[i+1])
++		if n < size {
++			return nthRuneInRange(pairs[i], n), nil
++		}
++		n -= size
++	}
++
++	return 0, errors.New("random rune index out of range") // should never happen
+ }
+ 
+-func randomRuneFromRange(min rune, max rune) (rune, error) {
+-	offset, err := randomNumber(int(max - min + 1))
+-	if err != nil {
+-		return min, err
++// rangeSize returns the number of valid runes in the inclusive [lo, hi] range.
++func rangeSize(lo rune, hi rune) int {
++	size := int(hi - lo + 1)
++
++	if lo <= surrogateMax && hi >= surrogateMin {
++		size -= int(min(hi, surrogateMax) - max(lo, surrogateMin) + 1)
++	}
++
++	return size
++}
++
++// nthRuneInRange returns the n-th (0-based) valid rune of a range starting at lo.
++func nthRuneInRange(lo rune, n int) rune {
++	if lo >= surrogateMin && lo <= surrogateMax {
++		lo = surrogateMax + 1
++	}
++
++	r := lo + rune(n)
++
++	if lo < surrogateMin && r >= surrogateMin {
++		r += surrogateMax - surrogateMin + 1
+ 	}
+ 
+-	return min + rune(offset), nil
++	return r
+ }
+ 
+ func randomNumber(maxSoft int) (int, error) {
+diff --git a/tools/security/random_by_regex_test.go b/tools/security/random_by_regex_test.go
+index cac7ae1..7bf0174 100644
+--- a/tools/security/random_by_regex_test.go
++++ b/tools/security/random_by_regex_test.go
+@@ -5,6 +5,7 @@ import (
+ 	"regexp"
+ 	"regexp/syntax"
+ 	"slices"
++	"strconv"
+ 	"testing"
+ 
+ 	"github.com/pocketbase/pocketbase/tools/security"
+@@ -32,6 +33,8 @@ func TestRandomStringByRegex(t *testing.T) {
+ 		{`[a-zA-Z_]*`, nil, false},
+ 		{`[2-9]{5}-\w+`, nil, false},
+ 		{`(a|b|c)`, nil, false},
++		{`[\x{D800}-\x{DFFF}]`, nil, true},
++		{`[^\x00-\x{10FFFF}]`, nil, true},
+ 	}
+ 
+ 	for i, s := range scenarios {
+@@ -64,3 +67,62 @@ func TestRandomStringByRegex(t *testing.T) {
+ 		})
+ 	}
+ }
++
++func TestRandomStringByRegexCharClassDistribution(t *testing.T) {
++	const samplesPerChar = 1000
++
++	scenarios := []struct {
++		pattern string
++		chars   string
++	}{
++		{`[A-Za-z0-9\-_]`, "-_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
++		{`[a-z0-9]`, "0123456789abcdefghijklmnopqrstuvwxyz"},
++		{`.`, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
++	}
++
++	for _, s := range scenarios {
++		t.Run(s.pattern, func(t *testing.T) {
++			counts := map[rune]int{}
++
++			// the max allowed repeat count is 1000
++			for range len(s.chars) {
++				str, err := security.RandomStringByRegex(s.pattern + "{" + strconv.Itoa(samplesPerChar) + "}")
++				if err != nil {
++					t.Fatal(err)
++				}
++
++				for _, c := range str {
++					counts[c]++
++				}
++			}
++
++			if len(counts) != len(s.chars) {
++				t.Fatalf("Expected %d distinct chars, got %d: %v", len(s.chars), len(counts), counts)
++			}
++
++			// the tolerance is ~10 standard deviations so that the test doesn't flake
++			for _, c := range s.chars {
++				if counts[c] < samplesPerChar*7/10 || counts[c] > samplesPerChar*13/10 {
++					t.Errorf("Expected %q to be generated ~%d times, got %d", c, samplesPerChar, counts[c])
++				}
++			}
++		})
++	}
++}
++
++func TestRandomStringByRegexSkipSurrogates(t *testing.T) {
++	// the only valid runes in the range are U+D7FF and U+E000
++	str, err := security.RandomStringByRegex(`[\x{D7FF}-\x{E000}]{100}`)
++	if err != nil {
++		t.Fatal(err)
++	}
++
++	counts := map[rune]int{}
++	for _, c := range str {
++		counts[c]++
++	}
++
++	if len(counts) != 2 || counts['\uD7FF'] == 0 || counts['\uE000'] == 0 {
++		t.Fatalf("Expected only U+D7FF and U+E000 runes, got %v", counts)
++	}
++}

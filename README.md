@@ -64,11 +64,11 @@ When you approve a plan, Claude hands the building to Sonnet, a cheaper model, a
 
 That's the **delegate** mod.
 
-### Feature work goes to the cheaper model by itself (opt-in)
+### Optional: feature work goes to the cheaper model by itself
 
-A small, fast classifier reads each prompt you send. Only when it is feature or test work is Claude told to hand it straight to delegate's worker: the worker reads the code and builds, delegate checks the result itself, and Claude reports after two steps of its own. On a TypeScript feature that made the job 51% cheaper and 42% faster than the pack alone, with every result correct (corrected 16 Oct: worker costs were undercounted; it was 57%); everything else stays with Claude. The classifier is an outside service (TypeSafe's Jev or ScaleDown), so this is off until you turn it on and give it a key: from then on, the start of each prompt goes to it, in the US, to be classified.
+An optional mod, off until you turn it on, and the one that needs an outside classifier model: an API key for TypeSafe's Jev or ScaleDown. That classifier reads each prompt you send. Only when it is feature or test work is Claude told to hand it straight to delegate's worker: the worker reads the code and builds, delegate checks the result itself, and Claude reports after two steps of its own. On a TypeScript feature that made the job 51% cheaper and 42% faster than the pack alone, with every result correct (corrected 16 Oct: worker costs were undercounted; it was 57%); everything else stays with Claude. The classifier is an outside service (TypeSafe's Jev or ScaleDown), so this is off until you turn it on and give it a key: from then on, the start of each prompt goes to it, in the US, to be classified. In real sessions it saves less than on the benchmark: in the author's, the turns it would hand off were 13% of the spend, so at most 4 to 7% saved, nearer 3 to 6% with the hand-offs that were not feature or test work; more if most of your work is building features, and less if you already plan in plan mode, where delegate hands an approved plan to the worker without route.
 
-That's the **route** mod.
+That's the **route** mod (optional; it needs an outside classifier and its key).
 
 ### Fewer, leaner steps when Claude looks around
 
@@ -292,7 +292,7 @@ Measured on 120 Opus runs, all correct: a feature or tests cost 23–35% less ha
 </details>
 
 <details>
-<summary><b>route</b>: cost: sends feature and test work to delegate's worker (off until you turn it on)</summary>
+<summary><b>route</b> (optional): cost: sends feature and test work to delegate's worker; needs an outside classifier and its key</summary>
 <br>
 
 Opus does not hand work off on its own (4 times in 70 hand-offs in the author's sessions; never in our runs without an order), and on small work a hand-off costs more than it saves, so the question is when to tell it to. route asks, for each prompt you send (typed, from the phone, or `claude -p`; not a slash command or a reply under 40 characters):
@@ -305,7 +305,7 @@ Measured, all correct:
 - **Handing off before reading the code, with the verified hand-off**, one batch: the feature and the coverage job −28% against route 0.1, 55% fewer of Claude's own requests. Claude followed that order 24 of 24 times; allowed to look around first, it kept the work 5 times in 16.
 - **TypeScript (chrono)**, one batch with the pack alone: a feature $0.99 → $0.48, 11 → 2 of Claude's requests, 214 → 125 s; writing tests $0.45 → $0.29, 6.2 → 2 requests. With Haiku as the worker: tests $0.24, the feature a little cheaper ($0.44, within the runs' spread) but slower, with twice the steps and points left open, so build work stays with Sonnet.
 - **Corrected 16 Oct: worker costs were undercounted.** These were −17%, −22%, −33%, $0.43 and $0.27; Haiku's feature had looked as cheap as Sonnet's.
-- **Not yet measured: real prompts.** The 25 prompts are clean, one request each. A classifier we trained to run on your machine instead got them right too, but on 918 real prompts from Claude Code sessions it handed off far too often (on the author's own, 18% of its hand-offs were feature or test work): a prompt in the middle of a session ("ok, build it like that") is feature work only with its conversation, which no classifier here sees. How Jev and ScaleDown do on real prompts is not known; that is one more reason route stays off until you turn it on.
+- **Not yet measured: real prompts.** The 25 prompts are clean, one request each. A classifier we trained to run on your machine instead got them right too, but on 918 real prompts from Claude Code sessions it handed off far too often (on the author's own, 18% of its hand-offs were feature or test work): a prompt in the middle of a session ("ok, build it like that") is feature work only with its conversation, which no classifier here sees. Jev and ScaleDown on 877 of those real prompts (each checked first for anything like a key or personal data, which was left out), against labels Haiku gave by route's rubrics: of what Jev handed off at 0.7, 86% was feature or test work, 51% on the author's own prompts; ScaleDown 92% and 70%, finding fewer. At 0.95, Jev 95% and 78%: since route 0.3.2 that is Jev's threshold (it scores route's own feature and test prompts 1.0); ScaleDown keeps 0.7.
 
 What it needs: delegate, and a key for TypeSafe (`typesafeKey`, or `TYPESAFE_API_KEY`) or ScaleDown (`scaledownKey`, or `SCALEDOWN_API_KEY`). What it costs: a prompt starts about 0.3 s later with Jev (1 s with ScaleDown, at most 3 s), and the start of its text leaves your machine for the classifier, a US service: TypeSafe keeps inputs as long as it needs them and never trains on them; ScaleDown's terms promise zero retention. In the desktop app's auto mode delegate cannot start workers, so turn route off there.
 
@@ -316,7 +316,7 @@ What it needs: delegate, and a key for TypeSafe (`typesafeKey`, or `TYPESAFE_API
 | `typesafeKey` | empty | Else `TYPESAFE_API_KEY`. |
 | `scaledownKey` | empty | Else `SCALEDOWN_API_KEY`. |
 | `direct` | `true` | The order hands off before Claude reads the code. `false`: Claude looks around first (and sometimes keeps the work). |
-| `minScore` | `0.7` | The classifier's score from which a prompt gets the order. |
+| `minScore` | `0` | The classifier's score from which a prompt gets the order; `0` is the classifier's own: 0.95 for Jev, 0.7 for ScaleDown. |
 | `timeoutMs` | `3000` | A slower answer adds nothing. |
 
 </details>

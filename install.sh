@@ -822,7 +822,7 @@ advanced_setup() {
   set_row delegate on "hands big jobs to $build_w"
   set_row seek on "looks around your code in fewer steps"
   set_row draft on "writes to a word limit in one draft"
-  set_row route off "off: /modpack:setup asks before turning it on"
+  set_row route off "optional, off: needs an outside classifier (a Jev or ScaleDown key); /modpack:setup asks"
   set_row modpack on "$updates_words"
 
   if [ "$do_checks" = 1 ]; then

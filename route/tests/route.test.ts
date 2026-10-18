@@ -96,3 +96,23 @@ test('off by default: route sends nothing anywhere', {}, async ($, on) => {
   expect(h.sent).toEqual([])
   expect(h.entered[0]).toBeUndefined()
 })
+
+test("Jev's threshold is 0.95 by default: a 0.9 feature gets no order, a 0.97 one does", ON, async ($, on) => {
+  const at = (p: number) => `{"answers":{"kind":{"type":"choice","choice":"feature","confidence":1,"probabilities":{"feature":${p}}}}}`
+  const keys = { SCALEDOWN_API_KEY: 'sd-key', TYPESAFE_API_KEY: 'ts-key' }
+  const weak = host(on, at(0.9), undefined, keys)
+  await $.prompt.submit({ text: FEATURE, origin: { kind: 'composer' } } as never)
+  expect(weak.entered[0]).toBeUndefined()
+})
+
+test("Jev at 0.97: the order", ON, async ($, on) => {
+  const h = host(on, '{"answers":{"kind":{"type":"choice","choice":"feature","confidence":1,"probabilities":{"feature":0.97}}}}', undefined, { TYPESAFE_API_KEY: 'ts-key' })
+  await $.prompt.submit({ text: FEATURE, origin: { kind: 'composer' } } as never)
+  expect(h.entered[0]).toEqual([order('feature')])
+})
+
+test("ScaleDown keeps 0.7; a minScore the person set wins for either", { options: { enabled: true, minScore: 0.8 } }, async ($, on) => {
+  const h = host(on, '{"top_label":"feature","scores":{"feature":0.75}}')
+  await $.prompt.submit({ text: FEATURE, origin: { kind: 'composer' } } as never)
+  expect(h.entered[0]).toBeUndefined()
+})

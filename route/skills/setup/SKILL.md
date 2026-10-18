@@ -4,7 +4,7 @@ description: Turn route on, only with the person's explicit consent - from then 
 disable-model-invocation: true
 ---
 
-Set up the route mod with the person. For each prompt they send, route asks a fast outside classifier (TypeSafe's Jev or ScaleDown) what kind of work it is, and only for feature or test work does Claude get the order to hand it to delegate's worker before reading the code. Measured: a TypeScript feature 51% cheaper and 42% faster than the pack alone, writing tests 36% cheaper, all results correct; everything else stays with Claude. It needs delegate, a key for one of the two services, and the person's consent: once it is on, the start of every prompt they send leaves their machine.
+Set up the route mod with the person. route is optional, and the one mod of the pack that needs an outside classifier model: an API key for TypeSafe's Jev or ScaleDown. For each prompt they send, route asks a fast outside classifier (TypeSafe's Jev or ScaleDown) what kind of work it is, and only for feature or test work does Claude get the order to hand it to delegate's worker before reading the code. Measured: a TypeScript feature 51% cheaper and 42% faster than the pack alone, writing tests 36% cheaper, all results correct; everything else stays with Claude. On real prompts it is worth less: in the author's sessions the turns Jev hands off (at its 0.95 threshold) were 13% of the spend, about 3 to 6% saved; say so. It needs delegate, a key for one of the two services, and the person's consent: once it is on, the start of every prompt they send leaves their machine.
 
 ## Rules for this setup
 
@@ -67,7 +67,7 @@ After the consent and the key: the person types `/mods route on` (it applies at 
 | `typesafeKey` | empty | Jev's key, stored as a sensitive value. Else `TYPESAFE_API_KEY`. |
 | `scaledownKey` | empty | ScaleDown's key, stored as a sensitive value. Else `SCALEDOWN_API_KEY`. |
 | `direct` | `true` | `false`: Claude may look around first (measured: it then kept the work 5 times in 16). |
-| `minScore` | `0.7` | Raise it to send fewer prompts to the worker; lower it if clear feature requests get no order. |
+| `minScore` | `0` | The classifier's own threshold: 0.95 for Jev, 0.7 for ScaleDown (measured on 877 real prompts: at 0.7 nearly half of Jev's hand-offs on one person's prompts were not feature or test work). A number sets yours, for either. |
 | `timeoutMs` | `3000` | A slower answer adds nothing; lower it if prompts feel slow to start. |
 
 Non-sensitive options are rows in `/config` and `/plugin configure`, stored in `~/.claude/settings.json` under `"pluginConfigs": { "route@claude-modpack": { "options": { … } } }`. The two keys are not: they have no `/config` row and are never in that file.

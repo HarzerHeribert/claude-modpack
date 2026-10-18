@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.1 (2026-10-18)
+
+route says what it is: an optional mod, the one that needs an outside classifier model, measured now on real prompts.
+
+- **route 0.3.2: Jev hands off from a score of 0.95.** Measured on 877 real Claude Code prompts (the author's sessions and public trace sets; anything that looked like a credential or personal data was left out before sending), against labels Haiku gave by route's rubrics: at route's 0.7, 86% of what Jev handed off was feature or test work, 51% on the author's interactive prompts; at 0.95, 95% and 78%. Jev scores route's own feature and test prompts 1.0, so they still get the order. ScaleDown keeps 0.7 (92% and 70%, finding fewer). `minScore` now defaults to 0, the classifier's own; a number you set still wins.
+- **What route is worth in real sessions**: in the author's, the turns Jev hands off were 13% of the spend, so at most 4 to 7% saved at the benchmark's savings on handed-off features and tests, nearer 3 to 6% with the hand-offs that were not feature or test work. The benchmark's 14% came from a task mix in which a feature and tests were the dearest jobs.
+- **Onboarding says it**: the README, the guided installer's summary, `/modpack:setup`, SETUP.md, route's own setup and `/mods` call route optional, name the outside classifier and its key it needs, and say what it was measured to be worth.
+- **Local classifiers, tried and not shipped**: a 64 KB classifier trained on prompts Haiku wrote, then taught by Jev on 2,817 prompts, and LAYA (an open 421M-parameter decision model with Jev's request shape) zero-shot. All handle clean prompts; on the author's interactive prompts none came close to Jev (precision 0.17 to 0.21; the Jev-taught one found 9 of Jev's 61 hand-offs). A prompt in the middle of a session ("ok, build it like that") is feature work only with its conversation.
+
 ## 0.8.0 (2026-10-18)
 
 draft joins the pack: writing to a word limit in one draft, not in rounds of rewrites. smart-compact can compact after a turn when that pays back soon (off until it has run in real sessions). eta names a background job by what it runs.

@@ -48,7 +48,7 @@
     {
       "name": "route",
       "source": "./route",
-      "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (TypeSafe's Jev or ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a key for one of them."
+      "description": "Optional, and the one mod that needs an outside classifier model: hands feature and test work to delegate's cheaper worker. A fast classifier (TypeSafe's Jev or ScaleDown, with your API key) reads your prompt; only feature or test work gets the order to hand it off. Off until you turn it on."
     }
   ]
 }

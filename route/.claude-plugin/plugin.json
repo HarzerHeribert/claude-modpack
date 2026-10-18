@@ -1,7 +1,7 @@
 {
   "name": "route",
-  "version": "0.3.1",
-  "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (TypeSafe's Jev or ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a key for one of them.",
+  "version": "0.3.2",
+  "description": "Optional, and the one mod that needs an outside classifier model: hands feature and test work to delegate's cheaper worker. A fast classifier (TypeSafe's Jev or ScaleDown, with your API key) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a key for one of them.",
   "author": {
     "name": "HarzerHeribert"
   },
@@ -34,8 +34,8 @@
     "minScore": {
       "type": "number",
       "title": "Hand off from (classifier score)",
-      "description": "Only a prompt the classifier calls feature or test work with at least this score gets the order.",
-      "default": 0.7
+      "description": "Only a prompt the classifier calls feature or test work with at least this score gets the order. 0: the classifier's own, measured on 877 real prompts: 0.95 for Jev (at 0.7 nearly half its hand-offs on one person's prompts were wrong), 0.7 for ScaleDown.",
+      "default": 0
     },
     "direct": {
       "type": "boolean",

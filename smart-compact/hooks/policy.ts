@@ -122,6 +122,18 @@ export function costsOf(
   }
 }
 
+/**
+ * How many later requests a compaction needs to pay for itself: what it costs (the summary request and the rewrite of
+ * what is left) against what each later request saves by reading the smaller context. Infinity where nothing is saved.
+ * Lost detail is not priced here: measured on 18 Oct (compact_bench, 72 runs), a compaction between turns lost none.
+ */
+export function paybackRequests(contextTokens: number, ttlMs: number, pricing: Pricing, learned: Learned): number {
+  const costs = costsOf(contextTokens, ttlMs, pricing, learned)
+  const after = Math.min(learned.postCompactTokens, contextTokens)
+  const saved = (contextTokens - after) * perToken(pricing, contextTokens).cacheRead
+  return saved > 0 ? costs.compact / saved : Number.POSITIVE_INFINITY
+}
+
 export type Strategy = 'smart' | 'compact' | 'keepalive' | 'off'
 
 export type Policy = {

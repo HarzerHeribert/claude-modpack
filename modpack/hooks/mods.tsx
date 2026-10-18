@@ -19,6 +19,7 @@ export const MODS = [
   ['cells', 'several edits and their check in one step'],
   ['eta', 'a percentage and finish time for long-running jobs'],
   ['seek', 'has Claude look around your code in few, lean steps'],
+  ['draft', 'writing to a word limit in one draft, not in rounds of rewrites'],
   ['route', 'sends feature and test work to delegate\'s worker (Jev or ScaleDown; off until you turn it on)'],
 ] as const
 

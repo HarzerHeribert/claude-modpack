@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-  <img alt="claude-modpack: seven Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, cells, eta, seek, route." src="assets/banner-light.svg" width="880">
+  <img alt="claude-modpack: eight Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, cells, eta, seek, draft, route." src="assets/banner-light.svg" width="880">
 </picture>
 
 <h3>Install in Claude Code</h3>
@@ -17,11 +17,11 @@ Prefer doing it by hand? [SETUP.md](SETUP.md) has every step.
 
 <br>
 
-[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![Quality: no loss seen](https://img.shields.io/badge/quality-no%20loss%20seen-0ca30c?style=flat-square)](#will-claudes-work-get-worse) [![7 mods](https://img.shields.io/badge/mods-7-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-12-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
+[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![Quality: no loss seen](https://img.shields.io/badge/quality-no%20loss%20seen-0ca30c?style=flat-square)](#will-claudes-work-get-worse) [![8 mods](https://img.shields.io/badge/mods-8-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-12-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
 
 ### Claude Code with fewer wasted steps, and a clear view of what it's doing.
 
-Seven free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
+Eight free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
 Every number on this page was measured, including where it doesn't help.
 
 [Install](#install) · [What you get](#what-you-get) · [Honest numbers](#honest-numbers) · [The site: ideas and evidence](https://harzerheribert.github.io/claude-modpack/) · [Lab notes](https://harzerheribert.github.io/claude-modpack/notes.html) · [Questions](#questions)
@@ -76,13 +76,19 @@ Before Claude changes anything, it looks around your code, and everything it rea
 
 That's the **seek** mod.
 
+### Writing to a word limit, in one draft
+
+Ask for a text of at most so many words, and Claude tends to write all of it, count, find it a third too long, and write all of it again, several times. With a limit in your prompt, the pack passes on your preference to give each part its share and aim a little under, to keep every fact you asked for (and say so if they cannot all fit), and after each write it shows the word count and, when the text is well over, each section's target, so one more write lands it. On six writing tasks that made them 11% cheaper at the same quality. Without a word limit in your prompt it does nothing.
+
+That's the **draft** mod.
+
 ### You stay in control
 
 <img alt="A real Claude Code session: /mods lists the pack's mods (recorded with the six of 0.4.0, before route and seek) and opens a pane of cards; the status line is turned off and disappears from under the prompt, then turned on again." src="assets/demo-mods.gif" width="880">
 
-`/mods` lists the seven and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
+`/mods` lists the eight and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
 
-That's the **modpack** plugin, which installs the other seven.
+That's the **modpack** plugin, which installs the other eight.
 
 ## Install
 
@@ -92,7 +98,7 @@ In Claude Code, type:
 /plugin install modpack --marketplace HarzerHeribert/claude-modpack
 ```
 
-Answer `y` to add the marketplace, then pick where to install it. That installs all seven. Then, in the project you work in:
+Answer `y` to add the marketplace, then pick where to install it. That installs all eight. Then, in the project you work in:
 
 ```
 /modpack:setup
@@ -131,6 +137,7 @@ We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source 
 - **With route turned on:** a further −14% on click's eight jobs (route 0.1). With 0.6.0's verified hand-offs, against the pack in the same batch on TypeScript: a feature −51% and 42% faster, writing tests −36%; Claude itself takes 2 steps instead of 6 to 11 (24 runs, all correct).
 - **Corrected 16 Oct: worker costs were undercounted.** A worker's transcript records its output as each response began, and our bench counted it from there, so every number with a hand-off in it came out too good. Corrected from Claude Code's own totals: a planned feature −22% (was −27%), tests −26% (was −33%), route on click −14% (was −17%), the TypeScript feature −51% (was −57%). Every saving is still a saving, a smaller one. The table above has no hand-offs and did not change. Each claim, old and new: [CORRECTION-1016.md](benchmarks/delegate-bench/CORRECTION-1016.md).
 - **With seek** (new in 0.6.0, measured against the pack rather than plain Claude Code, so not in the table above): −12% fresh on click, −16% on TypeScript, −10% to −16% in long sessions ([seek](#the-mods-in-depth), below).
+- **With draft** (new in 0.8.0, measured against the pack): −10.7% on six writing tasks, from −14.9% to −6.3%, at the same quality (0.987 against 0.990), and no run over its word limit ([draft](#the-mods-in-depth), below).
 - **Two days, two versions:** the 13 October runs used the pack as of 0.3.0 and Claude Code 2.1.296, the 15 October runs 0.4.0 and 2.1.299. What changed in the pack between them (on/off switches, setup, messages shown when a worker is refused) never reached the model in these runs: its first request was 26.7k tokens plain and 30.6k with the pack on both days. The second day's plain runs were done twice, because the first try had the pack installed by mistake: [lab notes 8](lab-notes/08-our-plain-runs-were-not-plain.md) tells how we caught it.
 
 <picture>
@@ -158,7 +165,7 @@ How we measured, every run's record, and the scripts to run it all again are in 
 ## Questions
 
 **Will Claude's work get worse?**
-Not that we have seen. Every run is graded by hidden tests or fixed rules, and the same jobs run with the pack and without it. In the batches that did both, 6 of 349 runs without the pack and 8 of 407 with it fell short of full marks. Of all 2,304 graded runs that ship with this release, 33 fell short: seven on one TypeScript explanation whose answers sometimes leave out one term of its list, with the pack and without; five with Trail-Code, whose hook replaced the answer; seven with Haiku as the main model, in two experiments we dropped; one TypeScript type question; and six on PocketBase. There, two questions left out terms of their answer key in both arms, and plain Claude Code missed one term of a third. On that third question the pack scored 0: lsp-plus held a search while Go's language server was still loading, Claude Code moved it to the background, and Claude's last message answered the notice that followed instead of the question. lsp-plus 0.4.2 then gave the language server 8 seconds at most, and lsp-plus has since left the pack. The other seven are 0.7.0's: five on one prose revision whose checks are strict, in every arm, plain Claude Code too; one runbook and one rename. Apart from the PocketBase run, the pack changes how many steps Claude takes, not whether it gets there.
+Not that we have seen. Every run is graded by hidden tests or fixed rules, and the same jobs run with the pack and without it. In the batches that did both, 6 of 349 runs without the pack and 8 of 407 with it fell short of full marks. Of all 2,448 graded runs that ship with this release, 55 fell short: seven on one TypeScript explanation whose answers sometimes leave out one term of its list, with the pack and without; five with Trail-Code, whose hook replaced the answer; seven with Haiku as the main model, in two experiments we dropped; one TypeScript type question; and six on PocketBase. There, two questions left out terms of their answer key in both arms, and plain Claude Code missed one term of a third. On that third question the pack scored 0: lsp-plus held a search while Go's language server was still loading, Claude Code moved it to the background, and Claude's last message answered the notice that followed instead of the question. lsp-plus 0.4.2 then gave the language server 8 seconds at most, and lsp-plus has since left the pack. Seven more are 0.7.0's: five on one prose revision whose checks are strict, in every arm, plain Claude Code too; one runbook and one rename. And 22 are 0.8.0's: nine in the writing tasks, three with draft and three without in one batch and three more with draft in the next (a removed command named as current, a follow-up missing from a brief); thirteen in the compaction benchmark, spread over every arm, ten of them one option check of one task and three a rename that kept a deprecated alias of the old name. Apart from the PocketBase run, the pack changes how many steps Claude takes, not whether it gets there.
 
 **Where did lsp-plus go?**
 It left the pack in 0.7.0. Measured twice, 120 runs on renames and traces in click, a TypeScript library and a React app and on web, operating and prose work, the pack cost no more without it (−1.8% and −1.6%, both ranges across zero), and it kept a language server running per language in every session, hundreds of MB each. Its answer to a grep came from the language server, and in untyped code a server finds about half the uses of a name, where a plain word search finds them all ([lab notes 12](lab-notes/12-the-mod-that-left.md)). The update removes it once and says so in one line; installed again on purpose, it stays. Its last version, 0.4.2, is in this repository's v0.6.1 tag.
@@ -242,7 +249,10 @@ On statusline's line it says whether the session is ready to prompt or has gone 
 | `compactPenaltyUsd` | `0.5` | Higher keeps the cache warm longer before compacting. |
 | `minCompactTokens` | `100000` | Never compacts a smaller context. |
 | `maxIdleHours` | `12` | Stops keep-alives after this long idle; an open session is one you mean to come back to. |
+| `afterTurnPayback` | `0` | Off. `20`: compacts after a turn when that pays back within 20 later requests (below). |
 | `compactInstructions` | empty | Passed to idle compactions, like `/compact <text>`. |
+
+**After a turn (new in 0.8.0, off until it has run in real sessions).** A compaction is an investment: on Opus at 224k tokens the summary costs about $0.14 and the next request writes the smaller context to the cache for about $0.20; each later request then reads about 180k fewer tokens, saving about $0.036. With `afterTurnPayback` set, smart-compact works out that payback from the model's prices, the cache's lifetime and what earlier compactions cost, and compacts 20 seconds after a turn when it pays back within that many requests (on Opus, from about 230k tokens). Never during a turn (Claude Code refuses), never over a draft in the prompt box or while agents run, and not when your next prompt came within the 20 seconds. Measured on 72 runs from a 224k session: the compaction lost nothing (decisions you stated were followed, a bug found before it was fixed after it, also after three compactions in a row); on short tasks that ended there it cost more (+11% to +72%), because the payback never came. In the author's sessions, 62% of prompts past 250k were followed by 20 or more requests.
 
 Prices are list prices, so on a subscription they are API-equivalent estimates, not a bill.
 
@@ -295,6 +305,7 @@ Measured, all correct:
 - **Handing off before reading the code, with the verified hand-off**, one batch: the feature and the coverage job −28% against route 0.1, 55% fewer of Claude's own requests. Claude followed that order 24 of 24 times; allowed to look around first, it kept the work 5 times in 16.
 - **TypeScript (chrono)**, one batch with the pack alone: a feature $0.99 → $0.48, 11 → 2 of Claude's requests, 214 → 125 s; writing tests $0.45 → $0.29, 6.2 → 2 requests. With Haiku as the worker: tests $0.24, the feature a little cheaper ($0.44, within the runs' spread) but slower, with twice the steps and points left open, so build work stays with Sonnet.
 - **Corrected 16 Oct: worker costs were undercounted.** These were −17%, −22%, −33%, $0.43 and $0.27; Haiku's feature had looked as cheap as Sonnet's.
+- **Not yet measured: real prompts.** The 25 prompts are clean, one request each. A classifier we trained to run on your machine instead got them right too, but on 918 real prompts from Claude Code sessions it handed off far too often (on the author's own, 18% of its hand-offs were feature or test work): a prompt in the middle of a session ("ok, build it like that") is feature work only with its conversation, which no classifier here sees. How Jev and ScaleDown do on real prompts is not known; that is one more reason route stays off until you turn it on.
 
 What it needs: delegate, and a key for TypeSafe (`typesafeKey`, or `TYPESAFE_API_KEY`) or ScaleDown (`scaledownKey`, or `SCALEDOWN_API_KEY`). What it costs: a prompt starts about 0.3 s later with Jev (1 s with ScaleDown, at most 3 s), and the start of its text leaves your machine for the classifier, a US service: TypeSafe keeps inputs as long as it needs them and never trains on them; ScaleDown's terms promise zero retention. In the desktop app's auto mode delegate cannot start workers, so turn route off there.
 
@@ -351,6 +362,27 @@ Nothing leaves your machine: seek asks Claude Code how large the context is and,
 </details>
 
 <details>
+<summary><b>draft</b>: cost: writing to a word limit in one draft, not in rounds</summary>
+<br>
+
+Asked to revise a guide to at most 700 words, Claude wrote all of it (1,052 words), counted, and wrote all of it again three times (798, 757, 694): every rewrite costs the whole text in output, and every copy stays in the conversation for later requests to re-read. draft acts only once a prompt sets a word limit ("at most 700 words", "under 250 words", "a 150-word summary", "höchstens 400 Wörter"):
+
+- **Beside that prompt**, your setting for writing to a length: give each part its share of the words and aim for about 85% of the limit; keep every fact the request asks for and cut wording; if those facts cannot all fit, keep them and say how far over it runs; a draft still well over is written once more to each section's target, not cut down in rounds.
+- **After each Write or Edit** of a Markdown or text file (`.md`, `.mdx`, `.markdown`, `.txt`, `.rst`, `.adoc`), one line on the tool's result: its words as `wc -w` counts them against the limit, and when it is more than a tenth over, each section's target, scaled to 90% of the limit. A smaller overrun gets "trim it with one Edit".
+
+Measured against the pack, on six writing tasks (a runbook from notes, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit), 4 runs each: −11.4% [−15.4, −7.2] for 0.1.2 and −10.7% [−14.9, −6.3] for 0.1.3, scores 0.990 and 0.987 against 0.990 without it, no run over its limit; the report without a limit cost the same. What did not work on the way: cutting in place with Edit cost more than one more write, since an Edit repeats the text it changes and a cut spread over a document changes most of it; aiming at three quarters of the limit dropped facts from the FAQ.
+
+| Option | Default | |
+| --- | --- | --- |
+| `enabled` | `true` | `false` turns the mod off; `/mods` does it for all of the pack. |
+| `order` | `true` | The setting beside a prompt with a limit. |
+| `gauge` | `true` | The word count after a write. |
+
+Nothing leaves your machine.
+
+</details>
+
+<details>
 <summary><b>cells</b>: flow: several edits and their check in one step</summary>
 <br>
 
@@ -396,6 +428,7 @@ The mods never import each other. Each finds the others through Claude Code itse
 - **smart-compact keeps long sessions' caches warm**, where delegate and cells pay most: both save model requests, and every request re-reads the whole context.
 - **eta shows background shell jobs**, including those a cell starts; delegate shows its own workers in its card and pane.
 - **route gives delegate's order** for feature and test prompts, the same order delegate gives for an approved plan; without delegate's tool in the list it sends nothing.
+- **draft's setting rides beside the prompt too**, when the prompt sets a word limit: seek keeps the looking around lean, draft the writing. Its word count rides on the Write or Edit result, in a cell too.
 - **seek's setting rides with the same prompt as route's order**: route hands feature and test work to the worker before Claude reads the code, and seek keeps whatever looking around is left lean. Both speak in your name, beside the prompt, where orders are followed ([lab notes 11](lab-notes/11-what-looking-around-leaves-behind.md#where-an-instruction-has-to-ride)).
 
 ### What makes the cut

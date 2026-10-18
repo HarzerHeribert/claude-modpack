@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" data-default-mode="plain">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>draft: Write to a word limit in one draft · claude-modpack</title>
+<meta name="description" content="You ask for a guide, a brief or a summary of at most 700 words.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<script>(function(d){var t=null,m=null;try{t=localStorage.getItem('modpack-theme');m=localStorage.getItem('modpack-mode')}catch(e){}if(t==='light'||t==='dark')d.setAttribute('data-theme',t);d.setAttribute('data-mode',m==='numbers'||m==='plain'?m:d.getAttribute('data-default-mode')||'plain')})(document.documentElement)</script>
+<link rel="preload" href="../assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23D97757'/%3E%3C/svg%3E">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/widgets.js" defer></script>
+</head>
+<body class="" data-root="../">
+<a class="skip" href="#main">Skip to content</a>
+<header class="hd">
+  <div class="hd-in">
+    <details class="m-nav">
+      <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
+      <div class="m-sheet"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a href="../index.html">The story</a></li><li><a href="../ideas.html">Why every step costs</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a href="../mods.html">All mods</a></li><li><a href="../mods/cells.html">cells</a></li><li><a href="../mods/seek.html">seek</a></li><li><a href="../mods/draft.html" aria-current="page">draft</a></li><li><a href="../mods/delegate.html">delegate</a></li><li><a href="../mods/route.html">route</a></li><li><a href="../mods/smart-compact.html">smart-compact</a></li><li><a href="../mods/statusline.html">statusline</a></li><li><a href="../mods/eta.html">eta</a></li><li><a href="../mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">How we know</p>
+  <ul><li><a href="../graveyard.html">What we dropped</a></li><li><a href="../evidence.html">Every measurement</a></li><li><a href="../glossary.html">Words we use</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a href="../notes.html">All lab notes</a></li></ul>
+</nav></div>
+    </details>
+    <a class="logo" href="../index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
+    <nav class="hd-nav" aria-label="Sections"><a href="../index.html">Overview</a><a href="../mods.html" aria-current="true">Mods</a><a href="../graveyard.html">How we know</a><a href="../notes.html">Lab notes</a></nav>
+    <div class="hd-tools">
+      <div class="mode" role="group" aria-label="How numbers read">
+        <span class="mode-l" aria-hidden="true">Numbers</span>
+        <button type="button" data-set-mode="plain" aria-pressed="true" title="Numbers in plain words, like “about a third cheaper”">In words</button>
+        <button type="button" data-set-mode="numbers" aria-pressed="false" title="Every number exactly, with its 95% range, and every measurement on each page">Exact</button>
+      </div>
+      <a class="ib gh" href="https://github.com/HarzerHeribert/claude-modpack" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="ib theme-btn" type="button" aria-label="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+</header>
+<div class="shell l-story">
+  <aside class="side"><nav class="side-nav" aria-label="Site">
+  <p class="side-h">Start</p>
+  <ul><li><a href="../index.html">The story</a></li><li><a href="../ideas.html">Why every step costs</a></li></ul>
+  <p class="side-h">Mods</p>
+  <ul><li><a href="../mods.html">All mods</a></li><li><a href="../mods/cells.html">cells</a></li><li><a href="../mods/seek.html">seek</a></li><li><a href="../mods/draft.html" aria-current="page">draft</a></li><li><a href="../mods/delegate.html">delegate</a></li><li><a href="../mods/route.html">route</a></li><li><a href="../mods/smart-compact.html">smart-compact</a></li><li><a href="../mods/statusline.html">statusline</a></li><li><a href="../mods/eta.html">eta</a></li><li><a href="../mods/modpack.html">modpack</a></li></ul>
+  <p class="side-h">How we know</p>
+  <ul><li><a href="../graveyard.html">What we dropped</a></li><li><a href="../evidence.html">Every measurement</a></li><li><a href="../glossary.html">Words we use</a></li></ul>
+  <p class="side-h">Lab notes</p>
+  <ul><li><a href="../notes.html">All lab notes</a></li></ul>
+</nav></aside>
+  <main id="main" tabindex="-1">
+
+<div class="doc story mod">
+  <p class="eyebrow"><a href="../mods.html">Mods</a></p>
+  <h1>draft</h1>
+  <p class="lead">Write to a word limit in one draft.</p>
+  <p class="mod-meta">It comes with <a href="../index.html#try">the pack</a> and is on from the start.</p>
+
+  <h2 id="moment">The moment</h2>
+  <p>You ask for a guide, a brief or a summary of at most 700 words.</p>
+  <h2 id="without">Without draft</h2>
+  <p>Claude writes all of it, counts, finds it too long, and writes all of it again: <!--n--><span class="fact"><span class="f-w">1,052 → 798 → 757 → 694 words</span><a class="f-x r-count" href="../evidence.html#f-draft-rewrites" aria-describedby="tip-30">1,052 to 798 to 757 to 694 words<span class="f-card" role="tooltip" id="tip-30"><b>1,052 to 798 to 757 to 694 words</b><br>1 task<br>Opus 5.5, 18 Oct 2026</span></a></span><!--/n--> in our test. Every rewrite costs the whole text in output, and every copy stays in the conversation for later steps to read again.</p>
+  <h2 id="with">With draft</h2>
+  <p>When your prompt sets a word limit, draft passes on your setting beside it: give each part its share of the words and aim a little under the limit, keep every fact the request asks for and cut wording, and if the facts cannot all fit, keep them and say how far over it runs. After each write of a Markdown or text file it shows the word count and, when the text is well over, each section’s target, so one more write lands it instead of cuts in rounds. It runs on your machine and sends nothing anywhere.</p>
+  
+  
+
+  <h2 id="measured">What we measured</h2>
+  <p>Against the pack without it, on six writing tasks: <!--n--><span class="fact"><span class="f-w">10.7% cheaper</span><a class="f-x r-lower" href="../evidence.html#f-draft-cost" aria-describedby="tip-31">10.7% cheaper<span class="f-r">, 95% range 6.3 to 14.9% cheaper</span><span class="f-card" role="tooltip" id="tip-31"><b>10.7% cheaper</b><br>95% range 6.3 to 14.9% cheaper<br>24 runs<br>Opus 5.5, 18 Oct 2026</span></a></span><!--/n-->, with a score of <!--n--><span class="fact"><span class="f-w">0.987</span><a class="f-x r-count" href="../evidence.html#f-draft-quality" aria-describedby="tip-32">0.987<span class="f-card" role="tooltip" id="tip-32"><b>0.987</b><br>24 runs<br>Opus 5.5, 18 Oct 2026</span></a></span><!--/n--> against 0.990 without it, and no run over its word limit.</p>
+  <div class="only-numbers"><h3 id="all">Every measurement for draft</h3><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p><!--n--><ul class="mlist"><li><span class="ml-c"><a href="../evidence.html#f-draft-cost">draft 0.1.3 on six writing tasks</a><span>the pack with draft against the pack</span></span><span class="ml-v"><b>10.7% cheaper</b><span>95% range 6.3 to 14.9% cheaper</span><span>24 runs. Opus 5.5, 18 Oct 2026</span></span><span class="ml-s"><svg class="strip s-lower" width="120" height="14" viewBox="0 0 120 14" role="img" aria-label="10.7% cheaper, 95% range 6.3 to 14.9% cheaper"><line class="s-base" x1="4" x2="116" y1="7" y2="7"/><line class="s-zero" x1="60" x2="60" y1="2" y2="12"/><line class="s-ci" x1="46.1" x2="54.1" y1="7" y2="7"/><circle class="s-mark" cx="50" cy="7" r="3.6"/></svg></span></li><li><span class="ml-c"><a href="../evidence.html#f-draft-quality">draft 0.1.3: score on the six writing tasks</a><span>against 0.990 without it</span></span><span class="ml-v"><b>0.987</b><span>24 runs. Opus 5.5, 18 Oct 2026</span></span><span class="ml-s"></span></li><li><span class="ml-c"><a href="../evidence.html#f-draft-rewrites">Without draft: a guide revised to at most 700 words, in words per write</a><span>one write, then three whole rewrites</span></span><span class="ml-v"><b>1,052 to 798 to 757 to 694 words</b><span>1 task. Opus 5.5, 18 Oct 2026</span></span><span class="ml-s"></span></li><li><span class="ml-c"><a href="../evidence.html#f-draft-no-limit">draft on a data report without a limit</a><span>the pack with draft against the pack</span></span><span class="ml-v"><b>no change</b><span>4 runs. Opus 5.5, 18 Oct 2026</span></span><span class="ml-s"></span></li></ul><!--/n--></div>
+     <p class="only-plain more"><button type="button" class="link-btn" data-set-mode="numbers">See every measurement behind draft</button></p>
+
+  <h2 id="limits">Where it doesn’t help</h2>
+  <p>Without a word limit in your prompt it does nothing, and a report written without one <!--n--><span class="fact"><span class="f-w">cost the same</span><a class="f-x r-count" href="../evidence.html#f-draft-no-limit" aria-describedby="tip-33">no change<span class="f-card" role="tooltip" id="tip-33"><b>No change</b><br>4 runs<br>Opus 5.5, 18 Oct 2026</span></a></span><!--/n-->. On the way we found that cutting in place with Edit cost more than one more write, since an Edit repeats the text it changes, and that aiming at three quarters of the limit dropped facts from the FAQ.</p>
+
+  <h2 id="switch">Turn it on or off</h2>
+  <p><code>/mods draft off</code> turns it off. <code>order</code> turns off the setting beside your prompt, <code>gauge</code> the word count after a write. Every option is in <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">the README</a>; the code is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/draft">draft/</a>.</p>
+  
+  <nav class="next" aria-label="Next"><a href="delegate.html"><span>Next</span><b>delegate</b><em>A cheaper model builds what you approved.</em><svg class="arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></nav>
+</div>
+  </main>
+  
+</div>
+<footer class="ft">
+  <div class="ft-in">
+    <p><span class="logo-dot" aria-hidden="true"></span><b>claude-modpack</b>, mods for Claude Code, measured before they ship. Free and open source under the <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/LICENSE">MIT licence</a>; the code is <a href="https://github.com/HarzerHeribert/claude-modpack">on GitHub</a>.</p>
+    <p>Written by Claude from the repository’s data and reviewed by its maintainer. Every number on this site is quoted from its source and checked when the site is built (<a href="../facts.json">facts.json</a>). No cookies, no trackers, nothing loaded from anywhere else.</p>
+  </div>
+</footer>
+</body>
+</html>

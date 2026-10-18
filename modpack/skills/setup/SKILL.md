@@ -4,7 +4,7 @@ description: Set up the whole claude-modpack with the person, step by step - che
 disable-model-invocation: true
 ---
 
-Set up the claude-modpack with the person. The pack is the `modpack` plugin (it installs the others, `/mods` turns each on or off, it keeps itself up to date, and its hook guard stops another plugin's hanging hook from freezing Claude Code) and seven mods: statusline, smart-compact, delegate, cells, eta, seek, route. Each mod has its own setup skill, which the person can also run alone (`/statusline:setup`, `/delegate:setup`, …). This one walks through all of them in the right order, with one restart, and ends with a summary.
+Set up the claude-modpack with the person. The pack is the `modpack` plugin (it installs the others, `/mods` turns each on or off, it keeps itself up to date, and its hook guard stops another plugin's hanging hook from freezing Claude Code) and eight mods: statusline, smart-compact, delegate, cells, eta, seek, draft, route. Each mod has its own setup skill, which the person can also run alone (`/statusline:setup`, `/delegate:setup`, …). This one walks through all of them in the right order, with one restart, and ends with a summary.
 
 ## How to run this setup
 
@@ -27,15 +27,15 @@ Run these and read the answers:
 
 ## 2. Check what is installed
 
-`claude plugin list --json`. For each of `modpack`, `statusline`, `smart-compact`, `delegate`, `cells`, `eta`, `seek` and `route` there should be an entry `<name>@claude-modpack` with `"enabled": true`; note its `installPath`.
+`claude plugin list --json`. For each of `modpack`, `statusline`, `smart-compact`, `delegate`, `cells`, `eta`, `seek`, `draft` and `route` there should be an entry `<name>@claude-modpack` with `"enabled": true`; note its `installPath`.
 
-- **A mod missing**: `claude plugin install <name>@claude-modpack` (ask first). Installing `modpack` installs all seven as its dependencies.
+- **A mod missing**: `claude plugin install <name>@claude-modpack` (ask first). Installing `modpack` installs all eight as its dependencies.
 - **lsp-plus still installed** (`lsp-plus@claude-modpack`): it left the pack in 0.7.0, and the modpack removes it once at its first start. If it is still there, the person installed it again on purpose; leave it unless they want it gone (`claude plugin uninstall lsp-plus@claude-modpack`).
 - **A mod disabled**: `claude plugin enable <name>@claude-modpack`.
 - **A copy loaded from a folder** (`<name>@inline`, scope `session`, from `--plugin-dir` or `CLAUDE_CODE_PLUGIN_DIRS`): it takes the installed one's place in that session, and its options live under `pluginConfigs["<name>"]` instead. Fine for developing a mod; say so and use the folder as its `installPath`.
 - **The newest release**: the person can type `/modpack:update`; it installs a newer release if there is one (loaded at the next start).
 
-The person can also type `/mods`: it lists the seven with `on`, `off` or `not installed`. `route: off` is expected: route is off until they turn it on.
+The person can also type `/mods`: it lists the eight with `on`, `off` or `not installed`. `route: off` is expected: route is off until they turn it on.
 
 ## 3. Ask the choices, once
 
@@ -58,8 +58,9 @@ For each mod, read `<installPath>/skills/setup/SKILL.md` and do its checking and
 4. **cells**: the sandbox fix, if one was chosen.
 5. **delegate**: check where it can start workers (step 1). Before route: route acts only through delegate's `hand_off` tool.
 6. **seek**: nothing to set. Its setting to look around in few, lean steps rides beside the person's prompts from the first one; its map stays off unless the person asks for it.
-7. **modpack's own options**: `updates` and `hookGuard`, if they differ from the defaults: `/config modpack.updates=notify` (typed by the person), or `/plugin configure modpack@claude-modpack`.
-8. **route**, only if the person wants it: its consent step in full, a classifier, and the key, stored by the person (never through you). Do not turn it on yet: that waits for delegate's hand-off to work (step 5). If the person stores the key from a terminal, it is read at the next start, so do this before the restart.
+7. **draft**: nothing to set. It acts only on a prompt that sets a word limit.
+8. **modpack's own options**: `updates` and `hookGuard`, if they differ from the defaults: `/config modpack.updates=notify` (typed by the person), or `/plugin configure modpack@claude-modpack`.
+9. **route**, only if the person wants it: its consent step in full, a classifier, and the key, stored by the person (never through you). Do not turn it on yet: that waits for delegate's hand-off to work (step 5). If the person stores the key from a terminal, it is read at the next start, so do this before the restart.
 
 How options are set, for any mod: `/mods <mod> on|off` for the switch; `/plugin configure <mod>@claude-modpack` for a dialog; `/config <mod>.<option>=<value>` typed; or by hand in `~/.claude/settings.json` under `"pluginConfigs": { "<mod>@claude-modpack": { "options": { … } } }` (user settings only; Claude Code ignores this key in project settings). Sensitive values (route's keys) never go in that file. A change made inside the session reloads the mod at once; a change in the file, or from another terminal, at the next start.
 
@@ -71,14 +72,15 @@ If anything in step 4 needs it (a cells fix, a key set from a terminal), tell th
 
 Use each mod's own "Confirm" step; in short:
 
-1. **The pack**: the person types `/mods`; all seven installed, each `on`, route `off` unless chosen.
+1. **The pack**: the person types `/mods`; all eight installed, each `on`, route `off` unless chosen.
 2. **statusline**: ask what they see under the prompt (or above it, in the band or the desktop app).
 3. **smart-compact**: the person types `/cache`; its first line names the strategy and the cache's lifetime.
 4. **eta**: a 30-step background job and `track_progress`; the person sees a row above the prompt with a percentage and a finish time.
 5. **cells**: `run_cell` with `return 1`, then one with an `sh` call.
 6. **delegate**: one small read hand-off; the result says Verified or Not verified after the worker's report.
 7. **seek**: look for "The person's setting for looking around in this session" beside one of the person's prompts in this conversation (one of 20 characters or more, such as their answer to step 3, carries it once seek is loaded). If none has it yet, it comes with their next such prompt: look then, and say whether it arrived.
-8. **route**, if chosen and delegate worked: the person types `/mods route on`; their next feature or test request (40 characters or more) comes with the order to hand it off. Look for it then, and say whether it arrived.
+8. **draft**: the person sends a short writing request with a limit ("Write notes/draft-check.md: three sentences on what this project does, at most 60 words."); look for "The person's setting for writing to a length" beside that prompt, then for the word count on the Write result of the `.md` file. Say whether both came, and delete the file if they do not want it.
+9. **route**, if chosen and delegate worked: the person types `/mods route on`; their next feature or test request (40 characters or more) comes with the order to hand it off. Look for it then, and say whether it arrived.
 
 Where a check fails, the mod's skill says what each failure means. Fix what can be fixed with the person; otherwise record why it is off and what is left.
 
@@ -94,6 +96,7 @@ End with a short table and nothing after it but what is left for the person:
 | cells | on, Seatbelt | (or bubblewrap, or Node's sandbox only: signals open) |
 | delegate | on | (or: refused in the desktop app's auto mode) |
 | seek | on | the setting arrived with a prompt |
+| draft | on | the setting and the word count arrived on a prompt with a limit |
 | route | off | the person chose off (or: on with Jev, the order arrived) |
 | modpack | updates `auto`, hook guard on | |
 

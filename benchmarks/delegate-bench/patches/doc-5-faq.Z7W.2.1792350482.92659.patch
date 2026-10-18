@@ -1,0 +1,39 @@
+diff --git a/docs/faq.md b/docs/faq.md
+new file mode 100644
+index 0000000..bf41b6c
+--- /dev/null
++++ b/docs/faq.md
+@@ -0,0 +1,33 @@
++# tally FAQ
++
++## How do I install the command line tool?
++
++With pipx and Python 3.11 or newer: `pipx install tally-toolkit`. Check it with `tallyctl version`; if the command is not found, run `pipx ensurepath` and open a new terminal.
++
++## What is the tool called now?
++
++`tallyctl`. It was `tally-cli` until the 2026-09 release; the old name works as an alias for one more release, then goes away.
++
++## Which port does tally listen on?
++
++8731. The September release closed the old port 8080, so anything still pointing at it gets a refused connection.
++
++## How do I clear the cache?
++
++`tallyctl cache clear` clears all regions; add `--region NAME` to clear one. The old purge command was removed and now fails as an unknown subcommand.
++
++## How long until an unanswered page escalates?
++
++15 minutes without acknowledgement (the earlier 30-minute rule is dropped). The order is primary on-call, then secondary, then the engineering manager.
++
++## Does the pager wake me at night?
++
++Only for severity 1: customer-facing data loss or a full outage. Between 22:00 and 07:00, severity 2 (a slow dashboard, a delayed batch) waits for the morning. Pages arrive in the Beacon app; install it and log in with SSO before your first shift.
++
++## What do I do when the ingest queue is stuck?
++
++Restart with a drain first: `tallyctl restart ingest --drain`. It finishes in-flight work, parks the stuck batch in the dead-letter table and starts the consumer clean; a plain restart does not help. Look for the cause afterwards.
++
++## What do I do when the API certificate has expired?
++
++Renew it, then restart the API, because only a restart serves the new certificate: `tallyctl certs renew api`, then `tallyctl restart api`. `tallyctl certs list` shows expiry dates.

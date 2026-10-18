@@ -8,6 +8,7 @@ import {
   decide,
   duration,
   observeTtl,
+  paybackRequests,
   pricingFor,
   resolveTtl,
   tokens,
@@ -130,5 +131,19 @@ describe('format', () => {
     expect(duration(41 * 60_000)).toBe('41m')
     expect(duration(192_000)).toBe('3:12')
     expect(duration(70 * 60_000)).toBe('1h10')
+  })
+})
+
+describe('paybackRequests', () => {
+  const opus = pricingFor('claude-opus-5-5')
+  test('the compaction against what each later request saves: sooner the longer the session', () => {
+    const at = (ctx: number) => paybackRequests(ctx, TTL_1H, opus, DEFAULT_LEARNED)
+    expect(at(150_000)).toBeGreaterThan(20)
+    expect(at(412_000)).toBeLessThan(20)
+    expect(at(412_000)).toBeGreaterThan(at(800_000))
+    // As measured (compact_bench): the summary served from the cache, about 7k tokens of it, 25k left after.
+    const measured = { summaryTokens: 7_000, postCompactTokens: 25_000, compactCacheShare: 1 }
+    expect(Math.round(paybackRequests(224_000, TTL_1H, opus, measured))).toBe(10)
+    expect(paybackRequests(30_000, TTL_1H, opus, DEFAULT_LEARNED)).toBe(Number.POSITIVE_INFINITY)
   })
 })

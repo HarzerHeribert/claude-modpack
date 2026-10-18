@@ -1,0 +1,16 @@
+diff --git a/reports/q3-drop.md b/reports/q3-drop.md
+new file mode 100644
+index 0000000..bc36a5d
+--- /dev/null
++++ b/reports/q3-drop.md
+@@ -0,0 +1,10 @@
++# Q3 revenue drop
++
++East's revenue fell the most of any region from Q2 to Q3, down 29.79% from $333,747.57 to $234,325.08, a loss of $99,422.49. Ledger Pro caused most of it: its East revenue fell from $106,520.77 to $23,015.24, which is $83,505.53, or about 84% of the region's drop. Completed Ledger Pro orders in East went from about 100 a month in Q2 to 22–28 a month in July–September, then recovered to Q2 levels in Q4. Every other East product except Audit Add-on also fell, but none by more than $7,600. Revenue here is units × unit_price over completed rows only, with refunds (negative units) included.
++
++| Quarter | East revenue |
++|---|---:|
++| Q1 | $333,565.48 |
++| Q2 | $333,747.57 |
++| Q3 | $234,325.08 |
++| Q4 | $305,168.76 |

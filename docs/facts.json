@@ -8,24 +8,24 @@
       ],
       "claim": "Graded runs that ship with the release",
       "metric": "quality",
-      "shown": "2,304",
+      "shown": "2,448",
       "ci": null,
-      "comparison": "graded runs, 33 short of full marks",
+      "comparison": "graded runs, 55 short of full marks",
       "session": "fresh and long",
       "language": "Python, TypeScript and Go",
       "tasks": "click, chrono, PocketBase and the other benchmark sets",
-      "runs": "2,304 runs",
+      "runs": "2,448 runs",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
         "2026-10-16"
       ],
-      "correct": "33 fell short of full marks, listed in the README",
+      "correct": "55 fell short of full marks, listed in the README",
       "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "Of all 2,304 graded runs that ship with this release, 33 fell short"
+        "quote": "Of all 2,448 graded runs that ship with this release, 55 fell short"
       },
       "note": null,
       "data": [
@@ -5040,6 +5040,133 @@
       "note": "12-the-mod-that-left.md",
       "data": [
         "benchmarks/delegate-bench/results-beyond.jsonl"
+      ]
+    },
+    {
+      "id": "draft-cost",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft 0.1.3 on six writing tasks",
+      "metric": "cost",
+      "shown": "−10.7%",
+      "ci": [
+        "−14.9",
+        "−6.3"
+      ],
+      "comparison": "the pack with draft vs the pack",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit",
+      "runs": "24 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "no run over its word limit",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "080-2026-10-18",
+        "quote": "−10.7% [−14.9, −6.3] for 0.1.3 (24 runs)"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-draft2.jsonl",
+        "benchmarks/delegate-bench/results-draft3.jsonl"
+      ]
+    },
+    {
+      "id": "draft-quality",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft 0.1.3: score on the six writing tasks",
+      "metric": "quality",
+      "shown": "0.987",
+      "ci": null,
+      "comparison": "against 0.990 without it",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit",
+      "runs": "24 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "scores 0.987 with draft, 0.990 without",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "080-2026-10-18",
+        "quote": "scores 0.990 and 0.987 against 0.990, no run over its limit"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-draft2.jsonl",
+        "benchmarks/delegate-bench/results-draft3.jsonl"
+      ]
+    },
+    {
+      "id": "draft-rewrites",
+      "mods": [
+        "draft"
+      ],
+      "claim": "Without draft: a guide revised to at most 700 words, in words per write",
+      "metric": "count",
+      "shown": "1,052 → 798 → 757 → 694 words",
+      "ci": null,
+      "comparison": "one write, then three whole rewrites",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit",
+      "runs": "1 task",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "Claude wrote all of it (1,052 words), counted, and wrote all of it again three times (798, 757, 694)"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-draft2.jsonl",
+        "benchmarks/delegate-bench/results-draft3.jsonl"
+      ]
+    },
+    {
+      "id": "draft-no-limit",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft on a data report without a limit",
+      "metric": "cost",
+      "shown": "no change",
+      "ci": null,
+      "comparison": "the pack with draft vs the pack",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit",
+      "runs": "4 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "README.md",
+        "anchor": "the-mods-in-depth",
+        "quote": "the report without a limit cost the same"
+      },
+      "note": null,
+      "data": [
+        "benchmarks/delegate-bench/results-draft2.jsonl",
+        "benchmarks/delegate-bench/results-draft3.jsonl"
       ]
     }
   ]

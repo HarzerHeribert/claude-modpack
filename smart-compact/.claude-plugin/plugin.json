@@ -1,6 +1,6 @@
 {
   "name": "smart-compact",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the status line whether the next prompt is ready or cold.",
   "author": {
     "name": "HarzerHeribert"
@@ -53,6 +53,12 @@
       "title": "Minimum context to compact (tokens)",
       "description": "Never compact a smaller context.",
       "default": 100000
+    },
+    "afterTurnPayback": {
+      "type": "number",
+      "title": "Compact after a turn when it pays back within (requests)",
+      "description": "In a long session, compact when a turn has ended (never mid-turn, never over a draft or running agents) if the compaction costs less than this many later requests save by reading the smaller context. Measured: no quality lost; at 250k on Opus it pays back after about 8 to 17 requests. 0 never compacts after a turn (the default while it is tried in real sessions; 20 is the measured choice).",
+      "default": 0
     },
     "maxIdleHours": {
       "type": "number",

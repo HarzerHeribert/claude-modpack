@@ -100,7 +100,7 @@ async function loaded($: Engine) {
 
 const REPO = 'HarzerHeribert/claude-modpack'
 const MARKETPLACE = 'claude-modpack'
-const PLUGINS = ['modpack', 'statusline', 'smart-compact', 'delegate', 'cells', 'eta', 'seek', 'route']
+const PLUGINS = ['modpack', 'statusline', 'smart-compact', 'delegate', 'cells', 'eta', 'seek', 'draft', 'route']
 
 /** Mods that left the pack. A release no longer ships them, and an update cannot reach them, so the first session on
  * the new modpack removes each from a marketplace install, once, and says why in one line. */
@@ -161,7 +161,7 @@ async function install($: Engine, latest: string, current: string): Promise<stri
   let own: Awaited<ReturnType<typeof claude>>
   for (const name of PLUGINS) {
     const r = await claude($, ['plugin', 'update', `${name}@${MARKETPLACE}`])
-    // A mod new in this release (route in 0.5.0, seek in 0.6.0) is not installed yet: update cannot reach it, install does.
+    // A mod new in this release (route in 0.5.0, seek in 0.6.0, draft in 0.8.0) is not installed yet: update cannot reach it, install does.
     if (name !== 'modpack' && (r === undefined || r.exitCode !== 0)) await claude($, ['plugin', 'install', `${name}@${MARKETPLACE}`])
     if (name === 'modpack') own = r
   }

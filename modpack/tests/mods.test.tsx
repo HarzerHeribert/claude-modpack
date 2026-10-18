@@ -102,9 +102,9 @@ test('/mods on a folder-loaded mod points at pluginConfigs', async ($, on) => {
   expect(sets).toEqual([])
 })
 
-test('/mods with an unknown name lists the seven', async ($, on) => {
+test('/mods with an unknown name lists the eight', async ($, on) => {
   const sets = host(on)
   const t = await run($, 'nope off')
-  for (const n of ['statusline', 'smart-compact', 'delegate', 'cells', 'eta', 'seek', 'route']) expect(t).toContain(n)
+  for (const n of ['statusline', 'smart-compact', 'delegate', 'cells', 'eta', 'seek', 'draft', 'route']) expect(t).toContain(n)
   expect(sets).toEqual([])
 })

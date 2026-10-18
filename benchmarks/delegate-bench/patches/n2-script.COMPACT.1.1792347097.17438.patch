@@ -1,0 +1,54 @@
+diff --git a/CHANGES.md b/CHANGES.md
+index 3c9a94e..db781a3 100644
+--- a/CHANGES.md
++++ b/CHANGES.md
+@@ -1,3 +1,10 @@
++## Version 8.5.1
++
++Unreleased
++
++- Add `scripts/count_lines.py`, which prints the line count and path of
++  every `.py` file under `src/click`, largest first.
++
+ ## Version 8.5.0
+ 
+ Released 2026-08-24
+diff --git a/scripts/count_lines.py b/scripts/count_lines.py
+new file mode 100644
+index 0000000..f6efa60
+--- /dev/null
++++ b/scripts/count_lines.py
+@@ -0,0 +1,33 @@
++"""Print the line count of every ``.py`` file under ``src/click``.
++
++Each output line is ``<lines> <path>``, where ``lines`` counts newline
++characters the way ``wc -l`` does and ``path`` is relative to the
++repository root. Files are sorted by line count, largest first, and
++files with the same count by path.
++"""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++
++
++def main() -> None:
++    """Print ``<lines> <path>`` for each ``.py`` file under ``src/click``.
++
++    .. versionadded:: 8.5.1
++    """
++    counts = []
++
++    for path in (ROOT / "src" / "click").rglob("*.py"):
++        if path.is_file():
++            lines = path.read_bytes().count(b"\n")
++            counts.append((lines, path.relative_to(ROOT).as_posix()))
++
++    for lines, name in sorted(counts, key=lambda item: (-item[0], item[1])):
++        print(f"{lines} {name}")
++
++
++if __name__ == "__main__":
++    main()

@@ -982,9 +982,12 @@ def grade_brief(repo: Path) -> dict:
     c["sep_cause"] = bool(re.search(r"expire", low)) and bool(re.search(r"renew\w*[^.]{0,80}(fail|silent|broke|did not|didn't)|(fail|silent)\w*[^.]{0,80}renew", low))
     c["aug_fix"] = bool(re.search(r"drain|park|dead[\s-]letter|isolat|set aside|quarantin|restart", low)) and bool(re.search(r"vacuum|rotat|log", low))
     c["sep_fix"] = bool(re.search(r"renew", low)) and bool(re.search(r"restart", low))
+    # A follow-up is judged by its sentence or by its bullet: "Disk alert at 80%: Sunil. Done (30 Sep meeting)." is one
+    # line with the owner and the status in two sentences.
+    units = ss + [l.lower() for l in t.splitlines() if l.strip()]
     for label, kw, owner, done in BRIEF_ACTIONS:
         ok = False
-        for s in ss:
+        for s in units:
             if re.search(kw, s) and owner in s:
                 ok |= bool(DONE.search(s)) and not OPEN.search(s) if done else bool(OPEN.search(s))
         c[f"action_{label}"] = ok

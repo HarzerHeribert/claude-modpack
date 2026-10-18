@@ -1,0 +1,28 @@
+{
+  "name": "draft",
+  "version": "0.1.3",
+  "description": "Writing to a length in one draft and cuts, not rewrites. When your prompt sets a word limit, it carries your setting to plan each part's share and land the length in one draft, or one more write; each write of a document then shows its words as wc -w counts them, and when it is well over, each section's target. Silent without a limit. Nothing leaves your machine.",
+  "author": {
+    "name": "HarzerHeribert"
+  },
+  "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "On",
+      "description": "Turn this mod off or on; /mods does it for all of the pack.",
+      "default": true
+    },
+    "order": {
+      "type": "boolean",
+      "title": "Writing to a length",
+      "description": "A prompt that sets a word limit carries your setting: plan each part's share of the words and aim under the limit; a draft well over it is written once more to section targets, not cut down in rounds.",
+      "default": true
+    },
+    "gauge": {
+      "type": "boolean",
+      "title": "Words after each write",
+      "description": "Once a prompt has set a word limit, each Write or Edit of a Markdown or text file shows its words against the limit, and each section's target when it is well over.",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,30 @@
+diff --git a/reports/incidents-brief.md b/reports/incidents-brief.md
+new file mode 100644
+index 0000000..0409a2d
+--- /dev/null
++++ b/reports/incidents-brief.md
+@@ -0,0 +1,24 @@
++# Incident brief, August–September 2026
++
++Action status as of the 30 September on-call meeting.
++
++## 11 August: data backlog and full disk
++
++- **Impact:** overnight, incoming data stalled for about 2.5 hours; customers saw stale dashboards. No data was lost.
++- **Cause:** one malformed batch jammed ingestion, which retried it endlessly; the retries' logs filled the database disk, which then refused writes.
++- **Fix:** a restart that set the bad batch aside; reclaiming database space and compressing old logs.
++- **Actions:**
++  - Disk alert at 80%: Sunil, done.
++  - Stop bad batches jamming ingestion: Jonas, open (in review).
++  - Paging escalation review: no owner named, done; unanswered pages now escalate after 15 minutes.
++
++## 21 September: expired API certificate
++
++- **Impact:** public API unreachable for 47 minutes for nearly all customers.
++- **Cause:** the API's certificate expired; its automatic renewal had failed silently for weeks on an outdated access token.
++- **Fix:** certificate renewed, API restarted; renewal job repaired and now alerts on failure.
++- **Actions:**
++  - Calendar reminder 14 days before expiry: Priya, done.
++  - Alert on days left: Priya, open.
++  - Expiry check in weekly checklist: Tomasz, open.
++  - Responders record steps as they work: Mara, done.

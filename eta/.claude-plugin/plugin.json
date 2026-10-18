@@ -1,6 +1,6 @@
 {
   "name": "eta",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Shows long-running and background jobs with a percentage and an estimated finish time, read live from their output.",
   "author": {
     "name": "HarzerHeribert"

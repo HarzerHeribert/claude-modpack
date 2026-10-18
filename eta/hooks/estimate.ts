@@ -178,3 +178,25 @@ export function describe(job: Job, now: number, tz: number | null) {
   if (e.stalledMs !== undefined) eta += ` · no progress for ${duration(e.stalledMs)}`
   return { label, progress, eta }
 }
+
+const SETUP = /^(cd\s+\S+|export\s+\S+|source\s+\S+|\.\s+\S+|set\s+-\S+|[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|\S*))$/
+const WRAPPERS = new Set(['timeout', 'nohup', 'time', 'env', 'exec', 'caffeinate', 'nice'])
+
+/**
+ * A job's name when the call gave no description: the command that does the work, not the `cd`, exports and variable
+ * assignments in front of it ("cd ~/x && BENCH_RESULTS=r.jsonl python3 bench.py run --arms a" → "bench.py run --arms a").
+ */
+export function commandLabel(command: string, max = 48): string {
+  const first = command.split('\n')[0]?.trim() ?? ''
+  const steps = first.split(/\s*(?:&&|;|\|\|)\s*/).map(s => s.trim()).filter(Boolean)
+  let step = steps.find(s => !SETUP.test(s)) ?? steps[steps.length - 1] ?? first
+  // Assignments and wrappers before the program ("A=1 B=2 timeout 600 python3 x.py").
+  let words = step.split(/\s+/)
+  while (words.length > 1 && (/^[A-Za-z_][A-Za-z0-9_]*=/.test(words[0] as string) || WRAPPERS.has(words[0] as string) || /^\d+[smh]?$/.test(words[0] as string))) words = words.slice(1)
+  // An interpreter names nothing: show its script.
+  if (words.length > 1 && /^(python3?|node|bash|sh|zsh|ruby|perl|bun|deno|uv|npx)$/.test(words[0] as string) && !(words[1] as string).startsWith('-')) words = words.slice(1)
+  if (words[0]?.includes('/')) words[0] = (words[0] as string).split('/').pop() as string
+  // What the output goes to (a pipe, a redirection) is not the job's name.
+  step = words.join(' ').replace(/\s*\|.*$/, '').replace(/\s*\d?>>?&?\s*\S+/g, '').trim()
+  return step.length > max ? `${step.slice(0, max - 1)}…` : step
+}

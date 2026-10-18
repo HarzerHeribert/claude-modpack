@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { Color, EngineInterface, Register, Timer } from 'claude-code'
 
-import { compile, describe, feed } from './estimate'
+import { commandLabel, compile, describe, feed } from './estimate'
 import { BEAT_MS, table } from './table'
 import type { Tone } from './table'
 import type { Job } from '../types'
@@ -295,7 +295,7 @@ export const register: Register = (on, options) => {
     const input = e as { command?: unknown; description?: unknown }
     const now = await $.clock.now()
     const file = (r.text ?? '').match(/written to:?\s+(\S+?\.output)\b/)?.[1]
-    const label = str(input.description) ?? String(input.command ?? id).split('\n')[0] ?? id
+    const label = str(input.description) ?? (str(input.command) ? commandLabel(String(input.command)) : id)
     await addJob($, {
       id, label, source: 'background', file, command: str(input.command), startedAt: now, offset: 0, carry: '', done: 0,
       samples: [[now, 0]], status: 'running',

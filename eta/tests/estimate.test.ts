@@ -1,6 +1,6 @@
 import { describe as group, expect, test } from 'claude-code/testing'
 
-import { bar, clock, describe, estimate, feed } from '../hooks/estimate'
+import { bar, clock, commandLabel, describe, estimate, feed } from '../hooks/estimate'
 import type { Job } from '../types'
 
 const MIN = 60_000
@@ -76,5 +76,18 @@ group('describe', () => {
   test('clock times are the person’s', () => {
     expect(clock(0, 120)).toBe('02:00')
     expect(clock(0, -300)).toBe('19:00')
+  })
+})
+
+group('commandLabel', () => {
+  test('names the command that does the work, not the cd and the variables before it', () => {
+    expect(commandLabel('cd ~/projects/claude-mods/pilot/delegate-bench && export BENCH_PACK_ROOT=$HOME/x && python3 compact_bench.py run --arms KEEP,COMPACT --reps 3 2>&1 | tail -60'))
+      .toStartWith('compact_bench.py run --arms KEEP')
+    expect(commandLabel('cd x && BENCH_RESULTS=r.jsonl timeout 900 python3 bench.py run --jobs 4')).toBe('bench.py run --jobs 4')
+    expect(commandLabel('npm test')).toBe('npm test')
+    expect(commandLabel('python3 -m pytest -q tests')).toBe('python3 -m pytest -q tests')
+    expect(commandLabel('cd /tmp/a')).toBe('cd /tmp/a')
+    expect(commandLabel('/usr/local/bin/ffmpeg -i in.mov out.gif').startsWith('ffmpeg -i')).toBe(true)
+    expect(commandLabel('x '.repeat(60)).length).toBeLessThanOrEqual(48)
   })
 })

@@ -31,10 +31,10 @@ claude plugin marketplace add HarzerHeribert/claude-modpack
 claude plugin install modpack@claude-modpack
 ```
 
-Installing `modpack` installs all seven mods as its dependencies. Restart Claude Code, then check:
+Installing `modpack` installs all eight mods as its dependencies. Restart Claude Code, then check:
 
-- `claude plugin list` shows `modpack@claude-modpack` and the seven mods (`statusline`, `smart-compact`, `delegate`, `cells`, `eta`, `seek`, `route`), each `✔ enabled`.
-- `/mods` lists the seven, each `on`, except `route: off`: route stays off until you turn it on.
+- `claude plugin list` shows `modpack@claude-modpack` and the eight mods (`statusline`, `smart-compact`, `delegate`, `cells`, `eta`, `seek`, `draft`, `route`), each `✔ enabled`.
+- `/mods` lists the eight, each `on`, except `route: off`: route stays off until you turn it on.
 - Coming from 0.6 or older: `lsp-plus@claude-modpack` is gone after the modpack's first start on 0.7.0, which removes it once and says so (it left the pack; the README's questions say why).
 
 ## How options work
@@ -175,7 +175,17 @@ Nothing to install, and nothing leaves your machine. Every request re-reads the 
 
 **Options**: `order` (on), `orderFrom` (`0`: from the first prompt; `150000` keeps it out of small sessions), `map` (off: past `minContext`, 150k, a code search's result also names the definitions that hold its hits; measured, it saved nothing certain), `laterRequests` and `saveRate` (how the map is priced).
 
-## 9. route, if you want it
+## 9. draft: writing to a word limit in one draft
+
+Nothing to install, and nothing leaves your machine. Asked for at most 700 words, Claude tends to write the whole text, count it, find it a third over, and write the whole text again, several times; every rewrite costs the whole text in output and stays in the conversation. draft acts only once a prompt sets a word limit ("at most 700 words", "under 250 words", "a 150-word summary", "höchstens 400 Wörter"). Beside that prompt it adds your setting for writing to a length: give each part its share of the words and aim for about 85% of the limit, keep every fact the request asks for and cut wording, and if those facts cannot all fit, keep them and say how far over it runs; a draft still well over is written once more to each section's target, not cut down in rounds. After each Write or Edit of a Markdown or text file, one line gives its words as `wc -w` counts them, and each section's target when it is more than a tenth over. Without a limit it does nothing.
+
+**Check**: send a short writing request with a limit, for example "Write notes/draft-check.md: three sentences on what this project does, at most 60 words." and, in the same prompt, ask Claude whether draft's setting came with it. It reads `The person's setting for writing to a length (60 words here)`. After the write, the Write result carries a line such as `notes/draft-check.md: 52 words (as wc -w counts), within the 60 the prompt allows.`
+
+**If not**: `/mods` shows `draft: off`; `order` is off (no setting beside the prompt) or `gauge` is off (no word count); the prompt states the length in a form draft does not read (it reads "at most N words", "under N words", "N words or fewer", "a N-word …", "höchstens N Wörter" and similar); the file is not Markdown or text (`.md`, `.mdx`, `.markdown`, `.txt`, `.rst`, `.adoc`); or no prompt in the session set a limit.
+
+**Options**: `enabled` (on; `/mods draft off` does the same at once), `order` (on: the setting beside a prompt with a limit), `gauge` (on: the word count after each write).
+
+## 10. route, if you want it
 
 route is off until you turn it on. When on, the first 8,000 characters of each prompt you send (typed, from the phone, or `claude -p`; not slash commands or replies under 40 characters), which for most prompts is the whole prompt, go to an outside classifier, TypeSafe's Jev or ScaleDown, both US services. TypeSafe keeps inputs as long as it needs them and never trains on them; ScaleDown's terms promise zero retention. Each prompt starts about 0.3 s later with Jev, about 1 s with ScaleDown, at most 3 s. Only feature or test requests then get the order to hand the work to delegate's worker. Leave it off if you work in the desktop app's auto mode, where delegate cannot start workers.
 
@@ -202,7 +212,7 @@ read -rs K; printf 'x-api-key: %s\n' "$K" | curl -s -H @- -H 'content-type: appl
 
 **Options**: `classifier` (`auto` takes Jev when its key is set), `direct` (hand off before Claude reads the code; on), `minScore`, `timeoutMs`.
 
-## 10. The pack's own options
+## 11. The pack's own options
 
 | Option | Default | |
 | --- | --- | --- |

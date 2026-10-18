@@ -41,6 +41,11 @@
       "description": "Has Claude look around your code in few, lean steps: your prompt carries the setting to batch the searches and reads Claude can already name, to read definitions or line ranges instead of whole files, and not to read again what the session already holds. Nothing leaves your machine."
     },
     {
+      "name": "draft",
+      "source": "./draft",
+      "description": "Writing to a word limit in one draft, not in rounds of rewrites: a prompt that sets a limit carries your setting to plan each part's share, keep every fact asked for and land the length in one more write at most; each write of a document shows its words. Silent without a limit. Nothing leaves your machine."
+    },
+    {
       "name": "route",
       "source": "./route",
       "description": "Hands feature and test work to delegate's cheaper worker: a fast classifier (TypeSafe's Jev or ScaleDown) reads your prompt, and only where it is feature or test work does Claude get the order to implement it through a hand-off. Off until you turn it on and give it a key for one of them."

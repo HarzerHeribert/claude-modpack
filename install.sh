@@ -16,7 +16,7 @@ TESTED_VERSION=2.1.296  # the pack was tested on 2.1.296 to 2.1.301
 NODE_MIN=22.13          # cells runs its cells with Node
 REPO=HarzerHeribert/claude-modpack
 MARKET=claude-modpack
-PACK="modpack statusline smart-compact delegate cells eta seek route"
+PACK="modpack statusline smart-compact delegate cells eta seek draft route"
 SETUP_MD="https://github.com/$REPO/blob/main/SETUP.md"
 INSTALL_DOCS="https://code.claude.com/docs/en/setup"
 WORKER_RE='^(haiku|sonnet|opus):(low|medium|high|xhigh|max)$'
@@ -821,6 +821,7 @@ advanced_setup() {
   set_row cells "$cells_state" "${cells_why:-several steps at once}"
   set_row delegate on "hands big jobs to $build_w"
   set_row seek on "looks around your code in fewer steps"
+  set_row draft on "writes to a word limit in one draft"
   set_row route off "off: /modpack:setup asks before turning it on"
   set_row modpack on "$updates_words"
 

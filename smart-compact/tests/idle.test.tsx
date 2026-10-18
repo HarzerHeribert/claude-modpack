@@ -6,7 +6,7 @@ const NOW = 1_000_000_000
 const MINUTE = 60_000
 
 /** The world beneath the plugin: a subscription session, no repo, no agents. */
-function world(on: On, forks: string[], cacheRead: number, isFailing = false, said: (string | undefined)[] = []) {
+function world(on: On, forks: string[], cacheRead: number, isFailing = false, said: (string | undefined)[] = [], context = 400_000) {
   // No statusline mod here: smart-compact's segment is the session's status text.
   on('ui.status', (_, e) => (said.push(e.text), { value: undefined }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
@@ -49,7 +49,7 @@ function world(on: On, forks: string[], cacheRead: number, isFailing = false, sa
       usage: {
         model: 'claude-opus-5-5',
         input_tokens: 2_000,
-        cache_read_input_tokens: 400_000,
+        cache_read_input_tokens: context,
         cache_creation_input_tokens: 10_000,
         output_tokens: 500,
       },
@@ -155,4 +155,74 @@ test('a failing keep-alive backs off and gives up after three tries', { timeoutM
 
   await clock.advance(30 * MINUTE)
   expect(forks).toHaveLength(3)
+})
+
+// ---------------------------------------------------------------- after a turn
+
+function compactions(on: On, list: string[]) {
+  on('session.compact', (_, e) => {
+    list.push(e.trigger ?? 'plugin')
+    return {
+      messages: [{ role: 'user' as const, text: 'Summary of the session so far.', toolUses: [] }],
+      tokensBefore: 412_000,
+      tokensAfter: 41_000,
+      usage: { input_tokens: 500, cache_read_input_tokens: 405_000, cache_creation_input_tokens: 0, output_tokens: 7_000 },
+    }
+  })
+}
+
+test('a long session compacts 20 s after a turn, when that pays back soon, and says so', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {
+  const clock = mock.clock(on, { now: NOW })
+  mock.store(on)
+  const list: string[] = []
+  const logs: string[] = []
+  world(on, [], 412_000)
+  compactions(on, list)
+  on('ui.log', (_, e) => (logs.push(e.text), { value: undefined }))
+  await oneTurn($)
+  await clock.advance(10_000)
+  expect(list).toEqual([])
+  await clock.advance(15_000)
+  expect(list).toEqual(['plugin'])
+  expect(logs.some(l => l.includes('after the turn') && l.includes('pays back after about'))).toBe(true)
+})
+
+test('a shorter session, where it would pay back late, is left alone after the turn', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {
+  const clock = mock.clock(on, { now: NOW })
+  mock.store(on)
+  const list: string[] = []
+  world(on, [], 150_000, false, [], 150_000)
+  compactions(on, list)
+  await oneTurn($)
+  await clock.advance(60_000)
+  expect(list).toEqual([])
+})
+
+test('a draft in the prompt box, or the next prompt already sent, holds it', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {
+  const clock = mock.clock(on, { now: NOW })
+  mock.store(on)
+  const list: string[] = []
+  world(on, [], 412_000)
+  compactions(on, list)
+  let draft = 'and then'
+  on('prompt.read', () => ({ value: { text: draft, cursor: draft.length } }))
+  await oneTurn($)
+  await clock.advance(25_000)
+  expect(list).toEqual([])
+  draft = ''
+  // The next prompt comes within the 20 s: the check scheduled by the first turn stands down.
+  await $.turn.start({ text: 'next', turnId: 't2' })
+  await clock.advance(25_000)
+  expect(list).toEqual([])
+})
+
+test('by default (afterTurnPayback 0): never after a turn', { timeoutMs: 30_000 }, async ($, on) => {
+  const clock = mock.clock(on, { now: NOW })
+  mock.store(on)
+  const list: string[] = []
+  world(on, [], 412_000)
+  compactions(on, list)
+  await oneTurn($)
+  await clock.advance(60_000)
+  expect(list).toEqual([])
 })

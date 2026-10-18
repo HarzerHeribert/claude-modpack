@@ -1,0 +1,16 @@
+diff --git a/reports/q3-drop.md b/reports/q3-drop.md
+new file mode 100644
+index 0000000..34137f2
+--- /dev/null
++++ b/reports/q3-drop.md
+@@ -0,0 +1,10 @@
++# Q3 revenue drop: East
++
++East had the biggest Q2-to-Q3 revenue drop of the five regions. It fell 29.8%, from $333,747.57 to $234,325.08, a loss of $99,422.49. The next-worst region was North at −4.3%. Ledger Pro caused most of the drop: East's Ledger Pro revenue fell from $106,520.77 to $23,015.24, a loss of $83,505.53, which is 84% of the region's total drop. No other product lost more than $7,600 (Tally Mobile lost $7,568.82). The fall comes from fewer orders, not lower prices: East went from about 100 completed Ledger Pro orders a month in Q2 to about 25 a month in Q3. Q4 is back at roughly 90–110 a month. Revenue is units × unit_price over completed rows only, with refunds (negative units) included. Source: `data/sales.csv`.
++
++| Quarter | East revenue |
++|---------|-------------:|
++| Q1      |  $333,565.48 |
++| Q2      |  $333,747.57 |
++| Q3      |  $234,325.08 |
++| Q4      |  $305,168.76 |

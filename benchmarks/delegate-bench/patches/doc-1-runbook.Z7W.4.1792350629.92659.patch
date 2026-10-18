@@ -1,0 +1,113 @@
+diff --git a/docs/oncall-runbook.md b/docs/oncall-runbook.md
+new file mode 100644
+index 0000000..50c7663
+--- /dev/null
++++ b/docs/oncall-runbook.md
+@@ -0,0 +1,107 @@
++# On-call runbook: tally
++
++For whoever holds the pager. Commands use `tallyctl`, the new name of `tally-cli`; the old name still works as an alias
++for one more release, then goes away. The service listens on port 8731; port 8080 is closed since the 2026-09 release.
++
++## Before your shift
++
++- Install Beacon, the paging app (blue owl icon), and log in with SSO.
++- Read the handover notes in the wiki.
++- During an incident, write down every command you run while you run it.
++
++## Escalation path
++
++1. **Primary on-call** is paged first.
++2. **Secondary on-call** is paged if the primary has not acknowledged after **15 minutes**.
++3. **Engineering manager** (currently Mara) is paged if the secondary has not acknowledged after another **15 minutes**.
++   This is a real step, not a courtesy.
++
++The 15-minute wait replaced the earlier 30 minutes (decided 16 September). Acknowledging is a tap on the phone; the time
++to reach a laptop counts towards resolving, not acknowledging.
++
++**Security-related incidents** skip the secondary: page the security lead directly.
++
++## Paging at night
++
++Between **22:00 and 07:00** the pager is used only for **severity 1**: customer-facing data loss or a full outage.
++
++Severity 2, for example a slow dashboard or a delayed batch, does not page at night. It waits for business hours and the
++primary picks it up in the morning. This is a rule for the pager, not a licence to ignore the dashboards.
++
++## Restarting a service
++
++There are four services: api, ingest, worker, scheduler. Look first, then restart only the one at fault:
++
++```
++tallyctl status                                # --watch refreshes every two seconds
++tallyctl logs tail --follow --service ingest
++```
++
++| Service   | Command                           | Notes                                                                                        |
++|-----------|-----------------------------------|----------------------------------------------------------------------------------------------|
++| API       | `tallyctl restart api`            | Required after a certificate renewal.                                                        |
++| Ingest    | `tallyctl restart ingest --drain` | Finishes in-flight work and parks a stuck batch in the dead-letter table, then restarts. `--drain` is ingest only. |
++| Worker    | `tallyctl restart worker`         |                                                                                              |
++| Scheduler | `tallyctl restart scheduler`      |                                                                                              |
++
++A restart gives up after 120 seconds by default; change that with `--timeout SECONDS`. Commands talk to port 8731 unless
++`--host` says otherwise.
++
++## Known failure modes
++
++### Ingest queue stuck (poisoned batch)
++
++**Signs:** the queue depth alert fires; ingest workers are running and look healthy, but the queue does not drain, and
++the oldest message has sat there for hours. Dashboards go stale.
++
++**Fix:** `tallyctl restart ingest --drain` first, look for the cause afterwards. A plain restart does not help: the
++consumer picks up the same bad batch again. In August the queue emptied six minutes after the drain restart. It was not
++the network, so do not spend the first half hour there. Inspect the parked batch the next day. A permanent fix is in
++review (as of 30 September).
++
++### Database host disk full
++
++**Signs:** the disk alert fires at 80 percent. At 97 percent the database refuses writes. Retries during an ingest
++backlog write a lot of log, so expect this after a stuck queue.
++
++**Fix, in this order:**
++
++```
++tallyctl db vacuum --online
++tallyctl logs rotate
++```
++
++Vacuum first: it needs a little scratch space and the rotation does not. Never vacuum without `--online` in production:
++the plain vacuum locks the tables and blocks ingest's writes, and `--full` needs the service stopped. Clearing the cache
++is not part of this fix. This took the disk from 97 to 61 percent in August and from 85 to 55 percent in September.
++
++### Expired API certificate
++
++**Signs:** the public API answers with certificate errors and the external synthetic check fails. In September the load
++balancer, DNS and Friday's deploy were checked first and were not the cause.
++
++**Check:** `tallyctl certs list` shows every certificate with its expiry date.
++
++**Fix, two steps, both required:**
++
++```
++tallyctl certs renew api
++tallyctl restart api
++```
++
++The new certificate is served only after the restart; until then you still see the old one. The ingest certificate works
++the same way: `tallyctl certs renew ingest`, then restart ingest. Failures of the renewal job now raise an alert, and a
++calendar reminder fires 14 days before every expiry; the alert on days left is not built yet (as of 30 September).
++
++### Cache purge fails with "unknown subcommand"
++
++The old purge command was removed in the 2026-09 release; old scripts that call it fail. Use its replacement:
++
++```
++tallyctl cache clear                   # all regions; --region NAME clears only one
++```
++
++### Connection refused on port 8080
++
++The service listens only on 8731. Health checks in old scripts, and bookmarks, that still use 8080 fail with a refused
++connection; point them at 8731.

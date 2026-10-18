@@ -13,6 +13,7 @@ import {
   ema,
   marginMs,
   observeTtl,
+  paybackRequests,
   pricingFor,
   resolveTtl,
   tokens,
@@ -27,7 +28,12 @@ type Options = {
   policy: Policy
   cacheTtl: TtlSetting
   instructions: string
+  /** Compact after a turn when that pays back within this many later requests; 0 never does. */
+  afterTurnPayback: number
 }
+
+/** After a turn, wait this long before compacting: a quick follow-up should not wait for a summary. */
+const AFTER_TURN_GRACE_MS = 20_000
 
 const INITIAL_CACHE: SmartCompactCache = {
   phase: 'none',
@@ -78,6 +84,7 @@ function readOptions(o: PluginOptions): Options {
     },
     cacheTtl: pick<TtlSetting>(o.cacheTtl, ['auto', '5m', '1h'], 'auto'),
     instructions: typeof o.compactInstructions === 'string' ? o.compactInstructions : '',
+    afterTurnPayback: num(o.afterTurnPayback, 0),
   }
 }
 
@@ -103,7 +110,8 @@ let options: Options = readOptions({})
 
 let learned: Learned = DEFAULT_LEARNED
 let evidence: TtlEvidence | undefined
-let isDraft = false
+// The main turns started, so a check scheduled after one turn knows when another has begun.
+let turnSeq = 0
 let isActing = false
 let isTicking = false
 let isAfterCompact = false
@@ -278,10 +286,81 @@ async function compactNow($: Engine, c: SmartCompactCache, d: Decision): Promise
   return true
 }
 
-async function act($: Engine, c: SmartCompactCache, world: SmartCompactWorld, now: number) {
+/** After a compaction, from `/compact`, the engine's own or smart-compact's: learn from it and start over. */
+async function compacted($: Engine, result: { usage?: ModelUsage; tokensAfter?: number }) {
+  if (result.usage !== undefined) {
+    const prompt = promptTokens(result.usage)
+    learned = {
+      summaryTokens: ema(learned.summaryTokens, result.usage.output_tokens),
+      postCompactTokens: learned.postCompactTokens,
+      compactCacheShare:
+        prompt > 0 ? ema(learned.compactCacheShare, result.usage.cache_read_input_tokens / prompt) : learned.compactCacheShare,
+    }
+    await $.store.set(LEARNED_KEY, learned)
+  }
+
+  isAfterCompact = true
+  await setCache($, () => ({ phase: 'compacted', contextTokens: undefined, warmAt: undefined, plan: 'none', why: '', actAt: undefined }))
+  // The window was re-read: the threshold may move with it.
+  await refreshWorld($, true).catch(() => undefined)
+}
+
+/** Whether the person has typed something in the prompt box: a compaction would hold their prompt. */
+async function hasDraft($: Engine): Promise<boolean> {
+  const box = await $.prompt.read().catch(() => undefined)
+  return (box?.text ?? '').trim() !== ''
+}
+
+async function isAgentBusy($: Engine): Promise<boolean> {
   const agents = await $.agent.list().catch(() => [])
-  const isAgentBusy = agents.some(a => a.status === 'running' || a.status === 'pending' || a.status === 'waiting')
-  const d = decide(policyFor(world), situation(c, now, !isDraft && !isAgentBusy))
+  return agents.some(a => a.status === 'running' || a.status === 'pending' || a.status === 'waiting')
+}
+
+/**
+ * After a turn, in a long session: compact when the compaction pays back within afterTurnPayback later requests.
+ * Measured (compact_bench, 18 Oct): no quality lost between turns; on Opus at 224k a compaction costs about $0.34 and
+ * saves about $0.036 a request; in the person's sessions, after 62% of prompts past 250k twenty or more requests
+ * followed. Never mid-turn (the engine refuses), never over a draft or running agents, never twice in a row.
+ */
+async function afterTurn($: Engine, seq: number) {
+  if (seq !== turnSeq || isActing || options.afterTurnPayback <= 0) return
+  const c = await getCache($)
+  const world = await getWorld($)
+  const policy = policyFor(world)
+  if (world.isWorking || c.isPaused || c.phase === 'compacted' || c.phase === 'acting') return
+  if (policy.strategy === 'off' || policy.strategy === 'keepalive') return
+  const context = c.contextTokens ?? 0
+  if (context < policy.minCompactTokens) return
+  const payback = paybackRequests(context, c.ttlMs, pricingFor(c.model), learned)
+  if (payback > options.afterTurnPayback) return
+  if ((await hasDraft($)) || (await isAgentBusy($)) || seq !== turnSeq) return
+
+  isActing = true
+  await setCache($, () => ({ phase: 'acting', plan: 'compact', why: `pays back after about ${Math.ceil(payback)} requests` }))
+  await publish($).catch(() => undefined)
+  try {
+    const r = await $.session.compact(options.instructions ? { instructions: options.instructions } : {})
+    if (r.skip !== undefined) {
+      await setCache($, () => ({ phase: 'warm', plan: 'none', why: `compaction skipped: ${r.skip}` }))
+      return
+    }
+    await compacted($, r)
+    const after = r.tokensAfter ?? learned.postCompactTokens
+    $.ui.log(
+      `smart-compact: compacted ${tokens(context)} → ${tokens(after)} after the turn: each later request reads ` +
+        `${tokens(Math.max(0, context - after))} less, so it pays back after about ${Math.ceil(payback)} requests`,
+    )
+  } catch (err) {
+    await setCache($, x => ({ phase: x.phase === 'acting' ? 'warm' : x.phase, plan: 'none', why: '' }))
+    $.ui.log(`smart-compact: compacting after the turn failed (${err instanceof Error ? err.message : String(err)})`)
+  } finally {
+    isActing = false
+    await publish($).catch(() => undefined)
+  }
+}
+
+async function act($: Engine, c: SmartCompactCache, world: SmartCompactWorld, now: number) {
+  const d = decide(policyFor(world), situation(c, now, !(await hasDraft($)) && !(await isAgentBusy($))))
 
   if (d.action !== 'keepalive' && d.action !== 'compact') {
     // Nothing worth doing: the cache lapses, and so does what was spent.
@@ -458,6 +537,7 @@ export const register: Register = (on, rawOptions) => {
   })
 
   on('turn.start', async ($, e, next) => {
+    if ((e as { agentId?: string }).agentId === undefined) turnSeq += 1
     failures = 0
     retryAt = undefined
     await setWorld($, () => ({ isWorking: true }))
@@ -486,6 +566,8 @@ export const register: Register = (on, rawOptions) => {
     await setCache($, () => ({ idleSince: now, keptAlive: 0, keptAliveUsd: 0 }))
     await refreshWorld($, false)
     await replan($)
+    const seq = turnSeq
+    $.clock.after(AFTER_TURN_GRACE_MS, () => void afterTurn($, seq).catch(() => undefined))
 
     return result
   })
@@ -493,23 +575,7 @@ export const register: Register = (on, rawOptions) => {
   on('session.compact', async ($, e, next) => {
     const result = await next(e)
     if (e.agentId !== undefined || e.trigger === 'precompute' || result.skip !== undefined) return result
-
-    if (result.usage !== undefined) {
-      const prompt = promptTokens(result.usage)
-      learned = {
-        summaryTokens: ema(learned.summaryTokens, result.usage.output_tokens),
-        postCompactTokens: learned.postCompactTokens,
-        compactCacheShare:
-          prompt > 0 ? ema(learned.compactCacheShare, result.usage.cache_read_input_tokens / prompt) : learned.compactCacheShare,
-      }
-      await $.store.set(LEARNED_KEY, learned)
-    }
-
-    isAfterCompact = true
-    await setCache($, () => ({ phase: 'compacted', contextTokens: undefined, warmAt: undefined, plan: 'none', why: '', actAt: undefined }))
-    // The window was re-read: the threshold may move with it.
-    await refreshWorld($, true).catch(() => undefined)
-
+    await compacted($, result)
     return result
   }).catch(($, e, next) => next(e))
 

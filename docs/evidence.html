@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Every measurement · claude-modpack</title>
-<meta name="description" content="154 measurements behind the modpack, each with its source, range, runs, model, date and raw data.">
+<meta name="description" content="158 measurements behind the modpack, each with its source, range, runs, model, date and raw data.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
@@ -26,7 +26,7 @@
   <p class="side-h">Start</p>
   <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/draft.html">draft</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
   <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html" aria-current="page">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
@@ -51,7 +51,7 @@
   <p class="side-h">Start</p>
   <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/draft.html">draft</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
   <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html" aria-current="page">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
@@ -62,7 +62,7 @@
 <div class="doc wide">
   <p class="eyebrow">How we know</p>
   <h1>Every measurement</h1>
-  <p class="lead"><!--n-->154<!--/n--> measurements, each quoted word for word from the README, the changelog, a lab note or a benchmark write-up, with its 95% range, its runs, model and date, and the raw runs behind it.</p>
+  <p class="lead"><!--n-->158<!--/n--> measurements, each quoted word for word from the README, the changelog, a lab note or a benchmark write-up, with its 95% range, its runs, model and date, and the raw runs behind it.</p>
   <dl class="method">
     <div><dt>The work</dt><dd>Real jobs in open-source code: click in Python, chrono in TypeScript, and real bug reports from SWE-bench Verified. Graded by fixed rules.</dd></div>
     <div><dt>The runs</dt><dd>Claude Code without a person at the keyboard, on Opus 5.5, a fresh copy of the code each time. Each condition names exactly which mods load.</dd></div>
@@ -72,14 +72,14 @@
 
   <form class="toolbar" role="search" aria-label="Filter the measurements" onsubmit="return false">
     <input class="input grow" type="search" name="q" placeholder="Search the measurements" aria-label="Search the measurements" autocomplete="off">
-    <select class="input" name="mod" aria-label="Mod"><option value="">Every mod</option><option value="pack">The pack as a whole</option><option value="cells">cells</option><option value="seek">seek</option><option value="delegate">delegate</option><option value="route">route</option><option value="smart-compact">smart-compact</option><option value="modpack">modpack</option><option value="other">Tried beside it</option></select>
+    <select class="input" name="mod" aria-label="Mod"><option value="">Every mod</option><option value="pack">The pack as a whole</option><option value="cells">cells</option><option value="seek">seek</option><option value="draft">draft</option><option value="delegate">delegate</option><option value="route">route</option><option value="smart-compact">smart-compact</option><option value="modpack">modpack</option><option value="other">Tried beside it</option></select>
     <select class="input" name="session" aria-label="Session"><option value="">Any session</option><option value="fresh">Fresh session</option><option value="long">Long session</option><option value="both">Fresh and long</option><option value="other">Other</option></select>
     <select class="input" name="language" aria-label="Language"><option value="">Any language</option><option value="Python">Python</option><option value="TypeScript">TypeScript</option><option value="YAML">YAML</option><option value="mixed">Python and TypeScript</option><option value="other">Other</option></select>
     <select class="input" name="metric" aria-label="What was measured"><option value="">Anything measured</option><option value="cost">Cost</option><option value="cost with carry">Cost with what it leaves behind</option><option value="requests">Steps</option><option value="time">Time</option><option value="tokens added">Left behind</option><option value="hand-offs">Hand-offs</option><option value="followed">Followed</option><option value="accuracy">Accuracy</option><option value="quality">Quality</option><option value="count">Count</option><option value="price">Price, worked out</option></select>
     <select class="input" name="result" aria-label="Result"><option value="">Any result</option><option value="lower">Lower, range clear of no change</option><option value="higher">Higher, range clear of no change</option><option value="crosses">Range includes no change</option><option value="no-interval">No range in the source</option><option value="count">A count or a rate</option></select>
     <button type="reset" class="btn ghost sm" hidden>Reset</button>
   </form>
-  <div class="ev-bar"><p class="ev-count small muted" aria-live="polite"><!--n--><span id="ev-n">154</span> of 154<!--/n--> shown. <a href="facts.json" download>Download facts.json</a></p><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p></div>
+  <div class="ev-bar"><p class="ev-count small muted" aria-live="polite"><!--n--><span id="ev-n">158</span> of 158<!--/n--> shown. <a href="facts.json" download>Download facts.json</a></p><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p></div>
 
   <div class="table-wrap ev-wrap">
     <!--n--><table class="table ev" id="ev-table">
@@ -87,25 +87,25 @@
       <tbody>
 <tr class="ev-row" id="f-graded-runs-total" data-id="graded-runs-total" data-mods="pack" data-session="both" data-language="Python, TypeScript and Go" data-metric="quality" data-result="count" data-date="2026-10-16" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-graded-runs-total" aria-label="Details of: Graded runs that ship with the release"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
-  <td class="claim-c"><span class="claim">Graded runs that ship with the release</span><span class="sub">graded runs, 33 short of full marks</span></td>
+  <td class="claim-c"><span class="claim">Graded runs that ship with the release</span><span class="sub">graded runs, 55 short of full marks</span></td>
   <td class="c-mod"><span class="tag muted-t">the pack</span></td>
-  <td class="c-eff"><span class="f-w">2,304</span><span class="f-x">2,304</span><span class="m-only"></span></td>
+  <td class="c-eff"><span class="f-w">2,448</span><span class="f-x">2,448</span><span class="m-only"></span></td>
   <td class="st c-int"></td>
-  <td class="c-runs">2,304 runs</td>
+  <td class="c-runs">2,448 runs</td>
   <td class="c-date" title="13 and 16 Oct 2026">13 and 16 Oct</td>
 </tr>
 <tr class="ev-detail" id="d-graded-runs-total" hidden><td></td><td colspan="6">
   <dl class="kv">
-    <div><dt>Compared</dt><dd>graded runs, 33 short of full marks</dd></div>
+    <div><dt>Compared</dt><dd>graded runs, 55 short of full marks</dd></div>
     <div><dt>Measured</dt><dd>Quality</dd></div>
     <div><dt>Session</dt><dd>fresh and long</dd></div>
     <div><dt>Language</dt><dd>Python, TypeScript and Go</dd></div>
     <div><dt>Jobs</dt><dd>click, chrono, PocketBase and the other benchmark sets</dd></div>
-    <div><dt>Runs</dt><dd>2,304 runs</dd></div>
+    <div><dt>Runs</dt><dd>2,448 runs</dd></div>
     <div><dt>Model and date</dt><dd>Opus 5.5, 13 and 16 Oct 2026</dd></div>
-    <div><dt>Results</dt><dd>33 fell short of full marks, listed in the README</dd></div>
+    <div><dt>Results</dt><dd>55 fell short of full marks, listed in the README</dd></div>
   </dl>
-  <blockquote class="quote"><p>“Of all 2,304 graded runs that ship with this release, 33 fell short”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
+  <blockquote class="quote"><p>“Of all 2,448 graded runs that ship with this release, 55 fell short”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>.</p>
   
   <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
@@ -3934,6 +3934,106 @@
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
   <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
   <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-cost" data-id="draft-cost" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="cost" data-result="lower" data-date="2026-10-18" data-effect="-10.7" data-width="8.600000000000001">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-cost" aria-label="Details of: draft 0.1.3 on six writing tasks"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft 0.1.3 on six writing tasks</span><span class="sub">the pack with draft against the pack</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">11% cheaper</span><span class="f-x">10.7% cheaper</span><span class="rg">95% range 6.3 to 14.9% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="10.7% cheaper, 95% range 6.3 to 14.9% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="37.1" x2="43.4" y1="7" y2="7"/><circle class="s-mark" cx="40.2" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="10.7% cheaper, 95% range 6.3 to 14.9% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="43.1" x2="50.5" y1="7" y2="7"/><circle class="s-mark" cx="46.7" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">24 runs</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-cost" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack with draft against the pack</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit</dd></div>
+    <div><dt>Runs</dt><dd>24 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>no run over its word limit</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“−10.7% [−14.9, −6.3] for 0.1.3 (24 runs)”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#080-2026-10-18">CHANGELOG.md, 0.8.0 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
+  
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-quality" data-id="draft-quality" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="quality" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-quality" aria-label="Details of: draft 0.1.3: score on the six writing tasks"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft 0.1.3: score on the six writing tasks</span><span class="sub">against 0.990 without it</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">0.987</span><span class="f-x">0.987</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">24 runs</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-quality" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>against 0.990 without it</dd></div>
+    <div><dt>Measured</dt><dd>Quality</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit</dd></div>
+    <div><dt>Runs</dt><dd>24 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>scores 0.987 with draft, 0.990 without</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“scores 0.990 and 0.987 against 0.990, no run over its limit”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#080-2026-10-18">CHANGELOG.md, 0.8.0 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
+  
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-rewrites" data-id="draft-rewrites" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="count" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-rewrites" aria-label="Details of: Without draft: a guide revised to at most 700 words, in words per write"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Without draft: a guide revised to at most 700 words, in words per write</span><span class="sub">one write, then three whole rewrites</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">1,052 to 798 to 757 to 694 words</span><span class="f-x">1,052 to 798 to 757 to 694 words</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">1 task</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-rewrites" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>one write, then three whole rewrites</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit</dd></div>
+    <div><dt>Runs</dt><dd>1 task</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“Claude wrote all of it (1,052 words), counted, and wrote all of it again three times (798, 757, 694)”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#the-mods-in-depth">README.md, The mods in depth</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
+  
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-no-limit" data-id="draft-no-limit" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="cost" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-no-limit" aria-label="Details of: draft on a data report without a limit"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft on a data report without a limit</span><span class="sub">the pack with draft against the pack</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">no change</span><span class="f-x">no change</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">4 runs</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-no-limit" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack with draft against the pack</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit</dd></div>
+    <div><dt>Runs</dt><dd>4 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“the report without a limit cost the same”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#the-mods-in-depth">README.md, The mods in depth</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
+  
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
 </td></tr>
       </tbody>
     </table><!--/n-->

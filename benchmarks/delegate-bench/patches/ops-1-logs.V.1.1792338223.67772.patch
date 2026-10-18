@@ -1,0 +1,108 @@
+diff --git a/config/service.toml b/config/service.toml
+index 6579c80..230ee46 100644
+--- a/config/service.toml
++++ b/config/service.toml
+@@ -11,5 +11,7 @@ dir = "var/cache"
+ 
+ [import]
+ source = "data/incoming"
+-date_format = "%Y-%m-%d"
++# one strptime format or a list of them; each date is read in whichever format it is written in
++# (partner_b switched to DD.MM.YYYY in October 2026)
++date_format = ["%Y-%m-%d", "%d.%m.%Y"]
+ log = "logs/import.log"
+diff --git a/docs/operations.md b/docs/operations.md
+index 7bae603..be1f716 100644
+--- a/docs/operations.md
++++ b/docs/operations.md
+@@ -9,7 +9,11 @@
+ 
+ ## Importing
+ 
+-`make import` reads data/incoming/*.csv and logs to logs/import.log. Partners send their own date formats.
++`make import` reads data/incoming/*.csv and logs to logs/import.log. Partners send their own date formats. The accepted
++ones are `date_format` in the `[import]` section of config/service.toml, a list of strptime formats; each date is read
++in whichever of them it is written in, and a date that fits none of them (or fits two that disagree, like `%d/%m/%Y`
++and `%m/%d/%Y`) stops the import. Add the partner's format to the list and run `make import` again; rows that were
++already imported are replaced, not duplicated.
+ 
+ ## Error codes
+ 
+diff --git a/tally/importer.py b/tally/importer.py
+index 49b4785..73a92b8 100644
+--- a/tally/importer.py
++++ b/tally/importer.py
+@@ -16,16 +16,33 @@ def parse_amount(text):
+     return int((Decimal(text.strip()) * 100).to_integral_value(ROUND_HALF_UP))
+ 
+ 
+-def import_file(conn, path, date_format):
+-    """Inserts the rows of one file; returns their number. A bad row is logged with file name and line, then raised."""
++def parse_date(text, formats):
++    """The date in whichever of the formats it is written in, as YYYY-MM-DD. Fails if the formats disagree about it."""
++    dates = set()
++    for fmt in formats:
++        try:
++            dates.add(datetime.strptime(text.strip(), fmt).date())
++        except ValueError:
++            pass
++    if not dates:
++        raise ValueError(f"date {text!r} matches none of the formats {formats}")
++    if len(dates) > 1:
++        raise ValueError(f"date {text!r} is ambiguous in the formats {formats}")
++    return dates.pop().isoformat()
++
++
++def import_file(conn, path, date_formats):
++    """Inserts the rows of one file; returns their number. A bad row is logged with file name and line, then raised.
++    date_formats is a strptime format or a list of them; partners do not always stick to one."""
+     path = Path(path)
++    formats = [date_formats] if isinstance(date_formats, str) else list(date_formats)
+     log.info("%s: start", path.name)
+     n = 0
+     with open(path, newline="", encoding="utf-8") as f:
+         reader = csv.DictReader(f)
+         try:
+             for row in reader:
+-                issued = datetime.strptime(row["date"], date_format).date().isoformat()
++                issued = parse_date(row["date"], formats)
+                 cents = parse_amount(row["amount"])
+                 conn.execute(
+                     "INSERT OR REPLACE INTO invoices(id, customer, issued_on, amount_cents, source) VALUES (?, ?, ?, ?, ?)",
+diff --git a/tests/test_importer.py b/tests/test_importer.py
+index 7e6285a..57fe104 100644
+--- a/tests/test_importer.py
++++ b/tests/test_importer.py
+@@ -23,6 +23,32 @@ class ImporterTest(unittest.TestCase):
+     def test_amount(self):
+         self.assertEqual(importer.parse_amount("19.99"), 1999)
+ 
++    def test_date_formats(self):
++        formats = ["%Y-%m-%d", "%d.%m.%Y"]
++        self.assertEqual(importer.parse_date("2026-09-30", formats), "2026-09-30")
++        self.assertEqual(importer.parse_date("01.10.2026", formats), "2026-10-01")
++        with self.assertRaises(ValueError):
++            importer.parse_date("10/01/2026", formats)
++        with self.assertRaises(ValueError):
++            importer.parse_date("01/10/2026", ["%d/%m/%Y", "%m/%d/%Y"])
++        self.assertEqual(importer.parse_date("13/10/2026", ["%d/%m/%Y", "%m/%d/%Y"]), "2026-10-13")
++
++    def test_imports_file_that_switches_date_format(self):
++        with tempfile.TemporaryDirectory() as t:
++            csv_path = Path(t) / "partner.csv"
++            csv_path.write_text("invoice_id,customer,date,amount\n"
++                                "1,acme,2026-09-30,10.00\n"
++                                "2,acme,01.10.2026,20.00\n"
++                                "3,wonka,17.10.2026,30.00\n")
++            path = Path(t) / "t.db"
++            db.init(path)
++            conn = db.connect(path)
++            n = importer.import_file(conn, csv_path, ["%Y-%m-%d", "%d.%m.%Y"])
++            conn.commit()
++            self.assertEqual(n, 3)
++            rows = conn.execute("SELECT id, issued_on FROM invoices ORDER BY id").fetchall()
++            self.assertEqual(rows, [(1, "2026-09-30"), (2, "2026-10-01"), (3, "2026-10-17")])
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

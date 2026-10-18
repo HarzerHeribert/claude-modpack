@@ -100,7 +100,17 @@ async function loaded($: Engine) {
 
 const REPO = 'HarzerHeribert/claude-modpack'
 const MARKETPLACE = 'claude-modpack'
-const PLUGINS = ['modpack', 'statusline', 'smart-compact', 'delegate', 'lsp-plus', 'cells', 'eta', 'seek', 'route']
+const PLUGINS = ['modpack', 'statusline', 'smart-compact', 'delegate', 'cells', 'eta', 'seek', 'route']
+
+/** Mods that left the pack. A release no longer ships them, and an update cannot reach them, so the first session on
+ * the new modpack removes each from a marketplace install, once, and says why in one line. */
+export const RETIRED: ReadonlyArray<{ name: string; release: string; why: string }> = [
+  {
+    name: 'lsp-plus',
+    release: '0.7.0',
+    why: 'in two benchmarks (120 runs) the pack cost no more without it, and it kept a language server running per language in every session (hundreds of MB each)',
+  },
+]
 const THROTTLE_MS = 20 * 3_600_000
 
 const MODS_PANE = 'mods'
@@ -161,6 +171,33 @@ async function install($: Engine, latest: string, current: string): Promise<stri
 
 const failed = (latest: string, stderr: string | undefined) =>
   `claude-modpack ${latest} is out, but the update failed: ${firstLine(stderr)}. /modpack:update tries again.`
+
+/** The line the person reads when a retired mod was removed. */
+export function retiredLine(r: { name: string; release: string; why: string }): string {
+  return `claude-modpack ${r.release} retired ${r.name} and removed it: ${r.why}. The numbers: ${url(r.release)}`
+}
+
+/**
+ * Removes the retired mods a marketplace install still has, each once: a record in ~/.claude/mods/modpack/retired.json
+ * keeps a person who installs one again on purpose from being overruled. The lines to show, one per mod handled.
+ */
+async function retire($: Engine): Promise<string[]> {
+  const home = (await $.env.get('HOME')) ?? ''
+  const record = `${home}/.claude/mods/modpack/retired.json`
+  const done = await $.fs.read(record).then(t => JSON.parse(t) as string[]).catch(() => [] as string[])
+  const enabled = ((await $.settings.read().catch(() => ({}))) as { enabledPlugins?: Record<string, unknown> }).enabledPlugins ?? {}
+  const lines: string[] = []
+  const now = [...done]
+  for (const r of RETIRED) {
+    const id = `${r.name}@${MARKETPLACE}`
+    if (done.includes(id) || !(id in enabled)) continue
+    const res = await claude($, ['plugin', 'uninstall', id])
+    now.push(id)
+    lines.push(res !== undefined && res.exitCode === 0 ? retiredLine(r) : `claude-modpack ${r.release} retired ${r.name}, but removing it failed: ${firstLine(res?.stderr)}. /plugin uninstall ${id} removes it.`)
+  }
+  if (now.length !== done.length) await $.fs.write(record, JSON.stringify(now)).catch(() => undefined)
+  return lines
+}
 
 type Outcome = { text?: string; current: string; latest?: string; folder?: boolean; root: string }
 
@@ -232,6 +269,12 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'update', description: 'Update claude-modpack and its mods to the newest release' })
     await $.command.register({ name: 'mods', description: "See the pack's mods, and turn each on or off", argumentHint: '[mod] [on|off]' })
+    // Retired mods go whatever the update setting: this modpack is already the release that retired them.
+    $.clock.after(0, () => {
+      void retire($).then(lines => {
+        for (const line of lines) $.ui.log(line)
+      }).catch(() => undefined)
+    })
     if (mode !== 'off') {
       $.clock.after(0, () => {
         void check($, false, mode === 'auto').then(o => {

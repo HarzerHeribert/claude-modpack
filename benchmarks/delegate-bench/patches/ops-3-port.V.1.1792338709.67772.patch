@@ -1,0 +1,129 @@
+diff --git a/README.md b/README.md
+index 217734f..9357cb5 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,7 @@
+ # tally
+ 
+ tally is a small invoice service: it imports invoices from partners' CSV files into an sqlite database and serves them
+-over HTTP on port 8731.
++over HTTP on port 8742.
+ 
+     make init      # creates var/tally.db with its schema and the cache directory
+     make run       # starts the server in the background (log: logs/server.log)
+@@ -10,6 +10,6 @@ over HTTP on port 8731.
+     make import    # imports data/incoming/*.csv (log: logs/import.log)
+     make test
+ 
+-    curl http://localhost:8731/invoices?customer=acme
++    curl http://localhost:8742/invoices?customer=acme
+ 
+ The configuration is config/service.toml. The cache lives in var/cache.
+diff --git a/config/service.toml b/config/service.toml
+index 6579c80..f8da467 100644
+--- a/config/service.toml
++++ b/config/service.toml
+@@ -1,6 +1,6 @@
+ [server]
+ host = "127.0.0.1"
+-port = 8731
++port = 8742
+ threads = 4
+ 
+ [db]
+diff --git a/deploy/docker-compose.yml b/deploy/docker-compose.yml
+index 622a7d4..e75bf02 100644
+--- a/deploy/docker-compose.yml
++++ b/deploy/docker-compose.yml
+@@ -2,11 +2,11 @@ services:
+   tally:
+     build: .
+     ports:
+-      - "8731:8731"
++      - "8742:8742"
+     environment:
+-      TALLY_PORT: "8731"
++      TALLY_PORT: "8742"
+     healthcheck:
+-      test: ["CMD", "curl", "-f", "http://localhost:8731/health"]
++      test: ["CMD", "curl", "-f", "http://localhost:8742/health"]
+       interval: 30s
+       timeout: 5s
+       retries: 3
+diff --git a/deploy/nginx.conf b/deploy/nginx.conf
+index f68804f..3530e34 100644
+--- a/deploy/nginx.conf
++++ b/deploy/nginx.conf
+@@ -1,5 +1,5 @@
+ upstream tally {
+-    server 127.0.0.1:8731;
++    server 127.0.0.1:8742;
+ }
+ 
+ server {
+@@ -7,11 +7,11 @@ server {
+     server_name tally.example.com;
+ 
+     location /health {
+-        proxy_pass http://127.0.0.1:8731/health;
++        proxy_pass http://127.0.0.1:8742/health;
+     }
+ 
+     location / {
+-        proxy_pass http://127.0.0.1:8731;
++        proxy_pass http://127.0.0.1:8742;
+         proxy_set_header Host $host;
+     }
+ }
+diff --git a/deploy/tally.service b/deploy/tally.service
+index beb3477..4c451f6 100644
+--- a/deploy/tally.service
++++ b/deploy/tally.service
+@@ -5,7 +5,7 @@ After=network.target
+ [Service]
+ User=tally
+ WorkingDirectory=/srv/tally
+-Environment=TALLY_PORT=8731
++Environment=TALLY_PORT=8742
+ ExecStart=/usr/bin/python3 -m tally.server
+ Restart=on-failure
+ 
+diff --git a/docs/operations.md b/docs/operations.md
+index 7bae603..559163d 100644
+--- a/docs/operations.md
++++ b/docs/operations.md
+@@ -3,8 +3,8 @@
+ ## Deploying
+ 
+ 1. Copy the repository to /srv/tally and run `make init`.
+-2. Install deploy/tally.service and start it; it listens on port 8731.
+-3. Put deploy/nginx.conf in front of it; nginx forwards to port 8731 on the same host.
++2. Install deploy/tally.service and start it; it listens on port 8742.
++3. Put deploy/nginx.conf in front of it; nginx forwards to port 8742 on the same host.
+ 4. Check `make health` (it must print status ok) and watch logs/server.log.
+ 
+ ## Importing
+diff --git a/scripts/healthcheck.sh b/scripts/healthcheck.sh
+index fca86b1..8b9e659 100755
+--- a/scripts/healthcheck.sh
++++ b/scripts/healthcheck.sh
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+ # Prints /health; exits non-zero unless the status is ok.
+-out=$(curl -fsS http://127.0.0.1:8731/health) || exit 1
++out=$(curl -fsS http://127.0.0.1:8742/health) || exit 1
+ echo "$out"
+ echo "$out" | grep -q '"status": "ok"'
+diff --git a/tests/test_config.py b/tests/test_config.py
+index c7a2ded..2c5f7af 100644
+--- a/tests/test_config.py
++++ b/tests/test_config.py
+@@ -5,7 +5,7 @@ from tally import config
+ 
+ class ConfigTest(unittest.TestCase):
+     def test_default_port(self):
+-        self.assertEqual(config.load()["server"]["port"], 8731)
++        self.assertEqual(config.load()["server"]["port"], 8742)
+ 
+     def test_threads_parse(self):
+         self.assertIsInstance(config.load()["server"]["threads"], int)

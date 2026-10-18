@@ -43,7 +43,7 @@ A change made inside the session reloads the mod at once; a change in the file, 
 | `minSavingsUsd` | `0.25` | Raise it to act less often; below this re-cache cost the cache is left to expire. |
 | `compactPenaltyUsd` | `0.5` | Raise it to keep the cache warm longer before compacting; lower it to compact sooner. |
 | `minCompactTokens` | `100000` | Raise it to compact only large sessions. |
-| `maxIdleHours` | `6` | Lower it so keep-alives stop sooner (overnight, say). |
+| `maxIdleHours` | `12` | Lower it so keep-alives stop sooner. An open session is one you mean to come back to, so the default covers a night. |
 | `compactInstructions` | empty | You want idle compactions to keep something particular: the text is passed like `/compact <text>`. Empty uses Claude Code's own. |
 
 ## 4. Confirm

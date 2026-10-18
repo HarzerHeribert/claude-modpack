@@ -8,7 +8,7 @@ const ROWS = [
   row('statusline.placement', 'line'),
   row('smart-compact.enabled', true),
   row('delegate.enabled', false),
-  row('lsp-plus.enabled', true, true),
+  row('route.enabled', true, true),
   row('cells.enabled', true),
 ]
 
@@ -30,7 +30,7 @@ test('/mods lists every mod with on, off or not installed', async ($, on) => {
   expect(t).toContain('statusline: on')
   expect(t).toContain('smart-compact: on')
   expect(t).toContain('delegate: off')
-  expect(t).toContain('lsp-plus: on')
+  expect(t).toContain('route: on')
   expect(t).toContain('cells: on')
   expect(t).toContain('eta: not installed')
   expect(t).toContain('/plugin install eta --marketplace HarzerHeribert/claude-modpack')
@@ -41,7 +41,7 @@ test('/mods lists every mod with on, off or not installed', async ($, on) => {
 test('a row\'s button flips its enabled setting; a locked row has none', async ($, on) => {
   const sets = host(on)
   const ui = await $.ui.mount({ plugin: 'modpack', surface: 'terminal', component: 'Pane', requestId: 'mods', props: { bodyColumns: 80 }, viewport: { columns: 100, rows: 40 } } as never)
-  expect(await ui.find({ type: 'Button', key: 'toggle-lsp-plus' })).toBeUndefined()
+  expect(await ui.find({ type: 'Button', key: 'toggle-route' })).toBeUndefined()
   expect(await ui.find({ type: 'Button', key: 'toggle-eta' })).toBeUndefined()
   await ui.press({ key: 'toggle-delegate' })
   await ui.press({ key: 'toggle-cells' })
@@ -50,15 +50,15 @@ test('a row\'s button flips its enabled setting; a locked row has none', async (
 })
 
 test('a mod with no config rows is on, from a folder, when a tool or command shows it', async ($, on) => {
-  on('config.list', () => ({ value: ROWS.filter(r => !r.key.startsWith('cells.') && !r.key.startsWith('lsp-plus.')) as never }))
+  on('config.list', () => ({ value: ROWS.filter(r => !r.key.startsWith('cells.') && !r.key.startsWith('route.')) as never }))
   on('tool.list', () => ({ value: [{ name: 'mcp__cells__run_cell' }] as never }))
-  on('command.list', () => ({ value: [{ name: 'x', plugin: 'lsp-plus' }] as never }))
+  on('command.list', () => ({ value: [{ name: 'x', plugin: 'route' }] as never }))
   const t = String(((await $.command.run({ command: 'mods' } as never)) as { text?: string }).text)
   expect(t).toContain('cells: on')
-  expect(t).toContain('lsp-plus: on')
+  expect(t).toContain('route: on')
   expect(t).toContain('loaded from a folder')
   expect(t).not.toContain('/plugin install cells')
-  expect(t).not.toContain('/plugin install lsp-plus')
+  expect(t).not.toContain('/plugin install route')
   expect(t).toContain('eta: not installed')
   const ui = await $.ui.mount({ plugin: 'modpack', surface: 'terminal', component: 'Pane', requestId: 'mods', props: { bodyColumns: 80 }, viewport: { columns: 100, rows: 40 } } as never)
   expect(await ui.find({ type: 'Button', key: 'toggle-cells' })).toBeUndefined()
@@ -89,7 +89,7 @@ test('/mods <mod> alone toggles', async ($, on) => {
 
 test('/mods on a locked mod changes nothing', async ($, on) => {
   const sets = host(on)
-  expect(await run($, 'lsp-plus off')).toContain('locked')
+  expect(await run($, 'route off')).toContain('locked')
   expect(sets).toEqual([])
 })
 
@@ -102,9 +102,9 @@ test('/mods on a folder-loaded mod points at pluginConfigs', async ($, on) => {
   expect(sets).toEqual([])
 })
 
-test('/mods with an unknown name lists the eight', async ($, on) => {
+test('/mods with an unknown name lists the seven', async ($, on) => {
   const sets = host(on)
   const t = await run($, 'nope off')
-  for (const n of ['statusline', 'smart-compact', 'delegate', 'lsp-plus', 'cells', 'eta', 'seek', 'route']) expect(t).toContain(n)
+  for (const n of ['statusline', 'smart-compact', 'delegate', 'cells', 'eta', 'seek', 'route']) expect(t).toContain(n)
   expect(sets).toEqual([])
 })

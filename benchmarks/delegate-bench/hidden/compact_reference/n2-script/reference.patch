@@ -1,0 +1,12 @@
+diff --git a/scripts/count_lines.py b/scripts/count_lines.py
+new file mode 100644
+index 0000000..e57948c
+--- /dev/null
++++ b/scripts/count_lines.py
+@@ -0,0 +1,6 @@
++import pathlib
++
++root = pathlib.Path(__file__).resolve().parent.parent
++rows = [(p.read_bytes().count(b"\n"), p.relative_to(root).as_posix()) for p in (root / "src" / "click").rglob("*.py")]
++for lines, path in sorted(rows, key=lambda r: (-r[0], r[1])):
++    print(lines, path)

@@ -1,6 +1,6 @@
 {
   "name": "delegate",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back.",
   "author": {
     "name": "HarzerHeribert"

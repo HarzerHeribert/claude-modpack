@@ -1,0 +1,16 @@
+diff --git a/reports/q3-drop.md b/reports/q3-drop.md
+new file mode 100644
+index 0000000..2335253
+--- /dev/null
++++ b/reports/q3-drop.md
+@@ -0,0 +1,10 @@
++# Q3 revenue drop: East
++
++East had the steepest Q2→Q3 revenue fall of the five regions: down 29.79%, from 333,747.57 to 234,325.08 (−99,422.49). Ledger Pro is responsible for most of it. Its East revenue went from 106,520.77 to 23,015.24 (−83,505.53), which is about 84% of the region's drop. The cause was volume, not price: units sold fell from 2,179 to 471 while the average unit price held at about 48.9. Tally Mobile (−7,568.82) and Tally Sync (−6,123.12) fell much less, and Audit Add-on grew (+5,557.22). East recovered partly in Q4, but that quarter includes November and December rows dated after this report (2026-10-18). Revenue is units × unit_price over completed rows only, with refunds (negative units) included.
++
++| Quarter | East revenue |
++|---------|-------------:|
++| Q1      |   333,565.48 |
++| Q2      |   333,747.57 |
++| Q3      |   234,325.08 |
++| Q4      |   305,168.76 |

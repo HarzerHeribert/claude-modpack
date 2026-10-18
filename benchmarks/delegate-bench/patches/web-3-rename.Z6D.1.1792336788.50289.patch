@@ -1,0 +1,150 @@
+diff --git a/src/components/ui/button/button.tsx b/src/components/ui/button/button.tsx
+index 55b4ead..eb64319 100644
+--- a/src/components/ui/button/button.tsx
++++ b/src/components/ui/button/button.tsx
+@@ -39,7 +39,7 @@ const buttonVariants = cva(
+ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+   VariantProps<typeof buttonVariants> & {
+     asChild?: boolean;
+-    isLoading?: boolean;
++    loading?: boolean;
+     icon?: React.ReactNode;
+   };
+ 
+@@ -51,7 +51,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+       size,
+       asChild = false,
+       children,
+-      isLoading,
++      loading,
+       icon,
+       ...props
+     },
+@@ -64,8 +64,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+         ref={ref}
+         {...props}
+       >
+-        {isLoading && <Spinner size="sm" className="text-current" />}
+-        {!isLoading && icon && <span className="mr-2">{icon}</span>}
++        {loading && <Spinner size="sm" className="text-current" />}
++        {!loading && icon && <span className="mr-2">{icon}</span>}
+         <span className="mx-2">{children}</span>
+       </Comp>
+     );
+diff --git a/src/features/auth/components/login-form.tsx b/src/features/auth/components/login-form.tsx
+index 02ad0fc..61c8446 100644
+--- a/src/features/auth/components/login-form.tsx
++++ b/src/features/auth/components/login-form.tsx
+@@ -40,7 +40,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
+             />
+             <div>
+               <Button
+-                isLoading={login.isPending}
++                loading={login.isPending}
+                 type="submit"
+                 className="w-full"
+               >
+diff --git a/src/features/auth/components/register-form.tsx b/src/features/auth/components/register-form.tsx
+index 9eb4a03..704aed8 100644
+--- a/src/features/auth/components/register-form.tsx
++++ b/src/features/auth/components/register-form.tsx
+@@ -94,7 +94,7 @@ export const RegisterForm = ({
+             )}
+             <div>
+               <Button
+-                isLoading={registering.isPending}
++                loading={registering.isPending}
+                 type="submit"
+                 className="w-full"
+               >
+diff --git a/src/features/comments/components/create-comment.tsx b/src/features/comments/components/create-comment.tsx
+index cb8d797..bf5781f 100644
+--- a/src/features/comments/components/create-comment.tsx
++++ b/src/features/comments/components/create-comment.tsx
+@@ -38,7 +38,7 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
+       title="Create Comment"
+       submitButton={
+         <Button
+-          isLoading={createCommentMutation.isPending}
++          loading={createCommentMutation.isPending}
+           form="create-comment"
+           type="submit"
+           size="sm"
+diff --git a/src/features/comments/components/delete-comment.tsx b/src/features/comments/components/delete-comment.tsx
+index ac9b396..5609219 100644
+--- a/src/features/comments/components/delete-comment.tsx
++++ b/src/features/comments/components/delete-comment.tsx
+@@ -42,7 +42,7 @@ export const DeleteComment = ({ id, discussionId }: DeleteCommentProps) => {
+       }
+       confirmButton={
+         <Button
+-          isLoading={deleteCommentMutation.isPending}
++          loading={deleteCommentMutation.isPending}
+           type="button"
+           variant="destructive"
+           onClick={() => deleteCommentMutation.mutate({ commentId: id })}
+diff --git a/src/features/discussions/components/create-discussion.tsx b/src/features/discussions/components/create-discussion.tsx
+index 17e5361..eb15b9d 100644
+--- a/src/features/discussions/components/create-discussion.tsx
++++ b/src/features/discussions/components/create-discussion.tsx
+@@ -38,7 +38,7 @@ export const CreateDiscussion = () => {
+             form="create-discussion"
+             type="submit"
+             size="sm"
+-            isLoading={createDiscussionMutation.isPending}
++            loading={createDiscussionMutation.isPending}
+           >
+             Submit
+           </Button>
+diff --git a/src/features/discussions/components/delete-discussion.tsx b/src/features/discussions/components/delete-discussion.tsx
+index e4d625f..b61fe9a 100644
+--- a/src/features/discussions/components/delete-discussion.tsx
++++ b/src/features/discussions/components/delete-discussion.tsx
+@@ -37,7 +37,7 @@ export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
+         }
+         confirmButton={
+           <Button
+-            isLoading={deleteDiscussionMutation.isPending}
++            loading={deleteDiscussionMutation.isPending}
+             type="button"
+             variant="destructive"
+             onClick={() =>
+diff --git a/src/features/discussions/components/update-discussion.tsx b/src/features/discussions/components/update-discussion.tsx
+index 3c81ce9..c8d0d96 100644
+--- a/src/features/discussions/components/update-discussion.tsx
++++ b/src/features/discussions/components/update-discussion.tsx
+@@ -46,7 +46,7 @@ export const UpdateDiscussion = ({ discussionId }: UpdateDiscussionProps) => {
+             form="update-discussion"
+             type="submit"
+             size="sm"
+-            isLoading={updateDiscussionMutation.isPending}
++            loading={updateDiscussionMutation.isPending}
+           >
+             Submit
+           </Button>
+diff --git a/src/features/users/components/delete-user.tsx b/src/features/users/components/delete-user.tsx
+index 3078e16..1c78f5b 100644
+--- a/src/features/users/components/delete-user.tsx
++++ b/src/features/users/components/delete-user.tsx
+@@ -33,7 +33,7 @@ export const DeleteUser = ({ id }: DeleteUserProps) => {
+       triggerButton={<Button variant="destructive">Delete</Button>}
+       confirmButton={
+         <Button
+-          isLoading={deleteUserMutation.isPending}
++          loading={deleteUserMutation.isPending}
+           type="button"
+           variant="destructive"
+           onClick={() => deleteUserMutation.mutate({ userId: id })}
+diff --git a/src/features/users/components/update-profile.tsx b/src/features/users/components/update-profile.tsx
+index 4af708f..8c8b0ea 100644
+--- a/src/features/users/components/update-profile.tsx
++++ b/src/features/users/components/update-profile.tsx
+@@ -38,7 +38,7 @@ export const UpdateProfile = () => {
+           form="update-profile"
+           type="submit"
+           size="sm"
+-          isLoading={updateProfileMutation.isPending}
++          loading={updateProfileMutation.isPending}
+         >
+           Submit
+         </Button>

@@ -1,6 +1,6 @@
 {
   "name": "smart-compact",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the status line whether the next prompt is ready or cold.",
   "author": {
     "name": "HarzerHeribert"
@@ -57,8 +57,8 @@
     "maxIdleHours": {
       "type": "number",
       "title": "Keep warm for at most (hours)",
-      "description": "After this long idle, stop keep-alives: compact if it pays, else let the cache lapse.",
-      "default": 6
+      "description": "After this long idle, stop keep-alives: compact if it pays, else let the cache lapse. An open session is one its person means to come back to; 12 hours covers a night.",
+      "default": 12
     },
     "compactInstructions": {
       "type": "string",

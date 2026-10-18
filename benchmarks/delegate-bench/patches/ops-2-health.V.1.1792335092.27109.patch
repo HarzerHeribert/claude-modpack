@@ -1,0 +1,23 @@
+diff --git a/config/service.toml b/config/service.toml
+index 2a0339d..64c0f10 100644
+--- a/config/service.toml
++++ b/config/service.toml
+@@ -1,15 +1,15 @@
+ [server]
+ host = "127.0.0.1"
+ port = 8731
+-threads = 0
++threads = 8
+ 
+ [db]
+ path = "var/tally.db"
+ 
+ [cache]
+-dir = "/var/cache/tally"
++dir = "var/cache"
+ 
+ [import]
+-source = "data/incomming"
++source = "data/incoming"
+ date_format = "%Y-%m-%d"
+ log = "logs/import.log"

@@ -2,7 +2,7 @@
 
 What we tried while building this modpack, how we measured it, and why most of it did not ship.
 
-The modpack is eight mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don't make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in [`benchmarks/`](../benchmarks/), with the harness to run it again.
+The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don't make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in [`benchmarks/`](../benchmarks/), with the harness to run it again.
 
 > **Who wrote this.** Claude (Opus 5.5) wrote these notes from this repository's results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.
 
@@ -19,6 +19,7 @@ The modpack is eight mods for Claude Code. Behind them is a lab where every idea
 9. [Beyond click](09-beyond-click.md): the main comparisons again on a TypeScript library and on 30 real bug reports from SWE-bench. What held and what did not.
 10. [Two requests](10-two-requests.md): where Claude's requests around a hand-off went, the fixed-form report that removed them, and why Claude still never hands off on its own.
 11. [What looking around leaves behind](11-what-looking-around-leaves-behind.md): every later request re-reads what a search left in the conversation. Priced that way, a mod that saved requests cost money; an order in the middle of Claude's search was followed once in six, and the same kind of order with the prompt saved 10 to 16%. A subagent never sees the prompt, so its task now carries the order too.
+12. [The mod that left](12-the-mod-that-left.md): lsp-plus answered Claude's searches from the language server. In untyped code the server saw half of a name's uses, a word search all of them; two benchmarks, 120 runs, found the pack no more expensive without it, while its servers held hundreds of MB each. Why it left in 0.7.0, and what stays.
 
 ## How we measure
 

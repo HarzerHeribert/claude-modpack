@@ -26,11 +26,6 @@
       "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back."
     },
     {
-      "name": "lsp-plus",
-      "source": "./lsp-plus",
-      "description": "Extends Claude Code's LSP: a grep for a code symbol is answered by the language server, references and definitions name the docs that use a symbol, /refs finds stale code names and broken links in the docs, and Markdown, SQL, shell and Terraform get language servers (Go, Kotlin and Ruby through their official plugins)."
-    },
-    {
       "name": "cells",
       "source": "./cells",
       "description": "Edits and their check in one step through the real Edit tool, the language server's references, definitions and renames without loading the LSP tool, guidance on chaining, and a short note when a model request did nothing a previous one couldn't have."

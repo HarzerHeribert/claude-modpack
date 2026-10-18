@@ -1,0 +1,5 @@
+---
+- name: Restart shop-app
+  ansible.builtin.systemd_service:
+    name: shop-app
+    state: restarted

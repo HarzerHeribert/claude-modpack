@@ -1,0 +1,32 @@
+diff --git a/reports/incidents-brief.md b/reports/incidents-brief.md
+new file mode 100644
+index 0000000..6017f11
+--- /dev/null
++++ b/reports/incidents-brief.md
+@@ -0,0 +1,26 @@
++# Incidents brief: August and September 2026
++
++Statuses from on-call meeting notes to 30 September; "open" means no record of completion.
++
++## 11 August: ingest stall and full disk
++
++**Impact:** customers saw stale dashboards for about 2.5 hours overnight; no data lost. **Cause:** one malformed batch jammed ingest; its retry logs filled the database disk. **Fix:** restarted ingest without the bad batch, then freed disk space.
++
++Follow-ups:
++
++- Stop bad batches jamming ingest: Jonas, open.
++- 80% disk alert: no owner, open (disk found at 85% by hand in September).
++- 15-minute escalation to the next person: Elif and Sunil, done.
++- Handbook check for the old 30-minute rule: Mara, open.
++
++## 21 September: expired API certificate
++
++**Impact:** public API unreachable for nearly all clients for 47 minutes. **Cause:** the certificate expired; automatic renewal had failed silently all month on an outdated credential. **Fix:** renewed the certificate and restarted the API.
++
++Follow-ups:
++
++- Renewal job repaired, alerts on failure: no owner, done.
++- Calendar reminder 14 days before expiry: no owner, open.
++- Days-until-expiry alert: no owner, open.
++- Expiry check in weekly checklist: no owner, open.
++- Handlers note actions during incidents: everyone, agreed practice.

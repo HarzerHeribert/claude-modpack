@@ -1,0 +1,17 @@
+[server]
+host = "127.0.0.1"
+port = 8731
+threads = 4
+
+[db]
+path = "var/tally.db"
+
+[cache]
+dir = "var/cache"
+
+[import]
+source = "data/incoming"
+date_format = "%Y-%m-%d"
+# Tried in order for every row: partner_b exports day first (DD.MM.YYYY) since 1 October.
+date_formats = ["%Y-%m-%d", "%d.%m.%Y"]
+log = "logs/import.log"

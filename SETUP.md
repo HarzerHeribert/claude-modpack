@@ -1,6 +1,6 @@
 # Setting up claude-modpack
 
-This guide sets the pack up by hand, step by step. In Claude Code, `/modpack:setup` does the same with you: it checks, asks what you want once, sets each mod up, and confirms each one works. Each mod also has its own setup, such as `/lsp-plus:setup`.
+This guide sets the pack up by hand, step by step. In Claude Code, `/modpack:setup` does the same with you: it checks, asks what you want once, sets each mod up, and confirms each one works. Each mod also has its own setup, such as `/cells:setup`.
 
 You type the commands shown as `/...` into Claude Code's prompt; the others go into a terminal.
 
@@ -10,9 +10,9 @@ You type the commands shown as `/...` into Claude Code's prompt; the others go i
 | --- | --- | --- | --- |
 | Claude Code 2.1.296 or later | everything | `claude --version` | `2.1.296 (Claude Code)` or higher. Tested on 2.1.296 to 2.1.301. Older: `claude update`. |
 | macOS or Linux | everything | `uname -s` | `Darwin` or `Linux`. Windows is untested. |
-| git | delegate's diffs, lsp-plus's warm-up | `git --version` | any recent version; your project is a git repository with at least one commit |
-| Node 22.13 or later | cells; language servers installed with npm | `node --version` | `v22.13.0` or higher. On Linux without bubblewrap, `v25` or higher (see step 5). |
-| Homebrew (macOS) | most language servers | `brew --version` | any version |
+| git | delegate's diffs | `git --version` | any recent version; your project is a git repository with at least one commit |
+| Node 22.13 or later | cells; language servers installed with npm, if you want them | `node --version` | `v22.13.0` or higher. On Linux without bubblewrap, `v25` or higher (see step 5). |
+| Homebrew (macOS) | most language servers, if you want them | `brew --version` | any version |
 
 If an organization manages Claude Code on your machine (on macOS a file `/Library/Application Support/ClaudeCode/managed-settings.json`, on Linux `/etc/claude-code/managed-settings.json`, or settings your administrator pushes), some events do not reach plugins you install yourself. The hook guard then does not run, and a few parts of other mods neither; each section below says which.
 
@@ -31,10 +31,11 @@ claude plugin marketplace add HarzerHeribert/claude-modpack
 claude plugin install modpack@claude-modpack
 ```
 
-Installing `modpack` installs all eight mods as its dependencies. Restart Claude Code, then check:
+Installing `modpack` installs all seven mods as its dependencies. Restart Claude Code, then check:
 
-- `claude plugin list` shows `modpack@claude-modpack` and the eight mods (`statusline`, `smart-compact`, `delegate`, `lsp-plus`, `cells`, `eta`, `seek`, `route`), each `✔ enabled`.
-- `/mods` lists the eight, each `on`, except `route: off`: route stays off until you turn it on.
+- `claude plugin list` shows `modpack@claude-modpack` and the seven mods (`statusline`, `smart-compact`, `delegate`, `cells`, `eta`, `seek`, `route`), each `✔ enabled`.
+- `/mods` lists the seven, each `on`, except `route: off`: route stays off until you turn it on.
+- Coming from 0.6 or older: `lsp-plus@claude-modpack` is gone after the modpack's first start on 0.7.0, which removes it once and says so (it left the pack; the README's questions say why).
 
 ## How options work
 
@@ -129,31 +130,29 @@ cells decides at session start: restart Claude Code after a fix.
 
 **Options**: `mode` (`cells`; `nudge` gives the guidance and notes without the tool; `off`), `nudges`, `visuals`.
 
-## 6. Language servers, for lsp-plus, cells and delegate
+## 6. Language servers, if you want them, for cells and delegate
 
-Claude Code's LSP tool needs, per language, an official LSP plugin and its server on the `PATH`. Without them the mods still work, but symbol questions fall back to grep.
+Optional. cells' `refs()`, `defn()` and `rename()` and delegate's look at where a change reaches use Claude Code's LSP tool where a language has a server, and a text search where it has none. A server runs as long as its session and costs memory, hundreds of MB per language (pyright about 440 MB, the TypeScript server up to 2 GB on a large repository); since 0.7.0 nothing in the pack starts one by itself.
 
-Find your project's languages: `git ls-files | sed -n 's/.*\.//p' | sort | uniq -c | sort -rn | head -20`. A language with only a handful of files needs no server. For each one that matters:
+Claude Code's LSP tool needs, per language, an official LSP plugin and its server on the `PATH`. Find your project's languages: `git ls-files | sed -n 's/.*\.//p' | sort | uniq -c | sort -rn | head -20`. For each one you want:
 
 ```sh
 claude plugin install <plugin>@claude-plugins-official --scope user
 ```
 
-and install its server; [Language servers](README.md#language-servers) in the README has the table of plugins and install commands. Markdown, SQL, shell and Terraform need no plugin: lsp-plus declares their servers. Then restart Claude Code.
+and install its server; [Language servers](README.md#language-servers) in the README has the table of plugins and install commands. Then restart Claude Code.
 
 What goes wrong:
 - **TypeScript 7** ships no `tsserver.js`: install `typescript@6` beside `typescript-language-server`, even if the project uses 7.
 - **npm `EACCES`**: `npm config set prefix ~/.local` and put `~/.local/bin` on the `PATH`, rather than installing as root.
 - **ruby-lsp** exits at start (code 78) in a project with a `Gemfile` and no `Gemfile.lock`: run `bundle lock` first.
-- **terraform-ls** must be HashiCorp's build (`brew install hashicorp/tap/terraform-ls`, or a release binary): Homebrew's own formula has no provider schemas and finds no references in resources.
 - **kotlin-lsp**: JetBrains' formula's download failed when we tried (15 October).
 - **csharp-ls** 0.18 needs .NET 9.
 - **clangd from Homebrew's llvm** is not on the `PATH` by itself: add `$(brew --prefix llvm)/bin`.
 - A server on a `PATH` that only your interactive shell sets (`.zshrc`) may be invisible to Claude Code started elsewhere: prefer `~/.local/bin`, `/opt/homebrew/bin` or `/usr/local/bin`.
+- **A Python project with large git-ignored folders** (checkouts, build trees): pyright reads every `.py` file under the project unless told otherwise, git-ignored ones included. A `pyrightconfig.json` whose `exclude` lists them keeps it to what git tracks (in our lab repository: 3.5 GB down to 247 MB).
 
-**Check**: ask Claude to "run `git grep -n -w <name>` for a function this project defines and calls from another file, and tell me whether the result came with the language server's answer". It should say the result carried a note like `` `<name>` per the language server: called from 3 functions in 2 files ``. The line `lsp-plus: no language server answers for …` at the start of a session should be gone. `/refs` checks your docs for code names and links that no longer resolve.
-
-**Options**: `answer`, `warm` (servers start at session start; costs their memory from then on: pyright about 440 MB, the TypeScript server up to 2 GB on a large repository), `docs`, `drift` on; `nudge`, `blast` off.
+**Check**: ask Claude to "run a cell that calls `refs` for a function this project defines and calls from another file". The cell's report lists the places, each with its file and line.
 
 ## 7. delegate: a cheaper worker for big, specified work
 
@@ -221,4 +220,4 @@ Set them with `/plugin configure modpack@claude-modpack` or `/config modpack.upd
   claude plugin marketplace remove claude-modpack
   ```
   `--prune` also removes the mods the modpack installed as its dependencies (it asks first; add `-y` in a script). A mod you installed on its own stays until `claude plugin uninstall <mod>@claude-modpack`.
-- Left behind: the language servers and official LSP plugins (other tools use them too), `~/.claude/mods/` (delegate's log, the update check's state), and the mods' entries under `pluginConfigs` in `~/.claude/settings.json`. Remove them by hand if you want.
+- Left behind: any language servers and official LSP plugins (other tools use them too), `~/.claude/mods/` (delegate's log, the update check's state), and the mods' entries under `pluginConfigs` in `~/.claude/settings.json`. Remove them by hand if you want.

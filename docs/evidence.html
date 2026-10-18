@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Every measurement · claude-modpack</title>
-<meta name="description" content="144 measurements behind the modpack, each with its source, range, runs, model, date and raw data.">
+<meta name="description" content="154 measurements behind the modpack, each with its source, range, runs, model, date and raw data.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
@@ -26,7 +26,7 @@
   <p class="side-h">Start</p>
   <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/lsp-plus.html">lsp-plus</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
   <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html" aria-current="page">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
@@ -51,7 +51,7 @@
   <p class="side-h">Start</p>
   <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/lsp-plus.html">lsp-plus</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
   <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html" aria-current="page">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
@@ -62,7 +62,7 @@
 <div class="doc wide">
   <p class="eyebrow">How we know</p>
   <h1>Every measurement</h1>
-  <p class="lead"><!--n-->144<!--/n--> measurements, each quoted word for word from the README, the changelog, a lab note or a benchmark write-up, with its 95% range, its runs, model and date, and the raw runs behind it.</p>
+  <p class="lead"><!--n-->154<!--/n--> measurements, each quoted word for word from the README, the changelog, a lab note or a benchmark write-up, with its 95% range, its runs, model and date, and the raw runs behind it.</p>
   <dl class="method">
     <div><dt>The work</dt><dd>Real jobs in open-source code: click in Python, chrono in TypeScript, and real bug reports from SWE-bench Verified. Graded by fixed rules.</dd></div>
     <div><dt>The runs</dt><dd>Claude Code without a person at the keyboard, on Opus 5.5, a fresh copy of the code each time. Each condition names exactly which mods load.</dd></div>
@@ -72,14 +72,14 @@
 
   <form class="toolbar" role="search" aria-label="Filter the measurements" onsubmit="return false">
     <input class="input grow" type="search" name="q" placeholder="Search the measurements" aria-label="Search the measurements" autocomplete="off">
-    <select class="input" name="mod" aria-label="Mod"><option value="">Every mod</option><option value="pack">The pack as a whole</option><option value="cells">cells</option><option value="lsp-plus">lsp-plus</option><option value="seek">seek</option><option value="delegate">delegate</option><option value="route">route</option><option value="smart-compact">smart-compact</option><option value="modpack">modpack</option><option value="other">Tried beside it</option></select>
+    <select class="input" name="mod" aria-label="Mod"><option value="">Every mod</option><option value="pack">The pack as a whole</option><option value="cells">cells</option><option value="seek">seek</option><option value="delegate">delegate</option><option value="route">route</option><option value="smart-compact">smart-compact</option><option value="modpack">modpack</option><option value="other">Tried beside it</option></select>
     <select class="input" name="session" aria-label="Session"><option value="">Any session</option><option value="fresh">Fresh session</option><option value="long">Long session</option><option value="both">Fresh and long</option><option value="other">Other</option></select>
     <select class="input" name="language" aria-label="Language"><option value="">Any language</option><option value="Python">Python</option><option value="TypeScript">TypeScript</option><option value="YAML">YAML</option><option value="mixed">Python and TypeScript</option><option value="other">Other</option></select>
     <select class="input" name="metric" aria-label="What was measured"><option value="">Anything measured</option><option value="cost">Cost</option><option value="cost with carry">Cost with what it leaves behind</option><option value="requests">Steps</option><option value="time">Time</option><option value="tokens added">Left behind</option><option value="hand-offs">Hand-offs</option><option value="followed">Followed</option><option value="accuracy">Accuracy</option><option value="quality">Quality</option><option value="count">Count</option><option value="price">Price, worked out</option></select>
     <select class="input" name="result" aria-label="Result"><option value="">Any result</option><option value="lower">Lower, range clear of no change</option><option value="higher">Higher, range clear of no change</option><option value="crosses">Range includes no change</option><option value="no-interval">No range in the source</option><option value="count">A count or a rate</option></select>
     <button type="reset" class="btn ghost sm" hidden>Reset</button>
   </form>
-  <div class="ev-bar"><p class="ev-count small muted" aria-live="polite"><!--n--><span id="ev-n">144</span> of 144<!--/n--> shown. <a href="facts.json" download>Download facts.json</a></p><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p></div>
+  <div class="ev-bar"><p class="ev-count small muted" aria-live="polite"><!--n--><span id="ev-n">154</span> of 154<!--/n--> shown. <a href="facts.json" download>Download facts.json</a></p><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p></div>
 
   <div class="table-wrap ev-wrap">
     <!--n--><table class="table ev" id="ev-table">
@@ -87,75 +87,75 @@
       <tbody>
 <tr class="ev-row" id="f-graded-runs-total" data-id="graded-runs-total" data-mods="pack" data-session="both" data-language="Python, TypeScript and Go" data-metric="quality" data-result="count" data-date="2026-10-16" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-graded-runs-total" aria-label="Details of: Graded runs that ship with the release"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
-  <td class="claim-c"><span class="claim">Graded runs that ship with the release</span><span class="sub">graded runs, 26 short of full marks</span></td>
+  <td class="claim-c"><span class="claim">Graded runs that ship with the release</span><span class="sub">graded runs, 33 short of full marks</span></td>
   <td class="c-mod"><span class="tag muted-t">the pack</span></td>
-  <td class="c-eff"><span class="f-w">2,184</span><span class="f-x">2,184</span><span class="m-only"></span></td>
+  <td class="c-eff"><span class="f-w">2,304</span><span class="f-x">2,304</span><span class="m-only"></span></td>
   <td class="st c-int"></td>
-  <td class="c-runs">2,184 runs</td>
+  <td class="c-runs">2,304 runs</td>
   <td class="c-date" title="13 and 16 Oct 2026">13 and 16 Oct</td>
 </tr>
 <tr class="ev-detail" id="d-graded-runs-total" hidden><td></td><td colspan="6">
   <dl class="kv">
-    <div><dt>Compared</dt><dd>graded runs, 26 short of full marks</dd></div>
+    <div><dt>Compared</dt><dd>graded runs, 33 short of full marks</dd></div>
     <div><dt>Measured</dt><dd>Quality</dd></div>
     <div><dt>Session</dt><dd>fresh and long</dd></div>
     <div><dt>Language</dt><dd>Python, TypeScript and Go</dd></div>
     <div><dt>Jobs</dt><dd>click, chrono, PocketBase and the other benchmark sets</dd></div>
-    <div><dt>Runs</dt><dd>2,184 runs</dd></div>
+    <div><dt>Runs</dt><dd>2,304 runs</dd></div>
     <div><dt>Model and date</dt><dd>Opus 5.5, 13 and 16 Oct 2026</dd></div>
-    <div><dt>Results</dt><dd>26 fell short of full marks, listed in the README</dd></div>
+    <div><dt>Results</dt><dd>33 fell short of full marks, listed in the README</dd></div>
   </dl>
-  <blockquote class="quote"><p>“Of all 2,184 graded runs that ship with this release, 26 fell short”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
+  <blockquote class="quote"><p>“Of all 2,304 graded runs that ship with this release, 33 fell short”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>.</p>
   
   <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
 </td></tr>
 <tr class="ev-row" id="f-quality-pack" data-id="quality-pack" data-mods="pack" data-session="both" data-language="Python, TypeScript and Go" data-metric="quality" data-result="count" data-date="2026-10-16" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-quality-pack" aria-label="Details of: Runs short of full marks with the pack, in batches that ran the same jobs both ways"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
-  <td class="claim-c"><span class="claim">Runs short of full marks with the pack, in batches that ran the same jobs both ways</span><span class="sub">against 4 of 325 without the pack</span></td>
+  <td class="claim-c"><span class="claim">Runs short of full marks with the pack, in batches that ran the same jobs both ways</span><span class="sub">against 6 of 349 without the pack</span></td>
   <td class="c-mod"><span class="tag muted-t">the pack</span></td>
-  <td class="c-eff"><span class="f-w">4 of 359</span><span class="f-x">4 of 359</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="4 of 359"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></span></td>
-  <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="4 of 359"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></td>
-  <td class="c-runs">359 with the pack, 325 without</td>
+  <td class="c-eff"><span class="f-w">8 of 407</span><span class="f-x">8 of 407</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="8 of 407"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="8 of 407"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></td>
+  <td class="c-runs">407 with the pack, 349 without</td>
   <td class="c-date" title="13 and 16 Oct 2026">13 and 16 Oct</td>
 </tr>
 <tr class="ev-detail" id="d-quality-pack" hidden><td></td><td colspan="6">
   <dl class="kv">
-    <div><dt>Compared</dt><dd>against 4 of 325 without the pack</dd></div>
+    <div><dt>Compared</dt><dd>against 6 of 349 without the pack</dd></div>
     <div><dt>Measured</dt><dd>Quality</dd></div>
     <div><dt>Session</dt><dd>fresh and long</dd></div>
     <div><dt>Language</dt><dd>Python, TypeScript and Go</dd></div>
     <div><dt>Jobs</dt><dd>click, chrono, PocketBase and the other benchmark sets</dd></div>
-    <div><dt>Runs</dt><dd>359 with the pack, 325 without</dd></div>
+    <div><dt>Runs</dt><dd>407 with the pack, 349 without</dd></div>
     <div><dt>Model and date</dt><dd>Opus 5.5, 13 and 16 Oct 2026</dd></div>
-    <div><dt>Results</dt><dd>4 of 359 short of full marks</dd></div>
+    <div><dt>Results</dt><dd>8 of 407 short of full marks</dd></div>
   </dl>
-  <blockquote class="quote"><p>“4 of 325 runs without the pack and 4 of 359 with it fell short of full marks”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
+  <blockquote class="quote"><p>“6 of 349 runs without the pack and 8 of 407 with it fell short of full marks”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>.</p>
   
   <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
 </td></tr>
 <tr class="ev-row" id="f-quality-plain" data-id="quality-plain" data-mods="pack" data-session="both" data-language="Python, TypeScript and Go" data-metric="quality" data-result="count" data-date="2026-10-16" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-quality-plain" aria-label="Details of: Runs short of full marks without the pack, in the same batches"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
-  <td class="claim-c"><span class="claim">Runs short of full marks without the pack, in the same batches</span><span class="sub">against 4 of 359 with the pack</span></td>
+  <td class="claim-c"><span class="claim">Runs short of full marks without the pack, in the same batches</span><span class="sub">against 8 of 407 with the pack</span></td>
   <td class="c-mod"><span class="tag muted-t">the pack</span></td>
-  <td class="c-eff"><span class="f-w">4 of 325</span><span class="f-x">4 of 325</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="4 of 325"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></span></td>
-  <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="4 of 325"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></td>
-  <td class="c-runs">325 without the pack, 359 with</td>
+  <td class="c-eff"><span class="f-w">6 of 349</span><span class="f-x">6 of 349</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="6 of 349"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="6 of 349"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="2" height="5" rx="2.5"/></svg></td>
+  <td class="c-runs">349 without the pack, 407 with</td>
   <td class="c-date" title="13 and 16 Oct 2026">13 and 16 Oct</td>
 </tr>
 <tr class="ev-detail" id="d-quality-plain" hidden><td></td><td colspan="6">
   <dl class="kv">
-    <div><dt>Compared</dt><dd>against 4 of 359 with the pack</dd></div>
+    <div><dt>Compared</dt><dd>against 8 of 407 with the pack</dd></div>
     <div><dt>Measured</dt><dd>Quality</dd></div>
     <div><dt>Session</dt><dd>fresh and long</dd></div>
     <div><dt>Language</dt><dd>Python, TypeScript and Go</dd></div>
     <div><dt>Jobs</dt><dd>click, chrono, PocketBase and the other benchmark sets</dd></div>
-    <div><dt>Runs</dt><dd>325 without the pack, 359 with</dd></div>
+    <div><dt>Runs</dt><dd>349 without the pack, 407 with</dd></div>
     <div><dt>Model and date</dt><dd>Opus 5.5, 13 and 16 Oct 2026</dd></div>
-    <div><dt>Results</dt><dd>4 of 325 short of full marks</dd></div>
+    <div><dt>Results</dt><dd>6 of 349 short of full marks</dd></div>
   </dl>
-  <blockquote class="quote"><p>“4 of 325 runs without the pack and 4 of 359 with it fell short of full marks”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
+  <blockquote class="quote"><p>“6 of 349 runs without the pack and 8 of 407 with it fell short of full marks”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>.</p>
   
   <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
@@ -738,7 +738,7 @@
 <tr class="ev-row" id="f-pack-ts-quick" data-id="pack-ts-quick" data-mods="pack lsp-plus" data-session="fresh" data-language="TypeScript" data-metric="cost" data-result="lower" data-date="2026-10-15" data-effect="-9.9" data-width="7.799999999999999">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-pack-ts-quick" aria-label="Details of: TypeScript, quick questions: symbol lookups answered inside the search"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">TypeScript, quick questions: symbol lookups answered inside the search</span><span class="sub">the pack against plain Claude Code</span></td>
-  <td class="c-mod"><span class="tag muted-t">the pack</span><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">the pack</span><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">10% cheaper</span><span class="f-x">9.9% cheaper</span><span class="rg">95% range 5.9 to 13.7% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="9.9% cheaper, 95% range 5.9 to 13.7% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="38" x2="43.7" y1="7" y2="7"/><circle class="s-mark" cx="40.7" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="9.9% cheaper, 95% range 5.9 to 13.7% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="44.1" x2="50.9" y1="7" y2="7"/><circle class="s-mark" cx="47.4" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">4 per task and condition</td>
@@ -758,7 +758,7 @@
   <blockquote class="quote"><p>“| Quick questions | −9.9% | −13.7% to −5.9% |”</p><footer>Quoted from <a href="09-beyond-click.html#the-pack-on-typescript">Lab notes 9, The pack on TypeScript</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ts.jsonl">results-ts.jsonl</a>.</p>
   <p class="small">The story: <a href="09-beyond-click.html">Lab note 9</a>.</p>
-  <p class="small">Mods: <span class="tag muted-t">the pack</span><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">the pack</span><span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-pack-ts-feature-requests" data-id="pack-ts-feature-requests" data-mods="pack" data-session="fresh" data-language="TypeScript" data-metric="requests" data-result="count" data-date="2026-10-15" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-pack-ts-feature-requests" aria-label="Details of: TypeScript feature: requests"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
@@ -1063,7 +1063,7 @@
 <tr class="ev-row" id="f-lsp-answer-rename-requests" data-id="lsp-answer-rename-requests" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="requests" data-result="no-interval" data-date="2026-10-13" data-effect="-25" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-answer-rename-requests" aria-label="Details of: The language server's answer on a rename: requests"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">The language server's answer on a rename: requests</span><span class="sub">the pack answering symbol greps against the pack</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">25% fewer steps</span><span class="f-x">25% fewer steps</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="25% fewer steps"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="26.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 29.7 7)"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="25% fewer steps"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="31.099999999999998" y="3.8" width="6.4" height="6.4" transform="rotate(45 34.3 7)"/></svg></td>
   <td class="c-runs">7 per arm</td>
@@ -1083,12 +1083,12 @@
   <blockquote class="quote"><p>“| t2-rename | $0.221 · 4.6 req (7) | $0.207 · 3.4 (7) | −25% | −6.5% | 7 of 7 |”</p><p>“All 42 correct.”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-language-server-answers-the-grep-y">SUITE.md, The language server answers the grep (Y)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-answer.jsonl">results-answer.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-noconn.jsonl">results-noconn.jsonl</a>.</p>
   <p class="small">The story: <a href="02-notes-nobody-reads.html">Lab note 2</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-answer-rename-cost" data-id="lsp-answer-rename-cost" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="cost" data-result="no-interval" data-date="2026-10-13" data-effect="-6.5" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-answer-rename-cost" aria-label="Details of: The language server's answer on a rename: cost"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">The language server's answer on a rename: cost</span><span class="sub">the pack answering symbol greps against the pack</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">7% cheaper</span><span class="f-x">6.5% cheaper</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="6.5% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="40" y="3.8" width="6.4" height="6.4" transform="rotate(45 43.2 7)"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="6.5% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="47.199999999999996" y="3.8" width="6.4" height="6.4" transform="rotate(45 50.4 7)"/></svg></td>
   <td class="c-runs">7 per arm</td>
@@ -1108,12 +1108,12 @@
   <blockquote class="quote"><p>“| t2-rename | $0.221 · 4.6 req (7) | $0.207 · 3.4 (7) | −25% | −6.5% | 7 of 7 |”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-language-server-answers-the-grep-y">SUITE.md, The language server answers the grep (Y)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-answer.jsonl">results-answer.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-noconn.jsonl">results-noconn.jsonl</a>.</p>
   <p class="small">The story: <a href="02-notes-nobody-reads.html">Lab note 2</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-answer-trace-cost" data-id="lsp-answer-trace-cost" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="cost" data-result="no-interval" data-date="2026-10-13" data-effect="1" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-answer-trace-cost" aria-label="Details of: The language server's answer on a trace: cost even"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">The language server's answer on a trace: cost even</span><span class="sub">the pack answering symbol greps against the pack</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">1% more expensive</span><span class="f-x">1% more expensive</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="1% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="45.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 48.7 7)"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="1% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="53.699999999999996" y="3.8" width="6.4" height="6.4" transform="rotate(45 56.9 7)"/></svg></td>
   <td class="c-runs">7 per arm</td>
@@ -1133,12 +1133,12 @@
   <blockquote class="quote"><p>“| t1-trace | $0.215 · 4.3 (7) | $0.217 · 3.9 (7) | −10% | +1% | 5 of 7 |”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-language-server-answers-the-grep-y">SUITE.md, The language server answers the grep (Y)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-answer.jsonl">results-answer.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-noconn.jsonl">results-noconn.jsonl</a>.</p>
   <p class="small">The story: <a href="02-notes-nobody-reads.html">Lab note 2</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-out" data-id="lsp-out" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="cost" data-result="crosses" data-date="2026-10-13" data-effect="-0.6" data-width="13.9">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-out" aria-label="Details of: Taking lsp-plus out of the pack: no net effect on the whole"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">Taking lsp-plus out of the pack: no net effect on the whole</span><span class="sub">the pack without lsp-plus against the pack</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">about even</span><span class="f-x">0.6% cheaper</span><span class="rg">95% range from 7.2% cheaper to 6.7% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="0.6% cheaper, 95% range from 7.2% cheaper to 6.7% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="42.7" x2="52.9" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="47.6" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="0.6% cheaper, 95% range from 7.2% cheaper to 6.7% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="49.8" x2="61.8" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="55.5" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">4 per condition on multi-step tasks, 6 on small ones</td>
@@ -1158,12 +1158,12 @@
   <blockquote class="quote"><p>“lsp-plus shows no net effect on the whole: −0.6% [−7.2%, +6.7%] taking it out.”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#which-mod-earns-it-the-ablation-z">SUITE.md, Which mod earns it: the ablation (Z)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ablation.jsonl">results-ablation.jsonl</a>.</p>
   <p class="small">The story: <a href="01-the-cheapest-step.html">Lab note 1</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-warmup-leak" data-id="lsp-warmup-leak" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="cost" data-result="lower" data-date="2026-10-13" data-effect="-4.5" data-width="5.3999999999999995">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-warmup-leak" aria-label="Details of: lsp-plus's first warm-up leaked a file's diagnostics into small tasks"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">lsp-plus's first warm-up leaked a file's diagnostics into small tasks</span><span class="sub">the pack without lsp-plus against the pack (small tasks)</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">5% cheaper</span><span class="f-x">4.5% cheaper</span><span class="rg">95% range 1.7 to 7.1% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="4.5% cheaper, 95% range 1.7 to 7.1% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="42.8" x2="46.8" y1="7" y2="7"/><circle class="s-mark" cx="44.7" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="4.5% cheaper, 95% range 1.7 to 7.1% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="49.8" x2="54.5" y1="7" y2="7"/><circle class="s-mark" cx="52.1" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">6 per condition</td>
@@ -1183,12 +1183,12 @@
   <blockquote class="quote"><p>“(taking it out: −4.5% [−7.1%, −1.7%])”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#which-mod-earns-it-the-ablation-z">SUITE.md, Which mod earns it: the ablation (Z)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ablation.jsonl">results-ablation.jsonl</a>.</p>
   <p class="small">The story: <a href="01-the-cheapest-step.html">Lab note 1</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-warmfix-small" data-id="lsp-warmfix-small" data-mods="lsp-plus pack" data-session="fresh" data-language="Python" data-metric="cost" data-result="crosses" data-date="2026-10-13" data-effect="-2.2" data-width="7.1">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-warmfix-small" aria-label="Details of: The warm-up fixed: small tasks against plain"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">The warm-up fixed: small tasks against plain</span><span class="sub">the pack with the fixed warm-up against plain Claude Code</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a><span class="tag muted-t">the pack</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span><span class="tag muted-t">the pack</span></td>
   <td class="c-eff"><span class="f-w">about even</span><span class="f-x">2.2% cheaper</span><span class="rg">95% range from 5.6% cheaper to 1.5% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="2.2% cheaper, 95% range from 5.6% cheaper to 1.5% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="43.9" x2="49.1" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="46.4" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="2.2% cheaper, 95% range from 5.6% cheaper to 1.5% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="51.1" x2="57.3" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="54.1" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">28 runs of the fixed pack</td>
@@ -1208,12 +1208,12 @@
   <blockquote class="quote"><p>“On the small tasks the fixed pack costs −2.2% [−5.6%, +1.5%] against plain”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-warm-up-fixed-zfix">SUITE.md, The warm-up fixed (Zfix)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-warmfix.jsonl">results-warmfix.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ablation.jsonl">results-ablation.jsonl</a>.</p>
   <p class="small">The story: <a href="01-the-cheapest-step.html">Lab note 1</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a><span class="tag muted-t">the pack</span></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span><span class="tag muted-t">the pack</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-warmfix-vs-without" data-id="lsp-warmfix-vs-without" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="cost" data-result="crosses" data-date="2026-10-13" data-effect="1.7" data-width="6.4">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-warmfix-vs-without" aria-label="Details of: The warm-up fixed: small tasks against the pack without lsp-plus"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">The warm-up fixed: small tasks against the pack without lsp-plus</span><span class="sub">the pack with the fixed warm-up against the pack without lsp-plus</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">about even</span><span class="f-x">1.7% more expensive</span><span class="rg">95% range from 1.5% cheaper to 4.9% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="1.7% more expensive, 95% range from 1.5% cheaper to 4.9% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="46.9" x2="51.6" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="49.2" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="1.7% more expensive, 95% range from 1.5% cheaper to 4.9% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="54.7" x2="60.2" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="57.5" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">28 runs of the fixed pack</td>
@@ -1233,12 +1233,12 @@
   <blockquote class="quote"><p>“and +1.7% [−1.5%, +4.9%] against the pack without lsp-plus: the gap is gone.”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-warm-up-fixed-zfix">SUITE.md, The warm-up fixed (Zfix)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-warmfix.jsonl">results-warmfix.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ablation.jsonl">results-ablation.jsonl</a>.</p>
   <p class="small">The story: <a href="01-the-cheapest-step.html">Lab note 1</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-warmfix-rename" data-id="lsp-warmfix-rename" data-mods="lsp-plus pack" data-session="fresh" data-language="Python" data-metric="cost" data-result="lower" data-date="2026-10-13" data-effect="-19" data-width="28">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-warmfix-rename" aria-label="Details of: The rename with the fixed pack, against plain"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">The rename with the fixed pack, against plain</span><span class="sub">the pack with the fixed warm-up against plain Claude Code</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a><span class="tag muted-t">the pack</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span><span class="tag muted-t">the pack</span></td>
   <td class="c-eff"><span class="f-w">19% cheaper</span><span class="f-x">19% cheaper</span><span class="rg">95% range 4 to 32% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="19% cheaper, 95% range 4 to 32% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="24.5" x2="45.1" y1="7" y2="7"/><circle class="s-mark" cx="34.1" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="19% cheaper, 95% range 4 to 32% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="28.3" x2="52.5" y1="7" y2="7"/><circle class="s-mark" cx="39.5" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">28 runs of the fixed pack</td>
@@ -1258,12 +1258,12 @@
   <blockquote class="quote"><p>“The rename came to −19% [−32%, −4%] against plain”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md#the-warm-up-fixed-zfix">SUITE.md, The warm-up fixed (Zfix)</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-warmfix.jsonl">results-warmfix.jsonl</a>.</p>
   
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a><span class="tag muted-t">the pack</span></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span><span class="tag muted-t">the pack</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-nudge" data-id="lsp-nudge" data-mods="lsp-plus" data-session="both" data-language="Python" data-metric="followed" data-result="count" data-date="2026-10-13" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-nudge" aria-label="Details of: A note telling Claude which language-server call answers its grep"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">A note telling Claude which language-server call answers its grep</span><span class="sub">notes acted on, of notes shown</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">0 of 45</span><span class="f-x">0 of 45</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="0 of 45"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="0 of 45"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/></svg></td>
   <td class="c-runs">45 notes</td>
@@ -1283,12 +1283,12 @@
   <blockquote class="quote"><p>“In every benchmark run with the pack, that note fired 45 times. Claude acted on it 0 times”</p><footer>Quoted from <a href="02-notes-nobody-reads.html#45-hints-0-followed">Lab notes 2, 45 hints, 0 followed</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-quiet.jsonl">results-quiet.jsonl</a>.</p>
   <p class="small">The story: <a href="02-notes-nobody-reads.html">Lab note 2</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-lsp-blast" data-id="lsp-blast" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="cost" data-result="crosses" data-date="2026-10-15" data-effect="3.7" data-width="13">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-blast" aria-label="Details of: blast (callers after a signature change), taken out"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">blast (callers after a signature change), taken out</span><span class="sub">the ideas without blast against with it</span></td>
-  <td class="c-mod"><a class="tag" href="mods/lsp-plus.html">lsp-plus</a></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
   <td class="c-eff"><span class="f-w">about even</span><span class="f-x">3.7% more expensive</span><span class="rg">95% range from 2.0% cheaper to 11.0% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="3.7% more expensive, 95% range from 2.0% cheaper to 11.0% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="46.5" x2="56.1" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="50.7" cy="7" r="3.6"/></svg></span></td>
   <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="3.7% more expensive, 95% range from 2.0% cheaper to 11.0% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="54.3" x2="65.5" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="59.2" cy="7" r="3.6"/></svg></td>
   <td class="c-runs">4 per task and arm</td>
@@ -1308,7 +1308,7 @@
   <blockquote class="quote"><p>“| Taking blast out, on the signature task | +3.7% | −2.0% to +11.0% |”</p><p>“96 runs of the ideas, all correct”</p><footer>Quoted from <a href="04-borrowing-the-good-ideas.html#what-it-measured">Lab notes 4, What it measured</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-ideas.jsonl">results-ideas.jsonl</a>.</p>
   <p class="small">The story: <a href="04-borrowing-the-good-ideas.html">Lab note 4</a>.</p>
-  <p class="small">Mods: <a class="tag" href="mods/lsp-plus.html">lsp-plus</a></p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
 <tr class="ev-row" id="f-delegate-order-feature" data-id="delegate-order-feature" data-mods="delegate" data-session="fresh" data-language="Python" data-metric="cost" data-result="lower" data-date="2026-10-13" data-effect="-22" data-width="22">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-delegate-order-feature" aria-label="Details of: An order from a mod to hand off a feature"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
@@ -3684,6 +3684,256 @@
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-subagent.jsonl">results-subagent.jsonl</a>.</p>
   <p class="small">The story: <a href="11-what-looking-around-leaves-behind.html">Lab note 11</a>.</p>
   <p class="small">Mods: <a class="tag" href="mods/cells.html">cells</a><a class="tag" href="mods/seek.html">seek</a></p>
+</td></tr>
+<tr class="ev-row" id="f-lsp-left-click" data-id="lsp-left-click" data-mods="lsp-plus" data-session="fresh" data-language="other" data-metric="cost" data-result="crosses" data-date="2026-10-18" data-effect="-1.8" data-width="18.5">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-left-click" aria-label="Details of: The pack without lsp-plus, on the tasks it was built for"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The pack without lsp-plus, on the tasks it was built for</span><span class="sub">the pack without lsp-plus against the pack as 0.6.1 shipped it</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
+  <td class="c-eff"><span class="f-w">about even</span><span class="f-x">1.8% cheaper</span><span class="rg">95% range from 10.4% cheaper to 8.1% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="1.8% cheaper, 95% range from 10.4% cheaper to 8.1% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="40.4" x2="53.9" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="46.7" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="1.8% cheaper, 95% range from 10.4% cheaper to 8.1% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="47" x2="63" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="54.4" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">48 runs, 3 per task and arm</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-lsp-left-click" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack without lsp-plus against the pack as 0.6.1 shipped it</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>a trace and a rename in click, a rename in a TypeScript library, a rename in a React app</dd></div>
+    <div><dt>Runs</dt><dd>48 runs, 3 per task and arm</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>113 of 120 runs at full marks, the rest spread over the arms</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| Without lsp-plus | −1.8% [−10.4, +8.1] |”</p><footer>Quoted from <a href="12-the-mod-that-left.html#two-benchmarks-without-it">Lab notes 12, Two benchmarks without it</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-engine.jsonl">results-engine.jsonl</a>.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
+</td></tr>
+<tr class="ev-row" id="f-lsp-left-beyond" data-id="lsp-left-beyond" data-mods="lsp-plus" data-session="fresh" data-language="other" data-metric="cost" data-result="crosses" data-date="2026-10-18" data-effect="-1.6" data-width="11.3">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-left-beyond" aria-label="Details of: The pack without lsp-plus, on web, operating and prose work"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The pack without lsp-plus, on web, operating and prose work</span><span class="sub">the pack without lsp-plus against the pack as 0.6.1 shipped it</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
+  <td class="c-eff"><span class="f-w">about even</span><span class="f-x">1.6% cheaper</span><span class="rg">95% range from 7.2% cheaper to 4.1% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="1.6% cheaper, 95% range from 7.2% cheaper to 4.1% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="42.7" x2="51" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="46.8" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="1.6% cheaper, 95% range from 7.2% cheaper to 4.1% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="49.8" x2="59.6" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="54.6" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">72 runs, 2 per task and arm</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-lsp-left-beyond" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack without lsp-plus against the pack as 0.6.1 shipped it</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>twelve tasks: five in a React app, four operating a small service, three in prose and data</dd></div>
+    <div><dt>Runs</dt><dd>72 runs, 2 per task and arm</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>113 of 120 runs at full marks, the rest spread over the arms</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| Without lsp-plus against the pack | −1.6% [−7.2, +4.1] |”</p><footer>Quoted from <a href="12-the-mod-that-left.html#two-benchmarks-without-it">Lab notes 12, Two benchmarks without it</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
+</td></tr>
+<tr class="ev-row" id="f-lsp-engine-pyright" data-id="lsp-engine-pyright" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="accuracy" data-result="no-interval" data-date="2026-10-18" data-effect="50" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-engine-pyright" aria-label="Details of: Uses of a name found by pyright, the language server"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Uses of a name found by pyright, the language server</span><span class="sub">share of a name’s uses found, pyright (95% of its hits real)</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
+  <td class="c-eff"><span class="f-w">50% higher</span><span class="f-x">50% higher</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="50% higher"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="81.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 84.7 7)"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="50% higher"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="96.1" y="3.8" width="6.4" height="6.4" transform="rotate(45 99.3 7)"/></svg></td>
+  <td class="c-runs">49 names</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-lsp-engine-pyright" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of a name’s uses found, pyright (95% of its hits real)</dd></div>
+    <div><dt>Measured</dt><dd>Accuracy</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Python</dd></div>
+    <div><dt>Jobs</dt><dd>49 names with one definition, from Django and sympy</dd></div>
+    <div><dt>Runs</dt><dd>49 names</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>an observation, not a graded run</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| pyright, the language server | 50% | 95% |”</p><footer>Quoted from <a href="12-the-mod-that-left.html#what-its-answers-were-worth">Lab notes 12, What its answers were worth</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
+</td></tr>
+<tr class="ev-row" id="f-lsp-engine-search" data-id="lsp-engine-search" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="accuracy" data-result="no-interval" data-date="2026-10-18" data-effect="100" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-engine-search" aria-label="Details of: Uses of a name found by a word search"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Uses of a name found by a word search</span><span class="sub">share of a name’s uses found, a word search (75% of its hits real)</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
+  <td class="c-eff"><span class="f-w">100% higher</span><span class="f-x">100% higher</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="100% higher"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><path class="s-arrow" d="M95 7 l-6 -4 v8 z"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="100% higher"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><path class="s-arrow" d="M111 7 l-6 -4 v8 z"/></svg></td>
+  <td class="c-runs">49 names</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-lsp-engine-search" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of a name’s uses found, a word search (75% of its hits real)</dd></div>
+    <div><dt>Measured</dt><dd>Accuracy</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Python</dd></div>
+    <div><dt>Jobs</dt><dd>49 names with one definition, from Django and sympy</dd></div>
+    <div><dt>Runs</dt><dd>49 names</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>an observation, not a graded run</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| A word search, each hit named by its enclosing function | 100% | 75% |”</p><footer>Quoted from <a href="12-the-mod-that-left.html#what-its-answers-were-worth">Lab notes 12, What its answers were worth</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
+</td></tr>
+<tr class="ev-row" id="f-lsp-memory-unscoped" data-id="lsp-memory-unscoped" data-mods="lsp-plus" data-session="other" data-language="Python" data-metric="count" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-memory-unscoped" aria-label="Details of: Memory of pyright on the lab’s own repository, reading everything"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Memory of pyright on the lab’s own repository, reading everything</span><span class="sub">one pyright process, 57,201 Python files read</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
+  <td class="c-eff"><span class="f-w">3.5 GB</span><span class="f-x">3.5 GB</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">one process</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-lsp-memory-unscoped" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>one pyright process, 57,201 Python files read</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>real sessions</dd></div>
+    <div><dt>Language</dt><dd>Python</dd></div>
+    <div><dt>Jobs</dt><dd>this lab’s repository</dd></div>
+    <div><dt>Runs</dt><dd>one process</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>an observation, not a graded run</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“pyright on this lab's own repository took 3.5 GB”</p><footer>Quoted from <a href="12-the-mod-that-left.html#what-a-server-costs">Lab notes 12, What a server costs</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
+</td></tr>
+<tr class="ev-row" id="f-lsp-memory-scoped" data-id="lsp-memory-scoped" data-mods="lsp-plus" data-session="other" data-language="Python" data-metric="count" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-memory-scoped" aria-label="Details of: Memory of pyright on the same repository, skipping git-ignored folders"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Memory of pyright on the same repository, skipping git-ignored folders</span><span class="sub">one pyright process, told to skip the ignored folders</span></td>
+  <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
+  <td class="c-eff"><span class="f-w">237 MB</span><span class="f-x">237 MB</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">one process</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-lsp-memory-scoped" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>one pyright process, told to skip the ignored folders</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>real sessions</dd></div>
+    <div><dt>Language</dt><dd>Python</dd></div>
+    <div><dt>Jobs</dt><dd>this lab’s repository</dd></div>
+    <div><dt>Runs</dt><dd>one process</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>an observation, not a graded run</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“Told to skip the ignored folders, it took 237 MB.”</p><footer>Quoted from <a href="12-the-mod-that-left.html#what-a-server-costs">Lab notes 12, What a server costs</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
+</td></tr>
+<tr class="ev-row" id="f-pack-beyond-all" data-id="pack-beyond-all" data-mods="pack" data-session="fresh" data-language="other" data-metric="cost" data-result="lower" data-date="2026-10-18" data-effect="-17.2" data-width="10.400000000000002">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-pack-beyond-all" aria-label="Details of: The pack beyond click: all twelve new tasks"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The pack beyond click: all twelve new tasks</span><span class="sub">the pack as 0.7.0 ships it against plain Claude Code</span></td>
+  <td class="c-mod"><span class="tag muted-t">the pack</span></td>
+  <td class="c-eff"><span class="f-w">17% cheaper</span><span class="f-x">17.2% cheaper</span><span class="rg">95% range 11.7 to 22.1% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="17.2% cheaper, 95% range 11.7 to 22.1% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="31.8" x2="39.4" y1="7" y2="7"/><circle class="s-mark" cx="35.4" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="17.2% cheaper, 95% range 11.7 to 22.1% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="36.8" x2="45.9" y1="7" y2="7"/><circle class="s-mark" cx="41.1" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">48 runs, 2 per task and arm</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-pack-beyond-all" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack as 0.7.0 ships it against plain Claude Code</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>twelve tasks: five in a React app, four operating a small service, three in prose and data</dd></div>
+    <div><dt>Runs</dt><dd>48 runs, 2 per task and arm</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>113 of 120 runs at full marks across all arms</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#070-2026-10-18">CHANGELOG.md, 0.7.0 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
+</td></tr>
+<tr class="ev-row" id="f-pack-beyond-web" data-id="pack-beyond-web" data-mods="pack" data-session="fresh" data-language="other" data-metric="cost" data-result="no-interval" data-date="2026-10-18" data-effect="-28.1" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-pack-beyond-web" aria-label="Details of: The pack beyond click: web code"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The pack beyond click: web code</span><span class="sub">the pack as 0.7.0 ships it against plain Claude Code</span></td>
+  <td class="c-mod"><span class="tag muted-t">the pack</span></td>
+  <td class="c-eff"><span class="f-w">28% cheaper</span><span class="f-x">28.1% cheaper</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="28.1% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="24.2" y="3.8" width="6.4" height="6.4" transform="rotate(45 27.4 7)"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="28.1% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="28.400000000000002" y="3.8" width="6.4" height="6.4" transform="rotate(45 31.6 7)"/></svg></td>
+  <td class="c-runs">48 runs, 2 per task and arm</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-pack-beyond-web" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack as 0.7.0 ships it against plain Claude Code</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>five tasks in a React and TypeScript app</dd></div>
+    <div><dt>Runs</dt><dd>48 runs, 2 per task and arm</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>113 of 120 runs at full marks across all arms</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#070-2026-10-18">CHANGELOG.md, 0.7.0 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
+</td></tr>
+<tr class="ev-row" id="f-pack-beyond-ops" data-id="pack-beyond-ops" data-mods="pack" data-session="fresh" data-language="other" data-metric="cost" data-result="no-interval" data-date="2026-10-18" data-effect="-8" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-pack-beyond-ops" aria-label="Details of: The pack beyond click: operating software"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The pack beyond click: operating software</span><span class="sub">the pack as 0.7.0 ships it against plain Claude Code</span></td>
+  <td class="c-mod"><span class="tag muted-t">the pack</span></td>
+  <td class="c-eff"><span class="f-w">8% cheaper</span><span class="f-x">8.0% cheaper</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="8.0% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="38.9" y="3.8" width="6.4" height="6.4" transform="rotate(45 42.1 7)"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="8.0% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="45.9" y="3.8" width="6.4" height="6.4" transform="rotate(45 49.1 7)"/></svg></td>
+  <td class="c-runs">48 runs, 2 per task and arm</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-pack-beyond-ops" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack as 0.7.0 ships it against plain Claude Code</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>four tasks operating a small service</dd></div>
+    <div><dt>Runs</dt><dd>48 runs, 2 per task and arm</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>113 of 120 runs at full marks across all arms</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#070-2026-10-18">CHANGELOG.md, 0.7.0 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
+</td></tr>
+<tr class="ev-row" id="f-pack-beyond-prose" data-id="pack-beyond-prose" data-mods="pack" data-session="fresh" data-language="other" data-metric="cost" data-result="crosses" data-date="2026-10-18" data-effect="-4.8" data-width="10.5">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-pack-beyond-prose" aria-label="Details of: The pack beyond click: prose and data"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The pack beyond click: prose and data</span><span class="sub">the pack as 0.7.0 ships it against plain Claude Code</span></td>
+  <td class="c-mod"><span class="tag muted-t">the pack</span></td>
+  <td class="c-eff"><span class="f-w">about even</span><span class="f-x">4.8% cheaper</span><span class="rg">95% range from 9.9% cheaper to 0.6% more expensive</span><span class="m-only"><svg class="strip s-crosses" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="4.8% cheaper, 95% range from 9.9% cheaper to 0.6% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="40.7" x2="48.4" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="44.5" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-crosses" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="4.8% cheaper, 95% range from 9.9% cheaper to 0.6% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="47.4" x2="56.5" y1="7" y2="7"/><circle class="s-mark s-hollow" cx="51.8" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">48 runs, 2 per task and arm</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-pack-beyond-prose" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack as 0.7.0 ships it against plain Claude Code</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>three tasks in prose and data</dd></div>
+    <div><dt>Runs</dt><dd>48 runs, 2 per task and arm</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>113 of 120 runs at full marks across all arms</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#070-2026-10-18">CHANGELOG.md, 0.7.0 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
+  <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
+  <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
 </td></tr>
       </tbody>
     </table><!--/n-->

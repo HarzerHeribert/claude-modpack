@@ -48,6 +48,9 @@ Arms (lsp-plus is loaded in all three, from CLAUDE_CODE_PLUGIN_DIRS):
      first prompt (minContext 0), ZKM its map from the first search (minContext 0, priced as if it saved every request);
      ZK is seek at its defaults, silent in a fresh session. Long: KL (the src/ session, against PL); KDO (its defaults:
      the order alone), KDM (the map alone) and KD (both) in the docs-and-tests session, against PD beside PFD. Judge them with carry.py: what a run leaves in the context is re-read ~140 times in the person's sessions.
+  Z6L  Z6 (the pack as 0.6.1 ships it) with the lint mod (lab), on the infra tasks (infra_repo.py: i1-handler … i5-backup)
+     against Z6: the linters (shellcheck, ansible-lint, actionlint, hadolint, yamllint through uvx wrappers) are on every
+     infra run's PATH, so both arms could run them; Z6L is told what an edit broke. Run with BENCH_RESULTS=results-infra.jsonl.
   SA-off, SA-on  the pack as 0.6.0 ships it (SHIPPED, seek, route off), every run told to hand the whole task to one
      general-purpose subagent: SA-off with cells' and seek's `subagents` option off (the subagent's task as Claude wrote
      it), SA-on with it on (the chaining guidance and seek's order appended to the task, in the person's name). Run with
@@ -64,6 +67,7 @@ transcripts (the main session and every worker), request by request.
 import argparse
 import concurrent.futures as cf
 import glob
+import hashlib
 import json
 import os
 import re
@@ -74,11 +78,18 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import docs_repo
+import infra_repo
+import ops_repo
 import pb_repo
 import ts_repo
+import web_repo
 import yaml_repo
 
 HERE = Path(__file__).resolve().parent
+# Outside /private/tmp: macOS clears files there that no one touched for about three days, and on 18 Oct the click base
+# had lost its sources and its git HEAD (runs rebuilt the code from git's pack files; those rows are in
+# results-engine-brokenbase.jsonl). The public release uses the same folder.
 WORK = Path(os.environ.get("BENCH_WORK", Path.home() / ".cache" / "claude-modpack-bench"))
 BASE = WORK / "click-base"
 # The YAML tasks' repository (yaml_repo.py), built on first use; their runs are named with --tasks, never by default.
@@ -89,6 +100,20 @@ YAML_BUILD = __import__("threading").Lock()
 # its tasks (ts-*) run only when named with --tasks.
 TS_BASE = WORK / "ts-base"
 TS_BUILD = __import__("threading").Lock()
+# The infrastructure tasks (infra_repo.py): their repository, and the linter wrappers every infra run gets on its PATH.
+INFRA_BASE = WORK / "infra-base"
+INFRA_BIN = WORK / "infra-bin"
+INFRA_BUILD = __import__("threading").Lock()
+# The work beyond code (18 Oct; Anthropic's study of 400k Claude Code sessions: operating software 17-21%, prose and
+# analysis 13-20%, web code the most common): web_repo.py (bulletproof-react, web-*), ops_repo.py (a service to run,
+# ops-*), docs_repo.py (prose and a CSV, doc-*). Named with --tasks only. Ops tasks share port 8731, so OPS_RUN lets one
+# run at a time whatever --jobs says.
+WEB_BASE = WORK / "web-base"
+WEB_BUILD = __import__("threading").Lock()
+OPS_BASE = WORK / "ops-base"
+DOCS_BASE = WORK / "docs-base"
+WORK_BUILD = __import__("threading").Lock()
+OPS_RUN = __import__("threading").Lock()
 # The PocketBase tasks (pb_repo.py: Trail-Code's 15 PocketBase tasks, pb-q1..pb-q10 and pb-pr<n>), their bases built in WORK
 # on first use (pb-src, pb-base-q, pb-base-pr<n>); they run only when named with --tasks.
 VENV = WORK / "venv"
@@ -142,6 +167,20 @@ ABLATION.update({arm: SHIPPED + ("seek", "route") for arm in SUBAGENT_ARMS})
 # Z6: the pack as 0.6.0 ships it, every option at its default (seek's order on, route loaded and off); against V and
 # VTG in one batch: does Trail-Code alone come close to today's pack? (16 Oct)
 ABLATION["Z6"] = SHIPPED + ("seek", "route")
+# Z6L: Z6 (the pack as 0.6.1 ships it, from the lab's HEAD) with lint (lab): after an edit, the infrastructure linters on
+# the PATH and the shortcut detector, on the infra tasks (infra_repo.py) against Z6. Does a note about what an edit broke
+# change the result where no language server and no test would catch it?
+ABLATION["Z6L"] = SHIPPED + ("seek", "route", "lint")
+# 18 Oct, against Z6: lsp-plus without a language server, and its filter of the diagnostics Claude Code attaches (lab).
+# Z6I: the grep answer from a word search and the files' outlines (engine: index), no servers warmed at session start.
+# Z6D: the diagnostics cut to errors and warnings in the files the session edited (diagnostics: filter).
+# Z6N: Z6 without lsp-plus.
+LSP_ARMS = {"Z6I": {"engine": "index", "warm": False}, "Z6D": {"diagnostics": "filter"}}
+ABLATION.update({arm: SHIPPED + ("seek", "route") for arm in LSP_ARMS})
+ABLATION["Z6N"] = tuple(m for m in SHIPPED if m != "lsp-plus") + ("seek", "route")
+# Z7: the pack as 0.7.0 ships it (no lsp-plus); Z7W: with draft, writing to a length in one draft and cuts.
+ABLATION["Z7"] = ABLATION["Z6N"]
+ABLATION["Z7W"] = ABLATION["Z6N"] + ("draft",)
 # The prompt's fixed lead in those arms, so that every run goes through a subagent and the grading still holds (the answer
 # is the main's final message, the edits are on disk).
 VIA_SUBAGENT = ("Hand this whole task to one general-purpose subagent with the Agent tool (subagent_type \"general-purpose\"): "
@@ -371,6 +410,14 @@ def grade(task: str, answer: str, repo: Path) -> dict:
         return pb_repo.grade(task, answer, repo)
     if task in ts_repo.TASKS:
         return ts_repo.grade(task, answer, repo)
+    if task in infra_repo.TASKS:
+        return infra_repo.grade(task, answer, repo)
+    if task in web_repo.TASKS:
+        return web_repo.grade(task, answer, repo)
+    if task in ops_repo.TASKS:
+        return ops_repo.grade(task, answer, repo)
+    if task in docs_repo.TASKS:
+        return docs_repo.grade(task, answer, repo)
     if task == "f1-fix":
         fixed = [rel for rel, good, bad in F1_BUGS if good in (t := (repo / rel).read_text()) and bad not in t]
         tests_changed = subprocess.run(["git", "status", "--porcelain", "tests"], cwd=repo, capture_output=True, text=True).stdout.strip()
@@ -651,6 +698,14 @@ def ts_base() -> Path:
 
 
 def run_one(task: str, arm: str, rep: int) -> dict:
+    """One graded run; the ops tasks one at a time, since each starts a server on port 8731."""
+    if task in ops_repo.TASKS:
+        with OPS_RUN:
+            return _run_one(task, arm, rep)
+    return _run_one(task, arm, rep)
+
+
+def _run_one(task: str, arm: str, rep: int) -> dict:
     # The process id too: two bench processes running one arm name started the same task in the same second and shared a folder.
     run_id = f"{task}.{arm}.{rep}.{int(time.time())}.{os.getpid()}"
     repo = WORK / "runs" / run_id
@@ -672,11 +727,48 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         shutil.copytree(pb_repo.base(WORK, task), repo, symlinks=True)
     elif task in ts_repo.TASKS:
         shutil.copytree(ts_base(), repo, symlinks=True)
+    elif task in infra_repo.TASKS:
+        with INFRA_BUILD:
+            if not INFRA_BASE.exists():
+                part = INFRA_BASE.with_name(INFRA_BASE.name + ".part")
+                shutil.rmtree(part, ignore_errors=True)
+                infra_repo.build(part)
+                infra_repo.bin(INFRA_BIN)
+                part.rename(INFRA_BASE)
+        shutil.copytree(INFRA_BASE, repo, symlinks=True)
+    elif task in web_repo.TASKS:
+        with WEB_BUILD:
+            if not WEB_BASE.exists():
+                part = WEB_BASE.with_name(WEB_BASE.name + ".part")
+                shutil.rmtree(part, ignore_errors=True)
+                web_repo.prepare(part)
+                part.rename(WEB_BASE)
+        # node_modules is 480 MB: an APFS clone (cp -c) instead of a byte copy.
+        repo.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["cp", "-cR", str(WEB_BASE), str(repo)], check=True)
+        web_repo.plant(task, repo)
+    elif task in ops_repo.TASKS or task in docs_repo.TASKS:
+        module, base = (ops_repo, OPS_BASE) if task in ops_repo.TASKS else (docs_repo, DOCS_BASE)
+        # The base is rebuilt when the module that builds it changed: a base built before a source text changed held the
+        # old facts (18 Oct: doc-4's owners were added to the sources, and every run read a base without them).
+        source = hashlib.sha1(Path(module.__file__).read_bytes()).hexdigest()
+        with WORK_BUILD:
+            stamp = base / ".bench-source"
+            if base.exists() and (not stamp.exists() or stamp.read_text() != source):
+                shutil.rmtree(base)
+            if not base.exists():
+                part = base.with_name(base.name + ".part")
+                shutil.rmtree(part, ignore_errors=True)
+                module.build(part)
+                (part / ".bench-source").write_text(source)
+                part.rename(base)
+        shutil.copytree(base, repo, symlinks=True, ignore=shutil.ignore_patterns(".bench-source"))
+        module.plant(task, repo)
     else:
         shutil.copytree(BASE_TRAIL_GRAPH if arm in ("TG", "VTG") else BASE_TRAIL if arm in TRAIL_ARMS else BASE, repo, symlinks=True)
         if task == "f1-fix":
             plant_bugs(repo)
-    prompt = {**TASKS, **yaml_repo.TASKS, **ts_repo.TASKS, **pb_repo.TASKS, **EXTRA_TASKS}[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
+    prompt = {**TASKS, **yaml_repo.TASKS, **ts_repo.TASKS, **pb_repo.TASKS, **infra_repo.TASKS, **web_repo.TASKS, **ops_repo.TASKS, **docs_repo.TASKS, **EXTRA_TASKS}[task]["prompt"] + (f"\n\n{FIT}" if arm == "DF" else "")
     if arm == "HF" or arm in WORKER_ARMS:
         prompt = f"{FORCE}\n\n{prompt}"
     if arm in SUBAGENT_ARMS:
@@ -702,6 +794,9 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         if arm in IDEAS:
             blast = {"options": {"blast": IDEAS[arm][1]}}
             settings["pluginConfigs"] = {"lsp-plus": blast, "lsp-plus@inline": blast}
+        if arm in LSP_ARMS:
+            lsp = {"options": LSP_ARMS[arm]}
+            settings["pluginConfigs"] = {"lsp-plus": lsp, "lsp-plus@inline": lsp}
         if arm in SEEK_FRESH:
             seek = {"options": SEEK_FRESH[arm]}
             settings["pluginConfigs"] = {"seek": seek, "seek@inline": seek}
@@ -743,7 +838,9 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         cmd = pb_repo.with_gopls(cmd)
     started = time.time()
     try:
-        p = subprocess.run(neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=1800, env=trail_env() if arm in TRAIL_ARMS else None)
+        # An infra run finds the linters on its PATH (uvx wrappers), every arm alike.
+        env = trail_env() if arm in TRAIL_ARMS else {**os.environ, "PATH": f"{INFRA_BIN}:{os.environ['PATH']}"} if task in infra_repo.TASKS else None
+        p = subprocess.run(neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=1800, env=env)
         out, err = p.stdout, p.stderr
     except subprocess.TimeoutExpired as e:
         out, err = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""), "timeout"
@@ -759,7 +856,8 @@ def run_one(task: str, arm: str, rep: int) -> dict:
         "answer": answer[:4000], "stderr": err[-500:] if err else "",
     }
     row["grade"] = grade(task, answer, repo)
-    if task in ("t2-rename", "l1-feature", "l2-coverage", "t6-signature", "f1-fix") or yaml_repo.TASKS.get(task, {}).get("kind") == "edit" or ts_repo.TASKS.get(task, {}).get("kind") == "edit":
+    if task in ("t2-rename", "l1-feature", "l2-coverage", "t6-signature", "f1-fix") or yaml_repo.TASKS.get(task, {}).get("kind") == "edit" or ts_repo.TASKS.get(task, {}).get("kind") == "edit" or task in infra_repo.TASKS \
+            or any(m.TASKS.get(task, {}).get("kind") == "edit" for m in (web_repo, ops_repo, docs_repo)):
         # The change as made, against the clean copy: re-graded later from this alone.
         subprocess.run(["git", "add", "-A", "-N", "."], cwd=repo, capture_output=True)
         diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", ".", ":(exclude).coverage", ":(exclude)*.pyc", ":(exclude)__pycache__"], cwd=repo, capture_output=True, text=True).stdout

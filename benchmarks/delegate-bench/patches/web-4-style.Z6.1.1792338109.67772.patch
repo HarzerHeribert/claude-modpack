@@ -1,0 +1,97 @@
+diff --git a/src/components/ui/table/__tests__/table.test.tsx b/src/components/ui/table/__tests__/table.test.tsx
+new file mode 100644
+index 0000000..d863455
+--- /dev/null
++++ b/src/components/ui/table/__tests__/table.test.tsx
+@@ -0,0 +1,42 @@
++import { rtlRender, screen } from '@/testing/test-utils';
++
++import { Table } from '../table';
++
++const data = [
++  { id: '1', createdAt: 1, title: 'First' },
++  { id: '2', createdAt: 2, title: 'Second' },
++];
++
++test('should apply a column className to its header and cells', () => {
++  rtlRender(
++    <Table
++      data={data}
++      columns={[
++        { title: 'Title', field: 'title' },
++        {
++          title: 'Created At',
++          field: 'createdAt',
++          className: 'hidden md:table-cell',
++        },
++      ]}
++    />,
++  );
++
++  expect(screen.getByRole('columnheader', { name: 'Created At' })).toHaveClass(
++    'hidden',
++    'md:table-cell',
++  );
++  expect(screen.getByRole('cell', { name: '1' })).toHaveClass(
++    'hidden',
++    'md:table-cell',
++  );
++  expect(screen.getByRole('cell', { name: '2' })).toHaveClass(
++    'hidden',
++    'md:table-cell',
++  );
++
++  expect(screen.getByRole('columnheader', { name: 'Title' })).not.toHaveClass(
++    'hidden',
++  );
++  expect(screen.getByRole('cell', { name: 'First' })).not.toHaveClass('hidden');
++});
+diff --git a/src/components/ui/table/table.tsx b/src/components/ui/table/table.tsx
+index d1f4bac..63e404f 100644
+--- a/src/components/ui/table/table.tsx
++++ b/src/components/ui/table/table.tsx
+@@ -127,6 +127,8 @@ type TableColumn<Entry> = {
+   title: string;
+   field: keyof Entry;
+   Cell?({ entry }: { entry: Entry }): React.ReactElement;
++  // applied to both the header and the body cells of the column
++  className?: string;
+ };
+ 
+ export type TableProps<Entry> = {
+@@ -154,15 +156,20 @@ export const Table = <Entry extends BaseEntity>({
+         <TableHeader>
+           <TableRow>
+             {columns.map((column, index) => (
+-              <TableHead key={column.title + index}>{column.title}</TableHead>
++              <TableHead
++                key={column.title + index}
++                className={column.className}
++              >
++                {column.title}
++              </TableHead>
+             ))}
+           </TableRow>
+         </TableHeader>
+         <TableBody>
+           {data.map((entry, entryIndex) => (
+             <TableRow key={entry?.id || entryIndex}>
+-              {columns.map(({ Cell, field, title }, columnIndex) => (
+-                <TableCell key={title + columnIndex}>
++              {columns.map(({ Cell, field, title, className }, columnIndex) => (
++                <TableCell key={title + columnIndex} className={className}>
+                   {Cell ? <Cell entry={entry} /> : `${entry[field]}`}
+                 </TableCell>
+               ))}
+diff --git a/src/features/discussions/components/discussions-list.tsx b/src/features/discussions/components/discussions-list.tsx
+index 9aa5fba..fe030f5 100644
+--- a/src/features/discussions/components/discussions-list.tsx
++++ b/src/features/discussions/components/discussions-list.tsx
+@@ -50,6 +50,7 @@ export const DiscussionsList = ({
+         {
+           title: 'Created At',
+           field: 'createdAt',
++          className: 'hidden md:table-cell',
+           Cell({ entry: { createdAt } }) {
+             return <span>{formatDate(createdAt)}</span>;
+           },

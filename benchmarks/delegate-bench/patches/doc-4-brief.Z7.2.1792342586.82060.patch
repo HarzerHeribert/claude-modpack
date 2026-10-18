@@ -1,0 +1,38 @@
+diff --git a/reports/incidents-brief.md b/reports/incidents-brief.md
+new file mode 100644
+index 0000000..b79316f
+--- /dev/null
++++ b/reports/incidents-brief.md
+@@ -0,0 +1,32 @@
++# Incidents brief
++
++## 11 August: data intake stall, full database disk
++
++**Impact:** about 2.5 hours overnight without new data; customers saw stale dashboards. No data lost.
++
++**Cause:** one malformed batch jammed data intake; its retries filled the database disk with logs, stopping writes.
++
++**Fix:** a restart setting the batch aside, then non-disruptive database cleanup and log pruning.
++
++**Follow-ups:**
++- Disk alert at 80%: no owner named; open.
++- Paging rules (primary, secondary, then Mara; escalate after 15 unanswered minutes): Elif, Sunil; done.
++- Check handbook for the old 30-minute figure: Mara; open.
++- Stop bad batches jamming intake: Jonas; open.
++
++## 21 September: public API outage
++
++**Impact:** 47 minutes, Monday morning; nearly all customer connections refused.
++
++**Cause:** the API certificate expired; automatic renewal had silently failed for three weeks (outdated access token).
++
++**Fix:** certificate renewed, API restarted.
++
++**Follow-ups:**
++- Repair renewal job, alert on failures: no owner named; done.
++- Reminder 14 days before each expiry: no owner named; open.
++- Alert on days to expiry: no owner named; open.
++- Expiry check in weekly checklist: no owner named; open.
++- Incident handlers log steps live: everyone; agreed practice.
++
++Open: not recorded done in meeting notes (to 30 September).

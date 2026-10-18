@@ -1,0 +1,57 @@
+---
+- name: Create the shop user
+  ansible.builtin.user:
+    name: shop
+    system: true
+    create_home: false
+
+- name: Fetch the app's code
+  ansible.builtin.git:
+    repo: https://git.shop.internal/shop/app.git
+    dest: /opt/shop/src
+    version: "v{{ shop_version }}"
+  register: shop_code
+
+- name: Install the app into its virtualenv
+  ansible.builtin.pip:
+    requirements: /opt/shop/src/app/requirements.txt
+    virtualenv: /opt/shop/venv
+    virtualenv_command: python3 -m venv
+
+- name: Run the database migrations
+  ansible.builtin.command: /opt/shop/venv/bin/shop-migrate
+  when: shop_code is changed
+  changed_when: true
+
+- name: Create the configuration directory
+  ansible.builtin.file:
+    path: /etc/shop
+    state: directory
+    owner: root
+    group: shop
+    mode: "0750"
+
+- name: Render the environment file
+  ansible.builtin.template:
+    src: app.env.j2
+    dest: /etc/shop/app.env
+    owner: root
+    group: shop
+    mode: "0640"
+  notify: Restart shop-app
+
+- name: Install the systemd unit
+  ansible.builtin.template:
+    src: shop-app.service.j2
+    dest: /etc/systemd/system/shop-app.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart shop-app
+
+- name: Start the app
+  ansible.builtin.systemd_service:
+    name: shop-app
+    state: started
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Dumps the PostgreSQL database $DB_NAME into $BACKUP_DIR as <db>-<UTC time>.sql.gz and keeps 14 days of dumps.
+set -euo pipefail
+
+: "${DB_NAME:?DB_NAME must name the database}"
+BACKUP_DIR=${BACKUP_DIR:-/var/backups/shop}
+mkdir -p "$BACKUP_DIR"
+
+file="$BACKUP_DIR/$DB_NAME-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+partial="$file.partial"
+trap 'rm -f "$partial"' EXIT
+
+pg_dump "$DB_NAME" | gzip > "$partial"
+mv "$partial" "$file"
+
+find "$BACKUP_DIR" -maxdepth 1 -type f -name "$DB_NAME-*.sql.gz" -mtime +14 -delete

@@ -1,0 +1,129 @@
+diff --git a/docs/oncall-runbook.md b/docs/oncall-runbook.md
+new file mode 100644
+index 0000000..8e8ff7f
+--- /dev/null
++++ b/docs/oncall-runbook.md
+@@ -0,0 +1,123 @@
++# On-call runbook
++
++For whoever holds the pager for tally. Every command uses `tallyctl`, which talks to the service on port 8731 unless
++`--host` says otherwise.
++
++## Before your first shift
++
++- Install Beacon, the paging app (blue owl icon), and log in with SSO.
++- The tool is called `tallyctl` now. The old name `tally-cli` still works as an alias for one more release, then it is
++  removed.
++- During an incident, write down each command you run at the moment you run it.
++
++## Escalation
++
++1. The **primary on-call** is paged first.
++2. If the primary has not acknowledged after **15 minutes**, the page goes to the **secondary on-call**.
++3. If the secondary has not acknowledged after **15 minutes**, it goes to the **engineering manager**, currently Mara.
++   This is a real step, not a courtesy.
++
++The earlier 30-minute wait was dropped on 16 September. Acknowledging is a tap on the phone and does not need a laptop.
++
++**Security incidents skip the secondary.** Page the security lead directly.
++
++## Paging at night
++
++Between 22:00 and 07:00 the pager is used only for **severity 1**, meaning customer-facing data loss or a full outage.
++
++**Severity 2** incidents, such as a slow dashboard or a delayed batch, do not page at night. They wait for business
++hours, and the primary picks them up in the morning. This is a pager rule, not a licence to ignore the dashboards.
++
++## Checking and restarting services
++
++```
++tallyctl status                              # every service and the queue depth; --watch refreshes every 2 s
++tallyctl logs tail --follow --service NAME
++```
++
++| Service   | Role                            | Restart                           | Notes                                                                                     |
++|-----------|---------------------------------|-----------------------------------|-------------------------------------------------------------------------------------------|
++| api       | accepts events, answers queries | `tallyctl restart api`            | Drops open connections for a moment.                                                      |
++| ingest    | writes queued events to the db  | `tallyctl restart ingest --drain` | Finishes in-flight work, parks a stuck batch in the dead-letter table, then starts clean. Only ingest has `--drain`. |
++| worker    | does the roll-ups               | `tallyctl restart worker`         |                                                                                           |
++| scheduler | starts the periodic jobs        | `tallyctl restart scheduler`      |                                                                                           |
++
++A restart gives up after 120 seconds unless you pass `--timeout SECONDS`.
++
++## Known failure modes
++
++### Ingest queue stuck
++
++**Signs:** the queue depth alert fires, or the queue depth keeps growing. The ingest workers look healthy, but the
++oldest message has sat in the queue for hours. Customers see stale dashboards.
++
++**Cause:** one malformed batch wedges the consumer, which keeps retrying it. A plain restart does not help, because the
++consumer picks up the same batch again.
++
++**Fix:** restart with a drain first, and look for the cause afterwards:
++
++```
++tallyctl restart ingest --drain
++```
++
++In August this emptied the queue in six minutes. Checking the network first cost half an hour, and the network was not
++at fault. Inspect the parked batch in the dead-letter table the next day. After the drain, check the db host disk,
++because the retries write a lot of log.
++
++### Database host disk filling up
++
++**Signs:** the db host disk keeps climbing. At 97 percent the database refused writes.
++
++**Fix:** run these in this order. The vacuum needs a little scratch space and the rotation does not.
++
++```
++tallyctl db vacuum --online
++tallyctl logs rotate
++```
++
++- `--online` does not block writers. It is slower but safe in production.
++- Do not run a plain `tallyctl db vacuum`. It locks the tables, and in August it made things worse while ingest was
++  writing. `--full` needs the service stopped.
++- `logs rotate` compresses old logs and removes those past retention. By default it keeps the last 14 files.
++
++These commands took the disk from 97 to 61 percent in August, and from 85 to 55 percent in September. You do not need
++to wait for the disk to fill. Clearing the cache does not free anything, so it is not part of this fix.
++
++### API certificate expired
++
++**Signs:** the public API answers with certificate errors, and clients, browsers and the outside synthetic check fail.
++In September the load balancer, DNS and the latest deploy were checked first and were all fine, so check the
++certificate first.
++
++**Fix:**
++
++```
++tallyctl certs list           # read the expiry date
++tallyctl certs renew api      # add --dry-run to preview
++tallyctl restart api
++```
++
++The restart is not optional. The old certificate is served until you restart, so seeing it after renewing does not
++mean the renewal failed. The ingest certificate works the same way: run `tallyctl certs renew ingest`, then restart
++ingest. The renewal job now alerts when it fails.
++
++### Stale data
++
++First check whether the data arrived. A queue depth that only grows means ingest is stuck (see above). A green status
++only means the services answer, not that the numbers are right. If an application stopped sending, the chart looks the
++same, so compare with that application's own logs.
++
++If one region's chart is stale and another's is correct, check the cache first:
++
++```
++tallyctl cache clear --region NAME
++```
++
++Without `--region`, this command clears every region.
++
++### Old commands fail
++
++- The purge command was removed in the 2026-09 release and now gives an "unknown subcommand" error. Use
++  `tallyctl cache clear` instead.
++- Port 8080 is closed. Anything still using it, such as old scripts, bookmarks or health checks, gets a refused
++  connection. Use port 8731.

@@ -16,9 +16,7 @@ TESTED_VERSION=2.1.296  # the pack was tested on 2.1.296 to 2.1.301
 NODE_MIN=22.13          # cells runs its cells with Node
 REPO=HarzerHeribert/claude-modpack
 MARKET=claude-modpack
-OFFICIAL_REPO=anthropics/claude-plugins-official
-OFFICIAL=claude-plugins-official
-PACK="modpack statusline smart-compact delegate lsp-plus cells eta seek route"
+PACK="modpack statusline smart-compact delegate cells eta seek route"
 SETUP_MD="https://github.com/$REPO/blob/main/SETUP.md"
 INSTALL_DOCS="https://code.claude.com/docs/en/setup"
 WORKER_RE='^(haiku|sonnet|opus):(low|medium|high|xhigh|max)$'
@@ -685,56 +683,6 @@ guided_setup() {
   fi
 }
 
-lang_info() {  # lang_info KEY: sets LI_NAME LI_PLUGIN LI_SERVER LI_CMD LI_HINT
-  LI_PLUGIN="" LI_CMD="" LI_HINT=""
-  case $1 in
-    ts) LI_NAME="TypeScript" LI_PLUGIN=typescript-lsp LI_SERVER=typescript-language-server LI_CMD="npm i -g typescript-language-server typescript@6" ;;
-    py) LI_NAME=Python LI_PLUGIN=pyright-lsp LI_SERVER=pyright-langserver LI_CMD="npm i -g pyright" ;;
-    rs) LI_NAME=Rust LI_PLUGIN=rust-analyzer-lsp LI_SERVER=rust-analyzer
-        if [ "$OS" = Darwin ]; then LI_CMD="brew install rust-analyzer"; else LI_CMD="rustup component add rust-analyzer"; fi ;;
-    go) LI_NAME=Go LI_PLUGIN=gopls-lsp LI_SERVER=gopls LI_CMD="go install golang.org/x/tools/gopls@latest" ;;
-    swift) LI_NAME=Swift LI_PLUGIN=swift-lsp LI_SERVER=sourcekit-lsp LI_HINT="comes with Xcode" ;;
-    c) LI_NAME="C/C++" LI_PLUGIN=clangd-lsp LI_SERVER=clangd
-       if [ "$OS" = Darwin ]; then LI_HINT="comes with Xcode: xcode-select --install"
-       elif command -v apt-get >/dev/null 2>&1; then LI_CMD="sudo apt install clangd"
-       else LI_HINT="install clangd with your package manager"; fi ;;
-    java) LI_NAME=Java LI_PLUGIN=jdtls-lsp LI_SERVER=jdtls LI_CMD="brew install jdtls" ;;
-    kt) LI_NAME=Kotlin LI_PLUGIN=kotlin-lsp LI_SERVER=kotlin-lsp LI_CMD="brew install JetBrains/utils/kotlin-lsp" ;;
-    cs) LI_NAME="C#" LI_PLUGIN=csharp-lsp LI_SERVER=csharp-ls LI_CMD="dotnet tool install -g csharp-ls" ;;
-    php) LI_NAME=PHP LI_PLUGIN=php-lsp LI_SERVER=intelephense LI_CMD="npm i -g intelephense" ;;
-    rb) LI_NAME=Ruby LI_PLUGIN=ruby-lsp LI_SERVER=ruby-lsp LI_CMD="gem install ruby-lsp" ;;
-    lua) LI_NAME=Lua LI_PLUGIN=lua-lsp LI_SERVER=lua-language-server LI_CMD="brew install lua-language-server" ;;
-    md) LI_NAME=Markdown LI_SERVER=marksman LI_CMD="brew install marksman" ;;
-    sql) LI_NAME=SQL LI_SERVER=postgres-language-server LI_CMD="brew install postgres-language-server" ;;
-    sh) LI_NAME=Shell LI_SERVER=bash-language-server LI_CMD="npm i -g bash-language-server" ;;
-    tf) LI_NAME=Terraform LI_SERVER=terraform-ls LI_CMD="brew install hashicorp/tap/terraform-ls" ;;
-  esac
-  if [ -n "$LI_CMD" ]; then  # the tool the install needs must be here
-    local tool=${LI_CMD%% *}
-    [ "$tool" = sudo ] && tool=$(printf '%s\n' "$LI_CMD" | awk '{ print $2 }')
-    if ! command -v "$tool" >/dev/null 2>&1; then
-      LI_HINT="needs $tool first: $LI_CMD"
-      [ "$tool" = brew ] && [ "$OS" != Darwin ] && LI_HINT="install $LI_SERVER with your package manager"
-      LI_CMD=""
-    fi
-  fi
-}
-
-# The project's languages with five files or more: "<count> <key>", most first.
-detect_languages() {
-  { if [ "$IS_REPO" = 1 ]; then git ls-files 2>/dev/null
-    else find . -type f -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | head -50000; fi; } |
-  sed -n 's/.*\.\([A-Za-z0-9]*\)$/\1/p' | awk '
-    { e = tolower($0); k = "" }
-    e ~ /^(ts|tsx|js|jsx|mjs|cjs)$/ { k = "ts" }  e ~ /^(py|pyi)$/ { k = "py" }  e == "rs" { k = "rs" }
-    e == "go" { k = "go" }  e == "swift" { k = "swift" }  e ~ /^(c|h|cpp|cc|hpp)$/ { k = "c" }
-    e == "java" { k = "java" }  e ~ /^(kt|kts)$/ { k = "kt" }  e == "cs" { k = "cs" }  e == "php" { k = "php" }
-    e ~ /^(rb|rake|erb)$/ { k = "rb" }  e == "lua" { k = "lua" }  e == "md" { k = "md" }  e == "sql" { k = "sql" }
-    e ~ /^(sh|bash)$/ { k = "sh" }  e ~ /^(tf|tfvars)$/ { k = "tf" }
-    k != "" { n[k]++ }
-    END { for (k in n) if (n[k] >= 5) print n[k], k }' | sort -rn
-}
-
 # A claude -p run that proves a mod works: its whole stream (with tool results) in CHECK_OUT.
 # --allowedTools takes several values, so it goes first and the prompt last.
 CHECK_OUT=""
@@ -773,10 +721,9 @@ EOF
 }
 
 advanced_setup() {
-  local placement updates langs key plugin_todo="" server_todo="" sudo_todo="" left="" missing_names=""
-  local do_plugins=0 do_servers=0 sudo_ok="" c IFS_SAVE=$IFS
+  local placement updates
   local read_w=haiku:low mech_w=haiku:low build_w=sonnet:medium workers_json="" do_checks=0
-  local cells_state=on cells_why="" cells_fix="" servers_ready=""
+  local cells_state=on cells_why="" cells_fix=""
 
   section "Set up"
   text "A few choices. Enter takes the recommended one; /mods changes any of it later."
@@ -787,51 +734,6 @@ advanced_setup() {
   blank
   menu updates "How should new releases arrive?" auto \
     "auto|Install them by themselves" "notify|Just tell me" "off|Never check"
-
-  # -- language helpers
-  langs=$(detect_languages)
-  while read -r _ key; do
-    [ -n "$key" ] || continue
-    lang_info "$key"
-    local needs=0
-    if [ -n "$LI_PLUGIN" ] && [ "$(plugin_state "$LI_PLUGIN@$OFFICIAL")" != on ]; then plugin_todo="$plugin_todo $LI_PLUGIN"; needs=1; fi
-    if ! command -v "$LI_SERVER" >/dev/null 2>&1; then
-      needs=1
-      if [ -n "$LI_CMD" ]; then
-        case $LI_CMD in sudo\ *) sudo_todo="$sudo_todo|$LI_CMD" ;; *) server_todo="$server_todo|$LI_CMD" ;; esac
-      else
-        left="$left${left:+; }$LI_NAME: $LI_HINT"
-      fi
-    fi
-    [ "$needs" = 1 ] && missing_names="$missing_names${missing_names:+, }$LI_NAME"
-  done <<EOF
-$langs
-EOF
-  plugin_todo=${plugin_todo# } server_todo=${server_todo#|} sudo_todo=${sudo_todo#|}
-  if [ -n "$missing_names" ]; then
-    blank
-    text "Claude understands code better with a helper for each language. This project needs one for: $missing_names."
-    local them=them
-    case $missing_names in *,*) ;; *) them=it ;; esac
-    if [ -n "$plugin_todo" ]; then confirm "Add $them to Claude Code?" y && do_plugins=1; fi
-    if [ -n "$server_todo" ]; then
-      text "They also need programs on this computer:"
-      IFS='|'; for c in $server_todo; do IFS=$IFS_SAVE; cmdline "$c"; IFS='|'; done; IFS=$IFS_SAVE
-      confirm "Install those programs now?" n && do_servers=1
-    fi
-    if [ -n "$sudo_todo" ]; then
-      IFS='|'
-      for c in $sudo_todo; do
-        IFS=$IFS_SAVE
-        text "This one needs your password (sudo):"
-        cmdline "$c"
-        confirm "Run it?" n && sudo_ok="$sudo_ok|$c"
-        IFS='|'
-      done
-      IFS=$IFS_SAVE
-      sudo_ok=${sudo_ok#|}
-    fi
-  fi
 
   # -- cells' sandbox
   if [ "$OS" = Darwin ]; then
@@ -885,7 +787,7 @@ EOF
   blank
   if [ "$YES" = 1 ]; then
     do_checks=0
-  elif confirm "Test each part now? It sends three short requests to Claude." y; then
+  elif confirm "Test each part now? It sends two short requests to Claude." y; then
     do_checks=1
   fi
 
@@ -898,34 +800,9 @@ EOF
   [ "$placement" = line ] || configure "statusline@$MARKET" "{\"placement\":\"$placement\"}" || saved=0
   [ "$updates" = auto ] || configure "modpack@$MARKET" "{\"updates\":\"$updates\"}" || saved=0
   if [ -n "$workers_json" ]; then configure "delegate@$MARKET" "$workers_json" || saved=0; fi
-  if [ "$do_plugins" = 1 ]; then
-    marketplace_known "$OFFICIAL" || run claude plugin marketplace add "$OFFICIAL_REPO" || saved=0
-    local p
-    for p in $plugin_todo; do run claude plugin install "$p@$OFFICIAL" --scope user || saved=0; done
-  fi
   spun
   if [ "$saved" = 1 ]; then [ "$DRY_RUN" = 1 ] || good "Saved your choices"
   else bad "Some choices weren't saved. Claude Code said:"; show_log_tail; FAILED=1; fi
-  if [ "$do_servers" = 1 ]; then
-    IFS='|'
-    for c in $server_todo; do
-      IFS=$IFS_SAVE
-      cmdline "$c"
-      if [ "$DRY_RUN" = 0 ] && ! sh -c "$c" </dev/null; then warn "That didn't work (its message is above)."; FAILED=1; fi
-      IFS='|'
-    done
-    IFS=$IFS_SAVE
-  fi
-  if [ -n "$sudo_ok" ]; then
-    IFS='|'
-    for c in $sudo_ok; do
-      IFS=$IFS_SAVE
-      cmdline "$c"
-      if [ "$DRY_RUN" = 0 ] && ! sh -c "$c" <&3; then warn "That didn't work (its message is above)."; FAILED=1; fi
-      IFS='|'
-    done
-    IFS=$IFS_SAVE
-  fi
   if [ -n "$cells_fix" ]; then
     cmdline "$cells_fix"
     if [ "$DRY_RUN" = 1 ]; then :
@@ -933,32 +810,15 @@ EOF
     else cells_state=off cells_why="bubblewrap didn't start: see SETUP.md, step 5"; FAILED=1; fi
   fi
 
-  while read -r _ key; do
-    [ -n "$key" ] || continue
-    lang_info "$key"
-    command -v "$LI_SERVER" >/dev/null 2>&1 || { [ "$DRY_RUN" = 1 ] && [ "$do_servers" = 1 ] && [ -n "$LI_CMD" ]; } || continue
-    servers_ready="$servers_ready${servers_ready:+, }$LI_NAME"
-  done <<EOF
-$langs
-EOF
-
-  local placement_words updates_words lsp_why
+  local placement_words updates_words
   case $placement in line) placement_words="under the prompt" ;; tail) placement_words="after Claude Code's hint" ;;
     band) placement_words="above the prompt" ;; off) placement_words="hidden" ;; esac
   case $updates in auto) updates_words="installs new releases by itself" ;; notify) updates_words="tells you about new releases" ;;
     off) updates_words="never checks for new releases" ;; esac
-  local pending=""
-  if [ "$do_servers" = 0 ] && [ -n "$server_todo" ]; then pending=${server_todo//|/, }; fi
-  if [ -n "$servers_ready" ]; then lsp_why="language helpers: $servers_ready"
-  elif [ -n "$missing_names" ]; then lsp_why="$missing_names: not ready yet"
-  else lsp_why="no language helper needed"; fi
-  [ -n "$pending" ] && lsp_why="$lsp_why; to finish, run: $pending"
-  [ -n "$left" ] && lsp_why="$lsp_why; $left"
   set_row statusline "$([ "$placement" = off ] && echo off || echo on)" "the status line, $placement_words"
   set_row smart-compact on "keeps a paused conversation cheap to pick up"
   set_row eta on "shows progress for long jobs"
   set_row cells "$cells_state" "${cells_why:-several steps at once}"
-  set_row lsp-plus on "$lsp_why"
   set_row delegate on "hands big jobs to $build_w"
   set_row seek on "looks around your code in fewer steps"
   set_row route off "off: /modpack:setup asks before turning it on"
@@ -977,17 +837,6 @@ EOF
         why=$(printf '%s\n' "$CHECK_OUT" | grep -o 'cells is off: [^".]*' | head -1)
         bad "cells didn't run${why:+: ${why#cells is off: }}"
         set_row cells off "${why:-the test ran nothing}; /cells:setup"
-      fi
-    fi
-    if [ "$logged_in" = 1 ] && [ -n "$servers_ready" ] && [ "$IS_REPO" = 1 ]; then
-      spin "Testing the language helpers$DOTS"
-      p_check "Bash(git grep *)" "In this repository, pick a function that is defined in one file and called from another file, with a plain name of three characters or more. Run exactly git grep -n -w <name> once, with the Bash tool. Then reply with the name only."
-      spun
-      if [ "$DRY_RUN" = 1 ]; then :
-      elif not_logged_in; then logged_in=0
-      elif has "per the language server"; then good "The language helpers answer"
-      else warn "The language helpers didn't answer yet (they start with Claude Code)"
-        set_row lsp-plus warn "$lsp_why; untested: /lsp-plus:setup"
       fi
     fi
     if [ "$logged_in" = 1 ]; then

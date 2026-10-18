@@ -1,0 +1,102 @@
+diff --git a/src/app/routes/app/discussions/__tests__/discussion.test.tsx b/src/app/routes/app/discussions/__tests__/discussion.test.tsx
+index d84b155..3aafbca 100644
+--- a/src/app/routes/app/discussions/__tests__/discussion.test.tsx
++++ b/src/app/routes/app/discussions/__tests__/discussion.test.tsx
+@@ -1,3 +1,4 @@
++import { ROLES } from '@/lib/authorization';
+ import {
+   renderApp,
+   screen,
+@@ -10,8 +11,8 @@ import {
+ 
+ import { default as DiscussionRoute } from '../discussion';
+ 
+-const renderDiscussion = async () => {
+-  const fakeUser = await createUser();
++const renderDiscussion = async (userProperties?: { role?: ROLES }) => {
++  const fakeUser = await createUser(userProperties);
+   const fakeDiscussion = await createDiscussion({ teamId: fakeUser.teamId });
+ 
+   const utils = await renderApp(<DiscussionRoute />, {
+@@ -74,10 +75,10 @@ test('should update discussion', async () => {
+   expect(await screen.findByText(newBody)).toBeInTheDocument();
+ });
+ 
+-test(
+-  'should create and delete a comment on the discussion',
+-  async () => {
+-    await renderDiscussion();
++test.each([ROLES.ADMIN, ROLES.USER])(
++  'should create and delete a comment on the discussion as %s',
++  async (role) => {
++    await renderDiscussion({ role });
+ 
+     const comment = 'Hello World';
+ 
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..00d4171 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,11 @@
++import {
++  createComment,
++  createUser as generateUser,
++} from '@/testing/data-generators';
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+@@ -81,3 +86,36 @@ test('should not view protected resource if policy check fails and show fallback
+ 
+   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
+ });
++
++describe('comment:delete policy', () => {
++  const canDeleteComment = POLICIES['comment:delete'];
++
++  const commentBy = (author: User) =>
++    ({ ...createComment({ discussionId: 'discussion-1' }), author }) as Comment;
++
++  test('should allow an admin to delete any comment', () => {
++    const admin = generateUser({ role: ROLES.ADMIN }) as User;
++    const otherUser = generateUser({ role: ROLES.USER }) as User;
++
++    expect(canDeleteComment(admin, commentBy(admin))).toBe(true);
++    expect(canDeleteComment(admin, commentBy(otherUser))).toBe(true);
++  });
++
++  test('should allow a user to delete their own comment', () => {
++    const user = generateUser({ role: ROLES.USER }) as User;
++
++    expect(canDeleteComment(user, commentBy(user))).toBe(true);
++  });
++
++  test('should not allow a user to delete comments of other users, even from the same team', () => {
++    const user = generateUser({ role: ROLES.USER }) as User;
++    const teammate = generateUser({
++      role: ROLES.USER,
++      teamId: user.teamId,
++    }) as User;
++    const outsider = generateUser({ role: ROLES.USER }) as User;
++
++    expect(canDeleteComment(user, commentBy(teammate))).toBe(false);
++    expect(canDeleteComment(user, commentBy(outsider))).toBe(false);
++  });
++});
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 

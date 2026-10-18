@@ -1,0 +1,13 @@
+[Unit]
+Description=tally invoice service
+After=network.target
+
+[Service]
+User=tally
+WorkingDirectory=/srv/tally
+Environment=TALLY_PORT=8742
+ExecStart=/usr/bin/python3 -m tally.server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,128 @@
+diff --git a/docs/oncall-runbook.md b/docs/oncall-runbook.md
+new file mode 100644
+index 0000000..fd2c018
+--- /dev/null
++++ b/docs/oncall-runbook.md
+@@ -0,0 +1,122 @@
++# On-call runbook: tally
++
++For whoever holds the pager. Where a decision changed over time, only the latest one is given here.
++
++## Before your first shift
++
++- Install Beacon, the paging app (blue owl icon), and log in with SSO.
++- The command line tool is `tallyctl`. The old name `tally-cli` still works as an alias for one more release after
++  2026-09 and is then removed, so don't use it in anything new.
++- The service listens on port 8731. Port 8080 is closed: anything still pointing there (old scripts, health checks,
++  bookmarks) fails with a refused connection.
++
++## Escalation
++
++1. The primary on-call is paged first.
++2. If the primary has not acknowledged after 15 minutes, the page goes to the secondary on-call.
++3. If the secondary has not acknowledged after another 15 minutes, it goes to the engineering manager (currently Mara).
++
++- The wait is 15 minutes. It was 30 until 16 September 2026; any document that still says 30 is out of date.
++- Acknowledging is a tap on the phone. Acknowledge first, then get to a laptop.
++- The manager step is a real step, not a courtesy.
++- Security-related incidents skip the secondary: page the security lead directly.
++
++## Paging at night (22:00–07:00)
++
++- Only severity 1 pages: customer-facing data loss or a full outage.
++- Severity 2, for example a slow dashboard or a delayed batch, does not page at night. It waits for business hours and
++  the primary picks it up in the morning.
++- This is a rule for the pager, not a licence to ignore the dashboards.
++
++## During an incident
++
++- Write down every command you run while you run it.
++- Get an overview with `tallyctl status` (`--watch` refreshes every two seconds) and
++  `tallyctl logs tail --follow --service NAME`.
++- Check certificate expiry early with `tallyctl certs list`. In September, 26 minutes went on the load balancer, DNS
++  and the previous deploy before anyone looked at it.
++
++## Restarting a service
++
++There are four services, and each restarts on its own:
++
++```
++tallyctl restart api
++tallyctl restart ingest
++tallyctl restart worker
++tallyctl restart scheduler
++```
++
++- Ingest also has a drain restart, `tallyctl restart ingest --drain`. It waits for in-flight work, parks a stuck batch
++  in the dead-letter table and then starts the consumer clean. `--drain` works for ingest only.
++- `--timeout SECONDS` makes a restart give up after that many seconds (default 120).
++- A renewed certificate is only served after the service restarts.
++
++## Known failure modes
++
++### Ingest queue stuck (poisoned batch)
++
++**Signs:** the queue depth alert fires. The ingest workers are running and look healthy, but the queue isn't draining
++and the oldest message has been sitting there for hours. A single malformed batch has wedged the consumer, which keeps
++retrying it.
++
++**Fix:** run `tallyctl restart ingest --drain` first and look for the cause afterwards. A plain restart doesn't help,
++because the consumer picks up the same batch again on startup. Inspect the parked batch in the dead-letter table the next
++day. In August the queue was empty six minutes after the drain restart; the half hour spent on the network before that
++was wasted.
++
++The retries write a lot of log, so check the database disk next.
++
++### Database host disk filling up
++
++**Signs:** the db host disk is high, typically after an ingest backlog (retry logs plus table bloat from the replay).
++At 97 percent the database began refusing writes. Don't wait: in September it was handled at 85 percent with no
++incident.
++
++**Fix:** run these in this order:
++
++```
++tallyctl db vacuum --online
++tallyctl logs rotate
++```
++
++- Vacuum first: it needs a little scratch space, and the rotation doesn't.
++- In production always use `--online`. A plain `tallyctl db vacuum` locks the tables and blocks ingest writes, which
++  made things worse in August. `--full` needs the service stopped.
++- `logs rotate` compresses old log files and removes those past retention (it keeps the last 14 by default).
++- Results so far: 97 → 61 percent (August) and 85 → 55 percent (September).
++- Clearing the cache does not help here.
++
++### API certificate expired
++
++**Signs:** the public API answers with certificate errors, the synthetic check fails, and every client that checks
++certificates fails.
++
++**Fix:** two steps, and the second is not optional:
++
++```
++tallyctl certs renew api
++tallyctl restart api
++```
++
++Until the restart the old certificate is still served. That is expected; it doesn't mean the renewal failed.
++`--dry-run` on the renew shows what would happen. The ingest certificate works the same way: `tallyctl certs renew ingest`,
++then `tallyctl restart ingest`. In September the renewal job had been failing silently because its token for the
++certificate authority had been rotated. It now raises an alert when it fails, and `tallyctl certs list` is on the weekly
++checklist.
++
++### "Unknown subcommand" when clearing the cache
++
++The old purge command was removed in the 2026-09 release. Use:
++
++```
++tallyctl cache clear
++tallyctl cache clear --region NAME
++```
++
++The first form clears all regions; the second clears only one.
++
++### Known noise
++
++- Grafana shows 0 for a second after a deploy. That is the scrape gap and it goes away, so ignore it.
++- Alerts spike every Monday morning because a batch job runs while the cache is cold. There is no fix yet.

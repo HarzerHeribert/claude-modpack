@@ -1,0 +1,440 @@
+diff --git a/src/app/routes/app/discussions/__tests__/discussions.test.tsx b/src/app/routes/app/discussions/__tests__/discussions.test.tsx
+index dbc08e6..1ecfeb3 100644
+--- a/src/app/routes/app/discussions/__tests__/discussions.test.tsx
++++ b/src/app/routes/app/discussions/__tests__/discussions.test.tsx
+@@ -1,7 +1,10 @@
++import { useLocation } from 'react-router';
+ import type { Mock } from 'vitest';
+ 
+ import { createDiscussion } from '@/testing/data-generators';
+ import {
++  createDiscussion as seedDiscussion,
++  createUser,
+   renderApp,
+   screen,
+   userEvent,
+@@ -20,6 +23,28 @@ afterAll(() => {
+   (console.error as Mock).mockRestore();
+ });
+ 
++const LocationSearch = () => {
++  const { search } = useLocation();
++  return <div data-testid="location-search">{search}</div>;
++};
++
++const renderDiscussions = async (titles: string[], url?: string) => {
++  const user = await createUser();
++  for (const title of titles) {
++    await seedDiscussion({ title, authorId: user.id, teamId: user.teamId });
++  }
++  return renderApp(
++    <>
++      <DiscussionsRoute />
++      <LocationSearch />
++    </>,
++    { user, url },
++  );
++};
++
++const getSearchInput = () =>
++  screen.getByRole('textbox', { name: /search discussions/i });
++
+ test(
+   'should create, render and delete discussions',
+   { timeout: 10000 },
+@@ -94,3 +119,123 @@ test(
+     ).not.toBeInTheDocument();
+   },
+ );
++
++test(
++  'should search the titles of all discussions, ignoring case',
++  { timeout: 10000 },
++  async () => {
++    const titles = Array.from({ length: 12 }, (_, i) => `Topic ${i + 1}`);
++    await renderDiscussions([...titles, 'Planning the Roadmap']);
++
++    // the matching discussion is on the second page
++    expect(
++      await screen.findByRole('cell', { name: 'Topic 1' }),
++    ).toBeInTheDocument();
++    expect(
++      screen.queryByRole('cell', { name: 'Planning the Roadmap' }),
++    ).not.toBeInTheDocument();
++
++    await userEvent.type(getSearchInput(), 'ROADMAP');
++
++    expect(
++      await screen.findByRole('cell', { name: 'Planning the Roadmap' }),
++    ).toBeInTheDocument();
++    expect(
++      screen.queryByRole('cell', { name: 'Topic 1' }),
++    ).not.toBeInTheDocument();
++    // the header row and the one result
++    expect(screen.getAllByRole('row')).toHaveLength(2);
++    expect(screen.getByTestId('location-search')).toHaveTextContent(
++      /^\?search=ROADMAP$/,
++    );
++  },
++);
++
++test(
++  'should paginate search results and start a new search at the first page',
++  { timeout: 10000 },
++  async () => {
++    const topics = Array.from({ length: 12 }, (_, i) => `Topic ${i + 1}`);
++    const releases = Array.from({ length: 12 }, (_, i) => `Release ${i + 1}`);
++    await renderDiscussions([...topics, ...releases], '/?page=2');
++
++    // the second page of all discussions
++    expect(
++      await screen.findByRole('cell', { name: 'Topic 11' }),
++    ).toBeInTheDocument();
++    expect(
++      screen.queryByRole('cell', { name: 'Release 9' }),
++    ).not.toBeInTheDocument();
++
++    await userEvent.type(getSearchInput(), 'release');
++
++    // the first page of the results
++    expect(
++      await screen.findByRole('cell', { name: 'Release 9' }),
++    ).toBeInTheDocument();
++    expect(
++      screen.queryByRole('cell', { name: 'Topic 11' }),
++    ).not.toBeInTheDocument();
++    expect(screen.getAllByRole('row')).toHaveLength(11);
++    expect(screen.getByTestId('location-search')).toHaveTextContent(
++      /^\?search=release$/,
++    );
++
++    await userEvent.click(screen.getByRole('link', { name: '2' }));
++
++    expect(
++      await screen.findByRole('cell', { name: 'Release 12' }),
++    ).toBeInTheDocument();
++    expect(
++      screen.getByRole('cell', { name: 'Release 11' }),
++    ).toBeInTheDocument();
++    expect(screen.getAllByRole('row')).toHaveLength(3);
++    expect(screen.getByTestId('location-search')).toHaveTextContent(
++      /^\?search=release&page=2$/,
++    );
++    expect(getSearchInput()).toHaveValue('release');
++  },
++);
++
++test('should show the results of the search in the URL', async () => {
++  await renderDiscussions(
++    ['Planning the Roadmap', 'Topic 1'],
++    '/?search=roadmap',
++  );
++
++  expect(getSearchInput()).toHaveValue('roadmap');
++  expect(
++    await screen.findByRole('cell', { name: 'Planning the Roadmap' }),
++  ).toBeInTheDocument();
++  expect(
++    screen.queryByRole('cell', { name: 'Topic 1' }),
++  ).not.toBeInTheDocument();
++});
++
++test(
++  'should show a message when nothing matches and all discussions when the search is cleared',
++  { timeout: 10000 },
++  async () => {
++    await renderDiscussions(['Planning the Roadmap', 'Topic 1']);
++
++    expect(
++      await screen.findByRole('cell', { name: 'Topic 1' }),
++    ).toBeInTheDocument();
++
++    await userEvent.type(getSearchInput(), 'nothing like this');
++
++    expect(await screen.findByText('No discussions found')).toBeInTheDocument();
++    expect(screen.queryByRole('table')).not.toBeInTheDocument();
++
++    await userEvent.clear(getSearchInput());
++
++    expect(
++      await screen.findByRole('cell', { name: 'Topic 1' }),
++    ).toBeInTheDocument();
++    expect(
++      screen.getByRole('cell', { name: 'Planning the Roadmap' }),
++    ).toBeInTheDocument();
++    expect(screen.queryByText('No discussions found')).not.toBeInTheDocument();
++    expect(screen.getByTestId('location-search')).toBeEmptyDOMElement();
++  },
++);
+diff --git a/src/app/routes/app/discussions/discussions.tsx b/src/app/routes/app/discussions/discussions.tsx
+index 7d1f0f0..2a235c6 100644
+--- a/src/app/routes/app/discussions/discussions.tsx
++++ b/src/app/routes/app/discussions/discussions.tsx
+@@ -13,8 +13,9 @@ export const clientLoader =
+     const url = new URL(request.url);
+ 
+     const page = Number(url.searchParams.get('page') || 1);
++    const search = url.searchParams.get('search') || undefined;
+ 
+-    const query = getDiscussionsQueryOptions({ page });
++    const query = getDiscussionsQueryOptions({ page, search });
+ 
+     return (
+       queryClient.getQueryData(query.queryKey) ??
+diff --git a/src/components/ui/form/input.tsx b/src/components/ui/form/input.tsx
+index 3ae4cc9..f1dea63 100644
+--- a/src/components/ui/form/input.tsx
++++ b/src/components/ui/form/input.tsx
+@@ -8,7 +8,7 @@ import { FieldWrapper, FieldWrapperPassThroughProps } from './field-wrapper';
+ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> &
+   FieldWrapperPassThroughProps & {
+     className?: string;
+-    registration: Partial<UseFormRegisterReturn>;
++    registration?: Partial<UseFormRegisterReturn>;
+   };
+ 
+ const Input = React.forwardRef<HTMLInputElement, InputProps>(
+diff --git a/src/components/ui/table/pagination.tsx b/src/components/ui/table/pagination.tsx
+index 5ea63b5..07adaec 100644
+--- a/src/components/ui/table/pagination.tsx
++++ b/src/components/ui/table/pagination.tsx
+@@ -4,6 +4,7 @@ import {
+   DotsHorizontalIcon,
+ } from '@radix-ui/react-icons';
+ import * as React from 'react';
++import { useSearchParams } from 'react-router';
+ 
+ import { ButtonProps, buttonVariants } from '@/components/ui/button';
+ import { cn } from '@/utils/cn';
+@@ -138,7 +139,13 @@ export const TablePagination = ({
+   currentPage,
+   rootUrl,
+ }: TablePaginationProps) => {
+-  const createHref = (page: number) => `${rootUrl}?page=${page}`;
++  const [searchParams] = useSearchParams();
++  // keep the other query params (e.g. a search) when changing pages
++  const createHref = (page: number) => {
++    const params = new URLSearchParams(searchParams);
++    params.set('page', `${page}`);
++    return `${rootUrl}?${params}`;
++  };
+ 
+   return (
+     <Pagination className="justify-end py-8">
+diff --git a/src/features/discussions/api/get-discussions.ts b/src/features/discussions/api/get-discussions.ts
+index fd92874..e4ec40e 100644
+--- a/src/features/discussions/api/get-discussions.ts
++++ b/src/features/discussions/api/get-discussions.ts
+@@ -4,39 +4,48 @@ import { api } from '@/lib/api-client';
+ import { QueryConfig } from '@/lib/react-query';
+ import { Discussion, Meta } from '@/types/api';
+ 
+-export const getDiscussions = (
++export const getDiscussions = ({
+   page = 1,
+-): Promise<{
++  search,
++}: {
++  page?: number;
++  search?: string;
++} = {}): Promise<{
+   data: Discussion[];
+   meta: Meta;
+ }> => {
+   return api.get(`/discussions`, {
+     params: {
+       page,
++      search,
+     },
+   });
+ };
+ 
+ export const getDiscussionsQueryOptions = ({
+   page,
+-}: { page?: number } = {}) => {
++  search,
++}: { page?: number; search?: string } = {}) => {
+   return queryOptions({
+-    queryKey: page ? ['discussions', { page }] : ['discussions'],
+-    queryFn: () => getDiscussions(page),
++    queryKey:
++      page || search ? ['discussions', { page, search }] : ['discussions'],
++    queryFn: () => getDiscussions({ page, search }),
+   });
+ };
+ 
+ type UseDiscussionsOptions = {
+   page?: number;
++  search?: string;
+   queryConfig?: QueryConfig<typeof getDiscussionsQueryOptions>;
+ };
+ 
+ export const useDiscussions = ({
+   queryConfig,
+   page,
++  search,
+ }: UseDiscussionsOptions) => {
+   return useQuery({
+-    ...getDiscussionsQueryOptions({ page }),
++    ...getDiscussionsQueryOptions({ page, search }),
+     ...queryConfig,
+   });
+ };
+diff --git a/src/features/discussions/components/discussions-list.tsx b/src/features/discussions/components/discussions-list.tsx
+index 9aa5fba..293866c 100644
+--- a/src/features/discussions/components/discussions-list.tsx
++++ b/src/features/discussions/components/discussions-list.tsx
+@@ -1,6 +1,9 @@
+ import { useQueryClient } from '@tanstack/react-query';
++import { SearchX } from 'lucide-react';
++import { useEffect, useRef, useState } from 'react';
+ import { useSearchParams } from 'react-router';
+ 
++import { Input } from '@/components/ui/form';
+ import { Link } from '@/components/ui/link';
+ import { Spinner } from '@/components/ui/spinner';
+ import { Table } from '@/components/ui/table';
+@@ -12,17 +15,65 @@ import { useDiscussions } from '../api/get-discussions';
+ 
+ import { DeleteDiscussion } from './delete-discussion';
+ 
++const DiscussionsSearch = () => {
++  const [searchParams, setSearchParams] = useSearchParams();
++  const search = searchParams.get('search') ?? '';
++
++  // The input keeps its own value because the URL only changes once the
++  // route loader has fetched the results, which would drop keystrokes.
++  const [value, setValue] = useState(search);
++  // The search this input last put in the URL
++  const requestedSearch = useRef(search);
++
++  // Follow URL changes made elsewhere, e.g. by going back in history
++  useEffect(() => {
++    if (search !== requestedSearch.current) {
++      requestedSearch.current = search;
++      setValue(search);
++    }
++  }, [search]);
++
++  return (
++    <Input
++      label="Search discussions"
++      value={value}
++      onChange={(event) => {
++        setValue(event.target.value);
++
++        const nextSearch = event.target.value.trim();
++        if (nextSearch === requestedSearch.current) return;
++        requestedSearch.current = nextSearch;
++
++        setSearchParams(
++          (params) => {
++            const nextParams = new URLSearchParams(params);
++            if (nextSearch) {
++              nextParams.set('search', nextSearch);
++            } else {
++              nextParams.delete('search');
++            }
++            // a new search starts at the first page
++            nextParams.delete('page');
++            return nextParams;
++          },
++          { replace: true },
++        );
++      }}
++    />
++  );
++};
++
+ export type DiscussionsListProps = {
+   onDiscussionPrefetch?: (id: string) => void;
+ };
+ 
+-export const DiscussionsList = ({
+-  onDiscussionPrefetch,
+-}: DiscussionsListProps) => {
++const DiscussionsTable = ({ onDiscussionPrefetch }: DiscussionsListProps) => {
+   const [searchParams] = useSearchParams();
++  const search = searchParams.get('search') || undefined;
+ 
+   const discussionsQuery = useDiscussions({
+     page: +(searchParams.get('page') || 1),
++    search,
+   });
+   const queryClient = useQueryClient();
+ 
+@@ -39,6 +90,15 @@ export const DiscussionsList = ({
+ 
+   if (!discussions) return null;
+ 
++  if (search && !discussions.length) {
++    return (
++      <div className="flex h-80 flex-col items-center justify-center bg-white text-gray-500">
++        <SearchX className="size-16" />
++        <h4>No discussions found</h4>
++      </div>
++    );
++  }
++
+   return (
+     <Table
+       data={discussions}
+@@ -90,3 +150,14 @@ export const DiscussionsList = ({
+     />
+   );
+ };
++
++export const DiscussionsList = ({
++  onDiscussionPrefetch,
++}: DiscussionsListProps) => {
++  return (
++    <div className="space-y-4">
++      <DiscussionsSearch />
++      <DiscussionsTable onDiscussionPrefetch={onDiscussionPrefetch} />
++    </div>
++  );
++};
+diff --git a/src/testing/mocks/handlers/discussions.ts b/src/testing/mocks/handlers/discussions.ts
+index 37c0797..9dc0e4e 100644
+--- a/src/testing/mocks/handlers/discussions.ts
++++ b/src/testing/mocks/handlers/discussions.ts
+@@ -28,27 +28,26 @@ export const discussionsHandlers = [
+       const url = new URL(request.url);
+ 
+       const page = Number(url.searchParams.get('page') || 1);
++      const search = (url.searchParams.get('search') || '')
++        .trim()
++        .toLowerCase();
+ 
+-      const total = db.discussion.count({
+-        where: {
+-          teamId: {
+-            equals: user?.teamId,
+-          },
+-        },
+-      });
+-
+-      const totalPages = Math.ceil(total / 10);
+-
+-      const result = db.discussion
++      const discussions = db.discussion
+         .findMany({
+           where: {
+             teamId: {
+               equals: user?.teamId,
+             },
+           },
+-          take: 10,
+-          skip: 10 * (page - 1),
+         })
++        .filter(({ title }) => title.toLowerCase().includes(search));
++
++      const total = discussions.length;
++
++      const totalPages = Math.ceil(total / 10);
++
++      const result = discussions
++        .slice(10 * (page - 1), 10 * page)
+         .map(({ authorId, ...discussion }) => {
+           const author = db.user.findFirst({
+             where: {

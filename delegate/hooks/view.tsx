@@ -104,6 +104,19 @@ export function seconds(ms: number): string {
 }
 
 /** A hand-off drawn like a cell: the task dimmed, one row per worker action, a closing line that carries the state. */
+/** The one line a hand-off shows before its worker starts (delegate is still looking up where the task reaches):
+ * its kind and the task's first line, instead of the call's whole input. */
+export function startingLine(input: unknown, width: number): string | undefined {
+  const i = (input ?? {}) as { task?: unknown; spec?: unknown; kind?: unknown }
+  const task = typeof i.task === 'string' ? i.task : typeof i.spec === 'string' ? i.spec : undefined
+  if (task === undefined) return undefined
+  const kind = typeof i.kind === 'string' ? `${i.kind} · ` : ''
+  const first = task.trim().split('\n')[0]?.replace(/\s+/g, ' ') ?? ''
+  const head = `hand-off · ${kind}starting: `
+  const room = Math.max(10, width - head.length - 4)
+  return head + (first.length > room ? `${first.slice(0, room - 1)}…` : first)
+}
+
 export function jobCard(el: Elements, j: DelegateJob, now: number, width: number, onOpen: () => void): RenderElement {
   const { Box, Text, Button } = el
   const frame = Math.floor(now / FRAME_MS)

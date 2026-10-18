@@ -1,0 +1,192 @@
+diff --git a/docs/guide.md b/docs/guide.md
+index 7fe33fd..9f503a0 100644
+--- a/docs/guide.md
++++ b/docs/guide.md
+@@ -1,133 +1,113 @@
+ # Getting started with tally
+ 
+-This guide gets a new teammate from nothing to a running tally on their own machine, and then shows the handful of
+-commands that cover most days. It was written before September and is in need of a pass, but the shape is right.
++This guide gets a new teammate to a running local tally and shows the commands that cover most days, as of the 2026-09
++release.
+ 
+ ## What tally is
+ 
+-Tally is our metrics-ingest service. Applications send it small numeric events, such as a request count or a latency, and
+-it stores them, rolls them up into minutes and hours, and serves the rolled-up series to dashboards and to the alerting
+-system. It is made of four parts that you will hear named all the time: the API, which accepts events and answers
+-queries; the ingest workers, which take events off a queue and write them to the database; the worker pool, which does
+-the roll-ups; and the scheduler, which starts the periodic jobs. Behind them sit a Postgres database and a cache.
++Tally is our metrics-ingest service. Applications send it small numeric events; it stores them, rolls them up into
++minutes and hours, and serves the series to dashboards and alerting. Its parts: the API (accepts events, answers
++queries), the ingest workers (move events from a queue into the database), the worker pool (roll-ups) and the scheduler
++(periodic jobs), backed by Postgres and a cache.
+ 
+-The roll-ups deserve a short explanation because they surprise people. Raw events are kept for a week and then thrown
+-away; the minute and hour series are kept for much longer. That means a question about last month can be answered at hour
+-resolution but not at the resolution of single events, and it is the reason we ask teams to decide what they want to
+-measure before they start sending, not afterwards. The cache sits in front of the series and is organised by region,
+-which is why a stale chart for one region and a correct chart for another is a cache question before it is anything else.
+-
+-Most people never need to care about the internals. What you need to know is that events go in through the API, that
+-nothing is lost as long as the queue is healthy, and that the command line tool is the way to look at all of it. If a
+-dashboard looks wrong the first question is nearly always whether the data arrived, and the tool can answer that in a
+-few seconds without touching a browser.
++Raw events are kept for a week, roll-ups much longer, so decide what to measure before you start sending. The cache is
++organised by region: a stale chart for one region only is a cache question first. If a dashboard looks wrong, first ask
++whether the data arrived.
+ 
+ ## Installing the command line tool
+ 
+-The tool is a Python package and we install it with pipx so that it does not interfere with anything else on your
+-machine. You need Python 3.11 or newer; check with your system package manager if you are unsure. Install it with:
++You need Python 3.11 or newer. Install the tool with pipx:
+ 
+ ```
+ pipx install tally-toolkit
+ ```
+ 
+-Once it is installed, check that it is on your path and that it can see its own version. You should see a version number
+-for the tool and, if a service is running, one for the service as well:
++The tool is `tallyctl`. Its old name, `tally-cli`, works as an alias for one more release and is then removed. Check
++that it runs; it prints its version and, if one is running, the service's:
+ 
+-`tally-cli version`
++`tallyctl version`
+ 
+-The tool reads its settings from a file in your home directory. You do not normally edit it by hand; ask the tool to show
+-you what it is currently using, with secrets masked, so that you can paste the output into a question without worry:
++To see the settings in effect, with secrets masked:
+ 
+-`tally-cli config show`
++`tallyctl config show`
+ 
+ > **Warning:** Never paste the contents of the settings file itself into a chat or a ticket. The tool masks secrets when
+ > it prints the configuration, the file does not.
+ 
+-If the command is not found, your pipx directory is probably not on your path. Run `pipx ensurepath`, open a new
+-terminal and try again. This is by far the most common installation problem and nearly everybody hits it once.
++If the command is not found, run `pipx ensurepath` and open a new terminal.
+ 
+ ## Running the service
+ 
+-For development you run the whole service locally. The tool starts it for you and reports how it is doing. Start with a
+-status check, which lists every part and whether it is up, and ask for the machine-readable form when you want to script
+-something around it:
++List which parts are up, optionally as JSON:
+ 
+ ```
+-tally-cli status
+-tally-cli status --json
++tallyctl status
++tallyctl status --json
+ ```
+ 
+-A freshly started service listens on port 8080 on your machine. To be sure it answers, ask it for its health, which
+-returns a short line saying that the API, the queue and the database are all reachable:
++The service now listens on port 8731; 8080 is closed, so old scripts and bookmarks get a refused connection. To check
++that the API, queue and database are reachable:
+ 
+-`curl http://localhost:8080/health`
++`curl http://localhost:8731/health`
+ 
+-If another program already uses 8080 on your machine, which happens more often than you would think with development
+-proxies, the service will not start and the status will tell you which part failed. Stop the other program, there is no
+-way to move tally to another port in the local setup.
++If another program holds 8731, stop it; the local setup cannot change ports.
+ 
+ > **Warning:** The local service uses a throwaway database. Do not point it at a shared database, and never run it against
+ > production data, because the development settings skip the safety checks that production has.
+ 
+-When something misbehaves, the first things to do are to look at the logs and to restart the part that you suspect. The
+-logs can be followed live, and a single part can be restarted without touching the others:
++When something misbehaves, follow the logs and restart the suspect part:
+ 
+ ```
+-tally-cli logs tail --follow
+-tally-cli restart api
++tallyctl logs tail --follow
++tallyctl restart api
+ ```
+ 
+-Restarting the API drops open connections for a moment, so do it when nobody is in the middle of a request. The ingest
+-workers have their own, gentler restart, which is covered in the on-call material rather than here.
++Restarting the API briefly drops open connections.
+ 
+ ## Everyday tasks
+ 
+-A few tasks come up often enough that you should know them by heart. The first is clearing the cache, which you need
+-whenever you change a roll-up definition and want to see the result immediately instead of waiting for entries to expire:
++After changing a roll-up definition, clear the cache instead of waiting for expiry. It clears every region unless you
++add `--region NAME`, and replaces the purge command, which was removed:
++
++`tallyctl cache clear`
+ 
+-`tally-cli purge-cache`
++Before trying something risky, back up your local database (the directory defaults to `./backups`):
+ 
+-It clears every region at once, so on a shared environment tell your colleagues first. The second is taking a backup
+-of your local database before you try something risky; the target directory is optional and defaults to a folder next to
+-where you run the command:
++`tallyctl db backup --to ./backups`
+ 
+-`tally-cli db backup --to ./backups`
++Staging needs real certificates. List them with their expiry dates:
+ 
+-The third is the certificates the service uses. Local development does not need real ones, but staging does, and knowing
+-how to list them with their expiry dates saves an embarrassing morning:
++`tallyctl certs list`
+ 
+-`tally-cli certs list`
++A renewed certificate is only served after a restart: run `tallyctl certs renew api`, then `tallyctl restart api`.
+ 
+-Everything above is safe to run on your own machine. Most of the commands also work against staging if you pass the
+-host explicitly, and then the usual care applies.
++Most commands work against staging with `--host`.
+ 
+ > **Warning:** Anything that clears data or restarts a part is visible to everybody who uses the same environment. On
+ > staging, announce it in the team channel before you run it.
+ 
+ ## Troubleshooting
+ 
+-Nine out of ten problems fall into three groups: the tool does not start, the service does not answer, or the data looks
+-stale. For the first, check the version command and the path as described above. For the second, run the status command
+-and look at which part is down; a part that is down can nearly always be brought back with a restart, and the logs will
+-say why it went down.
++If the tool does not start, check your path. If the service does not answer, check the status, read the failing part's
++logs and restart it.
++
++If data looks stale, check the queue depth in the status output. A depth that only grows means ingest is stuck, usually
++on a malformed batch that a plain restart picks up again. Locally, restart with a drain, which parks the batch in the
++dead-letter table; on shared environments, ask on the on-call channel.
+ 
+-For stale data the question is whether the ingest queue is draining. The status output shows the queue depth, and a depth
+-that only grows is the sign. In that case do not wait for it to fix itself; ask on the on-call channel. If the disk of
+-your local database fills up, which can happen after a long session with debug logging, two housekeeping commands help.
+-The first reclaims space in the database and the second compresses old log files and removes those past retention:
++`tallyctl restart ingest --drain`
++
++If your local database disk fills up, vacuum first (it needs scratch space), then rotate the logs:
+ 
+ ```
+-tally-cli db vacuum
+-tally-cli logs rotate --keep 7
++tallyctl db vacuum
++tallyctl logs rotate --keep 7
+ ```
+ 
+-A word on how to read what the tool tells you, since new people tend to over-trust a green status. Green means that the
+-parts answer, not that the numbers are right. A service can be up and still be fed by an application that stopped sending
+-yesterday, so when a chart goes flat compare it with the application's own logs before you conclude that tally is at
+-fault. Likewise a red part is not always an emergency: on your own machine a stopped scheduler is normal when you have
+-not started the periodic jobs, and the status output says so in its last column if you look for it.
++Anywhere but your own machine, use `tallyctl db vacuum --online`; the plain vacuum blocks writers.
++
++Green status means the parts answer, not that the numbers are right: an application that stopped sending leaves tally
++green and the chart flat. Red is not always an emergency; locally, a stopped scheduler is normal until you start the
++periodic jobs.
+ 
+-If none of that helps, write down what you ran and what you saw, and ask in the team channel. People here are glad to
+-help and would much rather answer a question early than debug a long afternoon later. A good question names the
+-command, the output and what you expected, and that is usually enough for somebody to answer in a minute.
++Still stuck? Ask in the team channel with the command, its output and what you expected.

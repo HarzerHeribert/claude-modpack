@@ -23,7 +23,7 @@ import {
 } from '../hooks/plan'
 import type { HandOff } from '../hooks/plan'
 import type { DelegateJob } from '../types'
-import { dropsNotice, secondCopy, failedText, handOverText, etaStatusLine, isAutoModeBlock, lostEntries, planOrder, trackInEta } from '../hooks/register'
+import { dropsNotice, secondCopy, reportFollows, failedText, handOverText, etaStatusLine, isAutoModeBlock, lostEntries, planOrder, trackInEta, workersFile, sendsNow, pendingFor } from '../hooks/register'
 
 const CWD = '/repo'
 
@@ -387,6 +387,28 @@ describe('a background hand-off ending without a notice', () => {
     expect(dropsNotice(new Set(['w1']), 'task', 'done w2')).toBe(false)
     expect(secondCopy(undefined)).toEqual({ drop: 'delegate: no second copy needed, the worker\'s report already reached Claude.' })
     expect(secondCopy('t1')).toEqual({ text: 'delegate: the worker\'s report already reached Claude as the hand_off result.' })
+  })
+
+  test('a notice that comes while the check still runs says the report follows, not that it arrived', () => {
+    expect(reportFollows('t1', 'w1')).toEqual({ text: 'delegate: hand-off w1 has ended; delegate is running its check, and the report follows.' })
+    expect('drop' in reportFollows(undefined, 'w1')).toBe(true)
+  })
+
+  test('a report is sent as a prompt only while no main turn runs', () => {
+    expect(sendsNow(undefined)).toBe(true)
+    expect(sendsNow('turn-1')).toBe(false)
+  })
+
+  test("the host's notice of a worker's end finds that worker's waiting report", () => {
+    expect(pendingFor(['a1', 'b2'], 'Agent b2 completed with its report')).toBe('b2')
+    expect(pendingFor(['a1'], 'Agent c3 completed')).toBeUndefined()
+  })
+
+  test("a file belongs to the worker's diff if the worker edited it, or nobody else did while it ran", () => {
+    const originals = new Map([['/r/mine.py', 'old']])
+    expect(workersFile('/r/mine.py', new Set(['/r/mine.py']), originals)).toBe(true)
+    expect(workersFile('/r/new.py', new Set(), originals)).toBe(true)
+    expect(workersFile('/r/yours.py', new Set(['/r/yours.py']), originals)).toBe(false)
   })
 })
 

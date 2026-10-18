@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-  <img alt="claude-modpack: eight Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, lsp-plus, cells, eta, seek, route." src="assets/banner-light.svg" width="880">
+  <img alt="claude-modpack: seven Claude Code mods, each measured on real tasks before it shipped, built to work together. statusline, smart-compact, delegate, cells, eta, seek, route." src="assets/banner-light.svg" width="880">
 </picture>
 
 <h3>Install in Claude Code</h3>
@@ -17,11 +17,11 @@ Prefer doing it by hand? [SETUP.md](SETUP.md) has every step.
 
 <br>
 
-[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![Quality: no loss seen](https://img.shields.io/badge/quality-no%20loss%20seen-0ca30c?style=flat-square)](#will-claudes-work-get-worse) [![8 mods](https://img.shields.io/badge/mods-8-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-11-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
+[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![Quality: no loss seen](https://img.shields.io/badge/quality-no%20loss%20seen-0ca30c?style=flat-square)](#will-claudes-work-get-worse) [![7 mods](https://img.shields.io/badge/mods-7-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-12-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
 
 ### Claude Code with fewer wasted steps, and a clear view of what it's doing.
 
-Eight free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
+Seven free add-ons that work on their own. One command installs them, and there is nothing new to learn.<br>
 Every number on this page was measured, including where it doesn't help.
 
 [Install](#install) · [What you get](#what-you-get) · [Honest numbers](#honest-numbers) · [The site: ideas and evidence](https://harzerheribert.github.io/claude-modpack/) · [Lab notes](https://harzerheribert.github.io/claude-modpack/notes.html) · [Questions](#questions)
@@ -70,12 +70,6 @@ A small, fast classifier reads each prompt you send. Only when it is feature or 
 
 That's the **route** mod.
 
-### Straight answers about your code
-
-When Claude searches your code for a name, it gets the exact list of places that use it, from the same engine your editor uses, instead of reading through search results. Renames and "who calls this?" questions take fewer steps. New in 0.5.0: Go, Kotlin and Ruby code, shell scripts and Terraform. Run `/lsp-plus:setup` once in your project to turn it on.
-
-That's the **lsp-plus** mod.
-
 ### Fewer, leaner steps when Claude looks around
 
 Before Claude changes anything, it looks around your code, and everything it reads stays in the conversation, read again with every later step. Beside the first prompt you send in a session, and again as the session grows, the pack passes on your preference to look around in few, lean steps: the searches it can already name in one go, the lines that matter rather than whole files, nothing read twice. Against the pack without it, that made jobs 12% cheaper in a fresh session, 16% on a TypeScript library and 10 to 16% in long sessions, at the same quality. It runs on your machine and sends nothing anywhere.
@@ -86,9 +80,9 @@ That's the **seek** mod.
 
 <img alt="A real Claude Code session: /mods lists the pack's mods (recorded with the six of 0.4.0, before route and seek) and opens a pane of cards; the status line is turned off and disappears from under the prompt, then turned on again." src="assets/demo-mods.gif" width="880">
 
-`/mods` lists the eight and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
+`/mods` lists the seven and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
 
-That's the **modpack** plugin, which installs the other eight.
+That's the **modpack** plugin, which installs the other seven.
 
 ## Install
 
@@ -98,21 +92,21 @@ In Claude Code, type:
 /plugin install modpack --marketplace HarzerHeribert/claude-modpack
 ```
 
-Answer `y` to add the marketplace, then pick where to install it. That installs all eight. Then, in the project you work in:
+Answer `y` to add the marketplace, then pick where to install it. That installs all seven. Then, in the project you work in:
 
 ```
 /modpack:setup
 ```
 
-It checks your machine, asks once what you want on (route stays off unless you say yes), sets each mod up in order, including the language servers for the languages your project uses, and checks that each one works. Done. `/mods` shows what's on.
+It checks your machine, asks once what you want on (route stays off unless you say yes), sets each mod up in order, and checks that each one works. Done. `/mods` shows what's on.
 
 By hand instead: [SETUP.md](SETUP.md) has every step.
 
 <details>
-<summary>One mod alone, or setting the language servers up by hand</summary>
+<summary>One mod alone</summary>
 <br>
 
-Each mod installs on its own the same way, for example `/plugin install smart-compact --marketplace HarzerHeribert/claude-modpack`. lsp-plus, delegate and cells build on Claude Code's LSP tool, which needs a language server for each language: [Language servers](#language-servers) lists them.
+Each mod installs on its own the same way, for example `/plugin install smart-compact --marketplace HarzerHeribert/claude-modpack`. delegate and cells use a language server where you have one installed and work without it: [Language servers](#language-servers).
 </details>
 
 ## Honest numbers
@@ -132,6 +126,7 @@ We measured the pack on Claude Opus 5.5 doing seven real jobs in an open-source 
 - **Nothing got worse:** all 224 runs behind this table produced a correct result, with the pack and without.
 - **The 95% ranges:** long session −39% to −27%; fresh −7% to −1%; bigger jobs fresh −12% to −3%; quick questions −1% to +6%. The long session is two runs per job each day, and the days differ: −26% on one, −40% on the other, mostly from the feature (plain needed 12 requests one day, 16 the next).
 - **The same on other code:** on a TypeScript library ([chrono](https://github.com/wanasit/chrono)) the pack cost 7.6% less (−12% to −3%) and took fewer steps on all eight jobs. On 30 real bug reports from SWE-bench Verified it fixed 30 against 29, with 23% fewer steps; the cost, −12%, is not certain at one attempt per bug (−33% to +12%). On PocketBase, Trail-Code's own 15 tasks: −21% with 0.6.0, at one run per task as Trail-Code ran them (the average task −18%, between −27% and −8%; [lab notes 3](lab-notes/03-a-code-graph-on-our-bench.md#their-tasks-in-our-harness-pocketbase)).
+- **Beyond click, new in 0.7.0:** on 12 tasks in a React and TypeScript app, a small service to run and fix, and documents and data to write and analyse, the pack as 0.7.0 ships it cost 17% less than plain Claude Code (−22% to −12%, 48 runs, all but four at full marks): web code −28%, operating software −8%, prose and data −5% (−10% to +1%), so prose is where it does least.
 - **A plan handed to a cheaper model:** −22% on a feature, −26% on tests, against Opus doing it alone with the pack (16 runs, all correct).
 - **With route turned on:** a further −14% on click's eight jobs (route 0.1). With 0.6.0's verified hand-offs, against the pack in the same batch on TypeScript: a feature −51% and 42% faster, writing tests −36%; Claude itself takes 2 steps instead of 6 to 11 (24 runs, all correct).
 - **Corrected 16 Oct: worker costs were undercounted.** A worker's transcript records its output as each response began, and our bench counted it from there, so every number with a hand-off in it came out too good. Corrected from Claude Code's own totals: a planned feature −22% (was −27%), tests −26% (was −33%), route on click −14% (was −17%), the TypeScript feature −51% (was −57%). Every saving is still a saving, a smaller one. The table above has no hand-offs and did not change. Each claim, old and new: [CORRECTION-1016.md](benchmarks/delegate-bench/CORRECTION-1016.md).
@@ -163,7 +158,10 @@ How we measured, every run's record, and the scripts to run it all again are in 
 ## Questions
 
 **Will Claude's work get worse?**
-Not that we have seen. Every run is graded by hidden tests or fixed rules, and the same jobs run with the pack and without it. In the batches that did both, 4 of 325 runs without the pack and 4 of 359 with it fell short of full marks. Of all 2,184 graded runs that ship with this release, 26 fell short: seven on one TypeScript explanation whose answers sometimes leave out one term of its list, with the pack and without; five with Trail-Code, whose hook replaced the answer; seven with Haiku as the main model, in two experiments we dropped; one TypeScript type question; and six on PocketBase. There, two questions left out terms of their answer key in both arms, and plain Claude Code missed one term of a third. On that third question the pack scored 0: lsp-plus held a search while Go's language server was still loading, Claude Code moved it to the background, and Claude's last message answered the notice that followed instead of the question. lsp-plus 0.4.2 now gives the language server 8 seconds at most. Apart from that run, the pack changes how many steps Claude takes, not whether it gets there.
+Not that we have seen. Every run is graded by hidden tests or fixed rules, and the same jobs run with the pack and without it. In the batches that did both, 6 of 349 runs without the pack and 8 of 407 with it fell short of full marks. Of all 2,304 graded runs that ship with this release, 33 fell short: seven on one TypeScript explanation whose answers sometimes leave out one term of its list, with the pack and without; five with Trail-Code, whose hook replaced the answer; seven with Haiku as the main model, in two experiments we dropped; one TypeScript type question; and six on PocketBase. There, two questions left out terms of their answer key in both arms, and plain Claude Code missed one term of a third. On that third question the pack scored 0: lsp-plus held a search while Go's language server was still loading, Claude Code moved it to the background, and Claude's last message answered the notice that followed instead of the question. lsp-plus 0.4.2 then gave the language server 8 seconds at most, and lsp-plus has since left the pack. The other seven are 0.7.0's: five on one prose revision whose checks are strict, in every arm, plain Claude Code too; one runbook and one rename. Apart from the PocketBase run, the pack changes how many steps Claude takes, not whether it gets there.
+
+**Where did lsp-plus go?**
+It left the pack in 0.7.0. Measured twice, 120 runs on renames and traces in click, a TypeScript library and a React app and on web, operating and prose work, the pack cost no more without it (−1.8% and −1.6%, both ranges across zero), and it kept a language server running per language in every session, hundreds of MB each. Its answer to a grep came from the language server, and in untyped code a server finds about half the uses of a name, where a plain word search finds them all ([lab notes 12](lab-notes/12-the-mod-that-left.md)). The update removes it once and says so in one line; installed again on purpose, it stays. Its last version, 0.4.2, is in this repository's v0.6.1 tag.
 
 **Is it safe?**
 It's open source (MIT), so every line is here to read. Code that Claude runs inside a cell runs in a sandbox with no network access. Edits go through Claude Code's own edit tool, so your usual permission prompts and `/rewind` still apply. The pack sends nothing anywhere except a once-a-day check on GitHub for a new release, which you can turn off, and, only if you turn route on, the start of each prompt to the classifier you chose (TypeSafe or ScaleDown).
@@ -243,7 +241,7 @@ On statusline's line it says whether the session is ready to prompt or has gone 
 | `minSavingsUsd` | `0.25` | Below this re-cache cost, the cache is left to expire. |
 | `compactPenaltyUsd` | `0.5` | Higher keeps the cache warm longer before compacting. |
 | `minCompactTokens` | `100000` | Never compacts a smaller context. |
-| `maxIdleHours` | `6` | Stops keep-alives after this long idle. |
+| `maxIdleHours` | `12` | Stops keep-alives after this long idle; an open session is one you mean to come back to. |
 | `compactInstructions` | empty | Passed to idle compactions, like `/compact <text>`. |
 
 Prices are list prices, so on a subscription they are API-equivalent estimates, not a bill.
@@ -256,7 +254,7 @@ Prices are list prices, so on a subscription they are API-equivalent estimates, 
 
 Every request of the main model re-reads its whole context: at 600k tokens on Opus 5.5 that is about $0.12 a step before any work is done. A worker reads only its own small context. Claude calls `hand_off` with a task that stands alone, its kind (`read`: changes no file; `mechanical`: the task spells out every change; `build`: something is left to work out), the symbols or `file:line` places it touches (`focus`), and for edits a `check` command. The kind picks the worker, so Claude has no model to weigh: Haiku at low effort for read and mechanical work, Sonnet at medium for build work.
 
-1. **Where it reaches.** For each focus entry the mod asks the language server for references and callers (with lsp-plus, the docs that mention it come along) and tells the worker.
+1. **Where it reaches.** For each focus entry the mod asks the language server for references and callers and tells the worker.
 2. **The worker.** A subagent, read-only for `read`, with Edit and Write for `mechanical` and `build`. The call waits for it inside the tool call (one request of the main model) and returns the report with the evidence; with `background` it returns at once and the report arrives as a message. A follow-up within 50 minutes goes to the same worker, its reading still in its context.
 3. **The evidence.** The diff against a git snapshot taken at the start, however the worker edited; the check command, run by the mod itself; references outside the changed files; what the work cost against the same steps on the main model.
 4. **The review.** The main model judges the diff and the check, not the report.
@@ -353,24 +351,6 @@ Nothing leaves your machine: seek asks Claude Code how large the context is and,
 </details>
 
 <details>
-<summary><b>lsp-plus</b>: code intelligence: the language server's answer to a symbol grep</summary>
-<br>
-
-- **The language server's answer to a symbol grep.** When grep, rg, git grep and the like look for a code symbol, lsp-plus asks the language server itself and attaches its answer to the grep's result: for a function the functions that call it, each named as it is nested (`Command.invoke (1412)`), otherwise its references, by file. Grep's own output stays for strings, comments and docs. In Terraform the grep can name an address (`var.region`, `aws_s3_bucket.logs`, `local.tags`, `module.vpc`) or its block; the answer is the references in each module that uses it. A server still indexing gets up to 3 s, and without a whole answer there is none.
-- **Servers warm from the start.** At session start each language the repository has gets one question, about its smallest tracked file, so its server has the project open before the first real one: about 1 s for Python, 4 s for TypeScript, saved later. The smallest file because Claude Code adds the problems a server reports about any file it has open to the conversation, and a near-empty file has none. A server costs memory (pyright about 440 MB, the TypeScript server up to 2 GB on a large repository) and runs until the session ends.
-- **Docs in references.** `findReferences`, `goToDefinition` and `incomingCalls` also name the doc lines that use the symbol as code, which no language server indexes.
-- **Docs that drift.** After an Edit or Write removes a name from the code that the docs still mention, Claude is told where, with the likely new name when it looks like a rename.
-- **`/refs`** checks every doc in the repository for code names no file in the code has any more, and for links to files that do not exist.
-- **A missing server said once.** Where the repository has five or more files of a language whose server does not answer, you see a line naming it, and Claude is told to offer `/lsp-plus:setup` once.
-- **Markdown, SQL, shell and Terraform servers.** marksman for `.md`, postgres-language-server for `.sql`, bash-language-server for `.sh` and `.bash`, terraform-ls for `.tf` and `.tfvars`.
-- **Go, Kotlin and Ruby.** The grep answer knows their definitions, methods on a receiver included (`func (s *Server) Run`, `def self.issue`), through the official plugins' servers; where a server has no call hierarchy, the answer is its references. Checked against gopls and ruby-lsp (which needs a `Gemfile.lock`); Kotlin by tests only.
-- **`blast`** (off): after an edit changes a function's parameters, the places that call it, from the server. Off because the grep answer before the edit already names them: on a task built for it, +3.7% [−2%, +11%] taken out.
-
-Measured: the grep answer cut a rename from 4.6 to 3.4 requests (−6.5% cost) and a trace from 4.3 to 3.9 (cost even), 7 runs each way, all correct; on tasks without a symbol grep it never spoke. Taken out of the pack, renames took 5.0 requests instead of 3.2 and the whole cost the same. Its warm-up once asked about click's `docs/conf.py`, whose diagnostics then reached every conversation (+4.5% on small tasks); it now asks about the smallest file of each kind, and costs nothing there. Options `answer`, `warm`, `docs` and `drift` turn those off, `blast` turns that one on, `enabled: false` the whole mod; `nudge` turns on an older note that only told Claude which LSP call to make (never followed in 45 notes).
-
-</details>
-
-<details>
 <summary><b>cells</b>: flow: several edits and their check in one step</summary>
 <br>
 
@@ -412,9 +392,7 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 The mods never import each other. Each finds the others through Claude Code itself (a tool in the tool list, a note on a tool's result) and works alone when they are missing.
 
 - **statusline is the line the others write on.** smart-compact adds its `● ready · cold in 44m` through `$.statusline.set(...)`, a segment whose countdown statusline counts; without statusline, smart-compact says the same in Claude Code's own status text.
-- **lsp-plus answers a symbol grep from the language server** before Claude takes another step, and warms each language's server at session start, so cells' `refs()` and delegate's look at where a change reaches meet a warm server too.
-- **lsp-plus enriches the language server's answers** (the docs that use a symbol) for whoever asks: delegate before a hand-off, cells' `refs()`, `defn()` and `rename()`.
-- **Edits made in a cell go through the Edit tool**, so lsp-plus's check for docs that still use a removed name runs on them, and the notes other mods attach to a cell's calls come back in the cell's report.
+- **Edits made in a cell go through the Edit tool**, so your permission prompts and `/rewind` apply, and the notes other mods attach to a cell's calls come back in the cell's report.
 - **smart-compact keeps long sessions' caches warm**, where delegate and cells pay most: both save model requests, and every request re-reads the whole context.
 - **eta shows background shell jobs**, including those a cell starts; delegate shows its own workers in its card and pane.
 - **route gives delegate's order** for feature and test prompts, the same order delegate gives for an approved plan; without delegate's tool in the list it sends nothing.
@@ -430,7 +408,7 @@ A mod joins the pack when:
 
 ## Language servers
 
-`/lsp-plus:setup` does this for the repository you are in. By hand: Claude Code's LSP tool, which lsp-plus, delegate and cells build on, needs the official LSP plugins (`claude plugin install <plugin>@claude-plugins-official --scope user`) and their servers on the `PATH`:
+Optional. delegate (to see where a change reaches) and cells (`refs()`, `defn()`, `rename()`) use Claude Code's LSP tool where a language server is installed, and fall back to text search without one. A server runs as long as its session and costs memory, hundreds of MB per language; since 0.7.0 nothing in the pack starts one by itself. Each language needs its official LSP plugin (`claude plugin install <plugin>@claude-plugins-official --scope user`) and its server on the `PATH`:
 
 | Languages | Plugin (`@claude-plugins-official`) | Server |
 | --- | --- | --- |
@@ -446,7 +424,6 @@ A mod joins the pack when:
 | PHP | `php-lsp` | `npm i -g intelephense` |
 | Ruby | `ruby-lsp` | `gem install ruby-lsp` |
 | Lua | `lua-lsp` | `brew install lua-language-server` |
-| Markdown, SQL, shell, Terraform | lsp-plus | `brew install marksman postgres-language-server bash-language-server hashicorp/tap/terraform-ls` |
 
 ## Developing
 

@@ -24,7 +24,7 @@
   <p class="side-h">Start</p>
   <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/lsp-plus.html">lsp-plus</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
   <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
@@ -49,7 +49,7 @@
   <p class="side-h">Start</p>
   <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
-  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/lsp-plus.html">lsp-plus</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
+  <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
   <ul><li><a href="graveyard.html">What we dropped</a></li><li><a href="evidence.html">Every measurement</a></li><li><a href="glossary.html">Words we use</a></li></ul>
   <p class="side-h">Lab notes</p>
@@ -58,7 +58,7 @@
   <main id="main" tabindex="-1">
 <article class="doc prose"><h1 id="lab-notes">Lab notes</h1>
 <p>What we tried while building this modpack, how we measured it, and why most of it did not ship.</p>
-<p>The modpack is eight mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
+<p>The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
 <blockquote>
 <p><strong>Who wrote this.</strong> Claude (Opus 5.5) wrote these notes from this repository&#39;s results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.</p>
 </blockquote>
@@ -1239,6 +1239,117 @@ open: none
 </ul>
 <h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
 <p>Arms, all with the person&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>): Z, the pack alone; ZKO and ZKM, with seek&#39;s order or its map (at every context size); PD, the pack in a session that had read click&#39;s <code>docs/</code> and <code>tests/</code> but nothing under <code>src/</code>, and there KDO, KDM and KD (order, map, both) and PFD (pathfinder); PL and KL, the pack without and with seek in a session that had read all of <code>src/click</code> (about 220k tokens). seek 0.1 and 0.2 ran as ZK against Z, and 0.2 as KL against PL. SA-off and SA-on: the pack as 0.6.0 ships, every task handed to one general-purpose subagent, cells&#39; and seek&#39;s <code>subagents</code> off or on; click&#39;s feature and explanation, chrono&#39;s feature, tests and explanation; checked and summed by <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/subagent_report.py"><code>subagent_report.py</code></a>. Opus 5.5, click 8.5.0, chrono 2.10.3. Carry, for example: <code>python3 -I carry.py Z ZKO results-seek03-fresh.jsonl</code>; 95% bootstrap intervals over runs within tasks, whose ends move by a few tenths of a point with the arms resampled beside. The mined numbers are aggregates; the sessions stay private. Data: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek03-fresh.jsonl"><code>results-seek03-fresh.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek03-docs.jsonl"><code>results-seek03-docs.jsonl</code></a> (pathfinder too), <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek03-long.jsonl"><code>results-seek03-long.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek03-ts.jsonl"><code>results-seek03-ts.jsonl</code></a>; subagents: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-subagent.jsonl"><code>results-subagent.jsonl</code></a>; seek 0.1 and 0.2: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek.jsonl"><code>results-seek.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek2.jsonl"><code>results-seek2.jsonl</code></a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-seek-long.jsonl"><code>results-seek-long.jsonl</code></a>.</p>
+</section>
+<section class="chapter"><h1 id="the-mod-that-left">The mod that left</h1>
+<p><em>Lab notes 12 · 18 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>lsp-plus answered Claude&#39;s search for a name in your code with the language server&#39;s answer: the exact places that use it, from the engine your editor uses. It made the cut in October, when renames on click took 3.4 requests with it instead of 4.6. In 0.7.0 it leaves the pack. This note is why: what its servers cost, how much of the code they actually saw, and two benchmarks that found the pack no more expensive without it.</p>
+<h2 id="what-a-server-costs"><a class="anchor" href="#what-a-server-costs" aria-hidden="true" tabindex="-1">#</a>What a server costs</h2>
+<p>A language server is a process per language per session, running from the first question to the session&#39;s end. lsp-plus asked the first question itself, at session start, so each server would be warm when Claude needed it.</p>
+<ul>
+<li><strong>Memory.</strong> pyright on this lab&#39;s own repository took 3.5 GB: it read 57,201 Python files, nearly all of them in git-ignored checkouts, where git tracks 82. Told to skip the ignored folders, it took 237 MB. An empty project costs 90 to 130 MB per process, the TypeScript server up to 2 GB on a large repository, and every session starts its own.</li>
+<li><strong>Without lsp-plus, no server starts.</strong> Claude Code starts a server only when something asks it. In 24 runs where lsp-plus started none (12 without it, 12 with an engine that needs no server), not one diagnostic reached the conversation: no server had started.</li>
+</ul>
+<h2 id="what-its-answers-were-worth"><a class="anchor" href="#what-its-answers-were-worth" aria-hidden="true" tabindex="-1">#</a>What its answers were worth</h2>
+<ul>
+<li><strong>Who asked.</strong> In 1,931 benchmark runs with the pack, Claude called the language server itself 3 times; cells&#39; <code>refs()</code> and <code>defn()</code> were called 0 times and <code>rename()</code> once in 482 cells. delegate looked up a hand-off&#39;s places 412 times in 195 hand-offs, the one real consumer, and it falls back to a text search without a server.</li>
+<li><strong>What the server saw.</strong> On real code the answer was often missing. On 30 SWE-bench issues in Django and sympy, lsp-plus recognised 55 searches for a code name in 25 runs and answered 6 of them, in 2. We took 128 names from 236 such searches in 29 checkouts. 49% have one definition, 30% several (a median of 5 namesakes), 20% none in the repository. For 49 names with one definition, the share of their uses in the code each engine found, and how many of its hits were real:</li>
+</ul>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Engine</th>
+<th>Found</th>
+<th>Precise</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pyright, the language server</td>
+<td>50%</td>
+<td>95%</td>
+</tr>
+<tr>
+<td>Graphify, a code graph</td>
+<td>49%</td>
+<td>94%</td>
+</tr>
+<tr>
+<td>Trail-Code, a code graph</td>
+<td>47%</td>
+<td>97%</td>
+</tr>
+<tr>
+<td>A word search, each hit named by its enclosing function</td>
+<td>100%</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>The same search, hits sorted into definitions and uses by the files&#39; outlines</td>
+<td>98%</td>
+<td>91%</td>
+</tr>
+</tbody></table></div>
+<p>The server missed half of the uses because Python here is untyped: <code>self.query.get_compiler()</code> names a method on a receiver whose type pyright cannot know. Classes fared worst (36% found), then methods (62%) and functions (68%). The two code graphs, built from the same kind of analysis, missed the same half. A plain word search finds every use and some namesakes, and the files&#39; outlines sort most of the namesakes out in 87 ms, with no server.</p>
+<h2 id="two-benchmarks-without-it"><a class="anchor" href="#two-benchmarks-without-it" aria-hidden="true" tabindex="-1">#</a>Two benchmarks without it</h2>
+<p><strong>On the tasks it was built for</strong> (48 runs, $11.85): a trace and a rename in click, a rename in a TypeScript library (<a href="https://github.com/wanasit/chrono">chrono</a>) and a rename in a React app, 3 runs per task, each against the pack as 0.6.1 shipped it:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Arm</th>
+<th>Average task</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Without lsp-plus</td>
+<td>−1.8% [−10.4, +8.1]</td>
+</tr>
+<tr>
+<td>lsp-plus answering from the word search and outlines, no servers</td>
+<td>+3.0% [−8.2, +15.7]</td>
+</tr>
+<tr>
+<td>lsp-plus with a filter for the server&#39;s diagnostics</td>
+<td>−4.9% [−12.4, +3.3]</td>
+</tr>
+</tbody></table></div>
+<p>None of them is clear of zero. The click rename that once shortened by a quarter took 3.3 requests with lsp-plus and 3.7 without, at the same cost: seek, new in 0.6.0, has Claude look around in few, lean steps, and a rename no longer needs the server to be short. The engine without servers saved nothing either: the answer itself was not where the money was.</p>
+<p><strong>On everything else</strong> (72 runs, $34.84): twelve new tasks shaped like the most common Claude Code work, five in a React and TypeScript app, four operating a small service, three in prose and data. Plain Claude Code, the pack as 0.6.1 ships it, and the pack without lsp-plus, 2 runs each:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th></th>
+<th>Average task</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The pack against plain Claude Code</td>
+<td>−15.8% [−19.7, −11.9]</td>
+</tr>
+<tr>
+<td>Without lsp-plus against the pack</td>
+<td>−1.6% [−7.2, +4.1]</td>
+</tr>
+<tr>
+<td>… on the prose and data tasks</td>
+<td>−5.2% [−9.2, −1.1]</td>
+</tr>
+</tbody></table></div>
+<p>Without lsp-plus the pack cost the same, and on prose a little less: a server&#39;s start and its reports cost something even where no code is searched.</p>
+<h2 id="the-diagnostics"><a class="anchor" href="#the-diagnostics" aria-hidden="true" tabindex="-1">#</a>The diagnostics</h2>
+<p>A running server reports problems in the files it has open, and Claude Code adds those reports to the conversation after each tool&#39;s result. In one long lab session, 403 reached the conversation; 21% repeated one already sent, moved by a line after an edit; most were about files nobody had edited, from tests the benchmark keeps hidden or from another session&#39;s work. A filter that kept only problems in files Claude had edited saved 14.1% [−25.2, −0.7] once what the reports leave in the conversation is priced (<a href="11-what-looking-around-leaves-behind.html">note 11</a>). But the reports came from servers lsp-plus had started. Without lsp-plus, there are none to filter.</p>
+<h2 id="what-leaves-and-what-stays"><a class="anchor" href="#what-leaves-and-what-stays" aria-hidden="true" tabindex="-1">#</a>What leaves, and what stays</h2>
+<ul>
+<li><strong>Gone with it:</strong> the grep answer, the warm-up, the docs named in references, the check for docs that still name a removed function, and <code>/refs</code>.</li>
+<li><strong>Stays:</strong> delegate and cells use a language server wherever one is installed, and fall back to text search where none is. Nothing in the pack starts one any more.</li>
+<li><strong>The update.</strong> modpack 0.7.0 no longer installs lsp-plus. At its first start it removes <code>lsp-plus@claude-modpack</code> once and says so in one line; someone who installs it again on purpose keeps it. Its last released version, 0.4.2, is in the <code>v0.6.1</code> tag.</li>
+</ul>
+<h2 id="what-this-does-not-show"><a class="anchor" href="#what-this-does-not-show" aria-hidden="true" tabindex="-1">#</a>What this does not show</h2>
+<ul>
+<li><strong>Small batches.</strong> 2 to 3 runs per task and arm; the intervals are wide. Two batches, 120 runs, point the same way, and neither shows lsp-plus saving anything.</li>
+<li><strong>Typed code at scale.</strong> The TypeScript tasks are a library and an app of modest size. On a large typed codebase a server sees more of the uses than it did in Django; we have not measured that.</li>
+<li><strong>What a person does.</strong> Benchmark prompts are complete specifications. A person who asks &quot;who calls this?&quot; many times a day in a typed codebase may get more from a server than these tasks show. The servers are still there for them, through Claude Code&#39;s own LSP plugins.</li>
+</ul>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>Arms, with the person&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>): Z6, the pack as 0.6.1 shipped it; Z6N, without lsp-plus; Z6I, lsp-plus answering from the word search and outlines with no servers; Z6D, lsp-plus with the diagnostics filter; V, plain Claude Code. Claude Opus 5.5, headless, one fresh copy of each repository per run, every run graded: 113 of 120 at full marks, the rest spread over the arms (five on one prose task with strict checks, plain Claude Code included). Cost at list prices; 95% bootstrap intervals over runs within each task. The engine comparison ran each engine over the same checkouts and counted a name&#39;s uses against every occurrence of the name in code, outside strings and comments. Runs: <code>results-engine.jsonl</code> and <code>results-beyond.jsonl</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/</code></a>; the tasks: <code>web_repo.py</code>, <code>ops_repo.py</code>, <code>docs_repo.py</code>.</p>
 </section></article>
   </main>
   

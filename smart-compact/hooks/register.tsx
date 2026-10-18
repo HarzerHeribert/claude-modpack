@@ -74,7 +74,7 @@ function readOptions(o: PluginOptions): Options {
       minSavingsUsd: num(o.minSavingsUsd, 0.25),
       compactPenaltyUsd: num(o.compactPenaltyUsd, 0.5),
       minCompactTokens: num(o.minCompactTokens, 100_000),
-      maxIdleMs: num(o.maxIdleHours, 6) * 60 * 60_000,
+      maxIdleMs: num(o.maxIdleHours, 12) * 60 * 60_000,
     },
     cacheTtl: pick<TtlSetting>(o.cacheTtl, ['auto', '5m', '1h'], 'auto'),
     instructions: typeof o.compactInstructions === 'string' ? o.compactInstructions : '',

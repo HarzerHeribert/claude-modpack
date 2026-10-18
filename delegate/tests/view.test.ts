@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 
 import type { DelegateJob } from '../types'
-import { actionLabel, clock, headline, outcome, scanner } from '../hooks/view'
+import { actionLabel, clock, headline, outcome, scanner, startingLine } from '../hooks/view'
 
 const NOW = 1_000_000_000
 
@@ -48,5 +48,15 @@ describe('the card', () => {
     expect(scanner(7)).toEqual({ before: '·····', head: '━━', after: '·' })
     expect(clock(59_400)).toBe('59s')
     expect(clock(61_000)).toBe('1:01')
+  })
+})
+
+describe('startingLine', () => {
+  test('the kind and the task\'s first line, cut to the width, instead of the whole input', () => {
+    const line = startingLine({ kind: 'build', task: 'Build pilot/x.py: a benchmark of what compacting a long session costs.\nMore lines follow.' }, 60)
+    expect(line).toStartWith('hand-off · build · starting: Build pilot/x.py')
+    expect(line?.length).toBeLessThanOrEqual(60)
+    expect(line).not.toContain('More lines')
+    expect(startingLine({ kind: 'read' }, 80)).toBe(undefined)
   })
 })

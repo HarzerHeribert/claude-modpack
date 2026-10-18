@@ -16,7 +16,6 @@ export const MODS = [
   ['statusline', 'one line under the prompt: model, context, plan use'],
   ['smart-compact', 'keeps the prompt cache warm or compacts before it expires'],
   ['delegate', 'hands a task to a cheaper worker model and checks its work'],
-  ['lsp-plus', 'the language server\'s answers for greps, docs in references'],
   ['cells', 'several edits and their check in one step'],
   ['eta', 'a percentage and finish time for long-running jobs'],
   ['seek', 'has Claude look around your code in few, lean steps'],

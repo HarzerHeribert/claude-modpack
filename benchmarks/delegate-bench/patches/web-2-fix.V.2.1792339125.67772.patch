@@ -1,0 +1,197 @@
+diff --git a/src/app/routes/app/discussions/__tests__/discussion.test.tsx b/src/app/routes/app/discussions/__tests__/discussion.test.tsx
+index d84b155..93230aa 100644
+--- a/src/app/routes/app/discussions/__tests__/discussion.test.tsx
++++ b/src/app/routes/app/discussions/__tests__/discussion.test.tsx
+@@ -3,6 +3,7 @@ import {
+   screen,
+   userEvent,
+   waitFor,
++  createComment,
+   createDiscussion,
+   createUser,
+   within,
+@@ -10,10 +11,18 @@ import {
+ 
+ import { default as DiscussionRoute } from '../discussion';
+ 
+-const renderDiscussion = async () => {
+-  const fakeUser = await createUser();
++const renderDiscussion = async ({
++  userProperties,
++  seed,
++}: {
++  userProperties?: Record<string, any>;
++  seed?: (fakeUser: any, fakeDiscussion: any) => Promise<void>;
++} = {}) => {
++  const fakeUser = await createUser(userProperties);
+   const fakeDiscussion = await createDiscussion({ teamId: fakeUser.teamId });
+ 
++  await seed?.(fakeUser, fakeDiscussion);
++
+   const utils = await renderApp(<DiscussionRoute />, {
+     user: fakeUser,
+     path: `/app/discussions/:discussionId`,
+@@ -143,3 +152,76 @@ test(
+     timeout: 20000,
+   },
+ );
++
++test(
++  'should let a regular user delete only their own comments',
++  async () => {
++    const ownComment = 'My own comment';
++    const otherComment = 'A teammate comment';
++
++    await renderDiscussion({
++      userProperties: { role: 'USER' },
++      seed: async (fakeUser, fakeDiscussion) => {
++        const teammate = await createUser({
++          role: 'USER',
++          teamId: fakeUser.teamId,
++        });
++        await createComment({
++          body: ownComment,
++          authorId: fakeUser.id,
++          discussionId: fakeDiscussion.id,
++        });
++        await createComment({
++          body: otherComment,
++          authorId: teammate.id,
++          discussionId: fakeDiscussion.id,
++        });
++      },
++    });
++
++    const commentsList = await screen.findByRole('list', {
++      name: 'comments',
++    });
++
++    const ownCommentElement = (
++      await within(commentsList).findByText(ownComment)
++    ).closest('li') as HTMLElement;
++    const otherCommentElement = within(commentsList)
++      .getByText(otherComment)
++      .closest('li') as HTMLElement;
++
++    expect(
++      within(otherCommentElement).queryByRole('button', {
++        name: /delete comment/i,
++      }),
++    ).not.toBeInTheDocument();
++
++    await userEvent.click(
++      within(ownCommentElement).getByRole('button', {
++        name: /delete comment/i,
++      }),
++    );
++
++    const confirmationDialog = await screen.findByRole('dialog', {
++      name: /delete comment/i,
++    });
++
++    await userEvent.click(
++      await within(confirmationDialog).findByRole('button', {
++        name: /delete/i,
++      }),
++    );
++
++    await screen.findByText(/comment deleted/i);
++
++    await waitFor(() => {
++      expect(
++        within(commentsList).queryByText(ownComment),
++      ).not.toBeInTheDocument();
++    });
++    expect(within(commentsList).getByText(otherComment)).toBeInTheDocument();
++  },
++  {
++    timeout: 20000,
++  },
++);
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..70c3602 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,11 @@
++import {
++  createComment as generateComment,
++  createUser as generateUser,
++} from '@/testing/data-generators';
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+@@ -81,3 +86,31 @@ test('should not view protected resource if policy check fails and show fallback
+ 
+   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
+ });
++
++describe('comment:delete policy', () => {
++  const author = generateUser({ role: ROLES.USER }) as User;
++  const teammate = generateUser({
++    role: ROLES.USER,
++    teamId: author.teamId,
++  }) as User;
++  const admin = generateUser({
++    role: ROLES.ADMIN,
++    teamId: author.teamId,
++  }) as User;
++  const comment = {
++    ...generateComment({ discussionId: 'discussion-1' }),
++    author,
++  } as Comment;
++
++  test('should allow an admin to delete any comment', () => {
++    expect(POLICIES['comment:delete'](admin, comment)).toBe(true);
++  });
++
++  test('should allow a user to delete their own comment', () => {
++    expect(POLICIES['comment:delete'](author, comment)).toBe(true);
++  });
++
++  test("should not allow a user to delete another user's comment", () => {
++    expect(POLICIES['comment:delete'](teammate, comment)).toBe(false);
++  });
++});
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 
+diff --git a/src/testing/test-utils.tsx b/src/testing/test-utils.tsx
+index b50e372..6e88021 100644
+--- a/src/testing/test-utils.tsx
++++ b/src/testing/test-utils.tsx
+@@ -10,6 +10,7 @@ import { RouterProvider, createMemoryRouter } from 'react-router';
+ import { AppProvider } from '@/app/provider';
+ 
+ import {
++  createComment as generateComment,
+   createDiscussion as generateDiscussion,
+   createUser as generateUser,
+ } from './data-generators';
+@@ -28,6 +29,12 @@ export const createDiscussion = async (discussionProperties?: any) => {
+   return res;
+ };
+ 
++export const createComment = async (commentProperties?: any) => {
++  const comment = generateComment(commentProperties);
++  const res = await db.comment.create(comment);
++  return res;
++};
++
+ export const loginAsUser = async (user: any) => {
+   const authUser = await authenticate(user);
+   Cookies.set(AUTH_COOKIE, authUser.jwt);

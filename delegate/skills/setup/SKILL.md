@@ -16,7 +16,7 @@ Run these and read the answers before suggesting anything:
   - **Terminal**: works in every mode, auto mode included.
   - **Desktop app in auto mode**: refused. Auto mode there cannot judge a worker that a mod starts, so every hand-off returns "Not handed off" and Claude does the work itself. Manual permission mode in the desktop app works.
   - In default (manual) mode the worker asks before it edits, as Claude would.
-- Language servers help but are not required: the `focus` places a hand-off names are looked up in the language server (with lsp-plus, the docs that mention them too). Without one, a text search stands in. `/lsp-plus:setup` sets them up.
+- Language servers help but are not required: the `focus` places a hand-off names are looked up in the language server. Without one, a text search stands in. A language needs its official LSP plugin and server (the pack's README, Language servers).
 - On Bedrock, Vertex or another provider, the `haiku` and `sonnet` aliases must resolve to models the account can use. Untested there.
 
 ## 2. Ask, then set

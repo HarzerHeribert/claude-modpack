@@ -35,7 +35,7 @@ import {
 } from './plan'
 import type { Anchor, HandOff, Kind, Mode, Place, Reach, Usage } from './plan'
 import type { DelegateJob } from '../types'
-import { FRAME_MS, actionLabel, jobCard, pane, usd, verb } from './view'
+import { FRAME_MS, actionLabel, jobCard, pane, startingLine, usd, verb } from './view'
 import type { Elements } from './view'
 
 type Engine = EngineInterface
@@ -52,6 +52,8 @@ const WORKER_TOOLS: { [K in Kind]: string[] } = {
 }
 const MAX_FOCUS = 6
 const DIFF_LINES = 300
+/** A report that reaches the main model as a message or beside another tool's result: the diff's start, then its path. */
+const LATE_DIFF_LINES = 40
 
 const RETURNS = {
   tool: 'It returns when the worker is done (usually within a minute or two) with its report and evidence the tool gathered itself',
@@ -185,6 +187,8 @@ type Job = {
   ended?: number
   /** eta is showing this hand-off: the status file it reads, and what has been written to it. */
   eta?: { file: string; text: string }
+  /** Files the main session or another worker edited while this one ran: not this worker's, so not in its diff. */
+  others: Set<string>
 }
 
 type Warm = { agentId: string; at: number; requestTokens: number }
@@ -200,6 +204,13 @@ let records: HandOff[] = []
 let touched = new Map<string, HandOff>()
 /** Workers whose end this mod reported itself (no notice came); a host notice for one is dropped. */
 const handedOver = new Set<string>()
+/** The main loop's turn while one runs. A plugin prompt sent then waits above the person's input until the turn ends. */
+let mainTurn: string | undefined
+/** Reports whose worker ended while the main turn ran: they ride on its next tool result or on the host's notice of the
+ * worker's end, whichever comes first, and only an idle session gets one as a prompt. */
+const pending = new Map<string, string>()
+/** Workers whose end delegate is reporting, while it diffs and runs the check: their report is not ready yet. */
+const preparing = new Set<string>()
 let count = 0
 let dir = ''
 /** True while this mod continues a warm worker: resuming an agent needs its type offered. */
@@ -377,18 +388,23 @@ async function startWorker($: Engine, input: Input, prompt: string, description:
 }
 
 /** The worker's changes against the work tree it started from: what git sees, plus new untracked files. */
-async function gitDiff($: Engine, cwd: string, job: Job & { gitBase: string }): Promise<{ diff: string; files: string[] }> {
+async function gitDiff($: Engine, cwd: string, job: Job & { gitBase: string }): Promise<{ diff: string; files: string[]; skipped: string[] }> {
   // From the repository's root: run from a subfolder, ls-files saw only the untracked files below it, and a worker's
   // new folder elsewhere in the repository was missing from the evidence.
   const top = ((await $.process.run(['git', 'rev-parse', '--show-toplevel'], { cwd, timeoutMs: 5000 }).then(r => r.stdout, () => '')) || cwd).trim()
   const run = (args: string[]) => $.process.run(['git', ...args], { cwd: top, timeoutMs: 15_000 }).then(r => r.stdout).catch(() => '')
-  const tracked = await run(['diff', '--no-color', '-M', '-U2', job.gitBase])
-  const names = (await run(['diff', '--name-only', '-M', job.gitBase])).split('\n').filter(Boolean)
+  const mine = (f: string) => workersFile(join(top, f), job.others, job.originals)
+  const allNames = (await run(['diff', '--name-only', '-M', job.gitBase])).split('\n').filter(Boolean)
   const before = new Set(job.untracked ?? [])
-  const added = (await run(['ls-files', '--others', '--exclude-standard'])).split('\n').filter(f => f && !before.has(f))
+  const allAdded = (await run(['ls-files', '--others', '--exclude-standard'])).split('\n').filter(f => f && !before.has(f))
+  const names = allNames.filter(mine)
+  const added = allAdded.filter(mine)
+  // Pathspecs for this worker's files only; with none, no `git diff` at all (without a path it would diff the whole tree).
+  const tracked = names.length > 0 ? await run(['diff', '--no-color', '-M', '-U2', job.gitBase, '--', ...names]) : ''
   const fresh: string[] = []
   for (const f of added) fresh.push(await run(['diff', '--no-index', '--no-color', '-U2', '--', '/dev/null', f]))
-  return { diff: [tracked, ...fresh].join('').trimEnd(), files: [...names, ...added].map(f => rel(cwd, join(top, f))) }
+  const skipped = [...allNames, ...allAdded].filter(f => !mine(f)).map(f => rel(cwd, join(top, f)))
+  return { diff: [tracked, ...fresh].join('').trimEnd(), files: [...names, ...added].map(f => rel(cwd, join(top, f))), skipped }
 }
 
 /** The worker's changes as one unified diff, paths relative to the session's folder. */
@@ -504,6 +520,7 @@ async function start($: Engine, toolUseId: string, input: Input): Promise<{ text
     usage: { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
     lastContext: 0,
     originals: new Map(),
+    others: new Set(),
     reported: false,
     holding: !input.background,
     returned: false,
@@ -541,11 +558,11 @@ async function start($: Engine, toolUseId: string, input: Input): Promise<{ text
 }
 
 /** The report reached the main model (as the tool's result or a message): log it, keep the worker warm, update the card. */
-async function deliver($: Engine, job: Job, reportBody: string): Promise<string> {
+async function deliver($: Engine, job: Job, reportBody: string, diffLines = DIFF_LINES): Promise<string> {
   job.reported = true
   job.ended ??= await $.clock.now()
   if (job.done === undefined || job.done.reason === 'answer') warm.set(warmKey(job.input), { agentId: job.agentId, at: job.ended, requestTokens: job.lastContext })
-  const made = await report($, job, reportBody).catch(err => ({ text: `The delegate mod could not gather the evidence: ${String(err)}`, record: undefined }))
+  const made = await report($, job, reportBody, diffLines).catch(err => ({ text: `The delegate mod could not gather the evidence: ${String(err)}`, record: undefined }))
   const rec = made.record
   await setView($, job.toolUseId, () => ({
     state: 'reported',
@@ -568,6 +585,19 @@ export function failedText(n: number, agentId: string, why: string): string {
   return `Hand-off ${n} (${agentId}) failed: ${why}. Do the task yourself or hand it off again.`
 }
 
+/** Whether a changed file is this worker's: one it edited itself, or one nobody else edited while it ran. */
+export function workersFile(abs: string, others: ReadonlySet<string>, originals: ReadonlyMap<string, unknown>): boolean {
+  return originals.has(abs) || !others.has(abs)
+}
+
+/** A plugin prompt goes out only while no main turn runs: sent during one, it waits pinned above the person's input. */
+export const sendsNow = (turn: string | undefined): boolean => turn === undefined
+
+/** The pending report a host notice of a worker's end belongs to, by the worker's id in its text. */
+export function pendingFor(pendingIds: Iterable<string>, text: string): string | undefined {
+  return [...pendingIds].find(id => text.includes(id))
+}
+
 /** A host notice for a worker whose end the mod already reported, and not the mod's own prompt: drop it. */
 export function dropsNotice(handed: ReadonlySet<string>, originKind: string | undefined, text: string): boolean {
   if (originKind === undefined || originKind === 'composer' || originKind === 'bridge' || originKind === 'sdk' || originKind === 'plugin') return false
@@ -580,15 +610,27 @@ export function secondCopy(turnId: string | undefined): { drop: string } | { tex
   return { text: 'delegate: the worker\'s report already reached Claude as the hand_off result.' }
 }
 
+/** The host's notice of a worker's end while delegate still runs its check: the report is not there yet, so the notice
+ * says it follows. Inside a turn it rides along as one line; on its own it would start a turn, so it is dropped. */
+export function reportFollows(turnId: string | undefined, agentId: string): { drop: string } | { text: string } {
+  const text = `delegate: hand-off ${agentId} has ended; delegate is running its check, and the report follows.`
+  return turnId === undefined ? { drop: text } : { text }
+}
+
 /** Nobody waits on the worker (a background hand-off, or a held one past its limit) and its end brought no notice: report it from here. */
 async function handOver($: Engine, job: Job): Promise<void> {
   if (job.reported || job.holding || job.done === undefined) return
   handedOver.add(job.agentId)
   const done = job.done
   if (done.reason === 'answer') {
-    const evidence = await deliver($, job, done.answer)
-    jobs.delete(job.agentId)
-    await $.prompt.submit({ text: handOverText(job.n, job.agentId, done.answer, evidence) }).catch(() => undefined)
+    preparing.add(job.agentId)
+    try {
+      const evidence = await deliver($, job, done.answer, LATE_DIFF_LINES)
+      jobs.delete(job.agentId)
+      await send($, job.agentId, handOverText(job.n, job.agentId, done.answer, evidence))
+    } finally {
+      preparing.delete(job.agentId)
+    }
     return
   }
   job.reported = true
@@ -596,7 +638,14 @@ async function handOver($: Engine, job: Job): Promise<void> {
   await writeEta($, job, `failed · ${job.requests} req · ${usd(costUsd(job.usage, job.workerModel ?? ''))}`)
   await animate($)
   jobs.delete(job.agentId)
-  await $.prompt.submit({ text: failedText(job.n, job.agentId, done.reason) }).catch(() => undefined)
+  await send($, job.agentId, failedText(job.n, job.agentId, done.reason))
+}
+
+/** A report for the main model: as a prompt while the session is idle; during a turn it waits for that turn's next tool
+ * result, the host's notice of the worker's end, or the turn's end, whichever comes first. */
+async function send($: Engine, agentId: string, text: string): Promise<void> {
+  if (sendsNow(mainTurn)) await $.prompt.submit({ text }).catch(() => undefined)
+  else pending.set(agentId, text)
 }
 
 /**
@@ -623,7 +672,7 @@ async function hold($: Engine, job: Job, signal: AbortSignal): Promise<string | 
 }
 
 /** The worker's notice arrived: the evidence to read beside its report. */
-async function report($: Engine, job: Job, reportBody: string): Promise<{ text: string; record: HandOff }> {
+async function report($: Engine, job: Job, reportBody: string, diffLines = DIFF_LINES): Promise<{ text: string; record: HandOff }> {
   const cwd = await $.session.cwd()
   // The hand-back reaches the main model before the worker's turn has formally ended.
   const done = job.done ?? { answer: '', reason: 'answer' }
@@ -698,6 +747,7 @@ async function report($: Engine, job: Job, reportBody: string): Promise<{ text: 
     for (const f of files) touched.set(join(cwd, f), record)
 
     parts.push(diff ? `Changed ${files.length} file${files.length === 1 ? '' : 's'} (+${stat.added} −${stat.removed}): ${files.join(', ')}` : 'The worker changed no file.')
+    if (fromGit !== undefined && fromGit.skipped.length > 0) parts.push(`Also changed while it ran, by you or another worker, so not in this diff: ${fromGit.skipped.join(', ')}`)
     const fork = route === 'fork' ? await $.model.fork({ prompt: REVIEW_PROMPT(job.input.task, evidence) }) : undefined
     if (fork !== undefined && fork.isAnswered) {
       record.reviewUsd = costUsd(fork.usage as Usage, mainModel)
@@ -708,7 +758,7 @@ async function report($: Engine, job: Job, reportBody: string): Promise<{ text: 
       if (testsText) parts.push(testsText)
     } else {
       record.route = 'inline'
-      const shown = capLines(diff, DIFF_LINES)
+      const shown = capLines(diff, diffLines)
       if (diff) parts.push(`${shown.text}${shown.cut > 0 ? `\n… ${shown.cut} more lines in ${fullPath}` : ''}`)
       parts.push(checkText)
       if (testsText) parts.push(testsText)
@@ -780,7 +830,9 @@ export const register: Register = (on, options) => {
 
   on('turn.start', async ($, e, next) => {
     await reconcile($)
-    return next(e)
+    const r = await next(e)
+    if (e.agentId === undefined) mainTurn = r.turnId
+    return r
   })
 
   // The workers are this tool's alone: the model reaches them through hand_off, never the Agent tool.
@@ -834,6 +886,7 @@ export const register: Register = (on, options) => {
       if (edits) {
         const abs = join(await $.session.cwd(), path)
         if (!job.originals.has(abs)) job.originals.set(abs, await $.fs.read(abs).catch(() => null))
+        for (const other of jobs.values()) if (other !== job && other.done === undefined) other.others.add(abs)
       }
       const startedAt = await $.clock.now()
       const label = actionLabel(e.tool, e as unknown as { [k: string]: unknown })
@@ -849,12 +902,17 @@ export const register: Register = (on, options) => {
       await writeEta($, job, etaStatusLine({ requests: job.requests, usd: costUsd(job.usage, job.workerModel ?? '') }, { tool: e.tool, label }))
       return r
     }
+    if (edits) for (const job of jobs.values()) if (job.done === undefined) job.others.add(join(await $.session.cwd(), path))
     const r = await next(e)
     if (edits && r.deny === undefined && !r.isError) {
       const record = touched.get(join(await $.session.cwd(), path))
       if (record !== undefined) record.reworkEdits++
     }
-    return r
+    // A refused call carries no context: the reports wait for the next result, or the turn's end.
+    if (pending.size === 0 || r.deny !== undefined) return r
+    const reports = [...pending.values()]
+    pending.clear()
+    return { ...r, context: [...(r.context ?? []), ...reports] }
   }).catch(($, e, next) => next(e))
 
   on('turn.step', async function* ($, e, next) {
@@ -896,13 +954,26 @@ export const register: Register = (on, options) => {
     records = []
     touched = new Map()
     await flush($, done).catch(() => undefined)
+    mainTurn = undefined
+    if (pending.size > 0) {
+      const texts = [...pending.values()]
+      pending.clear()
+      await $.prompt.submit({ text: texts.join('\n\n') }).catch(() => undefined)
+    }
     return r
   })
 
   // The card in the transcript: live while the worker runs, then its outcome; its button opens the pane.
   for (const tool of HAND_OFF_TOOLS) on('ui.render', { component: 'ToolUse', props: { tool } }, async ($, e, next) => {
     const job = (await read($, VIEW)).find(j => j.toolUseId === e.requestId)
-    if (job === undefined) return next(e)
+    if (job === undefined) {
+      // Before the worker starts, one line instead of the call's whole input; a call that ended without a worker
+      // (refused, not handed off) draws as Claude Code draws it.
+      const line = e.props.isRunning && !e.props.isErrored ? startingLine(e.props.input, e.viewport?.columns ?? 100) : undefined
+      if (line === undefined) return next(e)
+      const { Text } = $.ui.resolve(e) as unknown as Elements
+      return <Text color="subtle">{line}</Text>
+    }
     const now = await $.clock.now()
     const open = () => void openPane($, job.toolUseId).catch(() => undefined)
     return jobCard($.ui.resolve(e) as unknown as Elements, job, now, e.viewport?.columns ?? 100, open)
@@ -926,6 +997,17 @@ export const register: Register = (on, options) => {
     const kind = e.origin?.kind
     if (kind === undefined || kind === 'composer' || kind === 'bridge' || kind === 'sdk' || kind === 'plugin') return next(e)
     if (dropsNotice(handedOver, kind, e.text)) {
+      const id = pendingFor(pending.keys(), e.text)
+      if (id !== undefined) {
+        const text = pending.get(id) as string
+        pending.delete(id)
+        return next({ ...e, text: `delegate: hand-off ${id} has ended; its report is attached.`, context: [...(e.context ?? []), text] })
+      }
+      const early = pendingFor(preparing, e.text)
+      if (early !== undefined) {
+        const follows = reportFollows(e.turnId, early)
+        return 'drop' in follows ? { drop: follows.drop } : next({ ...e, text: follows.text })
+      }
       const copy = secondCopy(e.turnId)
       return 'drop' in copy ? { drop: copy.drop } : next({ ...e, text: copy.text })
     }

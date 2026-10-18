@@ -1,0 +1,39 @@
+diff --git a/CHANGES.md b/CHANGES.md
+index 3c9a94e..48d5d7e 100644
+--- a/CHANGES.md
++++ b/CHANGES.md
+@@ -1,3 +1,7 @@
++## Version 8.5.1
++
++- Clamping an `IntRange` with an open upper bound returns the largest value inside the range.
++
+ ## Version 8.5.0
+ 
+ Released 2026-08-24
+diff --git a/src/click/types.py b/src/click/types.py
+index 1d840f8..0eb8462 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -672,7 +672,7 @@ class _NumberRangeBase(
+                 return self._clamp(min, 1, self.min_open)
+ 
+             if max is not None and gt_max:
+-                return self._clamp(max, 1, self.max_open)
++                return self._clamp(max, -1, self.max_open)
+ 
+         if lt_min or gt_max:
+             self.fail(
+diff --git a/tests/test_types.py b/tests/test_types.py
+index 63992cc..2bcabbb 100644
+--- a/tests/test_types.py
++++ b/tests/test_types.py
+@@ -330,3 +330,9 @@ def test_param_type_subclass_omitting_input_parameter():
+     doubling = DoublingType()
+     assert doubling("21") == 42
+     assert doubling(None) is None
++
++
++def test_int_range_clamp_open_max_stays_inside():
++    t = click.IntRange(0, 10, max_open=True, clamp=True)
++    assert t.convert("100", None, None) == 9
++    assert t.convert("10", None, None) == 9

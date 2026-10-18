@@ -1,0 +1,30 @@
+diff --git a/reports/incidents-brief.md b/reports/incidents-brief.md
+new file mode 100644
+index 0000000..bcd2288
+--- /dev/null
++++ b/reports/incidents-brief.md
+@@ -0,0 +1,24 @@
++# Incident brief
++
++## 11 August: stalled ingest, full database disk
++
++- **Impact:** no new data for about 2.5 hours overnight; customers saw stale dashboards. No data lost.
++- **Cause:** one malformed batch jammed ingest, which retried it endlessly; the retry logs filled the database disk.
++- **Fix:** restarted ingest with the bad batch set aside, then reclaimed database space and cleared old logs.
++- **Follow-ups:**
++  - Disk alert at 80%: no owner named; open.
++  - Unanswered pages escalate after 15 minutes: Elif, Sunil; done.
++  - Handbook updated to match: Mara; open.
++  - Stop bad batches jamming ingest: Jonas; open.
++
++## 21 September: expired API certificate
++
++- **Impact:** public API down for 47 minutes; nearly all clients failed to connect.
++- **Cause:** the certificate expired; its automatic renewal had failed silently for weeks after a credential change.
++- **Fix:** renewed the certificate, then restarted the API.
++- **Follow-ups:**
++  - Renewal job repaired, now alerts on failure: no owner named; done.
++  - Reminder 14 days before each expiry, alert on days left, and expiry check in the weekly checklist: no owner named; all open.
++  - Responders log steps as they work: incident handler; agreed.
++
++"Open": no meeting notes record it done.

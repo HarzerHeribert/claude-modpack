@@ -152,7 +152,7 @@
     whenSeen(root, function () { run(true) })
   }
 
-  // ——————————————————————————————————————— cells, lsp-plus, seek: before and after
+  // ——————————————————————————————————————— cells, seek: before and after
 
   function beforeAfter(root) {
     states(root, 'mode')
@@ -347,7 +347,7 @@
     whenSeen(root, play)
   }
 
-  var WIDGETS = { replay: replay, cells: beforeAfter, lsp: beforeAfter, seek: beforeAfter, delegate: delegate, route: oneOf, statusline: oneOf, smartcompact: smartcompact, eta: eta, modpack: modpack, token: token }
+  var WIDGETS = { replay: replay, cells: beforeAfter, seek: beforeAfter, delegate: delegate, route: oneOf, statusline: oneOf, smartcompact: smartcompact, eta: eta, modpack: modpack, token: token }
 
   function init() {
     $$(document, '.widget[data-widget]').forEach(function (el) {

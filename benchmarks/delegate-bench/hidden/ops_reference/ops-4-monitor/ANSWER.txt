@@ -1,0 +1,3 @@
+error rate: 0.6%
+worst endpoint: /invoices/{id}/pdf
+p95: 1264 ms

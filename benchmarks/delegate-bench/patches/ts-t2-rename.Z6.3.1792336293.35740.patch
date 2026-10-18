@@ -1,0 +1,633 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 6c09aca..423bbe4 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -64,7 +64,7 @@ src/
+    - English (`en`) is the most advanced locale in the library. Other locales are modeled after English but often lag behind.
+ 
+ 3. **Relative Date Arithmetic**:
+-   Use helpers from `src/calculation/duration.ts` such as `addDuration` and `reverseDuration` to perform date calculations. When handling "ago/before" expressions, calculate the positive duration first, then reverse it using `reverseDuration`.
++   Use helpers from `src/calculation/duration.ts` such as `addDuration` and `negateDuration` to perform date calculations. When handling "ago/before" expressions, calculate the positive duration first, then negate it using `negateDuration`.
+ 
+ 4. **Abstract Parsers**:
+    Inherit from `AbstractParserWithWordBoundaryChecking` (or `AbstractParserWithLeftBoundaryChecking`) to inherit word boundary detection and clean regex boundary matching.
+diff --git a/src/calculation/duration.ts b/src/calculation/duration.ts
+index 586308c..16de0dd 100644
+--- a/src/calculation/duration.ts
++++ b/src/calculation/duration.ts
+@@ -148,7 +148,7 @@ export function addDuration(ref: Date, duration: Duration): Date {
+  * Return the reversed duration (e.g. back into the past, instead of future)
+  * @param duration
+  */
+-export function reverseDuration(duration: Duration): Duration {
++export function negateDuration(duration: Duration): Duration {
+     const reversed = {};
+     for (const key in duration) {
+         // noinspection JSUnfilteredForInLoop
+diff --git a/src/locales/ar/parsers/ARTimeUnitAgoFormatParser.ts b/src/locales/ar/parsers/ARTimeUnitAgoFormatParser.ts
+index 5972bc9..1c8136a 100644
+--- a/src/locales/ar/parsers/ARTimeUnitAgoFormatParser.ts
++++ b/src/locales/ar/parsers/ARTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithLeftRightBoundaryChecking } from "./AbstractParserWithWordBoundaryChecking";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class ARTimeUnitAgoFormatParser extends AbstractParserWithLeftRightBoundaryChecking {
+     innerPatternString(context: ParsingContext): string {
+@@ -12,7 +12,7 @@ export default class ARTimeUnitAgoFormatParser extends AbstractParserWithLeftRig
+     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
+         const timeUnitsText = match[1] || match[2];
+         const timeUnits = parseDuration(timeUnitsText);
+-        const outputTimeUnits = reverseDuration(timeUnits);
++        const outputTimeUnits = negateDuration(timeUnits);
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, outputTimeUnits);
+     }
+diff --git a/src/locales/de/parsers/DETimeUnitRelativeFormatParser.ts b/src/locales/de/parsers/DETimeUnitRelativeFormatParser.ts
+index 35a3a1e..eb6f2db 100644
+--- a/src/locales/de/parsers/DETimeUnitRelativeFormatParser.ts
++++ b/src/locales/de/parsers/DETimeUnitRelativeFormatParser.ts
+@@ -3,7 +3,7 @@ import { NUMBER_PATTERN, parseNumberPattern, TIME_UNIT_DICTIONARY } from "../con
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+ import { matchAnyPattern } from "../../../utils/pattern";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class DETimeUnitAgoFormatParser extends AbstractParserWithWordBoundaryChecking {
+     constructor() {
+@@ -34,7 +34,7 @@ export default class DETimeUnitAgoFormatParser extends AbstractParserWithWordBou
+         }
+ 
+         if (/vor/.test(modifier) || /letzte/.test(modifier) || /vergangen/.test(modifier)) {
+-            timeUnits = reverseDuration(timeUnits);
++            timeUnits = negateDuration(timeUnits);
+         }
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, timeUnits);
+diff --git a/src/locales/en/parsers/ENTimeUnitAgoFormatParser.ts b/src/locales/en/parsers/ENTimeUnitAgoFormatParser.ts
+index c45a044..ddc5ada 100644
+--- a/src/locales/en/parsers/ENTimeUnitAgoFormatParser.ts
++++ b/src/locales/en/parsers/ENTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_NO_ABBR_PATTERN, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(`(${TIME_UNITS_PATTERN})\\s{0,5}(?:ago|before|earlier)(?=\\W|$)`, "i");
+ const STRICT_PATTERN = new RegExp(`(${TIME_UNITS_NO_ABBR_PATTERN})\\s{0,5}(?:ago|before|earlier)(?=\\W|$)`, "i");
+@@ -21,6 +21,6 @@ export default class ENTimeUnitAgoFormatParser extends AbstractParserWithWordBou
+         if (!duration) {
+             return null;
+         }
+-        return ParsingComponents.createRelativeFromReference(context.reference, reverseDuration(duration));
++        return ParsingComponents.createRelativeFromReference(context.reference, negateDuration(duration));
+     }
+ }
+diff --git a/src/locales/en/parsers/ENTimeUnitCasualRelativeFormatParser.ts b/src/locales/en/parsers/ENTimeUnitCasualRelativeFormatParser.ts
+index 813e11f..5a62e6d 100644
+--- a/src/locales/en/parsers/ENTimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/en/parsers/ENTimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration, TIME_UNITS_NO_ABBR_PATTERN } from ".
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(`(this|last|past|next|after|\\+|-)\\s*(${TIME_UNITS_PATTERN})(?=\\W|$)`, "i");
+ const PATTERN_NO_ABBR = new RegExp(
+@@ -29,7 +29,7 @@ export default class ENTimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "last":
+             case "past":
+             case "-":
+-                duration = reverseDuration(duration);
++                duration = negateDuration(duration);
+                 break;
+         }
+         return ParsingComponents.createRelativeFromReference(context.reference, duration);
+diff --git a/src/locales/en/refiners/ENMergeRelativeAfterDateRefiner.ts b/src/locales/en/refiners/ENMergeRelativeAfterDateRefiner.ts
+index 29ca74b..b3777e9 100644
+--- a/src/locales/en/refiners/ENMergeRelativeAfterDateRefiner.ts
++++ b/src/locales/en/refiners/ENMergeRelativeAfterDateRefiner.ts
+@@ -1,7 +1,7 @@
+ import { MergingRefiner } from "../../../common/abstractRefiners";
+ import { ParsingComponents, ParsingResult, ReferenceWithTimezone } from "../../../results";
+ import { parseDuration } from "../constants";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ function IsPositiveFollowingReference(result: ParsingResult): boolean {
+     return result.text.match(/^[+-]/i) != null;
+@@ -28,7 +28,7 @@ export default class ENMergeRelativeAfterDateRefiner extends MergingRefiner {
+     mergeResults(textBetween: string, currentResult: ParsingResult, nextResult: ParsingResult, context): ParsingResult {
+         let timeUnits = parseDuration(nextResult.text);
+         if (IsNegativeFollowingReference(nextResult)) {
+-            timeUnits = reverseDuration(timeUnits);
++            timeUnits = negateDuration(timeUnits);
+         }
+ 
+         const components = ParsingComponents.createRelativeFromReference(
+diff --git a/src/locales/en/refiners/ENMergeRelativeFollowByDateRefiner.ts b/src/locales/en/refiners/ENMergeRelativeFollowByDateRefiner.ts
+index 6555f58..3edf907 100644
+--- a/src/locales/en/refiners/ENMergeRelativeFollowByDateRefiner.ts
++++ b/src/locales/en/refiners/ENMergeRelativeFollowByDateRefiner.ts
+@@ -1,7 +1,7 @@
+ import { MergingRefiner } from "../../../common/abstractRefiners";
+ import { ParsingComponents, ParsingResult, ReferenceWithTimezone } from "../../../results";
+ import { parseDuration } from "../constants";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ function hasImpliedEarlierReferenceDate(result: ParsingResult): boolean {
+     return result.text.match(/\s+(before|from)$/i) != null;
+@@ -40,7 +40,7 @@ export default class ENMergeRelativeFollowByDateRefiner extends MergingRefiner {
+     mergeResults(textBetween: string, currentResult: ParsingResult, nextResult: ParsingResult): ParsingResult {
+         let duration = parseDuration(currentResult.text);
+         if (hasImpliedEarlierReferenceDate(currentResult)) {
+-            duration = reverseDuration(duration);
++            duration = negateDuration(duration);
+         }
+ 
+         const components = ParsingComponents.createRelativeFromReference(
+diff --git a/src/locales/fi/parsers/FITimeUnitAgoFormatParser.ts b/src/locales/fi/parsers/FITimeUnitAgoFormatParser.ts
+index 96d4403..0feea9b 100644
+--- a/src/locales/fi/parsers/FITimeUnitAgoFormatParser.ts
++++ b/src/locales/fi/parsers/FITimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class FITimeUnitAgoFormatParser extends AbstractParserWithWordBoundaryChecking {
+     innerPattern(): RegExp {
+@@ -11,7 +11,7 @@ export default class FITimeUnitAgoFormatParser extends AbstractParserWithWordBou
+ 
+     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
+         const timeUnits = parseDuration(match[1]);
+-        const outputTimeUnits = reverseDuration(timeUnits);
++        const outputTimeUnits = negateDuration(timeUnits);
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, outputTimeUnits);
+     }
+diff --git a/src/locales/fi/parsers/FITimeUnitCasualRelativeFormatParser.ts b/src/locales/fi/parsers/FITimeUnitCasualRelativeFormatParser.ts
+index eb781a2..6710e37 100644
+--- a/src/locales/fi/parsers/FITimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/fi/parsers/FITimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration, TIME_UNITS_NO_ABBR_PATTERN } from ".
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(
+     `(seuraava|seuraavat|seuraavien|edellinen|edelliset|edellisten|viimeiset|viimeisten|kuluneet|kuluneiden|\\+|-)\\s*(${TIME_UNITS_PATTERN})(?=\\W|$)`,
+@@ -38,7 +38,7 @@ export default class FITimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "kuluneet":
+             case "kuluneiden":
+             case "-":
+-                duration = reverseDuration(duration);
++                duration = negateDuration(duration);
+                 break;
+         }
+ 
+diff --git a/src/locales/fr/parsers/FRTimeUnitAgoFormatParser.ts b/src/locales/fr/parsers/FRTimeUnitAgoFormatParser.ts
+index 7b3b4be..6418ef3 100644
+--- a/src/locales/fr/parsers/FRTimeUnitAgoFormatParser.ts
++++ b/src/locales/fr/parsers/FRTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class FRTimeUnitAgoFormatParser extends AbstractParserWithWordBoundaryChecking {
+     constructor() {
+@@ -15,7 +15,7 @@ export default class FRTimeUnitAgoFormatParser extends AbstractParserWithWordBou
+ 
+     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
+         const timeUnits = parseDuration(match[1]);
+-        const outputTimeUnits = reverseDuration(timeUnits);
++        const outputTimeUnits = negateDuration(timeUnits);
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, outputTimeUnits);
+     }
+diff --git a/src/locales/fr/parsers/FRTimeUnitRelativeFormatParser.ts b/src/locales/fr/parsers/FRTimeUnitRelativeFormatParser.ts
+index fd02059..5f24b62 100644
+--- a/src/locales/fr/parsers/FRTimeUnitRelativeFormatParser.ts
++++ b/src/locales/fr/parsers/FRTimeUnitRelativeFormatParser.ts
+@@ -3,7 +3,7 @@ import { NUMBER_PATTERN, parseNumberPattern, TIME_UNIT_DICTIONARY } from "../con
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+ import { matchAnyPattern } from "../../../utils/pattern";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class FRTimeUnitAgoFormatParser extends AbstractParserWithWordBoundaryChecking {
+     constructor() {
+@@ -36,7 +36,7 @@ export default class FRTimeUnitAgoFormatParser extends AbstractParserWithWordBou
+         }
+ 
+         if (/derni[eè]re?s?/.test(modifier) || /pass[ée]e?s?/.test(modifier) || /pr[ée]c[ée]dents?/.test(modifier)) {
+-            timeUnits = reverseDuration(timeUnits);
++            timeUnits = negateDuration(timeUnits);
+         }
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, timeUnits);
+diff --git a/src/locales/id/parsers/IDTimeUnitAgoFormatParser.ts b/src/locales/id/parsers/IDTimeUnitAgoFormatParser.ts
+index 66d5750..0baef21 100644
+--- a/src/locales/id/parsers/IDTimeUnitAgoFormatParser.ts
++++ b/src/locales/id/parsers/IDTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ // 3 hari yang lalu  |  2 minggu lalu  |  setahun silam  |  5 menit sebelumnya
+ const PATTERN = new RegExp(`(${TIME_UNITS_PATTERN})\\s{0,5}(?:yang\\s+)?(?:lalu|silam|sebelumnya)(?=\\W|$)`, "i");
+@@ -14,6 +14,6 @@ export default class IDTimeUnitAgoFormatParser extends AbstractParserWithWordBou
+ 
+     innerExtract(context: ParsingContext, match: RegExpMatchArray): ParsingComponents {
+         const duration = parseDuration(match[1]);
+-        return ParsingComponents.createRelativeFromReference(context.reference, reverseDuration(duration));
++        return ParsingComponents.createRelativeFromReference(context.reference, negateDuration(duration));
+     }
+ }
+diff --git a/src/locales/it/parsers/ITTimeUnitAgoFormatParser.ts b/src/locales/it/parsers/ITTimeUnitAgoFormatParser.ts
+index 87cdbb2..5b9ab61 100644
+--- a/src/locales/it/parsers/ITTimeUnitAgoFormatParser.ts
++++ b/src/locales/it/parsers/ITTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_NO_ABBR_PATTERN, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(`(${TIME_UNITS_PATTERN})\\s{0,5}(?:fa|prima)(?=\\W|$)`, "i");
+ const STRICT_PATTERN = new RegExp(`(${TIME_UNITS_NO_ABBR_PATTERN})\\s{0,5}(?:fa|prima)(?=\\W|$)`, "i");
+@@ -21,6 +21,6 @@ export default class ITTimeUnitAgoFormatParser extends AbstractParserWithWordBou
+         if (!duration) {
+             return null;
+         }
+-        return ParsingComponents.createRelativeFromReference(context.reference, reverseDuration(duration));
++        return ParsingComponents.createRelativeFromReference(context.reference, negateDuration(duration));
+     }
+ }
+diff --git a/src/locales/it/parsers/ITTimeUnitCasualRelativeFormatParser.ts b/src/locales/it/parsers/ITTimeUnitCasualRelativeFormatParser.ts
+index a975c87..38f9891 100644
+--- a/src/locales/it/parsers/ITTimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/it/parsers/ITTimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration, TIME_UNITS_NO_ABBR_PATTERN } from ".
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(
+     `(?:il\\s*|la\\s*|l'\\s*)?(questo|questa|quest'|scorso|scorsa|prossimo|prossima|dopo|\\+|-)\\s*(${TIME_UNITS_PATTERN})(?=\\W|$)`,
+@@ -32,7 +32,7 @@ export default class ITTimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "scorso":
+             case "scorsa":
+             case "-":
+-                duration = reverseDuration(duration);
++                duration = negateDuration(duration);
+                 break;
+         }
+         return ParsingComponents.createRelativeFromReference(context.reference, duration);
+diff --git a/src/locales/it/refiners/ITMergeRelativeAfterDateRefiner.ts b/src/locales/it/refiners/ITMergeRelativeAfterDateRefiner.ts
+index b1730c5..a894409 100644
+--- a/src/locales/it/refiners/ITMergeRelativeAfterDateRefiner.ts
++++ b/src/locales/it/refiners/ITMergeRelativeAfterDateRefiner.ts
+@@ -1,7 +1,7 @@
+ import { MergingRefiner } from "../../../common/abstractRefiners";
+ import { ParsingComponents, ParsingResult, ReferenceWithTimezone } from "../../../results";
+ import { parseDuration } from "../constants";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ function IsPositiveFollowingReference(result: ParsingResult): boolean {
+     return result.text.match(/^[+-]/i) != null;
+@@ -28,7 +28,7 @@ export default class ITMergeRelativeAfterDateRefiner extends MergingRefiner {
+     mergeResults(textBetween: string, currentResult: ParsingResult, nextResult: ParsingResult, context): ParsingResult {
+         let timeUnits = parseDuration(nextResult.text);
+         if (IsNegativeFollowingReference(nextResult)) {
+-            timeUnits = reverseDuration(timeUnits);
++            timeUnits = negateDuration(timeUnits);
+         }
+ 
+         const components = ParsingComponents.createRelativeFromReference(
+diff --git a/src/locales/it/refiners/ITMergeRelativeFollowByDateRefiner.ts b/src/locales/it/refiners/ITMergeRelativeFollowByDateRefiner.ts
+index 0481924..8700643 100644
+--- a/src/locales/it/refiners/ITMergeRelativeFollowByDateRefiner.ts
++++ b/src/locales/it/refiners/ITMergeRelativeFollowByDateRefiner.ts
+@@ -1,7 +1,7 @@
+ import { MergingRefiner } from "../../../common/abstractRefiners";
+ import { ParsingComponents, ParsingResult, ReferenceWithTimezone } from "../../../results";
+ import { parseDuration } from "../constants";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ function hasImpliedEarlierReferenceDate(result: ParsingResult): boolean {
+     return result.text.match(/\s+(prima|da)$/i) != null;
+@@ -40,7 +40,7 @@ export default class ITMergeRelativeFollowByDateRefiner extends MergingRefiner {
+     mergeResults(textBetween: string, currentResult: ParsingResult, nextResult: ParsingResult): ParsingResult {
+         let duration = parseDuration(currentResult.text);
+         if (hasImpliedEarlierReferenceDate(currentResult)) {
+-            duration = reverseDuration(duration);
++            duration = negateDuration(duration);
+         }
+ 
+         const components = ParsingComponents.createRelativeFromReference(
+diff --git a/src/locales/nl/parsers/NLTimeUnitAgoFormatParser.ts b/src/locales/nl/parsers/NLTimeUnitAgoFormatParser.ts
+index b650435..88642cf 100644
+--- a/src/locales/nl/parsers/NLTimeUnitAgoFormatParser.ts
++++ b/src/locales/nl/parsers/NLTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp("" + "(" + TIME_UNITS_PATTERN + ")" + "(?:geleden|voor|eerder)(?=(?:\\W|$))", "i");
+ 
+@@ -19,7 +19,7 @@ export default class NLTimeUnitAgoFormatParser extends AbstractParserWithWordBou
+ 
+     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
+         const timeUnits = parseDuration(match[1]);
+-        const outputTimeUnits = reverseDuration(timeUnits);
++        const outputTimeUnits = negateDuration(timeUnits);
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, outputTimeUnits);
+     }
+diff --git a/src/locales/nl/parsers/NLTimeUnitCasualRelativeFormatParser.ts b/src/locales/nl/parsers/NLTimeUnitCasualRelativeFormatParser.ts
+index 680f827..ff36973 100644
+--- a/src/locales/nl/parsers/NLTimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/nl/parsers/NLTimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration } from "../constants";
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(
+     `(dit|deze|vorig|afgelopen|(?:aan)?komend|over|\\+|-)e?\\s*(${TIME_UNITS_PATTERN})(?=\\W|$)`,
+@@ -24,7 +24,7 @@ export default class NLTimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "vorig":
+             case "afgelopen":
+             case "-":
+-                timeUnits = reverseDuration(timeUnits);
++                timeUnits = negateDuration(timeUnits);
+                 break;
+         }
+ 
+diff --git a/src/locales/ru/parsers/RUTimeUnitAgoFormatParser.ts b/src/locales/ru/parsers/RUTimeUnitAgoFormatParser.ts
+index b28df3e..ceb3152 100644
+--- a/src/locales/ru/parsers/RUTimeUnitAgoFormatParser.ts
++++ b/src/locales/ru/parsers/RUTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithLeftBoundaryChecking } from "./AbstractParserWithWordBoundaryChecking";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class RUTimeUnitAgoFormatParser extends AbstractParserWithLeftBoundaryChecking {
+     innerPatternString(context: ParsingContext): string {
+@@ -11,7 +11,7 @@ export default class RUTimeUnitAgoFormatParser extends AbstractParserWithLeftBou
+ 
+     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
+         const timeUnits = parseDuration(match[1]);
+-        const outputTimeUnits = reverseDuration(timeUnits);
++        const outputTimeUnits = negateDuration(timeUnits);
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, outputTimeUnits);
+     }
+diff --git a/src/locales/ru/parsers/RUTimeUnitCasualRelativeFormatParser.ts b/src/locales/ru/parsers/RUTimeUnitCasualRelativeFormatParser.ts
+index 8a76d83..6938778 100644
+--- a/src/locales/ru/parsers/RUTimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/ru/parsers/RUTimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration, REGEX_PARTS } from "../constants";
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithLeftRightBoundaryChecking } from "./AbstractParserWithWordBoundaryChecking";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class RUTimeUnitCasualRelativeFormatParser extends AbstractParserWithLeftRightBoundaryChecking {
+     innerPatternString(context: ParsingContext): string {
+@@ -16,7 +16,7 @@ export default class RUTimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "последние":
+             case "прошлые":
+             case "-":
+-                timeUnits = reverseDuration(timeUnits);
++                timeUnits = negateDuration(timeUnits);
+                 break;
+         }
+ 
+diff --git a/src/locales/sv/parsers/SVTimeUnitCasualRelativeFormatParser.ts b/src/locales/sv/parsers/SVTimeUnitCasualRelativeFormatParser.ts
+index b6bf866..550e233 100644
+--- a/src/locales/sv/parsers/SVTimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/sv/parsers/SVTimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration, TIME_UNITS_NO_ABBR_PATTERN } from ".
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ const PATTERN = new RegExp(
+     `(denna|den här|förra|passerade|nästa|kommande|efter|\\+|-)\\s*(${TIME_UNITS_PATTERN})(?=\\W|$)`,
+@@ -33,7 +33,7 @@ export default class SVTimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "förra":
+             case "passerade":
+             case "-":
+-                duration = reverseDuration(duration);
++                duration = negateDuration(duration);
+                 break;
+         }
+ 
+diff --git a/src/locales/uk/parsers/UKTimeUnitAgoFormatParser.ts b/src/locales/uk/parsers/UKTimeUnitAgoFormatParser.ts
+index a1af59a..2afe0a3 100644
+--- a/src/locales/uk/parsers/UKTimeUnitAgoFormatParser.ts
++++ b/src/locales/uk/parsers/UKTimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithLeftBoundaryChecking } from "./AbstractParserWithWordBoundaryChecking";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class UKTimeUnitAgoFormatParser extends AbstractParserWithLeftBoundaryChecking {
+     innerPatternString(context: ParsingContext): string {
+@@ -11,7 +11,7 @@ export default class UKTimeUnitAgoFormatParser extends AbstractParserWithLeftBou
+ 
+     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
+         const timeUnits = parseDuration(match[1]);
+-        const outputTimeUnits = reverseDuration(timeUnits);
++        const outputTimeUnits = negateDuration(timeUnits);
+ 
+         return ParsingComponents.createRelativeFromReference(context.reference, outputTimeUnits);
+     }
+diff --git a/src/locales/uk/parsers/UKTimeUnitCasualRelativeFormatParser.ts b/src/locales/uk/parsers/UKTimeUnitCasualRelativeFormatParser.ts
+index 763d488..d7536ed 100644
+--- a/src/locales/uk/parsers/UKTimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/uk/parsers/UKTimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNITS_PATTERN, parseDuration, REGEX_PARTS } from "../constants";
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithLeftRightBoundaryChecking } from "./AbstractParserWithWordBoundaryChecking";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ export default class UKTimeUnitCasualRelativeFormatParser extends AbstractParserWithLeftRightBoundaryChecking {
+     innerPatternString(context: ParsingContext): string {
+@@ -16,7 +16,7 @@ export default class UKTimeUnitCasualRelativeFormatParser extends AbstractParser
+             case "останні":
+             case "минулі":
+             case "-":
+-                timeUnits = reverseDuration(timeUnits);
++                timeUnits = negateDuration(timeUnits);
+                 break;
+         }
+ 
+diff --git a/src/locales/vi/parsers/VITimeUnitAgoFormatParser.ts b/src/locales/vi/parsers/VITimeUnitAgoFormatParser.ts
+index 89e8f39..951cf64 100644
+--- a/src/locales/vi/parsers/VITimeUnitAgoFormatParser.ts
++++ b/src/locales/vi/parsers/VITimeUnitAgoFormatParser.ts
+@@ -2,7 +2,7 @@ import { ParsingContext } from "../../../chrono";
+ import { parseDuration, TIME_UNITS_PATTERN } from "../constants";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ 
+ // 2 ng\u00e0y tr\u01b0\u1edbc  |  3 th\u00e1ng qua  |  1 n\u0103m tr\u01b0\u1edbc
+ const PATTERN = new RegExp("(" + TIME_UNITS_PATTERN + ")" + "\\s{0,5}(?:tr\u01b0\u1edbc|qua)(?=\\W|$)", "i");
+@@ -18,6 +18,6 @@ export default class VITimeUnitAgoFormatParser extends AbstractParserWithWordBou
+     innerExtract(context: ParsingContext, match: RegExpMatchArray): ParsingComponents {
+         const duration = parseDuration(match[1]);
+         if (!duration) return null;
+-        return ParsingComponents.createRelativeFromReference(context.reference, reverseDuration(duration));
++        return ParsingComponents.createRelativeFromReference(context.reference, negateDuration(duration));
+     }
+ }
+diff --git a/src/locales/vi/parsers/VITimeUnitCasualRelativeFormatParser.ts b/src/locales/vi/parsers/VITimeUnitCasualRelativeFormatParser.ts
+index dfb7e12..5ffba0d 100644
+--- a/src/locales/vi/parsers/VITimeUnitCasualRelativeFormatParser.ts
++++ b/src/locales/vi/parsers/VITimeUnitCasualRelativeFormatParser.ts
+@@ -2,7 +2,7 @@ import { TIME_UNIT_DICTIONARY, NUMBER_PATTERN, parseDuration } from "../constant
+ import { ParsingContext } from "../../../chrono";
+ import { ParsingComponents } from "../../../results";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../common/parsers/AbstractParserWithWordBoundary";
+-import { reverseDuration } from "../../../calculation/duration";
++import { negateDuration } from "../../../calculation/duration";
+ import { matchAnyPattern } from "../../../utils/pattern";
+ 
+ // tuần này  |  tháng trước  |  năm sau  |  tuần tới  |  2 tuần trước
+@@ -39,7 +39,7 @@ export default class VITimeUnitCasualRelativeFormatParser extends AbstractParser
+         }
+ 
+         if (modifier === "trước" || modifier === "qua") {
+-            duration = reverseDuration(duration);
++            duration = negateDuration(duration);
+         }
+         return ParsingComponents.createRelativeFromReference(context.reference, duration);
+     }
+diff --git a/src/locales/zh/hans/parsers/ZHHansAgoFormatParser.ts b/src/locales/zh/hans/parsers/ZHHansAgoFormatParser.ts
+index 96baa89..838362f 100644
+--- a/src/locales/zh/hans/parsers/ZHHansAgoFormatParser.ts
++++ b/src/locales/zh/hans/parsers/ZHHansAgoFormatParser.ts
+@@ -1,6 +1,6 @@
+ import { ParsingContext } from "../../../../chrono";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../../common/parsers/AbstractParserWithWordBoundary";
+-import { addDuration, Duration, reverseDuration } from "../../../../calculation/duration";
++import { addDuration, Duration, negateDuration } from "../../../../calculation/duration";
+ import { NUMBER, zhStringToNumber } from "../constants";
+ 
+ const PATTERN = new RegExp(
+@@ -62,7 +62,7 @@ export default class ZHHansAgoFormatParser extends AbstractParserWithWordBoundar
+                 duration.year = number;
+             }
+ 
+-            duration = reverseDuration(duration);
++            duration = negateDuration(duration);
+ 
+             const date = addDuration(context.refDate, duration);
+             result.start.assign("year", date.getFullYear());
+@@ -79,7 +79,7 @@ export default class ZHHansAgoFormatParser extends AbstractParserWithWordBoundar
+             duration.hour = number;
+         }
+ 
+-        duration = reverseDuration(duration);
++        duration = negateDuration(duration);
+ 
+         const date = addDuration(context.refDate, duration);
+         result.start.imply("year", date.getFullYear());
+diff --git a/src/locales/zh/hant/parsers/ZHHantAgoFormatParser.ts b/src/locales/zh/hant/parsers/ZHHantAgoFormatParser.ts
+index afad492..ae799c8 100644
+--- a/src/locales/zh/hant/parsers/ZHHantAgoFormatParser.ts
++++ b/src/locales/zh/hant/parsers/ZHHantAgoFormatParser.ts
+@@ -1,6 +1,6 @@
+ import { ParsingContext } from "../../../../chrono";
+ import { AbstractParserWithWordBoundaryChecking } from "../../../../common/parsers/AbstractParserWithWordBoundary";
+-import { addDuration, Duration, reverseDuration } from "../../../../calculation/duration";
++import { addDuration, Duration, negateDuration } from "../../../../calculation/duration";
+ import { NUMBER, zhStringToNumber } from "../constants";
+ 
+ const PATTERN = new RegExp(
+@@ -62,7 +62,7 @@ export default class ZHHantAgoFormatParser extends AbstractParserWithWordBoundar
+                 duration.year = number;
+             }
+ 
+-            duration = reverseDuration(duration);
++            duration = negateDuration(duration);
+ 
+             const date = addDuration(context.refDate, duration);
+             result.start.assign("year", date.getFullYear());
+@@ -79,7 +79,7 @@ export default class ZHHantAgoFormatParser extends AbstractParserWithWordBoundar
+             duration.hour = number;
+         }
+ 
+-        duration = reverseDuration(duration);
++        duration = negateDuration(duration);
+ 
+         const date = addDuration(context.refDate, duration);
+         result.start.imply("year", date.getFullYear());
+diff --git a/test/calculation_duration.test.ts b/test/calculation_duration.test.ts
+index c674fdd..fa44e19 100644
+--- a/test/calculation_duration.test.ts
++++ b/test/calculation_duration.test.ts
+@@ -1,4 +1,4 @@
+-import { addDuration, reverseDuration } from "../src/calculation/duration";
++import { addDuration, negateDuration } from "../src/calculation/duration";
+ 
+ test("Test - Adding Duration w/ single timeunit", () => {
+     {
+@@ -167,10 +167,10 @@ test("Test - Adding Duration w/ multiple fractions", () => {
+ test("Test - Reverse Duration", () => {
+     {
+         const timeunits = { year: 5, month: 5 };
+-        expect(reverseDuration(timeunits)).toStrictEqual({ year: -5, month: -5 });
++        expect(negateDuration(timeunits)).toStrictEqual({ year: -5, month: -5 });
+     }
+     {
+         const timeunits = { year: -5, month: -5 };
+-        expect(reverseDuration(timeunits)).toStrictEqual({ year: 5, month: 5 });
++        expect(negateDuration(timeunits)).toStrictEqual({ year: 5, month: 5 });
+     }
+ });

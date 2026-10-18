@@ -1,0 +1,5 @@
+1. The session lives in a cookie the API sets at login: src/lib/auth.tsx:29 loginWithEmailAndPassword posts to /auth/login; the mock backend (src/testing/mocks/handlers/auth.ts) sets the bulletproof_react_app_token cookie, and requireAuth (src/testing/mocks/utils.ts:80) reads it on every request.
+2. Every request goes through the axios instance in src/lib/api-client.ts:16; its request interceptor authRequestInterceptor (api-client.ts:7) sets withCredentials = true, so the cookie is sent along.
+3. Who is logged in comes from react-query-auth: configureAuth (src/lib/auth.tsx:74) with userFn getUser (auth.tsx:13), a GET to /auth/me; useUser exposes it, and AuthLoader in src/app/provider.tsx:38 waits for it before rendering the app.
+4. A 401 is handled in the response interceptor (src/lib/api-client.ts:24): it adds an error notification and sends the browser to the login page with redirectTo set to the current path (paths.auth.login.getHref).
+5. Routes under /app are wrapped in ProtectedRoute (src/app/router.tsx:41, defined in src/lib/auth.tsx:77): without useUser().data it renders <Navigate> to the login page with redirectTo = the current pathname.

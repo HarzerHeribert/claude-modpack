@@ -2,11 +2,12 @@ import type { On } from 'claude-code'
 import { describe, expect, mock, test } from 'claude-code/testing'
 import type { TestBody } from 'claude-code/testing'
 
-import { newer, releaseVersion } from '../hooks/register'
+import { RETIRED, newer, releaseVersion, retiredLine } from '../hooks/register'
 
 const NOW = 1_700_000_000_000
 const CACHE = '/home/a/.claude/plugins/cache/x/modpack'
 const STATE = '/home/a/.claude/mods/modpack/update.json'
+const RETIRED_RECORD = '/home/a/.claude/mods/modpack/retired.json'
 
 describe('newer', () => {
   test('compares each part as a number', () => {
@@ -26,12 +27,17 @@ describe('releaseVersion', () => {
   })
 })
 
-function host(on: On, o: { root: string; state?: string; tag?: string; missing?: string }) {
+function host(on: On, o: { root: string; state?: string; tag?: string; missing?: string; enabled?: string[]; retired?: string[] }) {
   const clock = mock.clock(on, { now: NOW })
   const seen = { fetched: [] as string[], ran: [] as string[][], logs: [] as string[], written: [] as string[] }
   on('env.get', (_$, e) => ({ value: e.name === 'HOME' ? '/home/a' : e.name === 'MODPACK_PLUGIN_ROOT' ? o.root : undefined }))
+  on('settings.read', () => ({ value: { enabledPlugins: Object.fromEntries((o.enabled ?? []).map(id => [id, true])) } }))
   on('fs.read', (_$, e) => {
     if (e.path === STATE && o.state !== undefined) return { value: o.state }
+    if (e.path === RETIRED_RECORD) {
+      if (o.retired === undefined) throw new Error('no record')
+      return { value: JSON.stringify(o.retired) }
+    }
     return { value: JSON.stringify({ name: 'modpack', version: '0.2.0' }) }
   })
   on('fs.exists', (_$, e) => ({ value: e.path === STATE && o.state !== undefined }))
@@ -69,7 +75,7 @@ test('auto installs a new release in the background and says so in one line', { 
   expect(h.seen.fetched).toEqual(['https://api.github.com/repos/HarzerHeribert/claude-modpack/releases/latest'])
   const cmds = h.seen.ran.filter(a => a[0] === 'claude').map(a => a.slice(1).join(' '))
   expect(cmds[0]).toBe('plugin marketplace update claude-modpack')
-  expect(cmds.length).toBe(10)
+  expect(cmds.length).toBe(9)
   expect(cmds).toContain('plugin update eta@claude-modpack')
   expect(cmds).toContain('plugin update seek@claude-modpack')
   expect(cmds.filter(c => c.startsWith('plugin install'))).toEqual([])
@@ -116,4 +122,33 @@ test('/modpack:update on a folder copy points at git pull', { options: { updates
   const r = await $.command.run({ command: 'update' } as never)
   expect(String((r as { text?: string }).text)).toContain('git pull')
   expect(h.seen.fetched).toEqual([])
+})
+
+describe('a retired mod', () => {
+  test('is removed from a marketplace install once, with one line saying why', { options: { updates: 'off' } }, async ($, on) => {
+    const h = host(on, { root: CACHE, enabled: ['lsp-plus@claude-modpack', 'cells@claude-modpack'] })
+    on('session.start', (_$, e) => ({ cwd: e.cwd }))
+    await start($, h)
+    const cmds = h.seen.ran.filter(a => a[0] === 'claude').map(a => a.slice(1).join(' '))
+    expect(cmds).toEqual(['plugin uninstall lsp-plus@claude-modpack'])
+    expect(h.seen.logs).toEqual([retiredLine(RETIRED[0] as (typeof RETIRED)[number])])
+    expect(h.seen.logs[0]).toContain('claude-modpack 0.7.0 retired lsp-plus and removed it')
+    expect(h.seen.written).toContain(RETIRED_RECORD)
+  })
+
+  test('is left alone once removed: installed again on purpose, it stays', { options: { updates: 'off' } }, async ($, on) => {
+    const h = host(on, { root: CACHE, enabled: ['lsp-plus@claude-modpack'], retired: ['lsp-plus@claude-modpack'] })
+    on('session.start', (_$, e) => ({ cwd: e.cwd }))
+    await start($, h)
+    expect(h.seen.ran.filter(a => a[0] === 'claude')).toEqual([])
+    expect(h.seen.logs).toEqual([])
+  })
+
+  test('nothing happens where it was never installed', { options: { updates: 'off' } }, async ($, on) => {
+    const h = host(on, { root: CACHE, enabled: ['cells@claude-modpack'] })
+    on('session.start', (_$, e) => ({ cwd: e.cwd }))
+    await start($, h)
+    expect(h.seen.ran.filter(a => a[0] === 'claude')).toEqual([])
+    expect(h.seen.written).toEqual([])
+  })
 })

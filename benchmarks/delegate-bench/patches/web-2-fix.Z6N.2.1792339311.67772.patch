@@ -1,0 +1,70 @@
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..de84784 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,11 @@
++import {
++  createComment as generateComment,
++  createUser as generateUser,
++} from '@/testing/data-generators';
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+@@ -81,3 +86,39 @@ test('should not view protected resource if policy check fails and show fallback
+ 
+   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
+ });
++
++describe('comment:delete policy', () => {
++  const buildUser = (role: User['role']) => generateUser({ role }) as User;
++
++  const buildComment = (author: User) =>
++    ({
++      ...generateComment(),
++      discussionId: 'discussion-id',
++      author,
++    }) as Comment;
++
++  const canDelete = POLICIES['comment:delete'];
++
++  test('admin can delete any comment', () => {
++    const admin = buildUser(ROLES.ADMIN);
++    const otherUser = buildUser(ROLES.USER);
++
++    expect(canDelete(admin, buildComment(admin))).toBe(true);
++    expect(canDelete(admin, buildComment(otherUser))).toBe(true);
++  });
++
++  test('user can delete their own comment', () => {
++    const user = buildUser(ROLES.USER);
++
++    expect(canDelete(user, buildComment(user))).toBe(true);
++  });
++
++  test('user cannot delete comments by other users, including teammates', () => {
++    const user = buildUser(ROLES.USER);
++    const teammate = { ...buildUser(ROLES.USER), teamId: user.teamId };
++    const outsider = buildUser(ROLES.USER);
++
++    expect(canDelete(user, buildComment(teammate))).toBe(false);
++    expect(canDelete(user, buildComment(outsider))).toBe(false);
++  });
++});
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 

@@ -1,0 +1,37 @@
+diff --git a/reports/incidents-brief.md b/reports/incidents-brief.md
+new file mode 100644
+index 0000000..cb76e96
+--- /dev/null
++++ b/reports/incidents-brief.md
+@@ -0,0 +1,31 @@
++# Incidents brief, August–September 2026
++
++"Open": no meeting notes record it as done.
++
++## 11 August: data stall and full disk
++
++**Impact:** Overnight, incoming data stopped for about 2.5 hours; customers saw stale dashboards. No data lost.
++
++**Cause:** One malformed data batch jammed processing. Endless retries filled the database disk with logs, halting writes.
++
++**Fix:** A restart that set the bad batch aside; disk clean-up.
++
++**Follow-ups:**
++- Disk alert at 80%: no owner; open. Disk hit 85% in September, spotted by hand.
++- Paging rules: Elif and Sunil; done. Pages now escalate after 15 minutes.
++- Stop bad batches jamming processing: Jonas; open.
++
++## 21 September: public API outage
++
++**Impact:** 47 minutes on a Monday morning; nearly all customers could not reach the public API.
++
++**Cause:** The API's security certificate expired. Its automatic renewal had been failing silently on an outdated access key.
++
++**Fix:** Certificate renewed, API restarted.
++
++**Follow-ups:**
++- Renewal repaired, now alerts on failure: no owner; done.
++- Reminder 14 days before certificate expiry: no owner; open.
++- Alert on days left before expiry: no owner; open.
++- Expiry check in weekly checklist: no owner; open.
++- Log steps during incidents: whoever handles one; standing rule.

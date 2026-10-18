@@ -1,0 +1,15 @@
+[server]
+host = "127.0.0.1"
+port = 8742
+threads = 4
+
+[db]
+path = "var/tally.db"
+
+[cache]
+dir = "var/cache"
+
+[import]
+source = "data/incoming"
+date_format = "%Y-%m-%d"
+log = "logs/import.log"

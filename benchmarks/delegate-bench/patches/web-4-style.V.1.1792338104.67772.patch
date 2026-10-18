@@ -1,0 +1,49 @@
+diff --git a/src/components/ui/table/table.tsx b/src/components/ui/table/table.tsx
+index d1f4bac..05ace80 100644
+--- a/src/components/ui/table/table.tsx
++++ b/src/components/ui/table/table.tsx
+@@ -127,6 +127,8 @@ type TableColumn<Entry> = {
+   title: string;
+   field: keyof Entry;
+   Cell?({ entry }: { entry: Entry }): React.ReactElement;
++  // applied to both the header and body cells of the column
++  className?: string;
+ };
+ 
+ export type TableProps<Entry> = {
+@@ -154,15 +156,20 @@ export const Table = <Entry extends BaseEntity>({
+         <TableHeader>
+           <TableRow>
+             {columns.map((column, index) => (
+-              <TableHead key={column.title + index}>{column.title}</TableHead>
++              <TableHead
++                key={column.title + index}
++                className={column.className}
++              >
++                {column.title}
++              </TableHead>
+             ))}
+           </TableRow>
+         </TableHeader>
+         <TableBody>
+           {data.map((entry, entryIndex) => (
+             <TableRow key={entry?.id || entryIndex}>
+-              {columns.map(({ Cell, field, title }, columnIndex) => (
+-                <TableCell key={title + columnIndex}>
++              {columns.map(({ Cell, field, title, className }, columnIndex) => (
++                <TableCell key={title + columnIndex} className={className}>
+                   {Cell ? <Cell entry={entry} /> : `${entry[field]}`}
+                 </TableCell>
+               ))}
+diff --git a/src/features/discussions/components/discussions-list.tsx b/src/features/discussions/components/discussions-list.tsx
+index 9aa5fba..fe030f5 100644
+--- a/src/features/discussions/components/discussions-list.tsx
++++ b/src/features/discussions/components/discussions-list.tsx
+@@ -50,6 +50,7 @@ export const DiscussionsList = ({
+         {
+           title: 'Created At',
+           field: 'createdAt',
++          className: 'hidden md:table-cell',
+           Cell({ entry: { createdAt } }) {
+             return <span>{formatDate(createdAt)}</span>;
+           },

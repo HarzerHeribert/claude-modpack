@@ -8,24 +8,24 @@
       ],
       "claim": "Graded runs that ship with the release",
       "metric": "quality",
-      "shown": "2,184",
+      "shown": "2,304",
       "ci": null,
-      "comparison": "graded runs, 26 short of full marks",
+      "comparison": "graded runs, 33 short of full marks",
       "session": "fresh and long",
       "language": "Python, TypeScript and Go",
       "tasks": "click, chrono, PocketBase and the other benchmark sets",
-      "runs": "2,184 runs",
+      "runs": "2,304 runs",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
         "2026-10-16"
       ],
-      "correct": "26 fell short of full marks, listed in the README",
+      "correct": "33 fell short of full marks, listed in the README",
       "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "Of all 2,184 graded runs that ship with this release, 26 fell short"
+        "quote": "Of all 2,304 graded runs that ship with this release, 33 fell short"
       },
       "note": null,
       "data": [
@@ -39,24 +39,24 @@
       ],
       "claim": "Runs short of full marks with the pack, in batches that ran the same jobs both ways",
       "metric": "quality",
-      "shown": "4 of 359",
+      "shown": "8 of 407",
       "ci": null,
-      "comparison": "against 4 of 325 without the pack",
+      "comparison": "against 6 of 349 without the pack",
       "session": "fresh and long",
       "language": "Python, TypeScript and Go",
       "tasks": "click, chrono, PocketBase and the other benchmark sets",
-      "runs": "359 with the pack, 325 without",
+      "runs": "407 with the pack, 349 without",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
         "2026-10-16"
       ],
-      "correct": "4 of 359 short of full marks",
+      "correct": "8 of 407 short of full marks",
       "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "4 of 325 runs without the pack and 4 of 359 with it fell short of full marks"
+        "quote": "6 of 349 runs without the pack and 8 of 407 with it fell short of full marks"
       },
       "note": null,
       "data": [
@@ -70,24 +70,24 @@
       ],
       "claim": "Runs short of full marks without the pack, in the same batches",
       "metric": "quality",
-      "shown": "4 of 325",
+      "shown": "6 of 349",
       "ci": null,
-      "comparison": "against 4 of 359 with the pack",
+      "comparison": "against 8 of 407 with the pack",
       "session": "fresh and long",
       "language": "Python, TypeScript and Go",
       "tasks": "click, chrono, PocketBase and the other benchmark sets",
-      "runs": "325 without the pack, 359 with",
+      "runs": "349 without the pack, 407 with",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
         "2026-10-16"
       ],
-      "correct": "4 of 325 short of full marks",
+      "correct": "6 of 349 short of full marks",
       "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "4 of 325 runs without the pack and 4 of 359 with it fell short of full marks"
+        "quote": "6 of 349 runs without the pack and 8 of 407 with it fell short of full marks"
       },
       "note": null,
       "data": [
@@ -4736,6 +4736,310 @@
       "note": "11-what-looking-around-leaves-behind.md",
       "data": [
         "benchmarks/delegate-bench/results-subagent.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-left-click",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "The pack without lsp-plus, on the tasks it was built for",
+      "metric": "cost",
+      "shown": "−1.8%",
+      "ci": [
+        "−10.4%",
+        "+8.1%"
+      ],
+      "comparison": "the pack without lsp-plus vs the pack as 0.6.1 shipped it",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "a trace and a rename in click, a rename in a TypeScript library, a rename in a React app",
+      "runs": "48 runs, 3 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "113 of 120 runs at full marks, the rest spread over the arms",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/12-the-mod-that-left.md",
+        "anchor": "two-benchmarks-without-it",
+        "quote": "| Without lsp-plus | −1.8% [−10.4, +8.1] |"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": [
+        "benchmarks/delegate-bench/results-engine.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-left-beyond",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "The pack without lsp-plus, on web, operating and prose work",
+      "metric": "cost",
+      "shown": "−1.6%",
+      "ci": [
+        "−7.2%",
+        "+4.1%"
+      ],
+      "comparison": "the pack without lsp-plus vs the pack as 0.6.1 shipped it",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "twelve tasks: five in a React app, four operating a small service, three in prose and data",
+      "runs": "72 runs, 2 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "113 of 120 runs at full marks, the rest spread over the arms",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/12-the-mod-that-left.md",
+        "anchor": "two-benchmarks-without-it",
+        "quote": "| Without lsp-plus against the pack | −1.6% [−7.2, +4.1] |"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": [
+        "benchmarks/delegate-bench/results-beyond.jsonl"
+      ]
+    },
+    {
+      "id": "lsp-engine-pyright",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "Uses of a name found by pyright, the language server",
+      "metric": "accuracy",
+      "shown": "50%",
+      "ci": null,
+      "comparison": "share of a name’s uses found, pyright (95% of its hits real)",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "49 names with one definition, from Django and sympy",
+      "runs": "49 names",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/12-the-mod-that-left.md",
+        "anchor": "what-its-answers-were-worth",
+        "quote": "| pyright, the language server | 50% | 95% |"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": []
+    },
+    {
+      "id": "lsp-engine-search",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "Uses of a name found by a word search",
+      "metric": "accuracy",
+      "shown": "100%",
+      "ci": null,
+      "comparison": "share of a name’s uses found, a word search (75% of its hits real)",
+      "session": "fresh",
+      "language": "Python",
+      "tasks": "49 names with one definition, from Django and sympy",
+      "runs": "49 names",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/12-the-mod-that-left.md",
+        "anchor": "what-its-answers-were-worth",
+        "quote": "| A word search, each hit named by its enclosing function | 100% | 75% |"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": []
+    },
+    {
+      "id": "lsp-memory-unscoped",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "Memory of pyright on the lab’s own repository, reading everything",
+      "metric": "count",
+      "shown": "3.5 GB",
+      "ci": null,
+      "comparison": "one pyright process, 57,201 Python files read",
+      "session": "real sessions",
+      "language": "Python",
+      "tasks": "this lab’s repository",
+      "runs": "one process",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/12-the-mod-that-left.md",
+        "anchor": "what-a-server-costs",
+        "quote": "pyright on this lab's own repository took 3.5 GB"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": []
+    },
+    {
+      "id": "lsp-memory-scoped",
+      "mods": [
+        "lsp-plus"
+      ],
+      "claim": "Memory of pyright on the same repository, skipping git-ignored folders",
+      "metric": "count",
+      "shown": "237 MB",
+      "ci": null,
+      "comparison": "one pyright process, told to skip the ignored folders",
+      "session": "real sessions",
+      "language": "Python",
+      "tasks": "this lab’s repository",
+      "runs": "one process",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/12-the-mod-that-left.md",
+        "anchor": "what-a-server-costs",
+        "quote": "Told to skip the ignored folders, it took 237 MB."
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": []
+    },
+    {
+      "id": "pack-beyond-all",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack beyond click: all twelve new tasks",
+      "metric": "cost",
+      "shown": "−17.2%",
+      "ci": [
+        "−22.1%",
+        "−11.7%"
+      ],
+      "comparison": "the pack as 0.7.0 ships it vs plain Claude Code",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "twelve tasks: five in a React app, four operating a small service, three in prose and data",
+      "runs": "48 runs, 2 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "113 of 120 runs at full marks across all arms",
+      "allCorrect": false,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "070-2026-10-18",
+        "quote": "−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": [
+        "benchmarks/delegate-bench/results-beyond.jsonl"
+      ]
+    },
+    {
+      "id": "pack-beyond-web",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack beyond click: web code",
+      "metric": "cost",
+      "shown": "−28.1%",
+      "ci": null,
+      "comparison": "the pack as 0.7.0 ships it vs plain Claude Code",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "five tasks in a React and TypeScript app",
+      "runs": "48 runs, 2 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "113 of 120 runs at full marks across all arms",
+      "allCorrect": false,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "070-2026-10-18",
+        "quote": "−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": [
+        "benchmarks/delegate-bench/results-beyond.jsonl"
+      ]
+    },
+    {
+      "id": "pack-beyond-ops",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack beyond click: operating software",
+      "metric": "cost",
+      "shown": "−8.0%",
+      "ci": null,
+      "comparison": "the pack as 0.7.0 ships it vs plain Claude Code",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "four tasks operating a small service",
+      "runs": "48 runs, 2 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "113 of 120 runs at full marks across all arms",
+      "allCorrect": false,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "070-2026-10-18",
+        "quote": "−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": [
+        "benchmarks/delegate-bench/results-beyond.jsonl"
+      ]
+    },
+    {
+      "id": "pack-beyond-prose",
+      "mods": [
+        "pack"
+      ],
+      "claim": "The pack beyond click: prose and data",
+      "metric": "cost",
+      "shown": "−4.8%",
+      "ci": [
+        "−9.9%",
+        "+0.6%"
+      ],
+      "comparison": "the pack as 0.7.0 ships it vs plain Claude Code",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "three tasks in prose and data",
+      "runs": "48 runs, 2 per task and arm",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "113 of 120 runs at full marks across all arms",
+      "allCorrect": false,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "070-2026-10-18",
+        "quote": "−17.2% [−22.1, −11.7] (48 runs): web code −28.1%, operating software −8.0%, prose and data −4.8% [−9.9, +0.6]"
+      },
+      "note": "12-the-mod-that-left.md",
+      "data": [
+        "benchmarks/delegate-bench/results-beyond.jsonl"
       ]
     }
   ]

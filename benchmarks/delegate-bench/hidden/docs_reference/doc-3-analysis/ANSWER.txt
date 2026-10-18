@@ -1,0 +1,2 @@
+The report is in reports/q3-drop.md.
+East; 29.8%; Ledger Pro

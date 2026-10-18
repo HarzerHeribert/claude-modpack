@@ -8,24 +8,24 @@
       ],
       "claim": "Graded runs that ship with the release",
       "metric": "quality",
-      "shown": "2,484",
+      "shown": "2,550",
       "ci": null,
-      "comparison": "graded runs, 61 short of full marks",
+      "comparison": "graded runs, 90 short of full marks",
       "session": "fresh and long",
       "language": "Python, TypeScript and Go",
       "tasks": "click, chrono, PocketBase and the other benchmark sets",
-      "runs": "2,484 runs",
+      "runs": "2,550 runs",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
-        "2026-10-18"
+        "2026-10-19"
       ],
       "correct": "61 fell short of full marks, listed in the README",
       "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "Of all 2,484 graded runs that ship with this release, 61 fell short"
+        "quote": "Of all 2,550 graded runs that ship with this release, 90 fell short"
       },
       "note": null,
       "data": [
@@ -5167,6 +5167,664 @@
       "data": [
         "benchmarks/delegate-bench/results-draft2.jsonl",
         "benchmarks/delegate-bench/results-draft3.jsonl"
+      ]
+    },
+    {
+      "id": "draft-rounds",
+      "mods": [
+        "draft"
+      ],
+      "claim": "Without draft: whole writes of a guide revised to at most 700 words",
+      "metric": "count",
+      "shown": "17 writes in 6 runs",
+      "ci": null,
+      "comparison": "2 to 4 whole writes per run, every first draft about half over the limit",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "a guide revised in place to at most 700 words",
+      "runs": "6 runs: plain Claude Code, the pack, the pack without lsp-plus, 2 each",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/13-writing-it-once.md",
+        "anchor": "rounds-of-rewrites",
+        "quote": "Every first draft ran about half over the limit, and every run wrote the whole guide 2 to 4 times, 17 writes in 6 runs."
+      },
+      "note": "13-writing-it-once.md",
+      "data": [
+        "benchmarks/delegate-bench/results-beyond.jsonl"
+      ]
+    },
+    {
+      "id": "draft-edit-cuts",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft 0.1.0, cutting a guide in place with edits, one trial run",
+      "metric": "cost",
+      "shown": "$0.95",
+      "ci": null,
+      "comparison": "against $0.86 for the same task without draft, average of four runs",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "a guide revised in place to at most 700 words",
+      "runs": "1 run",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/13-writing-it-once.md",
+        "anchor": "cutting-in-place-cost-more",
+        "quote": [
+          "The run cost $0.95 and 20,090 output tokens.",
+          "The same task without draft averaged $0.86 and 17,674 over four runs."
+        ]
+      },
+      "note": "13-writing-it-once.md",
+      "data": [
+        "benchmarks/delegate-bench/results-draft-smoke.jsonl",
+        "benchmarks/delegate-bench/results-draft2.jsonl"
+      ]
+    },
+    {
+      "id": "draft-011-cost",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft 0.1.1, aiming at three quarters of the limit, on six writing tasks",
+      "metric": "cost",
+      "shown": "−14.2%",
+      "ci": [
+        "−17.7",
+        "−10.5"
+      ],
+      "comparison": "the pack with draft vs the pack",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit",
+      "runs": "48 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "in 2 of 4 FAQ runs a requested fact left out",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/13-writing-it-once.md",
+        "anchor": "aiming-low-dropped-facts",
+        "quote": [
+          "On six writing tasks, 48 runs, it cost 14.2% less [−17.7, −10.5].",
+          "In 2 of 4 FAQ runs it also left out the escalation order, a fact the request asked for."
+        ]
+      },
+      "note": "13-writing-it-once.md",
+      "data": [
+        "benchmarks/delegate-bench/results-draft.jsonl"
+      ]
+    },
+    {
+      "id": "draft-requests",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft 0.1.3 on six writing tasks",
+      "metric": "requests",
+      "shown": "−10.7%",
+      "ci": [
+        "−17.9",
+        "−3.4"
+      ],
+      "comparison": "the pack with draft vs the pack",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit",
+      "runs": "24 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "no run over its word limit",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/13-writing-it-once.md",
+        "anchor": "what-it-saved",
+        "quote": "For 0.1.3, output fell 19.1% [−25.3, −12.6] and requests 10.7% [−17.9, −3.4]."
+      },
+      "note": "13-writing-it-once.md",
+      "data": [
+        "benchmarks/delegate-bench/results-draft2.jsonl",
+        "benchmarks/delegate-bench/results-draft3.jsonl"
+      ]
+    },
+    {
+      "id": "draft-guide-writes",
+      "mods": [
+        "draft"
+      ],
+      "claim": "draft 0.1.3: whole writes of a guide revised to at most 700 words",
+      "metric": "count",
+      "shown": "6 writes in 4 runs",
+      "ci": null,
+      "comparison": "against 11 writes in 4 runs without draft",
+      "session": "fresh",
+      "language": "Markdown prose",
+      "tasks": "a guide revised in place to at most 700 words",
+      "runs": "4 runs each",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "no run over its word limit",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/13-writing-it-once.md",
+        "anchor": "what-it-saved",
+        "quote": [
+          "On the guide, without draft each run wrote the whole text 2 or 3 times, 11 writes in 4 runs.",
+          "With 0.1.3 no run wrote it more than twice, 6 writes in 4 runs, and one run revised it in place with a few edits."
+        ]
+      },
+      "note": "13-writing-it-once.md",
+      "data": [
+        "benchmarks/delegate-bench/results-draft2.jsonl",
+        "benchmarks/delegate-bench/results-draft3.jsonl"
+      ]
+    },
+    {
+      "id": "route-real-jev",
+      "mods": [
+        "route"
+      ],
+      "claim": "Jev on real prompts, from a score of 0.95",
+      "metric": "accuracy",
+      "shown": "95%",
+      "ci": null,
+      "comparison": "share of its hand-offs that Haiku labelled feature or test work",
+      "session": "—",
+      "language": "—",
+      "tasks": "877 real Claude Code prompts: the author's sessions and four public trace sets",
+      "runs": "877 prompts",
+      "model": "TypeSafe Jev",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "081-2026-10-18",
+        "quote": "at 0.95, 95% and 78%"
+      },
+      "also": {
+        "file": "lab-notes/14-clean-prompts-real-prompts.md",
+        "anchor": "the-outside-classifiers-on-real-prompts",
+        "quote": "Since route 0.3.2, Jev's threshold is 0.95."
+      },
+      "note": "14-clean-prompts-real-prompts.md",
+      "data": []
+    },
+    {
+      "id": "route-real-jev-own",
+      "mods": [
+        "route"
+      ],
+      "claim": "Jev on the author's interactive prompts, from a score of 0.95",
+      "metric": "accuracy",
+      "shown": "78%",
+      "ci": null,
+      "comparison": "share of its hand-offs that Haiku labelled feature or test work",
+      "session": "—",
+      "language": "—",
+      "tasks": "the author's interactive Claude Code prompts among 877 real ones",
+      "runs": "221 prompts",
+      "model": "TypeSafe Jev",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "081-2026-10-18",
+        "quote": "at 0.95, 95% and 78%"
+      },
+      "also": {
+        "file": "lab-notes/14-clean-prompts-real-prompts.md",
+        "anchor": "real-prompts-are-not",
+        "quote": "Of the author's 221 interactive prompts in the set Jev and ScaleDown saw, Haiku called 27 feature or test work."
+      },
+      "note": "14-clean-prompts-real-prompts.md",
+      "data": []
+    },
+    {
+      "id": "route-real-scaledown",
+      "mods": [
+        "route"
+      ],
+      "claim": "ScaleDown on real prompts, from a score of 0.7",
+      "metric": "accuracy",
+      "shown": "92%",
+      "ci": null,
+      "comparison": "share of its hand-offs that Haiku labelled feature or test work",
+      "session": "—",
+      "language": "—",
+      "tasks": "877 real Claude Code prompts: the author's sessions and four public trace sets",
+      "runs": "875 answers",
+      "model": "ScaleDown Classify",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "081-2026-10-18",
+        "quote": "ScaleDown keeps 0.7 (92% and 70%, finding fewer)"
+      },
+      "note": "14-clean-prompts-real-prompts.md",
+      "data": []
+    },
+    {
+      "id": "route-local-real",
+      "mods": [
+        "route"
+      ],
+      "claim": "A 64 KB local classifier, trained on prompts Haiku wrote, on the author's interactive prompts",
+      "metric": "accuracy",
+      "shown": "18%",
+      "ci": null,
+      "comparison": "share of its hand-offs that Haiku labelled feature or test work",
+      "session": "—",
+      "language": "—",
+      "tasks": "918 distinct real Claude Code prompts, the author's interactive ones among them",
+      "runs": "101 hand-offs on the author's prompts",
+      "model": "hashed n-gram logistic regression, 64 KB",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/14-clean-prompts-real-prompts.md",
+        "anchor": "real-prompts-are-not",
+        "quote": "On the author's interactive prompts it was 18%: 83 of its 101 hand-offs were wrong."
+      },
+      "note": "14-clean-prompts-real-prompts.md",
+      "data": []
+    },
+    {
+      "id": "route-student-jev",
+      "mods": [
+        "route"
+      ],
+      "claim": "A 64 KB student taught by Jev, on the author's interactive prompts",
+      "metric": "count",
+      "shown": "9 of 61",
+      "ci": null,
+      "comparison": "Jev's hand-offs the student also made",
+      "session": "—",
+      "language": "—",
+      "tasks": "2,817 prompts Jev answered, the author's 667 interactive ones among them",
+      "runs": "667 prompts",
+      "model": "hashed n-gram logistic regression, 64 KB",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/14-clean-prompts-real-prompts.md",
+        "anchor": "two-more-tries",
+        "quote": "On the author's 667 interactive prompts, Jev handed off 61 at its threshold, and the student found 9 of them."
+      },
+      "note": "14-clean-prompts-real-prompts.md",
+      "data": []
+    },
+    {
+      "id": "route-real-worth",
+      "mods": [
+        "route"
+      ],
+      "claim": "What route saves in the author's sessions",
+      "metric": "cost",
+      "shown": "3 to 6%",
+      "ci": null,
+      "comparison": "share of all spend saved, worked out from the spend Jev's hand-offs cover and the benchmarks' savings, not measured",
+      "session": "—",
+      "language": "—",
+      "tasks": "the author's Claude Code sessions",
+      "runs": "not measured",
+      "model": "Opus 5.5 with a Sonnet worker",
+      "date": [
+        "2026-10-18"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "anchor": "081-2026-10-18",
+        "quote": "nearer 3 to 6% with the hand-offs that were not feature or test work"
+      },
+      "also": {
+        "file": "lab-notes/14-clean-prompts-real-prompts.md",
+        "anchor": "what-route-is-worth-in-a-real-session",
+        "quote": "In the author's sessions, the turns Jev hands off were 13% of the spend."
+      },
+      "note": "14-clean-prompts-real-prompts.md",
+      "data": []
+    },
+    {
+      "id": "sc-prep-time",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "How long a compaction takes, the summary written ahead against Claude Code's own",
+      "metric": "time",
+      "shown": "15.2 s → 3 to 5 ms",
+      "ci": null,
+      "comparison": "Claude Code writing the summary in the compaction → smart-compact's summary written in the background after the turn",
+      "session": "—",
+      "language": "—",
+      "tasks": "interactive sessions at 67k to 70k tokens, compaction after a turn set to fire early",
+      "runs": "a handful of live compactions",
+      "model": "Sonnet 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "the next turn answered from the summary each time",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "live",
+        "quote": [
+          "| Writing the summary | in the compaction: 15.2 s at 67k | in the background after the turn: 16 to 19 s |",
+          "| The compaction itself | 15.2 s | 3 to 5 ms |"
+        ]
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": []
+    },
+    {
+      "id": "sc-engine-436k",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "Claude Code's own summary in a 436k-token session",
+      "metric": "time",
+      "shown": "102 s",
+      "ci": null,
+      "comparison": "the wait while the engine wrote the summary, before smart-compact's fix",
+      "session": "long",
+      "language": "—",
+      "tasks": "this lab's own session at 436k tokens",
+      "runs": "one compaction",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "the-bug-only-a-live-session-showed",
+        "quote": "The fork wrote its summary in the background, and then the engine summarized anyway: 102 s."
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": []
+    },
+    {
+      "id": "sc-prep-next-task",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "The next task after a summary written ahead, against after /compact",
+      "metric": "cost",
+      "shown": "−13.9%",
+      "ci": [
+        "−18.1",
+        "−9.4"
+      ],
+      "comparison": "the summary written ahead vs /compact",
+      "session": "long",
+      "language": "Python",
+      "tasks": "six tasks after compacting a 224k-token session over click: two need its files, two the conversation, two nothing",
+      "runs": "18 runs each",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "16 of 18 vs 14 of 18 at full marks",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "against-compact",
+        "quote": "The next task cost −13.9% [−18.1, −9.4], lower on all six tasks"
+      },
+      "also": {
+        "file": "CHANGELOG.md",
+        "anchor": "090-2026-10-19",
+        "quote": "the next task started on 36k tokens instead of 42k and cost 14% less, less on all six"
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": [
+        "benchmarks/delegate-bench/results-prep.jsonl"
+      ]
+    },
+    {
+      "id": "sc-prep-quality",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "Runs at full marks after a summary written ahead, against after /compact",
+      "metric": "quality",
+      "shown": "16 of 18 vs 14 of 18",
+      "ci": null,
+      "comparison": "the summary written ahead vs /compact; mean score 0.981 vs 0.917, a difference whose range touches zero",
+      "session": "long",
+      "language": "Python",
+      "tasks": "six tasks after compacting a 224k-token session over click",
+      "runs": "18 runs each",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "16 of 18 vs 14 of 18 at full marks",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "against-compact",
+        "quote": [
+          "| Runs at full marks | 14 of 18 | 16 of 18 |",
+          "| Mean score | 0.917 | 0.981 |"
+        ]
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": [
+        "benchmarks/delegate-bench/results-prep.jsonl"
+      ]
+    },
+    {
+      "id": "sc-prep-summary-price",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "What a summary written ahead costs, on a warm cache",
+      "metric": "price",
+      "shown": "$0.13",
+      "ci": null,
+      "comparison": "average, repriced on a warm cache at list prices ($0.09 to $0.24)",
+      "session": "long",
+      "language": "—",
+      "tasks": "summaries of a 224k-token session over click",
+      "runs": "18 summaries",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "writing-it-before-it-is-needed",
+        "quote": "repriced on a warm cache, the bench's summaries came to $0.13 on average ($0.09 to $0.24)."
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": [
+        "benchmarks/delegate-bench/results-prep.jsonl"
+      ]
+    },
+    {
+      "id": "summary-copied",
+      "mods": [
+        "smart-compact",
+        "cells"
+      ],
+      "claim": "How much of a summary repeats the conversation word for word",
+      "metric": "count",
+      "shown": "19%",
+      "ci": null,
+      "comparison": "of a summary written ahead's text (17% and 20% in two of Claude Code's own summaries); the part a program could copy",
+      "session": "long",
+      "language": "—",
+      "tasks": "17 bench summaries written ahead, two of Claude Code's summaries from this lab's session",
+      "runs": "19 summaries",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "an observation, not a graded run",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "why-not-a-summary-without-a-model",
+        "quote": [
+          "In two of Claude Code's summaries from this lab's session (22,136 and 20,173 characters), 17% and 20% of the text repeats the conversation word for word.",
+          "In 17 of the bench's summaries written ahead (8,535 characters on average) the share was 19%."
+        ]
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": []
+    },
+    {
+      "id": "summary-token-life",
+      "mods": [
+        "smart-compact"
+      ],
+      "claim": "What 1,000 tokens of summary cost over their life",
+      "metric": "price",
+      "shown": "$0.057",
+      "ci": null,
+      "comparison": "$0.020 written once as output, $0.008 to the cache, $0.029 read again by a median of 143 later requests; worked out from list prices",
+      "session": "—",
+      "language": "—",
+      "tasks": "a summary kept in a session that goes on",
+      "runs": "worked out, not measured",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/15-compaction-in-milliseconds.md",
+        "anchor": "why-not-a-summary-without-a-model",
+        "quote": "About $0.057 over its life, and output is about a third of it."
+      },
+      "note": "15-compaction-in-milliseconds.md",
+      "data": []
+    },
+    {
+      "id": "steer-cost",
+      "mods": [],
+      "claim": "A lean system-prompt mod (steer) on five tasks, smoke run",
+      "metric": "cost",
+      "shown": "+9%",
+      "ci": null,
+      "comparison": "the pack with steer vs the pack",
+      "session": "fresh",
+      "language": "Python, TypeScript and prose",
+      "tasks": "five tasks, one from each of five sets: a web-app bug, a click feature, a trace, a 200-word brief, a service config",
+      "runs": "5 runs each, one per task",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "5 of 5 with steer, 5 of 5 without",
+      "allCorrect": true,
+      "source": {
+        "file": "lab-notes/16-what-a-system-prompt-can-order.md",
+        "anchor": "the-smoke-run",
+        "quote": "| Z8S, with steer | 5 of 5 | $1.63 (+9%) | 32 | 25.7k | 56.5k | 3 | 0 |"
+      },
+      "note": "16-what-a-system-prompt-can-order.md",
+      "data": [
+        "benchmarks/delegate-bench/results-steer-smoke.jsonl"
+      ]
+    },
+    {
+      "id": "steer-no-orders-cost",
+      "mods": [
+        "seek",
+        "draft"
+      ],
+      "claim": "The same guidance in the system prompt only, with seek's and draft's prompt orders off",
+      "metric": "cost",
+      "shown": "+31%",
+      "ci": null,
+      "comparison": "steer without the prompt orders vs the pack",
+      "session": "fresh",
+      "language": "Python, TypeScript and prose",
+      "tasks": "the same five tasks",
+      "runs": "5 runs each, one per task",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "4.95 of 5: the brief left out one required action item",
+      "allCorrect": false,
+      "source": {
+        "file": "lab-notes/16-what-a-system-prompt-can-order.md",
+        "anchor": "the-smoke-run",
+        "quote": "| Z8SX, steer without the prompt orders | 4.95 of 5 | $1.95 (+31%) | 35 | 30.7k | 80.5k | 6 | 0 |"
+      },
+      "note": "16-what-a-system-prompt-can-order.md",
+      "data": [
+        "benchmarks/delegate-bench/results-steer-smoke.jsonl"
+      ]
+    },
+    {
+      "id": "steer-criteria-followed",
+      "mods": [],
+      "claim": "A system-prompt order to name what done means before starting",
+      "metric": "followed",
+      "shown": "0 of 10",
+      "ci": null,
+      "comparison": "runs that named it, of runs with steer",
+      "session": "fresh",
+      "language": "—",
+      "tasks": "the same five tasks, two steer arms",
+      "runs": "10 runs",
+      "model": "Opus 5.5",
+      "date": [
+        "2026-10-19"
+      ],
+      "correct": "—",
+      "allCorrect": null,
+      "source": {
+        "file": "lab-notes/16-what-a-system-prompt-can-order.md",
+        "anchor": "what-it-changed",
+        "quote": "No run named what done means before it started: 0 of 10 runs with steer."
+      },
+      "note": "16-what-a-system-prompt-can-order.md",
+      "data": [
+        "benchmarks/delegate-bench/results-steer-smoke.jsonl"
       ]
     }
   ]

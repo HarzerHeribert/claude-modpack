@@ -54,11 +54,14 @@ COMPACT_DIR = bench.WORK / "compact"
 RESULTS = Path(os.environ.get("BENCH_RESULTS", HERE / "results-compact.jsonl"))
 VENV_PY = bench.VENV / "bin" / "python"
 
-ARMS = ("KEEP", "COMPACT", "COMPACTI", "COMPACTH", "COMPACT3", "PREP")
+ARMS = ("KEEP", "COMPACT", "COMPACTI", "COMPACTH", "COMPACT3", "PREP", "PREPL")
 COMPACT_ARGS = {
     "KEEP": None,
     "COMPACT": "",
     "PREP": "",
+    # PREPL: PREP with a lean summary prompt (LEAN_PROMPT): no message or code re-typed that can be read again, every
+    # decision, constraint, name, number and open item kept. A kept token is read again by every later request.
+    "PREPL": "",
     "COMPACTI": "Keep every decision, convention and constraint the person stated, and every finding of an investigation, verbatim with file, function and line.",
     # COMPACTH: the summary written by Haiku (the /compact step runs with --model haiku), the task on Opus.
     "COMPACTH": "",
@@ -70,6 +73,21 @@ COMPACT_MODEL = {"COMPACTH": "haiku"}
 CYCLES = {"COMPACT3": 3}
 SUMMARY_TS = bench.PACK_ROOT / "smart-compact" / "hooks" / "summary.ts"
 PREP_MOD = HERE / "prep-mod"
+
+
+# The lean variant of smart-compact's SUMMARY_PROMPT: the same six parts, without quoting every message whole or
+# pasting code that is on disk, and one line per item where one line holds it.
+LEAN_PROMPT = """This message is from the smart-compact plugin, not from the person. Write the summary this conversation will be compacted to: it replaces every message above, and the messages that come after this point stay as they are. Answer with the summary alone, in text; do not call any tool.
+
+Write it so that the work can go on from the summary without the conversation, and keep it lean: every line of it is read again by every later request.
+1. Requests and intent: every instruction, constraint, preference and correction the person gave, in order, one short line each. Quote their exact words only where the wording itself matters: a name, a value, a format, a phrase they asked for.
+2. Decisions: what was decided and why, and what was tried or ruled out.
+3. Files and code: each file read, created or changed that still matters: its path, what is in it or what changed, and the functions, classes or lines involved. Do not paste code that is on disk, since it can be read again; quote exact text only where it is not on disk or the exact form matters.
+4. Errors and fixes: each error met, its cause, and how it was fixed.
+5. Facts: measurements, results, numbers, versions, names, commands, links and IDs that later work may need, exactly.
+6. State: what is done, what is in progress, what is still to do, and the agreed next step, if any.
+
+Leave out what was superseded and what can be read again from disk, and say each thing once. Never leave out a decision, a constraint, a finding with its file, function and line, a name, a number or an open item: when in doubt, keep it."""
 
 
 def summary_texts() -> tuple[str, str]:
@@ -508,10 +526,12 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     t0 = time.time()
     if COMPACT_ARGS[arm] is None:
         resume, fork = base_session, True
-    elif arm == "PREP":
+    elif arm in ("PREP", "PREPL"):
         # Both steps fork the prepared session, so each costs its running total less the session's.
         base = base_running(k)
         prompt, head = summary_texts()
+        if arm == "PREPL":
+            prompt = LEAN_PROMPT
         s = claude(prompt, repo, resume=base_session, fork=True, timeout=1200, max_turns=1)
         summary = (s.get("result") or "").strip()
         row["summary_usd"] = (s.get("total_cost_usd") or base) - base

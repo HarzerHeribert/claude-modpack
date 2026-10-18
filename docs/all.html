@@ -22,7 +22,7 @@
       <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
       <div class="m-sheet"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
+  <ul><li><a href="index.html">Home</a></li><li><a href="story.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
   <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/draft.html">draft</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
@@ -32,7 +32,7 @@
 </nav></div>
     </details>
     <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
-    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="graveyard.html">How we know</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Home</a><a href="story.html">The story</a><a href="mods.html">Mods</a><a href="graveyard.html">How we know</a><a href="notes.html" aria-current="true">Lab notes</a></nav>
     <div class="hd-tools">
       <div class="mode" role="group" aria-label="How numbers read">
         <span class="mode-l" aria-hidden="true">Numbers</span>
@@ -47,7 +47,7 @@
 <div class="shell l-story">
   <aside class="side"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
+  <ul><li><a href="index.html">Home</a></li><li><a href="story.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
   <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/draft.html">draft</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
@@ -58,7 +58,7 @@
   <main id="main" tabindex="-1">
 <article class="doc prose"><h1 id="lab-notes">Lab notes</h1>
 <p>What we tried while building this modpack, how we measured it, and why most of it did not ship.</p>
-<p>The modpack is seven mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
+<p>The modpack is eight mods for Claude Code. Behind them is a lab where every idea has to show, in graded runs, that it saves something without making the work worse. Most ideas don&#39;t make it: a nudge Claude never followed, a gate that reassured falsely, a 10,000-star tool that, installed, saved nothing we could measure. These notes are about those decisions. The data behind every number is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks"><code>benchmarks/</code></a>, with the harness to run it again.</p>
 <blockquote>
 <p><strong>Who wrote this.</strong> Claude (Opus 5.5) wrote these notes from this repository&#39;s results files and commit history; HarzerHeribert reviewed them. We build a competing pack, so read what we say about other tools with that in mind: every claim about them links to their own words, and every number of ours to the runs behind it. If we got something wrong about your project, open an issue and we will correct it here.</p>
 </blockquote>
@@ -1350,6 +1350,501 @@ open: none
 </ul>
 <h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
 <p>Arms, with the person&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>): Z6, the pack as 0.6.1 shipped it; Z6N, without lsp-plus; Z6I, lsp-plus answering from the word search and outlines with no servers; Z6D, lsp-plus with the diagnostics filter; V, plain Claude Code. Claude Opus 5.5, headless, one fresh copy of each repository per run, every run graded: 113 of 120 at full marks, the rest spread over the arms (five on one prose task with strict checks, plain Claude Code included). Cost at list prices; 95% bootstrap intervals over runs within each task. The engine comparison ran each engine over the same checkouts and counted a name&#39;s uses against every occurrence of the name in code, outside strings and comments. Runs: <code>results-engine.jsonl</code> and <code>results-beyond.jsonl</code> in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench"><code>benchmarks/</code></a>; the tasks: <code>web_repo.py</code>, <code>ops_repo.py</code>, <code>docs_repo.py</code>.</p>
+</section>
+<section class="chapter"><h1 id="writing-it-once">Writing it once</h1>
+<p><em>Lab notes 13 · 18 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Asked to revise a guide to at most 700 words, Claude wrote it at 1,052 words, counted them, and wrote the whole guide again three times: 798, 757, 694. Every write of the whole text costs all of it in output, the dearest token, and stays in the conversation for every later request to read. draft, new in 0.8.0, came out of that run. This note is how it got its shape: a version that cut in place and cost more, a version that aimed low and dropped facts, the one that shipped, and where it does nothing.</p>
+<h2 id="rounds-of-rewrites"><a class="anchor" href="#rounds-of-rewrites" aria-hidden="true" tabindex="-1">#</a>Rounds of rewrites</h2>
+<p>The run above is one of six on the guide in the twelve-task benchmark of <a href="12-the-mod-that-left.html#two-benchmarks-without-it">note 12</a>, with plain Claude Code and with the pack. All six went the same way:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Run</th>
+<th>Whole writes of the guide, in words</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain Claude Code</td>
+<td>1,034 → 733</td>
+</tr>
+<tr>
+<td>Plain Claude Code</td>
+<td>1,029 → 760</td>
+</tr>
+<tr>
+<td>The pack</td>
+<td>1,052 → 798 → 757 → 694</td>
+</tr>
+<tr>
+<td>The pack</td>
+<td>1,036 → 812 → 710</td>
+</tr>
+<tr>
+<td>The pack without lsp-plus</td>
+<td>1,022 → 801 → 718</td>
+</tr>
+<tr>
+<td>The pack without lsp-plus</td>
+<td>1,065 → 746 → 714</td>
+</tr>
+</tbody></table></div>
+<p>Every first draft ran about half over the limit, and every run wrote the whole guide 2 to 4 times, 17 writes in 6 runs. No pack mod touched it: none of them knew a limit had been set. In prose, output is a large share of the bill. Without draft, it was 32% of a run&#39;s cost at the median, 20 to 44% across the six writing tasks below.</p>
+<h2 id="cutting-in-place-cost-more"><a class="anchor" href="#cutting-in-place-cost-more" aria-hidden="true" tabindex="-1">#</a>Cutting in place cost more</h2>
+<p>draft 0.1.0 put the person&#39;s setting beside a prompt that sets a word limit: plan each part&#39;s share, then cut in place with Edit rather than rewrite. After each write of a Markdown or text file it showed the file&#39;s words as <code>wc -w</code> counts them.</p>
+<p>In the first trial run on the guide, the first draft came out at 985 words, and Claude cut it in place with edits, through cells. The run cost $0.95 and 20,090 output tokens. The same task without draft averaged $0.86 and 17,674 over four runs. An Edit repeats the text it replaces and writes its replacement, and a cut spread over a whole document touches most of it. Past a small overrun, one more write of the whole text is the cheaper way down.</p>
+<h2 id="aiming-low-dropped-facts"><a class="anchor" href="#aiming-low-dropped-facts" aria-hidden="true" tabindex="-1">#</a>Aiming low dropped facts</h2>
+<p>draft 0.1.1 asked Claude to aim for three quarters of the limit. A write more than a tenth over now showed each section&#39;s target for one more write; a smaller overrun was trimmed with one Edit. On six writing tasks, 48 runs, it cost 14.2% less [−17.7, −10.5]. In 2 of 4 FAQ runs it also left out the escalation order, a fact the request asked for. Aiming that low made the answers too terse to hold everything.</p>
+<p>draft 0.1.2 aims at about 85% and says to cut wording, not facts. 0.1.3 adds the one rule that let it into the pack: if the facts a request asks for cannot all fit, keep them, and say how far over the limit the text runs. A limit should not cost quality, and a text that needs more words may have them. The setting, as it reads beside a 700-word prompt:</p>
+<blockquote>
+<p>The person&#39;s setting for writing to a length (700 words here): first drafts run long, often by a third, and every write of the whole text costs all of it again in output and stays in the conversation. So before writing, give each part its share of the words and aim for about 600, keeping every fact the request asks for: cut wording, not facts. If those facts cannot all fit, keep them and say how far over the limit it runs, rather than dropping any. Each write of the document then shows its words as wc -w counts them. If it is still well over, it shows each section&#39;s target: write it once more to those, in one step, rather than cutting it down in rounds; trim a small overrun with one Edit.</p>
+</blockquote>
+<h2 id="what-it-saved"><a class="anchor" href="#what-it-saved" aria-hidden="true" tabindex="-1">#</a>What it saved</h2>
+<p>Six writing tasks in a generated repository of a small team&#39;s notes (meetings, postmortems, a chat export, an old guide and a CSV), 4 runs per task, against the pack without draft:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Limit</th>
+<th>draft 0.1.3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>An on-call runbook from scattered sources</td>
+<td>900 words</td>
+<td>−17.0%</td>
+</tr>
+<tr>
+<td>A guide revised in place</td>
+<td>700 words</td>
+<td>−15.0%</td>
+</tr>
+<tr>
+<td>A brief on two postmortems for leadership</td>
+<td>200 words</td>
+<td>−13.6%</td>
+</tr>
+<tr>
+<td>A newcomers&#39; FAQ, eight questions</td>
+<td>300 words</td>
+<td>+6.2%</td>
+</tr>
+<tr>
+<td>A 2,080-word architecture document cut in place</td>
+<td>800 words</td>
+<td>−16.8%</td>
+</tr>
+<tr>
+<td>A data report</td>
+<td>none</td>
+<td>+3.8%</td>
+</tr>
+</tbody></table></div>
+<p>On the average task, <strong>draft 0.1.2 cost 11.4% less [−15.4, −7.2]</strong> (48 runs) and <strong>0.1.3 10.7% less [−14.9, −6.3]</strong> (24 runs against the same 24 without it). For 0.1.3, output fell 19.1% [−25.3, −12.6] and requests 10.7% [−17.9, −3.4]. Scores were 0.990 for 0.1.2 and 0.987 for 0.1.3, against 0.990 without draft. No run went over its limit, with draft or without: plain Claude Code gets there too, it just pays for the rounds.</p>
+<p>On the guide, without draft each run wrote the whole text 2 or 3 times, 11 writes in 4 runs. With 0.1.3 no run wrote it more than twice, 6 writes in 4 runs, and one run revised it in place with a few edits. The cut document landed in one write in each of the three runs whose writes we can see: 779, 799 and 782 words for a limit of 800.</p>
+<h2 id="where-it-does-nothing"><a class="anchor" href="#where-it-does-nothing" aria-hidden="true" tabindex="-1">#</a>Where it does nothing</h2>
+<ul>
+<li><strong>No limit, no setting.</strong> The data report sets no limit. draft&#39;s setting appeared in none of its 4 runs and in every run on the guide. Its +3.8% [−3.9, +13.0] is the spread of runs of the same task.</li>
+<li><strong>A first draft that fits.</strong> In the FAQ, Claude&#39;s first draft already fit without help (294 and 304 words for 300; with draft 276 to 302). The setting there is only more text to read: +6.2%.</li>
+<li><strong>A long revision still starts long.</strong> With 0.1.3 the guide&#39;s first drafts still came out at 961 to 1,022 words for 700. The saving came from replacing rounds of cuts with one write to each section&#39;s target, not from a first draft that fits.</li>
+</ul>
+<h2 id="what-this-does-not-show"><a class="anchor" href="#what-this-does-not-show" aria-hidden="true" tabindex="-1">#</a>What this does not show</h2>
+<ul>
+<li><strong>Small batches on generated tasks.</strong> Six tasks, one generated repository (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/docs_repo.py"><code>docs_repo.py</code></a>), 4 runs per task and arm. The average is clear of zero; most single tasks are not.</li>
+<li><strong>Long sessions.</strong> Every run started fresh. In a long session each extra write is also read by every later request (<a href="11-what-looking-around-leaves-behind.html">note 11</a>), so rounds cost more there; we have not measured draft in one.</li>
+<li><strong>Other limits.</strong> draft reads limits in words, in English and German phrasings (&quot;at most 700 words&quot;, &quot;höchstens 400 Wörter&quot;). A limit in characters, lines or pages passes it by.</li>
+<li><strong>How often people set one.</strong> We did not count how many real prompts set a word limit, so this note cannot say what draft saves over a working week.</li>
+</ul>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>Arms, with the person&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>): Z7, the pack as 0.7.0 shipped it; Z7W, the same with draft. Claude Opus 5.5, headless, one fresh copy of the repository per run. Each run graded by a fixed rule: the words as <code>wc -w</code> counts them against the limit, every fact the request names, and no superseded command or number stated as current.</p>
+<ul>
+<li><strong>0.1.1:</strong> 48 runs ($24.22, <code>results-draft.jsonl</code>). After that batch three graders were fixed: history sentences naming a removed command in backticks, a code-span check in the FAQ, and a base built before its sources had owners and statuses. Its scores (0.900 with draft, 0.921 without) are not comparable to the later batches; its costs are.</li>
+<li><strong>0.1.2:</strong> 48 runs ($23.76, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl"><code>results-draft2.jsonl</code></a>).</li>
+<li><strong>0.1.3:</strong> 24 runs ($11.25, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl"><code>results-draft3.jsonl</code></a>), measured against the runs without draft from the 0.1.2 batch.</li>
+<li><strong>0.1.0:</strong> the trial runs are in <code>results-draft-smoke.jsonl</code>.</li>
+</ul>
+<p>Cost at list prices; 95% bootstrap intervals over runs within each task, the average task weighing every task the same. Whole writes were counted from each run&#39;s Write calls. Runs that wrote through a shell or a cell are left out of the write counts, not the costs.</p>
+</section>
+<section class="chapter"><h1 id="clean-prompts-real-prompts">Clean prompts, real prompts</h1>
+<p><em>Lab notes 14 · 18 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>route asks a classifier about every prompt you send. When the answer is feature or test work, it tells Claude to hand the job to delegate&#39;s worker before reading the code (<a href="10-two-requests.html">note 10</a>). Until 0.8.1 that classifier had been measured on 25 prompts, each one clean and complete on its own, and both outside services got all of them right. This note covers three things. First, what happened when we tried to replace the outside service with a model small enough to run on your machine. Second, what the outside services do with real prompts. Third, what route is worth in a real session, which is less than the benchmark said.</p>
+<h2 id="why-a-local-classifier"><a class="anchor" href="#why-a-local-classifier" aria-hidden="true" tabindex="-1">#</a>Why a local classifier</h2>
+<p>route sends the start of each prompt to a US service and needs that service&#39;s key. A model that runs locally would make route free and private, and could let it be on by default. A classifier for seven labels doesn&#39;t need a large model, so we built small ones: kilobytes in size, answering in microseconds.</p>
+<h2 id="clean-prompts-are-easy"><a class="anchor" href="#clean-prompts-are-easy" aria-hidden="true" tabindex="-1">#</a>Clean prompts are easy</h2>
+<p>The first one was a 64 KB classifier (logistic regression over hashed word and letter n-grams). We trained it on 560 prompts that Haiku wrote for us, 80 per label, so that no real prompt was needed. It passed every clean test we gave it:</p>
+<ul>
+<li><strong>route&#39;s 25 prompts:</strong> it handed off exactly the 6 that route should, and labelled 23 of the 25 right.</li>
+<li><strong>75 paraphrases of them:</strong> it found every feature and test prompt, and 64% of what it handed off was one.</li>
+<li><strong>210 mid-session prompts, also written by Haiku:</strong> 196 right.</li>
+<li><strong>Trained on one generator&#39;s prompts and tested on another&#39;s:</strong> an AUC of 0.96.</li>
+</ul>
+<h2 id="real-prompts-are-not"><a class="anchor" href="#real-prompts-are-not" aria-hidden="true" tabindex="-1">#</a>Real prompts are not</h2>
+<p>We then took 918 distinct real prompts from Claude Code sessions: the author&#39;s own and four public sets of Claude Code traces (CC-BY or MIT). Haiku labelled them by route&#39;s rubrics. On these prompts the AUC fell to 0.74. Of everything the classifier handed off, 59% was feature or test work. On the author&#39;s interactive prompts it was 18%: 83 of its 101 hand-offs were wrong.</p>
+<p>Two things are behind that number:</p>
+<ul>
+<li><strong>Few real prompts are feature work.</strong> Of the author&#39;s 221 interactive prompts in the set Jev and ScaleDown saw, Haiku called 27 feature or test work. Across all 877, it was 398. The public sets hold many templated task prompts, and the author&#39;s sessions hold conversation.</li>
+<li><strong>A prompt in the middle of a session carries little on its own.</strong> &quot;ok, build it like that&quot; is feature work only with the conversation before it, and no classifier here sees that conversation.</li>
+</ul>
+<p>Adding real labels from the other sources (training on all but one source, testing on the one left out) brought precision on the author&#39;s prompts to 21%, and no higher.</p>
+<h2 id="two-more-tries"><a class="anchor" href="#two-more-tries" aria-hidden="true" tabindex="-1">#</a>Two more tries</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Classifier</th>
+<th>route&#39;s 25</th>
+<th>The author&#39;s interactive prompts</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>64 KB, trained on Haiku&#39;s 560 prompts</td>
+<td>all 6 hand-offs, none wrong</td>
+<td>18% of its hand-offs right</td>
+</tr>
+<tr>
+<td>The same, with real labels from the other sources</td>
+<td></td>
+<td>21%</td>
+</tr>
+<tr>
+<td>64 KB, taught by Jev on 2,817 prompts</td>
+<td></td>
+<td>9 of Jev&#39;s 61 hand-offs found</td>
+</tr>
+<tr>
+<td>LAYA, 421M parameters, untrained for the task</td>
+<td>4 of 6 hand-offs, 2 wrong</td>
+<td>17% of its hand-offs right</td>
+</tr>
+</tbody></table></div>
+<p><strong>Jev as the teacher.</strong> If a local model can&#39;t learn the task from labels, maybe it can copy a classifier that already does it. Jev answered 2,817 prompts, and the student agreed with it on 94% (an AUC of 0.98). Most of that came from templated public prompts. On the author&#39;s 667 interactive prompts, Jev handed off 61 at its threshold, and the student found 9 of them. Word counts can&#39;t copy a model that reads the sentence. A transformer student would need about 20 to 25 MB and a local server, and no mod can run one inside Claude Code.</p>
+<p><strong>LAYA</strong>, an open decision model that takes Jev&#39;s request format, ran on the lab machine&#39;s GPU at 48 ms a prompt. Without training for the task, it agreed with Haiku&#39;s labels on 31% of the real prompts and with Jev&#39;s on 37%, and its own checkpoint warns that its scores are not calibrated. We deleted it.</p>
+<h2 id="the-outside-classifiers-on-real-prompts"><a class="anchor" href="#the-outside-classifiers-on-real-prompts" aria-hidden="true" tabindex="-1">#</a>The outside classifiers on real prompts</h2>
+<p>Jev and ScaleDown had also been measured only on the clean 25. With the author&#39;s go, 877 of the real prompts went to both, each checked first for anything that looked like a key or personal data, which was left out. Against Haiku&#39;s labels:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Classifier, from a score of</th>
+<th>Handed off</th>
+<th>Of them feature or test work</th>
+<th>Of all feature and test work, found</th>
+<th>The author&#39;s interactive prompts</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Jev, 0.7</td>
+<td>325</td>
+<td>86%</td>
+<td>70%</td>
+<td>51% (18 of 35)</td>
+</tr>
+<tr>
+<td><strong>Jev, 0.95</strong></td>
+<td>243</td>
+<td><strong>95%</strong></td>
+<td>58%</td>
+<td><strong>78% (14 of 18)</strong></td>
+</tr>
+<tr>
+<td>ScaleDown, 0.7</td>
+<td>252</td>
+<td>92%</td>
+<td>59%</td>
+<td>70% (14 of 20)</td>
+</tr>
+<tr>
+<td>ScaleDown, 0.95</td>
+<td>91</td>
+<td>95%</td>
+<td>22%</td>
+<td>80% (4 of 5)</td>
+</tr>
+</tbody></table></div>
+<p>They gave the same label to 701 of 875 prompts. The median answer took 0.26 s from Jev and 0.51 s from ScaleDown.</p>
+<p>Since route 0.3.2, Jev&#39;s threshold is 0.95. On the author&#39;s prompts that raises the share of right hand-offs from about half to about four in five, and Jev scores route&#39;s own feature and test prompts 1.0, so the benchmark&#39;s orders still go out. ScaleDown keeps 0.7: at 0.95 it finds only a fifth of the work.</p>
+<h2 id="what-route-is-worth-in-a-real-session"><a class="anchor" href="#what-route-is-worth-in-a-real-session" aria-hidden="true" tabindex="-1">#</a>What route is worth in a real session</h2>
+<p>The benchmark said −14% (<a href="07-small-models-as-plumbing.html">note 7</a>). That came from a mix of eight jobs in which the feature and the tests were the dearest. A real session has a different mix:</p>
+<ul>
+<li>In the author&#39;s sessions, the turns Jev hands off were <strong>13% of the spend</strong>.</li>
+<li>In the benchmarks, a hand-off saved about a third to a half of a feature or test job (<a href="10-two-requests.html">note 10</a>). Applied to that 13%, it saves at most 4 to 7% of everything.</li>
+<li>Counting the hand-offs that were not feature or test work, it is nearer <strong>3 to 6%</strong>.</li>
+</ul>
+<p>That is why route stays optional. It needs an outside classifier and its key, it sends the start of each prompt to a US service, and for the author it would save a few percent. The README, the installer, <code>/modpack:setup</code> and route&#39;s own setup now say all of that before you turn it on. Someone whose sessions are mostly fresh, complete feature requests is closer to the benchmark&#39;s mix and stands to save more.</p>
+<h2 id="what-this-does-not-show"><a class="anchor" href="#what-this-does-not-show" aria-hidden="true" tabindex="-1">#</a>What this does not show</h2>
+<ul>
+<li><strong>Labels are Haiku&#39;s, by route&#39;s rubrics.</strong> They are not outcomes. Whether a hand-off would have paid on a given real prompt was not measured. Earlier in the lab, Haiku&#39;s labels predicted how long a turn would run only weakly.</li>
+<li><strong>One author.</strong> 221 interactive prompts in the real set, 27 of them feature or test work. A person who works differently may see different precision.</li>
+<li><strong>The 3 to 6% is a calculation</strong> from shares of spend and the benchmarks&#39; savings, not a comparison in real sessions.</li>
+<li><strong>Context, not tested.</strong> A classifier that also read the end of Claude&#39;s last message might handle &quot;ok, build it like that&quot;. Sent to an outside service, that is more of your text leaving your machine; run locally, it needs a model no mod can host yet.</li>
+</ul>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>The real prompts come from 1,484 Claude Code sessions: the author&#39;s interactive and headless sessions, and four public trace sets under CC-BY or MIT. Each distinct prompt was used once. The prompts and the per-prompt results stay on the author&#39;s machine and are not in this repository. Precision here is the share of a classifier&#39;s hand-offs that Haiku labelled feature or test work, and recall the share of that work it handed off. The comparison on the 25 clean prompts is in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/classifiers/jev-vs-scaledown.json"><code>classifiers/jev-vs-scaledown.json</code></a>. The local models ran on an M4 Pro.</p>
+</section>
+<section class="chapter"><h1 id="compaction-in-milliseconds">Compaction in milliseconds</h1>
+<p><em>Lab notes 15 · 19 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>When a long session compacts, Claude Code stops, reads the whole conversation once more and writes a summary of it, and you wait while it writes. In this lab&#39;s own session at 436k tokens that wait was 102 s; in a test session at 67k, 15.2 s. smart-compact 0.3.0 writes its summary before it is needed, in the background as a turn ends, so the compaction itself only swaps it in. This note covers how that works, the bug that only a live session showed, what the summary written ahead cost and kept against <code>/compact</code>, and why we did not make the summary programmatic.</p>
+<h2 id="where-the-wait-comes-from"><a class="anchor" href="#where-the-wait-comes-from" aria-hidden="true" tabindex="-1">#</a>Where the wait comes from</h2>
+<p>A compaction is one model request: the conversation in, a summary out. The input is mostly a cache read and costs little time; the summary is output, written token by token, several thousand of them. Nothing else in the session can happen meanwhile.</p>
+<p>Claude Code already avoids that wait for its own automatic compaction. Since 2.1.301 it writes that summary well before the auto-compact point, and the compaction then takes about 40 ms and keeps every message since as it is. A mod cannot move that point per session; it is one window for every session. smart-compact compacts much earlier, after a turn, when the compaction pays back within a set number of requests (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#080-2026-10-18">0.8.0</a>), and there no summary is waiting.</p>
+<h2 id="writing-it-before-it-is-needed"><a class="anchor" href="#writing-it-before-it-is-needed" aria-hidden="true" tabindex="-1">#</a>Writing it before it is needed</h2>
+<p>At a turn&#39;s end where a compaction after the turn is due, smart-compact asks a fork of the session for the summary, with its own six-point prompt. A fork reads the session&#39;s own cache, so the summary costs what Claude Code&#39;s would: repriced on a warm cache, the bench&#39;s summaries came to <strong>$0.13</strong> on average ($0.09 to $0.24).</p>
+<p>When the compaction comes, smart-compact&#39;s own compaction hook answers with the summary, then every message after the last one the fork read, as they are. Claude Code&#39;s engine never runs. If the conversation no longer matches what the fork read, the summary is dropped with one line saying why (counts and lengths only), and Claude Code summarizes as before.</p>
+<h2 id="the-bug-only-a-live-session-showed"><a class="anchor" href="#the-bug-only-a-live-session-showed" aria-hidden="true" tabindex="-1">#</a>The bug only a live session showed</h2>
+<p>The first live try was in this lab&#39;s session, at 436k tokens. The fork wrote its summary in the background, and then the engine summarized anyway: <strong>102 s</strong>. The debug log named the reason in one line: a re-entry, raised by smart-compact itself. A mod&#39;s own <code>$.session.compact</code> runs through every compaction hook but the calling mod&#39;s, so the hook holding the summary never saw the compaction it had asked for. The engine wrote a fresh summary while the one written ahead sat unused.</p>
+<p>The 36 unit tests had passed. The test kit calls a mod&#39;s hooks directly; it has no notion of which mod raised an event. Two more things only showed up live:</p>
+<ul>
+<li><strong>A headless session cannot compact from a mod.</strong> <code>claude -p</code> answers <code>$.session.compact</code> with &quot;not available in a headless session yet&quot;. The live checks ran in an interactive session in a detached terminal, with a debug log.</li>
+<li><strong>The first check never loaded smart-compact.</strong> It depends on statusline; with statusline off, Claude Code skips it with one line in the debug log and nothing in the session.</li>
+</ul>
+<p>The fix asks through <code>/compact</code>, which Claude Code raises as a manual compaction that every hook sees, smart-compact&#39;s included. The transcript shows the summary as one line, whole under ctrl+o.</p>
+<h2 id="live"><a class="anchor" href="#live" aria-hidden="true" tabindex="-1">#</a>Live</h2>
+<p>In interactive sessions at 67k to 70k tokens, on Sonnet 5.5, with compaction after a turn set to fire from 20k tokens:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th></th>
+<th>Claude Code&#39;s summary</th>
+<th>Written ahead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Writing the summary</td>
+<td>in the compaction: 15.2 s at 67k</td>
+<td>in the background after the turn: 16 to 19 s</td>
+</tr>
+<tr>
+<td>The compaction itself</td>
+<td>15.2 s</td>
+<td>3 to 5 ms</td>
+</tr>
+<tr>
+<td>A prompt sent before the summary was ready</td>
+<td>not tried</td>
+<td>compacted in 3.1 ms once it was</td>
+</tr>
+</tbody></table></div>
+<p>The next turn answered from the summary each time. At 436k we have only the engine&#39;s 102 s, from before the fix.</p>
+<h2 id="against-compact"><a class="anchor" href="#against-compact" aria-hidden="true" tabindex="-1">#</a>Against <code>/compact</code></h2>
+<p>The compaction bench (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/compact_bench.py"><code>compact_bench.py</code></a>) forks a 224k-token session over click. That session read all of <code>src/click</code>, was told four decisions about the repository and investigated a bug without fixing it. Each run compacts, then does one task that needs the files, the conversation or nothing. Six tasks, three runs each, Opus 5.5:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th></th>
+<th><code>/compact</code></th>
+<th>Written ahead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Runs at full marks</td>
+<td>14 of 18</td>
+<td>16 of 18</td>
+</tr>
+<tr>
+<td>Mean score</td>
+<td>0.917</td>
+<td>0.981</td>
+</tr>
+<tr>
+<td>Context at the next task&#39;s first request</td>
+<td>42,036 tokens</td>
+<td>36,272 tokens</td>
+</tr>
+<tr>
+<td>The next task&#39;s cost</td>
+<td>$0.488</td>
+<td>$0.420</td>
+</tr>
+</tbody></table></div>
+<p>The next task cost <strong>−13.9%</strong> [−18.1, −9.4], lower on all six tasks, from −8.6% on the feature to −20.9% on a task that needed nothing from the session. It began on a smaller context (−13.7%) with about as many steps. The score difference, +0.06 [+0.00, +0.18], touches zero: the summary written ahead was not worse, but it was not shown to be better. Where runs fell short: one helper task missed an option&#39;s behaviour (2 runs written ahead, 3 with <code>/compact</code>), and one rename after <code>/compact</code> left the old name in a file (score 0).</p>
+<p>The bench measures what the summary keeps, not time. Its summaries were written in line by a headless fork, and the compaction&#39;s own cost is not comparable between the arms: 2 of the 18 summaries met a cold cache. Repriced warm, a summary written ahead cost about what Claude Code&#39;s own summary costs at that size.</p>
+<h2 id="why-not-a-summary-without-a-model"><a class="anchor" href="#why-not-a-summary-without-a-model" aria-hidden="true" tabindex="-1">#</a>Why not a summary without a model</h2>
+<p>Output is the dearest token, $20 per million on Opus 5.5. Could Claude instead write one <a href="https://github.com/HarzerHeribert/claude-modpack#readme">cell</a> that greps, filters and sorts the conversation into a summary, with no summary token written as output?</p>
+<ul>
+<li><strong>About a fifth of a summary is copying.</strong> In two of Claude Code&#39;s summaries from this lab&#39;s session (22,136 and 20,173 characters), 17% and 20% of the text repeats the conversation word for word. In 17 of the bench&#39;s summaries written ahead (8,535 characters on average) the share was 19%. The rest is judgement: what was decided, what was superseded, where the work stands. A search finds text; it does not decide what still matters.</li>
+<li><strong>In money, about $0.02.</strong> The session&#39;s summaries were about 5.5k tokens of output, about $0.11. Their copied fifth is about $0.02, roughly what the cell&#39;s own code would cost in output.</li>
+<li><strong>In time, nothing.</strong> Writing ahead already hides the time.</li>
+</ul>
+<p>The other way to compact with no model is to drop the old tool calls and results and keep the rest. Before its last compaction, this lab&#39;s session held, in characters:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Tool results</th>
+<th>Tool calls</th>
+<th>Prompts</th>
+<th>Claude&#39;s text</th>
+<th>Thinking</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>46%</td>
+<td>34%</td>
+<td>12%</td>
+<td>6%</td>
+<td>2%</td>
+</tr>
+</tbody></table></div>
+<p>Keeping the prompts and Claude&#39;s text keeps 18% of the context; a summary keeps about 1%. Every kept token is read again by every later request, so the bigger context costs more to carry than the summary costs to write.</p>
+<p>What a kept token costs over its life settles it. Per 1,000 tokens of summary on Opus 5.5: <strong>$0.020</strong> written once as output, $0.008 written to the one-hour cache, then read again by a median of 143 later requests (<a href="11-what-looking-around-leaves-behind.html#a-tokens-second-life">note 11</a>) at $0.0002 each, $0.029. About <strong>$0.057 over its life</strong>, and output is about a third of it. The lever is a shorter summary, not a cheaper way to write the same one. Claude Code&#39;s format re-types every message the person sent (about 3,000 characters in this session&#39;s) and pastes code that is already on disk. A leaner summary prompt is the next test; it has not run.</p>
+<h2 id="off-until-you-turn-it-on"><a class="anchor" href="#off-until-you-turn-it-on" aria-hidden="true" tabindex="-1">#</a>Off until you turn it on</h2>
+<p>The summary written ahead comes with compaction after a turn (<code>afterTurnPayback</code>), and that is off by default. It stays off until it has run in more real sessions. Compacting after a turn is an investment: on short tasks that end right after it, it cost more (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#080-2026-10-18">0.8.0</a>). With it on, the summary written ahead removes the wait; it does not change when compacting pays.</p>
+<h2 id="what-this-does-not-show"><a class="anchor" href="#what-this-does-not-show" aria-hidden="true" tabindex="-1">#</a>What this does not show</h2>
+<ul>
+<li><strong>Few live runs.</strong> A handful of compactions, on Sonnet 5.5, at about 70k tokens. The 436k figure is the engine&#39;s own, before the fix.</li>
+<li><strong>Easy tasks.</strong> 18 runs per arm, on tasks both arms mostly solve. The bench can show what a summary loses on these tasks, not on longer work after the compaction.</li>
+<li><strong>The copied share</strong> comes from two of Claude Code&#39;s summaries in one session and 17 bench summaries. It is a measure of overlap with the conversation, not of what a program could have chosen.</li>
+<li><strong>The lean summary</strong> is a proposal, not a result.</li>
+</ul>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>Arms PREP (a fork asked smart-compact&#39;s own summary prompt, then <code>/compact</code> answered by the bench-only <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/benchmarks/delegate-bench/prep-mod"><code>prep-mod</code></a> as smart-compact&#39;s hook answers) and COMPACT (<code>/compact</code> with no instructions), three prepared slots of about 224k tokens, one run per slot and task: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prep.jsonl"><code>results-prep.jsonl</code></a>. Cost is the next task&#39;s own (its main requests and any worker), priced at list prices; the change is for the average task, with 95% bootstrap intervals that resample runs within each task. The live timings come from Claude Code&#39;s debug log of each session; the character shares were counted on the transcripts, in aggregate only.</p>
+</section>
+<section class="chapter"><h1 id="what-a-system-prompt-can-order">What a system prompt can order</h1>
+<p><em>Lab notes 16 · 19 Oct 2026 · written by Claude from this repository&#39;s data</em></p>
+<p>Every order this lab gave that Claude followed came beside the person&#39;s prompt (<a href="11-what-looking-around-leaves-behind.html#where-an-instruction-has-to-ride">note 11</a>). The one place we had not tried with care was the system prompt, which Claude reads before anything else, on every request. A mod can add sections to it, so we wrote one, steer, with two short sections: how to work toward the person&#39;s goal and what done means, and which steps pay with the pack&#39;s tools. Before a full benchmark we ran a smoke test. steer read the requests a little more closely, cost 9% more, and did not do either of the two things it asked for most plainly. It stays in the lab.</p>
+<h2 id="the-prompt-claude-already-has"><a class="anchor" href="#the-prompt-claude-already-has" aria-hidden="true" tabindex="-1">#</a>The prompt Claude already has</h2>
+<p>Claude Code&#39;s own system prompt is lean, about 2.9k tokens; tool definitions and the skills list fill most of a session&#39;s fixed context. The pack already adds one section: cells&#39; &quot;Fewer round-trips&quot;, a paragraph and four lines on getting what you already know you need in one step, then a paragraph on when run_cell does it (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/cells/hooks/guide.ts"><code>guide.ts</code></a>). Claude uses run_cell, so a system-prompt section is not always ignored. The question was whether a section could do more: make Claude read what the person is after, settle what done means, and reach for the pack&#39;s tools where they pay.</p>
+<p>steer&#39;s two sections added about 680 tokens to a first request of about 26k. The first one asks for the method:</p>
+<blockquote>
+<p>For a request to change something, settle what done means before you start: the few things the result must do or show, each one you can check. When the request leaves room for doubt, name them in a line before you act, so the person can correct them cheaply.</p>
+</blockquote>
+<p>and, before finishing, to check each of them against what was observed and say in a line which hold. The second lists the steps that pay: looking around in few steps, edits and their check in one run_cell, fully specified work (a feature from a clear spec, tests to a target) through hand_off, long jobs in the background with track_progress, and a word limit met in one draft.</p>
+<h2 id="the-smoke-run"><a class="anchor" href="#the-smoke-run" aria-hidden="true" tabindex="-1">#</a>The smoke run</h2>
+<p>Five tasks, one from each of five task sets, one run each: a bug in a TypeScript web app (users can no longer delete their own comments), a new parameter type for click from a written spec (<code>click.Duration</code>), a trace through click&#39;s source, a 200-word brief, and a service whose config stops it starting. Three arms: <strong>Z7W</strong>, the pack as 0.8.0 ships it; <strong>Z8S</strong>, the same with steer; <strong>Z8SX</strong>, steer with seek&#39;s and draft&#39;s orders beside the prompt switched off, so the system prompt carries that guidance alone.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Arm</th>
+<th>Score</th>
+<th>Cost</th>
+<th>Requests</th>
+<th>Output tokens</th>
+<th>Added to the context</th>
+<th>run_cell calls</th>
+<th>Hand-offs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Z7W, the pack</td>
+<td>5 of 5</td>
+<td>$1.50</td>
+<td>33</td>
+<td>22.2k</td>
+<td>50.9k</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Z8S, with steer</td>
+<td>5 of 5</td>
+<td>$1.63 (+9%)</td>
+<td>32</td>
+<td>25.7k</td>
+<td>56.5k</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Z8SX, steer without the prompt orders</td>
+<td>4.95 of 5</td>
+<td>$1.95 (+31%)</td>
+<td>35</td>
+<td>30.7k</td>
+<td>80.5k</td>
+<td>6</td>
+<td>0</td>
+</tr>
+</tbody></table></div>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Z7W</th>
+<th>Z8S</th>
+<th>Z8SX</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The web app&#39;s bug</td>
+<td>$0.30</td>
+<td>$0.29</td>
+<td>$0.49</td>
+</tr>
+<tr>
+<td><code>click.Duration</code></td>
+<td>$0.42</td>
+<td>$0.51</td>
+<td>$0.60</td>
+</tr>
+<tr>
+<td>The trace</td>
+<td>$0.14</td>
+<td>$0.18</td>
+<td>$0.18</td>
+</tr>
+<tr>
+<td>The 200-word brief</td>
+<td>$0.42</td>
+<td>$0.43</td>
+<td>$0.44</td>
+</tr>
+<tr>
+<td>The service&#39;s config</td>
+<td>$0.22</td>
+<td>$0.22</td>
+<td>$0.24</td>
+</tr>
+</tbody></table></div>
+<h2 id="what-it-changed"><a class="anchor" href="#what-it-changed" aria-hidden="true" tabindex="-1">#</a>What it changed</h2>
+<ul>
+<li><strong>Longer answers.</strong> The five answers came to 1,039 words with the pack, 1,139 with steer and 1,222 without the prompt orders; output rose 16% and 38%.</li>
+<li><strong>A closer reading, once.</strong> On <code>click.Duration</code>, steer&#39;s answer checked its result against the request item by item, under &quot;Checked against what you asked for&quot;, and listed choices the person might revisit: it had read &quot;anything else fails&quot; literally, so an integer is rejected rather than taken as seconds, and a test pins that down. The pack&#39;s answer to the same task listed two things it had added unasked. Without the prompt orders, the bug fix added a page-level test of what the user had reported and explained why the existing tests missed it (their users are admins); that run cost 64% more than the pack&#39;s.</li>
+<li><strong>Not what it asked for most plainly.</strong> No run named what done means before it started: 0 of 10 runs with steer. One checked its result at the end, the feature above. The feature is the work steer&#39;s hand-off line describes, and neither steer run handed it off, as no run in the batch did.</li>
+<li><strong>No more cells.</strong> run_cell came 4, 3 and 6 times. steer&#39;s line about it added nothing to what cells&#39; own section already says.</li>
+<li><strong>The system prompt instead of the prompt cost the most.</strong> Without seek&#39;s order, steer&#39;s own line about looking around in few steps was the only guidance left; the runs added 80.5k tokens to the context instead of 56.5k and cost 20% more than with the orders on. The brief left out one of its required action items and scored 0.95.</li>
+</ul>
+<h2 id="why-the-system-prompt-loses"><a class="anchor" href="#why-the-system-prompt-loses" aria-hidden="true" tabindex="-1">#</a>Why the system prompt loses</h2>
+<p>The system prompt shapes how Claude works: what it checks, what it reports, how it writes. What it does not do is outvote the judgement Claude makes at the moment it picks a step. cells&#39; section works because it points where Claude already wants to go: fewer round trips are fewer steps for Claude too. Handing off asks Claude to give up control of work it can do. hand_off&#39;s own description says to keep lookups, small edits and what depends on the conversation in house (<a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/delegate/hooks/register.tsx"><code>register.tsx</code></a>), and no system-prompt sentence has moved Opus there (<a href="02-notes-nobody-reads.html#174-runs-0-delegations">note 2</a>: a routing rule in the system prompt, 14 runs, 0 hand-offs). Naming criteria before acting adds a step to a plan Claude already has. That is our reading; the counts are not:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where it rode</th>
+<th>Followed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>route: hand this feature work to the worker</td>
+<td>the person&#39;s prompt</td>
+<td>24 of 24</td>
+</tr>
+<tr>
+<td>seek: look around in few, lean steps</td>
+<td>the person&#39;s prompt</td>
+<td>44 of 44 runs</td>
+</tr>
+<tr>
+<td>steer: name what done means before you start</td>
+<td>the system prompt</td>
+<td>0 of 10 runs</td>
+</tr>
+<tr>
+<td>steer: hand fully specified work to the worker</td>
+<td>the system prompt</td>
+<td>0 of 2 feature runs</td>
+</tr>
+<tr>
+<td>pathfinder: hand the rest of this search off</td>
+<td>Claude&#39;s own search, mid-way</td>
+<td>1 of 6</td>
+</tr>
+</tbody></table></div>
+<h2 id="what-we-decided"><a class="anchor" href="#what-we-decided" aria-hidden="true" tabindex="-1">#</a>What we decided</h2>
+<p>The system prompt stays lean. steer stays in the lab, and the 108-run benchmark planned behind it was not run: it would have measured a cost of about 9% for a closer reading the grading cannot see, while the two orders steer gave most plainly were not followed. What a person wants said on every request belongs beside the prompt, in the person&#39;s name, the way seek and draft say it.</p>
+<h2 id="what-this-does-not-show"><a class="anchor" href="#what-this-does-not-show" aria-hidden="true" tabindex="-1">#</a>What this does not show</h2>
+<ul>
+<li><strong>Five tasks, one run each.</strong> That shows direction, not proof. With one run per task there is no range, and the +9% is not shown.</li>
+<li><strong>The grading cannot see intent.</strong> Hidden tests and term lists say whether a result is right, not whether it is what the person meant. Every arm got full marks on four of the five tasks. &quot;A closer reading&quot; is our reading of ten answers.</li>
+<li><strong>Complete specifications.</strong> Every bench prompt says exactly what it wants. Vague requests, where reading intent matters most, were not in this run. A smaller test of the first section alone on vague requests was planned and not run.</li>
+</ul>
+<h2 id="method--limits"><a class="anchor" href="#method--limits" aria-hidden="true" tabindex="-1">#</a>Method &amp; limits</h2>
+<p>Headless Claude Code, Claude Opus 5.5, one fresh copy of each repository per run, the person&#39;s installed plugins switched off (<a href="08-our-plain-runs-were-not-plain.html">note 8</a>). Arms as in <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/bench.py"><code>bench.py</code></a>: Z7W is the 0.7.0 pack with draft; Z8S and Z8SX add steer, and Z8SX sets seek&#39;s and draft&#39;s <code>order</code> to off. Cost is Claude Code&#39;s own reported cost at list prices; requests, output and the context added are read from the transcripts. steer&#39;s source stays in the lab; its sections are quoted above. Data: <code>results-steer-smoke.jsonl</code>.</p>
 </section></article>
   </main>
   

@@ -8,7 +8,7 @@ You type the commands shown as `/...` into Claude Code's prompt; the others go i
 
 | | Needed for | Check | Expect |
 | --- | --- | --- | --- |
-| Claude Code 2.1.296 or later | everything | `claude --version` | `2.1.296 (Claude Code)` or higher. Tested on 2.1.296 to 2.1.301. Older: `claude update`. |
+| Claude Code 2.1.296 or later | everything | `claude --version` | `2.1.296 (Claude Code)` or higher. Tested on 2.1.296 to 2.1.302. Older: `claude update`. |
 | macOS or Linux | everything | `uname -s` | `Darwin` or `Linux`. Windows is untested. |
 | git | delegate's diffs | `git --version` | any recent version; your project is a git repository with at least one commit |
 | Node 22.13 or later | cells; language servers installed with npm, if you want them | `node --version` | `v22.13.0` or higher. On Linux without bubblewrap, `v25` or higher (see step 5). |

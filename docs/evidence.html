@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Every measurement · claude-modpack</title>
-<meta name="description" content="158 measurements behind the modpack, each with its source, range, runs, model, date and raw data.">
+<meta name="description" content="179 measurements behind the modpack, each with its source, range, runs, model, date and raw data.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
@@ -24,7 +24,7 @@
       <summary class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary>
       <div class="m-sheet"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
+  <ul><li><a href="index.html">Home</a></li><li><a href="story.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
   <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/draft.html">draft</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
@@ -34,7 +34,7 @@
 </nav></div>
     </details>
     <a class="logo" href="index.html"><span class="logo-dot" aria-hidden="true"></span>claude-modpack</a>
-    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Overview</a><a href="mods.html">Mods</a><a href="graveyard.html" aria-current="true">How we know</a><a href="notes.html">Lab notes</a></nav>
+    <nav class="hd-nav" aria-label="Sections"><a href="index.html">Home</a><a href="story.html">The story</a><a href="mods.html">Mods</a><a href="graveyard.html" aria-current="true">How we know</a><a href="notes.html">Lab notes</a></nav>
     <div class="hd-tools">
       <div class="mode" role="group" aria-label="How numbers read">
         <span class="mode-l" aria-hidden="true">Numbers</span>
@@ -49,7 +49,7 @@
 <div class="shell l-wide">
   <aside class="side"><nav class="side-nav" aria-label="Site">
   <p class="side-h">Start</p>
-  <ul><li><a href="index.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
+  <ul><li><a href="index.html">Home</a></li><li><a href="story.html">The story</a></li><li><a href="ideas.html">Why every step costs</a></li></ul>
   <p class="side-h">Mods</p>
   <ul><li><a href="mods.html">All mods</a></li><li><a href="mods/cells.html">cells</a></li><li><a href="mods/seek.html">seek</a></li><li><a href="mods/draft.html">draft</a></li><li><a href="mods/delegate.html">delegate</a></li><li><a href="mods/route.html">route</a></li><li><a href="mods/smart-compact.html">smart-compact</a></li><li><a href="mods/statusline.html">statusline</a></li><li><a href="mods/eta.html">eta</a></li><li><a href="mods/modpack.html">modpack</a></li></ul>
   <p class="side-h">How we know</p>
@@ -62,7 +62,7 @@
 <div class="doc wide">
   <p class="eyebrow">How we know</p>
   <h1>Every measurement</h1>
-  <p class="lead"><!--n-->158<!--/n--> measurements, each quoted word for word from the README, the changelog, a lab note or a benchmark write-up, with its 95% range, its runs, model and date, and the raw runs behind it.</p>
+  <p class="lead"><!--n-->179<!--/n--> measurements, each quoted word for word from the README, the changelog, a lab note or a benchmark write-up, with its 95% range, its runs, model and date, and the raw runs behind it.</p>
   <dl class="method">
     <div><dt>The work</dt><dd>Real jobs in open-source code: click in Python, chrono in TypeScript, and real bug reports from SWE-bench Verified. Graded by fixed rules.</dd></div>
     <div><dt>The runs</dt><dd>Claude Code without a person at the keyboard, on Opus 5.5, a fresh copy of the code each time. Each condition names exactly which mods load.</dd></div>
@@ -79,33 +79,33 @@
     <select class="input" name="result" aria-label="Result"><option value="">Any result</option><option value="lower">Lower, range clear of no change</option><option value="higher">Higher, range clear of no change</option><option value="crosses">Range includes no change</option><option value="no-interval">No range in the source</option><option value="count">A count or a rate</option></select>
     <button type="reset" class="btn ghost sm" hidden>Reset</button>
   </form>
-  <div class="ev-bar"><p class="ev-count small muted" aria-live="polite"><!--n--><span id="ev-n">158</span> of 158<!--/n--> shown. <a href="facts.json" download>Download facts.json</a></p><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p></div>
+  <div class="ev-bar"><p class="ev-count small muted" aria-live="polite"><!--n--><span id="ev-n">179</span> of 179<!--/n--> shown. <a href="facts.json" download>Download facts.json</a></p><p class="legend"><span class="legend-s"><svg class="strip s-lower" width="88" height="14" viewBox="0 0 88 14" aria-hidden="true"><line class="s-base" x1="4" x2="84" y1="7" y2="7"/><line class="s-zero" x1="44" x2="44" y1="2" y2="12"/><line class="s-ci" x1="24" x2="37.3" y1="7" y2="7"/><circle class="s-mark" cx="30.7" cy="7" r="3.6"/></svg></span><span>The dot is the measured change, the bar around it the 95% range, the upright line no change. Left of the line is cheaper or fewer.</span></p></div>
 
   <div class="table-wrap ev-wrap">
     <!--n--><table class="table ev" id="ev-table">
       <thead><tr><th scope="col" class="x"><span class="sr">Details</span></th><th scope="col" class="claim-c" aria-sort="none"><button type="button" class="th-sort" data-sort="claim">Measurement<svg class="sort-i" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 6l3-3 3 3M5 10l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></th><th scope="col" class="c-mod">Mod</th><th scope="col" class="c-eff" aria-sort="none"><button type="button" class="th-sort" data-sort="effect">Change<svg class="sort-i" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 6l3-3 3 3M5 10l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></th><th scope="col" class="st c-int" aria-sort="none"><button type="button" class="th-sort" data-sort="width">Range<svg class="sort-i" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 6l3-3 3 3M5 10l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></th><th scope="col" class="c-runs">Runs</th><th scope="col" class="c-date" aria-sort="none"><button type="button" class="th-sort" data-sort="date">Date<svg class="sort-i" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 6l3-3 3 3M5 10l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></th></tr></thead>
       <tbody>
-<tr class="ev-row" id="f-graded-runs-total" data-id="graded-runs-total" data-mods="pack" data-session="both" data-language="Python, TypeScript and Go" data-metric="quality" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+<tr class="ev-row" id="f-graded-runs-total" data-id="graded-runs-total" data-mods="pack" data-session="both" data-language="Python, TypeScript and Go" data-metric="quality" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-graded-runs-total" aria-label="Details of: Graded runs that ship with the release"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
-  <td class="claim-c"><span class="claim">Graded runs that ship with the release</span><span class="sub">graded runs, 61 short of full marks</span></td>
+  <td class="claim-c"><span class="claim">Graded runs that ship with the release</span><span class="sub">graded runs, 90 short of full marks</span></td>
   <td class="c-mod"><span class="tag muted-t">the pack</span></td>
-  <td class="c-eff"><span class="f-w">2,484</span><span class="f-x">2,484</span><span class="m-only"></span></td>
+  <td class="c-eff"><span class="f-w">2,550</span><span class="f-x">2,550</span><span class="m-only"></span></td>
   <td class="st c-int"></td>
-  <td class="c-runs">2,484 runs</td>
-  <td class="c-date" title="13 and 18 Oct 2026">13 and 18 Oct</td>
+  <td class="c-runs">2,550 runs</td>
+  <td class="c-date" title="13 and 19 Oct 2026">13 and 19 Oct</td>
 </tr>
 <tr class="ev-detail" id="d-graded-runs-total" hidden><td></td><td colspan="6">
   <dl class="kv">
-    <div><dt>Compared</dt><dd>graded runs, 61 short of full marks</dd></div>
+    <div><dt>Compared</dt><dd>graded runs, 90 short of full marks</dd></div>
     <div><dt>Measured</dt><dd>Quality</dd></div>
     <div><dt>Session</dt><dd>fresh and long</dd></div>
     <div><dt>Language</dt><dd>Python, TypeScript and Go</dd></div>
     <div><dt>Jobs</dt><dd>click, chrono, PocketBase and the other benchmark sets</dd></div>
-    <div><dt>Runs</dt><dd>2,484 runs</dd></div>
-    <div><dt>Model and date</dt><dd>Opus 5.5, 13 and 18 Oct 2026</dd></div>
+    <div><dt>Runs</dt><dd>2,550 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 13 and 19 Oct 2026</dd></div>
     <div><dt>Results</dt><dd>61 fell short of full marks, listed in the README</dd></div>
   </dl>
-  <blockquote class="quote"><p>“Of all 2,484 graded runs that ship with this release, 61 fell short”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
+  <blockquote class="quote"><p>“Of all 2,550 graded runs that ship with this release, 90 fell short”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/README.md#questions">README.md, Questions</a></footer></blockquote>
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/SUITE.md">SUITE.md</a>.</p>
   
   <p class="small">Mods: <span class="tag muted-t">the pack</span></p>
@@ -3735,12 +3735,12 @@
   <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
   <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
-<tr class="ev-row" id="f-lsp-engine-pyright" data-id="lsp-engine-pyright" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="accuracy" data-result="no-interval" data-date="2026-10-18" data-effect="50" data-width="">
+<tr class="ev-row" id="f-lsp-engine-pyright" data-id="lsp-engine-pyright" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="accuracy" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-engine-pyright" aria-label="Details of: Uses of a name found by pyright, the language server"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">Uses of a name found by pyright, the language server</span><span class="sub">share of a name’s uses found, pyright (95% of its hits real)</span></td>
   <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
-  <td class="c-eff"><span class="f-w">50% higher</span><span class="f-x">50% higher</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="50% higher"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="81.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 84.7 7)"/></svg></span></td>
-  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="50% higher"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="96.1" y="3.8" width="6.4" height="6.4" transform="rotate(45 99.3 7)"/></svg></td>
+  <td class="c-eff"><span class="f-w">50%</span><span class="f-x">50%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
   <td class="c-runs">49 names</td>
   <td class="c-date" title="18 Oct 2026">18 Oct</td>
 </tr>
@@ -3760,12 +3760,12 @@
   <p class="small">The story: <a href="12-the-mod-that-left.html">Lab note 12</a>.</p>
   <p class="small">Mods: <span class="tag muted-t">tried beside it</span></p>
 </td></tr>
-<tr class="ev-row" id="f-lsp-engine-search" data-id="lsp-engine-search" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="accuracy" data-result="no-interval" data-date="2026-10-18" data-effect="100" data-width="">
+<tr class="ev-row" id="f-lsp-engine-search" data-id="lsp-engine-search" data-mods="lsp-plus" data-session="fresh" data-language="Python" data-metric="accuracy" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
   <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-lsp-engine-search" aria-label="Details of: Uses of a name found by a word search"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
   <td class="claim-c"><span class="claim">Uses of a name found by a word search</span><span class="sub">share of a name’s uses found, a word search (75% of its hits real)</span></td>
   <td class="c-mod"><span class="tag muted-t">tried beside it</span></td>
-  <td class="c-eff"><span class="f-w">100% higher</span><span class="f-x">100% higher</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="100% higher"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><path class="s-arrow" d="M95 7 l-6 -4 v8 z"/></svg></span></td>
-  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="100% higher"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><path class="s-arrow" d="M111 7 l-6 -4 v8 z"/></svg></td>
+  <td class="c-eff"><span class="f-w">100%</span><span class="f-x">100%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
   <td class="c-runs">49 names</td>
   <td class="c-date" title="18 Oct 2026">18 Oct</td>
 </tr>
@@ -4034,6 +4034,531 @@
   <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
   
   <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-rounds" data-id="draft-rounds" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="count" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-rounds" aria-label="Details of: Without draft: whole writes of a guide revised to at most 700 words"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Without draft: whole writes of a guide revised to at most 700 words</span><span class="sub">2 to 4 whole writes per run, every first draft about half over the limit</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">17 writes in 6 runs</span><span class="f-x">17 writes in 6 runs</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">6 runs: plain Claude Code, the pack, the pack without lsp-plus, 2 each</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-rounds" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>2 to 4 whole writes per run, every first draft about half over the limit</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>a guide revised in place to at most 700 words</dd></div>
+    <div><dt>Runs</dt><dd>6 runs: plain Claude Code, the pack, the pack without lsp-plus, 2 each</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“Every first draft ran about half over the limit, and every run wrote the whole guide 2 to 4 times, 17 writes in 6 runs.”</p><footer>Quoted from <a href="13-writing-it-once.html#rounds-of-rewrites">Lab notes 13, Rounds of rewrites</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-beyond.jsonl">results-beyond.jsonl</a>.</p>
+  <p class="small">The story: <a href="13-writing-it-once.html">Lab note 13</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-edit-cuts" data-id="draft-edit-cuts" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="cost" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-edit-cuts" aria-label="Details of: draft 0.1.0, cutting a guide in place with edits, one trial run"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft 0.1.0, cutting a guide in place with edits, one trial run</span><span class="sub">against $0.86 for the same task without draft, average of four runs</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">$0.95</span><span class="f-x">$0.95</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">1 run</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-edit-cuts" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>against $0.86 for the same task without draft, average of four runs</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>a guide revised in place to at most 700 words</dd></div>
+    <div><dt>Runs</dt><dd>1 run</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“The run cost $0.95 and 20,090 output tokens.”</p><p>“The same task without draft averaged $0.86 and 17,674 over four runs.”</p><footer>Quoted from <a href="13-writing-it-once.html#cutting-in-place-cost-more">Lab notes 13, Cutting in place cost more</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft-smoke.jsonl">results-draft-smoke.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>.</p>
+  <p class="small">The story: <a href="13-writing-it-once.html">Lab note 13</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-011-cost" data-id="draft-011-cost" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="cost" data-result="lower" data-date="2026-10-18" data-effect="-14.2" data-width="7.199999999999999">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-011-cost" aria-label="Details of: draft 0.1.1, aiming at three quarters of the limit, on six writing tasks"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft 0.1.1, aiming at three quarters of the limit, on six writing tasks</span><span class="sub">the pack with draft against the pack</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">14% cheaper</span><span class="f-x">14.2% cheaper</span><span class="rg">95% range 10.5 to 17.7% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="14.2% cheaper, 95% range 10.5 to 17.7% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="35" x2="40.3" y1="7" y2="7"/><circle class="s-mark" cx="37.6" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="14.2% cheaper, 95% range 10.5 to 17.7% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="40.7" x2="46.9" y1="7" y2="7"/><circle class="s-mark" cx="43.7" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">48 runs</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-011-cost" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack with draft against the pack</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit</dd></div>
+    <div><dt>Runs</dt><dd>48 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>in 2 of 4 FAQ runs a requested fact left out</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“On six writing tasks, 48 runs, it cost 14.2% less [−17.7, −10.5].”</p><p>“In 2 of 4 FAQ runs it also left out the escalation order, a fact the request asked for.”</p><footer>Quoted from <a href="13-writing-it-once.html#aiming-low-dropped-facts">Lab notes 13, Aiming low dropped facts</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft.jsonl">results-draft.jsonl</a>.</p>
+  <p class="small">The story: <a href="13-writing-it-once.html">Lab note 13</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-requests" data-id="draft-requests" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="requests" data-result="lower" data-date="2026-10-18" data-effect="-10.7" data-width="14.499999999999998">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-requests" aria-label="Details of: draft 0.1.3 on six writing tasks"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft 0.1.3 on six writing tasks</span><span class="sub">the pack with draft against the pack</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">11% fewer steps</span><span class="f-x">10.7% fewer steps</span><span class="rg">95% range 3.4 to 17.9% fewer steps</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="10.7% fewer steps, 95% range 3.4 to 17.9% fewer steps"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="34.9" x2="45.5" y1="7" y2="7"/><circle class="s-mark" cx="40.2" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="10.7% fewer steps, 95% range 3.4 to 17.9% fewer steps"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="40.5" x2="53.1" y1="7" y2="7"/><circle class="s-mark" cx="46.7" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">24 runs</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-requests" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack with draft against the pack</dd></div>
+    <div><dt>Measured</dt><dd>Steps</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>six writing tasks: a runbook, a guide revised to 700 words, a 200-word brief, a 300-word FAQ, a 2,080-word document cut to 800, and a data report without a limit</dd></div>
+    <div><dt>Runs</dt><dd>24 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>no run over its word limit</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“For 0.1.3, output fell 19.1% [−25.3, −12.6] and requests 10.7% [−17.9, −3.4].”</p><footer>Quoted from <a href="13-writing-it-once.html#what-it-saved">Lab notes 13, What it saved</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
+  <p class="small">The story: <a href="13-writing-it-once.html">Lab note 13</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-draft-guide-writes" data-id="draft-guide-writes" data-mods="draft" data-session="fresh" data-language="Markdown prose" data-metric="count" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-draft-guide-writes" aria-label="Details of: draft 0.1.3: whole writes of a guide revised to at most 700 words"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">draft 0.1.3: whole writes of a guide revised to at most 700 words</span><span class="sub">against 11 writes in 4 runs without draft</span></td>
+  <td class="c-mod"><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">6 writes in 4 runs</span><span class="f-x">6 writes in 4 runs</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">4 runs each</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-draft-guide-writes" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>against 11 writes in 4 runs without draft</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Markdown prose</dd></div>
+    <div><dt>Jobs</dt><dd>a guide revised in place to at most 700 words</dd></div>
+    <div><dt>Runs</dt><dd>4 runs each</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>no run over its word limit</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“On the guide, without draft each run wrote the whole text 2 or 3 times, 11 writes in 4 runs.”</p><p>“With 0.1.3 no run wrote it more than twice, 6 writes in 4 runs, and one run revised it in place with a few edits.”</p><footer>Quoted from <a href="13-writing-it-once.html#what-it-saved">Lab notes 13, What it saved</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft2.jsonl">results-draft2.jsonl</a>, <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-draft3.jsonl">results-draft3.jsonl</a>.</p>
+  <p class="small">The story: <a href="13-writing-it-once.html">Lab note 13</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-route-real-jev" data-id="route-real-jev" data-mods="route" data-session="other" data-language="other" data-metric="accuracy" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-route-real-jev" aria-label="Details of: Jev on real prompts, from a score of 0.95"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Jev on real prompts, from a score of 0.95</span><span class="sub">share of its hand-offs that Haiku labelled feature or test work</span></td>
+  <td class="c-mod"><a class="tag" href="mods/route.html">route</a></td>
+  <td class="c-eff"><span class="f-w">95%</span><span class="f-x">95%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">877 prompts</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-route-real-jev" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of its hand-offs that Haiku labelled feature or test work</dd></div>
+    <div><dt>Measured</dt><dd>Accuracy</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>877 real Claude Code prompts: the author's sessions and four public trace sets</dd></div>
+    <div><dt>Runs</dt><dd>877 prompts</dd></div>
+    <div><dt>Model and date</dt><dd>TypeSafe Jev, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“at 0.95, 95% and 78%”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#081-2026-10-18">CHANGELOG.md, 0.8.1 (2026-10-18)</a>, and <a href="14-clean-prompts-real-prompts.html#the-outside-classifiers-on-real-prompts">Lab notes 14, The outside classifiers on real prompts</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="14-clean-prompts-real-prompts.html">Lab note 14</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/route.html">route</a></p>
+</td></tr>
+<tr class="ev-row" id="f-route-real-jev-own" data-id="route-real-jev-own" data-mods="route" data-session="other" data-language="other" data-metric="accuracy" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-route-real-jev-own" aria-label="Details of: Jev on the author's interactive prompts, from a score of 0.95"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Jev on the author's interactive prompts, from a score of 0.95</span><span class="sub">share of its hand-offs that Haiku labelled feature or test work</span></td>
+  <td class="c-mod"><a class="tag" href="mods/route.html">route</a></td>
+  <td class="c-eff"><span class="f-w">78%</span><span class="f-x">78%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">221 prompts</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-route-real-jev-own" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of its hand-offs that Haiku labelled feature or test work</dd></div>
+    <div><dt>Measured</dt><dd>Accuracy</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>the author's interactive Claude Code prompts among 877 real ones</dd></div>
+    <div><dt>Runs</dt><dd>221 prompts</dd></div>
+    <div><dt>Model and date</dt><dd>TypeSafe Jev, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“at 0.95, 95% and 78%”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#081-2026-10-18">CHANGELOG.md, 0.8.1 (2026-10-18)</a>, and <a href="14-clean-prompts-real-prompts.html#real-prompts-are-not">Lab notes 14, Real prompts are not</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="14-clean-prompts-real-prompts.html">Lab note 14</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/route.html">route</a></p>
+</td></tr>
+<tr class="ev-row" id="f-route-real-scaledown" data-id="route-real-scaledown" data-mods="route" data-session="other" data-language="other" data-metric="accuracy" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-route-real-scaledown" aria-label="Details of: ScaleDown on real prompts, from a score of 0.7"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">ScaleDown on real prompts, from a score of 0.7</span><span class="sub">share of its hand-offs that Haiku labelled feature or test work</span></td>
+  <td class="c-mod"><a class="tag" href="mods/route.html">route</a></td>
+  <td class="c-eff"><span class="f-w">92%</span><span class="f-x">92%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">875 answers</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-route-real-scaledown" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of its hand-offs that Haiku labelled feature or test work</dd></div>
+    <div><dt>Measured</dt><dd>Accuracy</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>877 real Claude Code prompts: the author's sessions and four public trace sets</dd></div>
+    <div><dt>Runs</dt><dd>875 answers</dd></div>
+    <div><dt>Model and date</dt><dd>ScaleDown Classify, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“ScaleDown keeps 0.7 (92% and 70%, finding fewer)”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#081-2026-10-18">CHANGELOG.md, 0.8.1 (2026-10-18)</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="14-clean-prompts-real-prompts.html">Lab note 14</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/route.html">route</a></p>
+</td></tr>
+<tr class="ev-row" id="f-route-local-real" data-id="route-local-real" data-mods="route" data-session="other" data-language="other" data-metric="accuracy" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-route-local-real" aria-label="Details of: A 64 KB local classifier, trained on prompts Haiku wrote, on the author's interactive prompts"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">A 64 KB local classifier, trained on prompts Haiku wrote, on the author's interactive prompts</span><span class="sub">share of its hand-offs that Haiku labelled feature or test work</span></td>
+  <td class="c-mod"><a class="tag" href="mods/route.html">route</a></td>
+  <td class="c-eff"><span class="f-w">18%</span><span class="f-x">18%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">101 hand-offs on the author's prompts</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-route-local-real" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of its hand-offs that Haiku labelled feature or test work</dd></div>
+    <div><dt>Measured</dt><dd>Accuracy</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>918 distinct real Claude Code prompts, the author's interactive ones among them</dd></div>
+    <div><dt>Runs</dt><dd>101 hand-offs on the author's prompts</dd></div>
+    <div><dt>Model and date</dt><dd>hashed n-gram logistic regression, 64 KB, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“On the author's interactive prompts it was 18%: 83 of its 101 hand-offs were wrong.”</p><footer>Quoted from <a href="14-clean-prompts-real-prompts.html#real-prompts-are-not">Lab notes 14, Real prompts are not</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="14-clean-prompts-real-prompts.html">Lab note 14</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/route.html">route</a></p>
+</td></tr>
+<tr class="ev-row" id="f-route-student-jev" data-id="route-student-jev" data-mods="route" data-session="other" data-language="other" data-metric="count" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-route-student-jev" aria-label="Details of: A 64 KB student taught by Jev, on the author's interactive prompts"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">A 64 KB student taught by Jev, on the author's interactive prompts</span><span class="sub">Jev's hand-offs the student also made</span></td>
+  <td class="c-mod"><a class="tag" href="mods/route.html">route</a></td>
+  <td class="c-eff"><span class="f-w">9 of 61</span><span class="f-x">9 of 61</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="9 of 61"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="13" height="5" rx="2.5"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="9 of 61"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="15" height="5" rx="2.5"/></svg></td>
+  <td class="c-runs">667 prompts</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-route-student-jev" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>Jev's hand-offs the student also made</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>2,817 prompts Jev answered, the author's 667 interactive ones among them</dd></div>
+    <div><dt>Runs</dt><dd>667 prompts</dd></div>
+    <div><dt>Model and date</dt><dd>hashed n-gram logistic regression, 64 KB, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“On the author's 667 interactive prompts, Jev handed off 61 at its threshold, and the student found 9 of them.”</p><footer>Quoted from <a href="14-clean-prompts-real-prompts.html#two-more-tries">Lab notes 14, Two more tries</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="14-clean-prompts-real-prompts.html">Lab note 14</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/route.html">route</a></p>
+</td></tr>
+<tr class="ev-row" id="f-route-real-worth" data-id="route-real-worth" data-mods="route" data-session="other" data-language="other" data-metric="cost" data-result="count" data-date="2026-10-18" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-route-real-worth" aria-label="Details of: What route saves in the author's sessions"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">What route saves in the author's sessions</span><span class="sub">share of all spend saved, worked out from the spend Jev's hand-offs cover and the benchmarks' savings, not measured</span></td>
+  <td class="c-mod"><a class="tag" href="mods/route.html">route</a></td>
+  <td class="c-eff"><span class="f-w">3 to 6%</span><span class="f-x">3 to 6%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">not measured</td>
+  <td class="c-date" title="18 Oct 2026">18 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-route-real-worth" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>share of all spend saved, worked out from the spend Jev's hand-offs cover and the benchmarks' savings, not measured</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>the author's Claude Code sessions</dd></div>
+    <div><dt>Runs</dt><dd>not measured</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5 with a Sonnet worker, 18 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“nearer 3 to 6% with the hand-offs that were not feature or test work”</p><footer>Quoted from <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#081-2026-10-18">CHANGELOG.md, 0.8.1 (2026-10-18)</a>, and <a href="14-clean-prompts-real-prompts.html#what-route-is-worth-in-a-real-session">Lab notes 14, What route is worth in a real session</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="14-clean-prompts-real-prompts.html">Lab note 14</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/route.html">route</a></p>
+</td></tr>
+<tr class="ev-row" id="f-sc-prep-time" data-id="sc-prep-time" data-mods="smart-compact" data-session="other" data-language="other" data-metric="time" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-sc-prep-time" aria-label="Details of: How long a compaction takes, the summary written ahead against Claude Code's own"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">How long a compaction takes, the summary written ahead against Claude Code's own</span><span class="sub">Claude Code writing the summary in the compaction to smart-compact's summary written in the background after the turn</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a></td>
+  <td class="c-eff"><span class="f-w">15.2 s to 3 to 5 ms</span><span class="f-x">15.2 s to 3 to 5 ms</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">a handful of live compactions</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-sc-prep-time" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>Claude Code writing the summary in the compaction to smart-compact's summary written in the background after the turn</dd></div>
+    <div><dt>Measured</dt><dd>Time</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>interactive sessions at 67k to 70k tokens, compaction after a turn set to fire early</dd></div>
+    <div><dt>Runs</dt><dd>a handful of live compactions</dd></div>
+    <div><dt>Model and date</dt><dd>Sonnet 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>the next turn answered from the summary each time</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| Writing the summary | in the compaction: 15.2 s at 67k | in the background after the turn: 16 to 19 s |”</p><p>“| The compaction itself | 15.2 s | 3 to 5 ms |”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#live">Lab notes 15, Live</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a></p>
+</td></tr>
+<tr class="ev-row" id="f-sc-engine-436k" data-id="sc-engine-436k" data-mods="smart-compact" data-session="long" data-language="other" data-metric="time" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-sc-engine-436k" aria-label="Details of: Claude Code's own summary in a 436k-token session"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Claude Code's own summary in a 436k-token session</span><span class="sub">the wait while the engine wrote the summary, before smart-compact's fix</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a></td>
+  <td class="c-eff"><span class="f-w">102 s</span><span class="f-x">102 s</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">one compaction</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-sc-engine-436k" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the wait while the engine wrote the summary, before smart-compact's fix</dd></div>
+    <div><dt>Measured</dt><dd>Time</dd></div>
+    <div><dt>Session</dt><dd>long</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>this lab's own session at 436k tokens</dd></div>
+    <div><dt>Runs</dt><dd>one compaction</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>an observation, not a graded run</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“The fork wrote its summary in the background, and then the engine summarized anyway: 102 s.”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#the-bug-only-a-live-session-showed">Lab notes 15, The bug only a live session showed</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a></p>
+</td></tr>
+<tr class="ev-row" id="f-sc-prep-next-task" data-id="sc-prep-next-task" data-mods="smart-compact" data-session="long" data-language="Python" data-metric="cost" data-result="lower" data-date="2026-10-19" data-effect="-13.9" data-width="8.700000000000001">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-sc-prep-next-task" aria-label="Details of: The next task after a summary written ahead, against after /compact"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The next task after a summary written ahead, against after /compact</span><span class="sub">the summary written ahead against /compact</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a></td>
+  <td class="c-eff"><span class="f-w">14% cheaper</span><span class="f-x">13.9% cheaper</span><span class="rg">95% range 9.4 to 18.1% cheaper</span><span class="m-only"><svg class="strip s-lower" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="13.9% cheaper, 95% range 9.4 to 18.1% cheaper"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><line class="s-ci" x1="34.7" x2="41.1" y1="7" y2="7"/><circle class="s-mark" cx="37.8" cy="7" r="3.6"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-lower" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="13.9% cheaper, 95% range 9.4 to 18.1% cheaper"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><line class="s-ci" x1="40.3" x2="47.9" y1="7" y2="7"/><circle class="s-mark" cx="44" cy="7" r="3.6"/></svg></td>
+  <td class="c-runs">18 runs each</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-sc-prep-next-task" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the summary written ahead against /compact</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>long</dd></div>
+    <div><dt>Language</dt><dd>Python</dd></div>
+    <div><dt>Jobs</dt><dd>six tasks after compacting a 224k-token session over click: two need its files, two the conversation, two nothing</dd></div>
+    <div><dt>Runs</dt><dd>18 runs each</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>16 of 18 vs 14 of 18 at full marks</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“The next task cost −13.9% [−18.1, −9.4], lower on all six tasks”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#against-compact">Lab notes 15, Against /compact</a>, and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/CHANGELOG.md#090-2026-10-19">CHANGELOG.md, 0.9.0 (2026-10-19)</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prep.jsonl">results-prep.jsonl</a>.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a></p>
+</td></tr>
+<tr class="ev-row" id="f-sc-prep-quality" data-id="sc-prep-quality" data-mods="smart-compact" data-session="long" data-language="Python" data-metric="quality" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-sc-prep-quality" aria-label="Details of: Runs at full marks after a summary written ahead, against after /compact"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">Runs at full marks after a summary written ahead, against after /compact</span><span class="sub">the summary written ahead against /compact; mean score 0.981 against 0.917, a difference whose range touches zero</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a></td>
+  <td class="c-eff"><span class="f-w">16 of 18 against 14 of 18</span><span class="f-x">16 of 18 against 14 of 18</span><span class="m-only"><svg class="strip s-ratio s-most" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="16 of 18"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="78" height="5" rx="2.5"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-ratio s-most" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="16 of 18"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/><rect class="s-fill" x="4" y="4.5" width="92" height="5" rx="2.5"/></svg></td>
+  <td class="c-runs">18 runs each</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-sc-prep-quality" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the summary written ahead against /compact; mean score 0.981 against 0.917, a difference whose range touches zero</dd></div>
+    <div><dt>Measured</dt><dd>Quality</dd></div>
+    <div><dt>Session</dt><dd>long</dd></div>
+    <div><dt>Language</dt><dd>Python</dd></div>
+    <div><dt>Jobs</dt><dd>six tasks after compacting a 224k-token session over click</dd></div>
+    <div><dt>Runs</dt><dd>18 runs each</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>16 of 18 vs 14 of 18 at full marks</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| Runs at full marks | 14 of 18 | 16 of 18 |”</p><p>“| Mean score | 0.917 | 0.981 |”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#against-compact">Lab notes 15, Against /compact</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prep.jsonl">results-prep.jsonl</a>.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a></p>
+</td></tr>
+<tr class="ev-row" id="f-sc-prep-summary-price" data-id="sc-prep-summary-price" data-mods="smart-compact" data-session="long" data-language="other" data-metric="price" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-sc-prep-summary-price" aria-label="Details of: What a summary written ahead costs, on a warm cache"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">What a summary written ahead costs, on a warm cache</span><span class="sub">average, repriced on a warm cache at list prices ($0.09 to $0.24)</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a></td>
+  <td class="c-eff"><span class="f-w">$0.13</span><span class="f-x">$0.13</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">18 summaries</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-sc-prep-summary-price" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>average, repriced on a warm cache at list prices ($0.09 to $0.24)</dd></div>
+    <div><dt>Measured</dt><dd>Price, worked out</dd></div>
+    <div><dt>Session</dt><dd>long</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>summaries of a 224k-token session over click</dd></div>
+    <div><dt>Runs</dt><dd>18 summaries</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“repriced on a warm cache, the bench's summaries came to $0.13 on average ($0.09 to $0.24).”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#writing-it-before-it-is-needed">Lab notes 15, Writing it before it is needed</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-prep.jsonl">results-prep.jsonl</a>.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a></p>
+</td></tr>
+<tr class="ev-row" id="f-summary-copied" data-id="summary-copied" data-mods="smart-compact cells" data-session="long" data-language="other" data-metric="count" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-summary-copied" aria-label="Details of: How much of a summary repeats the conversation word for word"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">How much of a summary repeats the conversation word for word</span><span class="sub">of a summary written ahead's text (17% and 20% in two of Claude Code's own summaries); the part a program could copy</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a><a class="tag" href="mods/cells.html">cells</a></td>
+  <td class="c-eff"><span class="f-w">19%</span><span class="f-x">19%</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">19 summaries</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-summary-copied" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>of a summary written ahead's text (17% and 20% in two of Claude Code's own summaries); the part a program could copy</dd></div>
+    <div><dt>Measured</dt><dd>Count</dd></div>
+    <div><dt>Session</dt><dd>long</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>17 bench summaries written ahead, two of Claude Code's summaries from this lab's session</dd></div>
+    <div><dt>Runs</dt><dd>19 summaries</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>an observation, not a graded run</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“In two of Claude Code's summaries from this lab's session (22,136 and 20,173 characters), 17% and 20% of the text repeats the conversation word for word.”</p><p>“In 17 of the bench's summaries written ahead (8,535 characters on average) the share was 19%.”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#why-not-a-summary-without-a-model">Lab notes 15, Why not a summary without a model</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a><a class="tag" href="mods/cells.html">cells</a></p>
+</td></tr>
+<tr class="ev-row" id="f-summary-token-life" data-id="summary-token-life" data-mods="smart-compact" data-session="other" data-language="other" data-metric="price" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-summary-token-life" aria-label="Details of: What 1,000 tokens of summary cost over their life"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">What 1,000 tokens of summary cost over their life</span><span class="sub">$0.020 written once as output, $0.008 to the cache, $0.029 read again by a median of 143 later requests; worked out from list prices</span></td>
+  <td class="c-mod"><a class="tag" href="mods/smart-compact.html">smart-compact</a></td>
+  <td class="c-eff"><span class="f-w">$0.057</span><span class="f-x">$0.057</span><span class="m-only"></span></td>
+  <td class="st c-int"></td>
+  <td class="c-runs">worked out, not measured</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-summary-token-life" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>$0.020 written once as output, $0.008 to the cache, $0.029 read again by a median of 143 later requests; worked out from list prices</dd></div>
+    <div><dt>Measured</dt><dd>Price, worked out</dd></div>
+    <div><dt>Session</dt><dd>not stated</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>a summary kept in a session that goes on</dd></div>
+    <div><dt>Runs</dt><dd>worked out, not measured</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“About $0.057 over its life, and output is about a third of it.”</p><footer>Quoted from <a href="15-compaction-in-milliseconds.html#why-not-a-summary-without-a-model">Lab notes 15, Why not a summary without a model</a></footer></blockquote>
+  <p class="small">Raw runs: none in the release.</p>
+  <p class="small">The story: <a href="15-compaction-in-milliseconds.html">Lab note 15</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/smart-compact.html">smart-compact</a></p>
+</td></tr>
+<tr class="ev-row" id="f-steer-cost" data-id="steer-cost" data-mods="" data-session="fresh" data-language="Python, TypeScript and prose" data-metric="cost" data-result="no-interval" data-date="2026-10-19" data-effect="9" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-steer-cost" aria-label="Details of: A lean system-prompt mod (steer) on five tasks, smoke run"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">A lean system-prompt mod (steer) on five tasks, smoke run</span><span class="sub">the pack with steer against the pack</span></td>
+  <td class="c-mod"></td>
+  <td class="c-eff"><span class="f-w">9% more expensive</span><span class="f-x">9% more expensive</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="9% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="51.4" y="3.8" width="6.4" height="6.4" transform="rotate(45 54.6 7)"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="9% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="60.599999999999994" y="3.8" width="6.4" height="6.4" transform="rotate(45 63.8 7)"/></svg></td>
+  <td class="c-runs">5 runs each, one per task</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-steer-cost" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>the pack with steer against the pack</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Python, TypeScript and prose</dd></div>
+    <div><dt>Jobs</dt><dd>five tasks, one from each of five sets: a web-app bug, a click feature, a trace, a 200-word brief, a service config</dd></div>
+    <div><dt>Runs</dt><dd>5 runs each, one per task</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd><span class="ok"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 5 of 5 with steer, 5 of 5 without</span></dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| Z8S, with steer | 5 of 5 | $1.63 (+9%) | 32 | 25.7k | 56.5k | 3 | 0 |”</p><footer>Quoted from <a href="16-what-a-system-prompt-can-order.html#the-smoke-run">Lab notes 16, The smoke run</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-steer-smoke.jsonl">results-steer-smoke.jsonl</a>.</p>
+  <p class="small">The story: <a href="16-what-a-system-prompt-can-order.html">Lab note 16</a>.</p>
+  <p class="small">Mods: </p>
+</td></tr>
+<tr class="ev-row" id="f-steer-no-orders-cost" data-id="steer-no-orders-cost" data-mods="seek draft" data-session="fresh" data-language="Python, TypeScript and prose" data-metric="cost" data-result="no-interval" data-date="2026-10-19" data-effect="31" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-steer-no-orders-cost" aria-label="Details of: The same guidance in the system prompt only, with seek's and draft's prompt orders off"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">The same guidance in the system prompt only, with seek's and draft's prompt orders off</span><span class="sub">steer without the prompt orders against the pack</span></td>
+  <td class="c-mod"><a class="tag" href="mods/seek.html">seek</a><a class="tag" href="mods/draft.html">draft</a></td>
+  <td class="c-eff"><span class="f-w">31% more expensive</span><span class="f-x">31% more expensive</span><span class="m-only"><svg class="strip s-no-interval" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="31% more expensive"><line class="s-base" x1="4" x2="92" y1="7" y2="7"/><line class="s-zero" x1="48" x2="48" y1="2" y2="12"/><rect class="s-mark" x="67.5" y="3.8" width="6.4" height="6.4" transform="rotate(45 70.7 7)"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-no-interval" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="31% more expensive"><line class="s-base" x1="4" x2="108" y1="7" y2="7"/><line class="s-zero" x1="56" x2="56" y1="2" y2="12"/><rect class="s-mark" x="79.7" y="3.8" width="6.4" height="6.4" transform="rotate(45 82.9 7)"/></svg></td>
+  <td class="c-runs">5 runs each, one per task</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-steer-no-orders-cost" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>steer without the prompt orders against the pack</dd></div>
+    <div><dt>Measured</dt><dd>Cost</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>Python, TypeScript and prose</dd></div>
+    <div><dt>Jobs</dt><dd>the same five tasks</dd></div>
+    <div><dt>Runs</dt><dd>5 runs each, one per task</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>4.95 of 5: the brief left out one required action item</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“| Z8SX, steer without the prompt orders | 4.95 of 5 | $1.95 (+31%) | 35 | 30.7k | 80.5k | 6 | 0 |”</p><footer>Quoted from <a href="16-what-a-system-prompt-can-order.html#the-smoke-run">Lab notes 16, The smoke run</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-steer-smoke.jsonl">results-steer-smoke.jsonl</a>.</p>
+  <p class="small">The story: <a href="16-what-a-system-prompt-can-order.html">Lab note 16</a>.</p>
+  <p class="small">Mods: <a class="tag" href="mods/seek.html">seek</a><a class="tag" href="mods/draft.html">draft</a></p>
+</td></tr>
+<tr class="ev-row" id="f-steer-criteria-followed" data-id="steer-criteria-followed" data-mods="" data-session="fresh" data-language="other" data-metric="followed" data-result="count" data-date="2026-10-19" data-effect="" data-width="">
+  <td class="x"><button type="button" class="ib xb" aria-expanded="false" aria-controls="d-steer-criteria-followed" aria-label="Details of: A system-prompt order to name what done means before starting"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+  <td class="claim-c"><span class="claim">A system-prompt order to name what done means before starting</span><span class="sub">runs that named it, of runs with steer</span></td>
+  <td class="c-mod"></td>
+  <td class="c-eff"><span class="f-w">0 of 10</span><span class="f-x">0 of 10</span><span class="m-only"><svg class="strip s-ratio" width="96" height="14" viewBox="0 0 96 14" role="img" aria-label="0 of 10"><rect class="s-track" x="4" y="4.5" width="88" height="5" rx="2.5"/></svg></span></td>
+  <td class="st c-int"><svg class="strip s-ratio" width="112" height="14" viewBox="0 0 112 14" role="img" aria-label="0 of 10"><rect class="s-track" x="4" y="4.5" width="104" height="5" rx="2.5"/></svg></td>
+  <td class="c-runs">10 runs</td>
+  <td class="c-date" title="19 Oct 2026">19 Oct</td>
+</tr>
+<tr class="ev-detail" id="d-steer-criteria-followed" hidden><td></td><td colspan="6">
+  <dl class="kv">
+    <div><dt>Compared</dt><dd>runs that named it, of runs with steer</dd></div>
+    <div><dt>Measured</dt><dd>Followed</dd></div>
+    <div><dt>Session</dt><dd>fresh</dd></div>
+    <div><dt>Language</dt><dd>not stated</dd></div>
+    <div><dt>Jobs</dt><dd>the same five tasks, two steer arms</dd></div>
+    <div><dt>Runs</dt><dd>10 runs</dd></div>
+    <div><dt>Model and date</dt><dd>Opus 5.5, 19 Oct 2026</dd></div>
+    <div><dt>Results</dt><dd>not stated</dd></div>
+  </dl>
+  <blockquote class="quote"><p>“No run named what done means before it started: 0 of 10 runs with steer.”</p><footer>Quoted from <a href="16-what-a-system-prompt-can-order.html#what-it-changed">Lab notes 16, What it changed</a></footer></blockquote>
+  <p class="small">Raw runs: <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/benchmarks/delegate-bench/results-steer-smoke.jsonl">results-steer-smoke.jsonl</a>.</p>
+  <p class="small">The story: <a href="16-what-a-system-prompt-can-order.html">Lab note 16</a>.</p>
+  <p class="small">Mods: </p>
 </td></tr>
       </tbody>
     </table><!--/n-->

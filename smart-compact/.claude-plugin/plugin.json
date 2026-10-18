@@ -1,6 +1,6 @@
 {
   "name": "smart-compact",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the status line whether the next prompt is ready or cold.",
   "author": {
     "name": "HarzerHeribert"
@@ -59,6 +59,12 @@
       "title": "Compact after a turn when it pays back within (requests)",
       "description": "In a long session, compact when a turn has ended (never mid-turn, never over a draft or running agents) if the compaction costs less than this many later requests save by reading the smaller context. Measured: no quality lost; at 250k on Opus it pays back after about 8 to 17 requests. 0 never compacts after a turn (the default while it is tried in real sessions; 20 is the measured choice).",
       "default": 0
+    },
+    "prepare": {
+      "type": "boolean",
+      "title": "Write the summary ahead (instant compaction)",
+      "description": "For the compaction after a turn: when it is due, a fork of the session writes the summary in the background (it reads the session's cache, as /compact does), and the compaction is then instant: the summary, then every message since, as they are. Nobody waits for it. Off: the engine summarizes 20 s after the turn, as /compact does, and a prompt sent meanwhile waits.",
+      "default": true
     },
     "maxIdleHours": {
       "type": "number",

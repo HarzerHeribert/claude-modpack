@@ -1,0 +1,115 @@
+diff --git a/src/app/routes/app/discussions/__tests__/discussion.test.tsx b/src/app/routes/app/discussions/__tests__/discussion.test.tsx
+index d84b155..aae578a 100644
+--- a/src/app/routes/app/discussions/__tests__/discussion.test.tsx
++++ b/src/app/routes/app/discussions/__tests__/discussion.test.tsx
+@@ -1,3 +1,4 @@
++import { db } from '@/testing/mocks/db';
+ import {
+   renderApp,
+   screen,
+@@ -143,3 +144,47 @@ test(
+     timeout: 20000,
+   },
+ );
++
++test('should only show the delete comment button on own comments for regular users', async () => {
++  const fakeUser = await createUser({ role: 'USER' });
++  const otherUser = await createUser({
++    role: 'USER',
++    teamId: fakeUser.teamId,
++  });
++  const fakeDiscussion = await createDiscussion({ teamId: fakeUser.teamId });
++
++  db.comment.create({
++    body: 'My own comment',
++    authorId: fakeUser.id,
++    discussionId: fakeDiscussion.id,
++  });
++  db.comment.create({
++    body: 'Comment from another user',
++    authorId: otherUser.id,
++    discussionId: fakeDiscussion.id,
++  });
++
++  await renderApp(<DiscussionRoute />, {
++    user: fakeUser,
++    path: `/app/discussions/:discussionId`,
++    url: `/app/discussions/${fakeDiscussion.id}`,
++  });
++
++  const commentsList = await screen.findByRole('list', {
++    name: 'comments',
++  });
++
++  const ownComment = await within(commentsList).findByRole('listitem', {
++    name: /my own comment/i,
++  });
++  const otherComment = within(commentsList).getByRole('listitem', {
++    name: /comment from another user/i,
++  });
++
++  expect(
++    within(ownComment).getByRole('button', { name: /delete comment/i }),
++  ).toBeInTheDocument();
++  expect(
++    within(otherComment).queryByRole('button', { name: /delete comment/i }),
++  ).not.toBeInTheDocument();
++});
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..c9b41a1 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,15 @@
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
++
++const createCommentBy = (author: User): Comment => ({
++  id: 'comment-id',
++  body: 'Hello World',
++  discussionId: 'discussion-id',
++  author,
++  createdAt: Date.now(),
++});
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+@@ -81,3 +90,23 @@ test('should not view protected resource if policy check fails and show fallback
+ 
+   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
+ });
++
++test('comment:delete policy should allow admins to delete any comment', async () => {
++  const admin = await createUser({ role: ROLES.ADMIN });
++  const author = await createUser({ role: ROLES.USER });
++
++  expect(POLICIES['comment:delete'](admin, createCommentBy(author))).toBe(true);
++});
++
++test('comment:delete policy should allow users to delete their own comments', async () => {
++  const user = await createUser({ role: ROLES.USER });
++
++  expect(POLICIES['comment:delete'](user, createCommentBy(user))).toBe(true);
++});
++
++test("comment:delete policy should not allow users to delete other users' comments", async () => {
++  const user = await createUser({ role: ROLES.USER });
++  const author = await createUser({ role: ROLES.USER, teamId: user.teamId });
++
++  expect(POLICIES['comment:delete'](user, createCommentBy(author))).toBe(false);
++});
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 

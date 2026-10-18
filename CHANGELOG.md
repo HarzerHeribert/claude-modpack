@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0 (2026-10-19)
+
+smart-compact's compaction after a turn is instant: its summary is written in the background before it is needed.
+
+- **smart-compact 0.3.0: the summary written ahead** (`prepare`, on whenever `afterTurnPayback` is). When a compaction after a turn is due, a fork of the session writes the summary in the background as the turn ends, from the session's own cache; the compaction then takes milliseconds: the summary, then every message since, as they are. Live, in an interactive session at about 70k tokens: 16 to 19 s writing in the background, 3 to 5 ms compacting, and the next turn answered from the summary, also when a prompt came in before the summary was ready. Against `/compact` from the same 224k session (six tasks, three runs each; `compact_bench.py` arm PREP, `results-prep.jsonl`): full marks in 16 of 18 runs against 14 of 18 (mean 0.981 against 0.917), the next task started on 36k tokens instead of 42k and cost 14% less, less on all six. It compacts through `/compact`, since a mod's own `$.session.compact` passes every compaction hook but that mod's, the one that answers with the summary: the transcript shows that `/compact` and the summary as one line, whole under ctrl+o. A summary the conversation no longer matches is dropped with a line saying why, and Claude Code summarizes as before.
+- **smart-compact learns only from its own compactions.** 0.2.0 also learned from Claude Code's, which keep a long tail of messages as they are, so a compaction looked worth less than it is and could stop being chosen at all.
+- **modpack 0.9.0**: the same eight mods.
+- **Benchmarks**: the runs of the summary written ahead (`results-prep.jsonl`) and the bench-only mod that installs it (`prep-mod/`).
+
 ## 0.8.1 (2026-10-18)
 
 route says what it is: an optional mod, the one that needs an outside classifier model, measured now on real prompts.

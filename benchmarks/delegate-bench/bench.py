@@ -181,6 +181,10 @@ ABLATION["Z6N"] = tuple(m for m in SHIPPED if m != "lsp-plus") + ("seek", "route
 # Z7: the pack as 0.7.0 ships it (no lsp-plus); Z7W: with draft, writing to a length in one draft and cuts.
 ABLATION["Z7"] = ABLATION["Z6N"]
 ABLATION["Z7W"] = ABLATION["Z6N"] + ("draft",)
+# Z8S: the pack as 0.8.0 ships it (Z7W) with steer, two system-prompt sections (the person's goal and what done means,
+# checked against what was observed; steps that pay with the pack's tools). Z8SX: the same with seek's and draft's
+# orders beside the prompt off, so the system prompt carries that guidance alone.
+ABLATION["Z8S"] = ABLATION["Z8SX"] = ABLATION["Z7W"] + ("steer",)
 # The prompt's fixed lead in those arms, so that every run goes through a subagent and the grading still holds (the answer
 # is the main's final message, the edits are on disk).
 VIA_SUBAGENT = ("Hand this whole task to one general-purpose subagent with the Agent tool (subagent_type \"general-purpose\"): "
@@ -814,6 +818,9 @@ def _run_one(task: str, arm: str, rep: int) -> dict:
             worker = WORKER_ARMS[arm]
             options = {"options": {"readWorker": worker, "mechanicalWorker": worker, "buildWorker": worker}}
             settings["pluginConfigs"] = {"delegate": options, "delegate@inline": options}
+        if arm == "Z8SX":
+            off = {"options": {"order": False}}
+            settings["pluginConfigs"] = {f"{m}{s}": off for m in ("seek", "draft") for s in ("", "@inline")}
         cmd += ["--settings", json.dumps(settings)]
     if arm == "R":
         cmd += ["--append-system-prompt", ROUTING]

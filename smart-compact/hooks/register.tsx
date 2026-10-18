@@ -1,8 +1,9 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, ModelUsage, PluginOptions, Register } from 'claude-code'
+import type { EngineInterface, ModelUsage, PluginOptions, Register, SessionCompactResult } from 'claude-code'
 
 import type { SmartCompactCache, SmartCompactWorld } from '../types'
 import { READY_ID, plainText, readySegment } from './line'
+import { SUMMARY_HEAD, SUMMARY_LINE, compactedWith, markOf, summaryPrompt, whyNotWith } from './summary'
 import {
   DEFAULT_LEARNED,
   TTL_5M,
@@ -30,10 +31,18 @@ type Options = {
   instructions: string
   /** Compact after a turn when that pays back within this many later requests; 0 never does. */
   afterTurnPayback: number
+  /** Write that compaction's summary ahead, in the background, so the compaction itself is instant. */
+  prepare: boolean
 }
 
-/** After a turn, wait this long before compacting: a quick follow-up should not wait for a summary. */
+/** Without prepare: after a turn, wait this long before compacting, so a quick follow-up does not wait for a summary. */
 const AFTER_TURN_GRACE_MS = 20_000
+
+/**
+ * A summary a fork wrote ahead (see prepare): its text, how many of the conversation's messages it read, the last of
+ * them (markOf), what writing it cost, and the context then.
+ */
+type Prepared = { text: string; covered: number; mark: string; usage: ModelUsage; contextTokens: number }
 
 const INITIAL_CACHE: SmartCompactCache = {
   phase: 'none',
@@ -56,7 +65,8 @@ const INITIAL_WORLD: SmartCompactWorld = {
 const CACHE = atom({ plugin: 'smart-compact', key: 'cache' } as const, INITIAL_CACHE)
 const WORLD = atom({ plugin: 'smart-compact', key: 'world' } as const, INITIAL_WORLD)
 
-const LEARNED_KEY = 'learned'
+/** 'learned' held what the engine's compactions taught too (0.2 and older): left behind, smart-compact starts over. */
+const LEARNED_KEY = 'learnedOwn'
 const EVIDENCE_KEY = 'ttlEvidence'
 const SAVED_KEY = 'savedUsd'
 
@@ -85,6 +95,7 @@ function readOptions(o: PluginOptions): Options {
     cacheTtl: pick<TtlSetting>(o.cacheTtl, ['auto', '5m', '1h'], 'auto'),
     instructions: typeof o.compactInstructions === 'string' ? o.compactInstructions : '',
     afterTurnPayback: num(o.afterTurnPayback, 0),
+    prepare: o.prepare !== false,
   }
 }
 
@@ -121,6 +132,14 @@ let isOwnText = false
 /** Failed attempts at the current edge, and when to try again. */
 let failures = 0
 let retryAt: number | undefined
+/** The summary a fork wrote ahead (see prepare), for smart-compact's next compaction. */
+let prepared: Prepared | undefined
+let isPreparing = false
+/** While smart-compact's own compaction runs: the summary offered to it, and the one its hook answered with. */
+let isCompacting = false
+let offer: Prepared | undefined
+let usedPrepared: Prepared | undefined
+let ownResult: SessionCompactResult | undefined
 
 async function getCache($: Engine): Promise<SmartCompactCache> {
   return { ...INITIAL_CACHE, ...(await read($, CACHE)) }
@@ -263,14 +282,16 @@ async function keepAlive($: Engine, c: SmartCompactCache, d: Decision) {
 /** Compacts; false when a hook vetoed it, so this edge is left alone. */
 async function compactNow($: Engine, c: SmartCompactCache, d: Decision): Promise<boolean> {
   const startedAt = await $.clock.now()
-  const r = await $.session.compact(options.instructions ? { instructions: options.instructions } : {})
+  const { r, used } = await compactOwn($, c.contextTokens ?? 0)
 
   if (r.skip !== undefined) {
     await setCache($, () => ({ phase: 'warm', plan: 'lapse', why: `compaction skipped: ${r.skip}`, actAt: undefined }))
     return false
   }
 
-  const cost = r.usage === undefined ? d.costs.compact : spend(r.usage, c.model, c.ttlMs)
+  // A summary written ahead was paid for then, and is counted with the compaction that used it.
+  const usage = used?.usage ?? r.usage
+  const cost = usage === undefined ? d.costs.compact : spend(usage, c.model, c.ttlMs)
   const left = (c.warmAt ?? startedAt) + c.ttlMs - startedAt
 
   await setCache($, x => ({
@@ -280,15 +301,21 @@ async function compactNow($: Engine, c: SmartCompactCache, d: Decision): Promise
   $.ui.log(
     `smart-compact: compacted ${tokens(c.contextTokens ?? 0)}` +
       (r.tokensAfter === undefined ? '' : ` → ${tokens(r.tokensAfter)}`) +
-      ` while idle, ${duration(left)} before the cache expired` +
+      ` while idle${used === undefined ? '' : ', at once with the summary written ahead'}, ${duration(left)} before the cache expired` +
       ` (re-caching it would have cost ${usd(d.costs.lapse)})`,
   )
   return true
 }
 
-/** After a compaction, from `/compact`, the engine's own or smart-compact's: learn from it and start over. */
-async function compacted($: Engine, result: { usage?: ModelUsage; tokensAfter?: number }) {
-  if (result.usage !== undefined) {
+/**
+ * After a compaction, from `/compact`, the engine's own or smart-compact's: start over. Only smart-compact's own
+ * (`isOwn`) are learned from: the engine's are another kind (its early summaries keep everything since they were
+ * written, a cold one rewrites the cache), and learning from them priced smart-compact's own as dear as theirs.
+ */
+async function compacted($: Engine, result: { usage?: ModelUsage; tokensAfter?: number }, isOwn: boolean) {
+  // Whatever compacted, a summary written ahead no longer reads like the conversation.
+  prepared = undefined
+  if (isOwn && result.usage !== undefined) {
     const prompt = promptTokens(result.usage)
     learned = {
       summaryTokens: ema(learned.summaryTokens, result.usage.output_tokens),
@@ -299,7 +326,7 @@ async function compacted($: Engine, result: { usage?: ModelUsage; tokensAfter?: 
     await $.store.set(LEARNED_KEY, learned)
   }
 
-  isAfterCompact = true
+  isAfterCompact = isOwn
   await setCache($, () => ({ phase: 'compacted', contextTokens: undefined, warmAt: undefined, plan: 'none', why: '', actAt: undefined }))
   // The window was re-read: the threshold may move with it.
   await refreshWorld($, true).catch(() => undefined)
@@ -316,46 +343,151 @@ async function isAgentBusy($: Engine): Promise<boolean> {
   return agents.some(a => a.status === 'running' || a.status === 'pending' || a.status === 'waiting')
 }
 
+/** Whether compacting after this turn pays back within afterTurnPayback later requests: how soon, else undefined. */
+async function afterTurnWorth($: Engine): Promise<{ payback: number; context: number } | undefined> {
+  if (isActing || options.afterTurnPayback <= 0) return undefined
+  const c = await getCache($)
+  const world = await getWorld($)
+  const policy = policyFor(world)
+  if (world.isWorking || c.isPaused || c.phase === 'compacted' || c.phase === 'acting') return undefined
+  if (policy.strategy === 'off' || policy.strategy === 'keepalive') return undefined
+  const context = c.contextTokens ?? 0
+  if (context < policy.minCompactTokens) return undefined
+  const payback = paybackRequests(context, c.ttlMs, pricingFor(c.model), learned)
+  return payback > options.afterTurnPayback ? undefined : { payback, context }
+}
+
 /**
  * After a turn, in a long session: compact when the compaction pays back within afterTurnPayback later requests.
  * Measured (compact_bench, 18 Oct): no quality lost between turns; on Opus at 224k a compaction costs about $0.34 and
  * saves about $0.036 a request; in the person's sessions, after 62% of prompts past 250k twenty or more requests
- * followed. Never mid-turn (the engine refuses), never over a draft or running agents, never twice in a row.
+ * followed. Never mid-turn (the engine refuses), never over running agents, never twice in a row. This is the way
+ * without prepare, or when a summary could not be written ahead: the engine summarizes 20 s after the turn, not over a
+ * draft, and a prompt sent while it runs waits for it.
  */
 async function afterTurn($: Engine, seq: number) {
-  if (seq !== turnSeq || isActing || options.afterTurnPayback <= 0) return
-  const c = await getCache($)
-  const world = await getWorld($)
-  const policy = policyFor(world)
-  if (world.isWorking || c.isPaused || c.phase === 'compacted' || c.phase === 'acting') return
-  if (policy.strategy === 'off' || policy.strategy === 'keepalive') return
-  const context = c.contextTokens ?? 0
-  if (context < policy.minCompactTokens) return
-  const payback = paybackRequests(context, c.ttlMs, pricingFor(c.model), learned)
-  if (payback > options.afterTurnPayback) return
+  if (seq !== turnSeq) return
+  const worth = await afterTurnWorth($)
+  if (worth === undefined) return
   if ((await hasDraft($)) || (await isAgentBusy($)) || seq !== turnSeq) return
+  await compactAfterTurn($, worth)
+}
 
+/**
+ * With prepare (the default): at the end of a turn after which compacting pays back soon, a fork of the session writes
+ * the summary in the background. It reads the session's own cache, as the engine's /compact does, and nobody waits for
+ * it. Once it is there and the session idle, the compaction is instant: the summary, then every message since the
+ * turn's last request, as they are. If the next prompt comes first, it waits for the end of that turn.
+ *
+ * Called from turn.complete itself, before a queued prompt or notice can start the next turn: the fork then reads
+ * this turn's last request, the one the messages read here end with. The fork is not awaited.
+ */
+async function prepare($: Engine, seq: number) {
+  if (isPreparing) return
+  const c = await getCache($)
+  if (prepared !== undefined && !isFresh(prepared, c.contextTokens ?? 0)) prepared = undefined
+  // Out of turn.complete's own frame: /compact, which a summary written ahead goes through, is refused inside a hook
+  // the turn waits on.
+  if (prepared !== undefined) return void $.clock.after(0, () => void install($).catch(() => undefined))
+  const worth = await afterTurnWorth($)
+  if (worth === undefined) return
+  const read = await $.session.messages({})
+  const messages = Array.isArray(read) ? read : []
+  // The fork reads the turn's last request: every message up to the last on the person's side (a prompt or results).
+  let last = messages.length - 1
+  while (last >= 0 && messages[last]?.role !== 'user') last -= 1
+  const mark = messages[last]
+  if (mark === undefined) return
+
+  isPreparing = true
+  void $.model
+    .fork({ prompt: summaryPrompt(options.instructions) })
+    .then(async r => {
+      if (!r.isAnswered || r.text.trim() === '') {
+        $.ui.log(
+          `smart-compact: the summary could not be written ahead (${r.isAnswered ? 'empty' : r.reason}); ` +
+            'compacting after the turn as /compact does',
+        )
+        $.clock.after(AFTER_TURN_GRACE_MS, () => void afterTurn($, seq).catch(() => undefined))
+        return
+      }
+      prepared = { text: r.text.trim(), covered: last + 1, mark: markOf(mark), usage: r.usage, contextTokens: worth.context }
+      await install($)
+    })
+    .catch(() => undefined)
+    .finally(() => {
+      isPreparing = false
+    })
+}
+
+/** Whether a summary written ahead still pays: the conversation has grown by less than half since. */
+function isFresh(p: Prepared, context: number): boolean {
+  return context - p.contextTokens <= p.contextTokens / 2
+}
+
+/** Compacts with the summary written ahead, when that still pays back and the session is idle; else after a later turn. */
+async function install($: Engine) {
+  if (prepared === undefined) return
+  const worth = await afterTurnWorth($)
+  if (worth === undefined || (await isAgentBusy($))) return
+  await compactAfterTurn($, worth)
+}
+
+async function compactAfterTurn($: Engine, worth: { payback: number; context: number }) {
+  const { payback, context } = worth
   isActing = true
   await setCache($, () => ({ phase: 'acting', plan: 'compact', why: `pays back after about ${Math.ceil(payback)} requests` }))
   await publish($).catch(() => undefined)
   try {
-    const r = await $.session.compact(options.instructions ? { instructions: options.instructions } : {})
+    const { r, used } = await compactOwn($, context)
     if (r.skip !== undefined) {
       await setCache($, () => ({ phase: 'warm', plan: 'none', why: `compaction skipped: ${r.skip}` }))
       return
     }
-    await compacted($, r)
     const after = r.tokensAfter ?? learned.postCompactTokens
     $.ui.log(
-      `smart-compact: compacted ${tokens(context)} → ${tokens(after)} after the turn: each later request reads ` +
-        `${tokens(Math.max(0, context - after))} less, so it pays back after about ${Math.ceil(payback)} requests`,
+      `smart-compact: compacted ${tokens(context)} → ${used === undefined ? '' : 'about '}${tokens(after)} ` +
+        (used === undefined ? 'after the turn' : 'at once, with a summary written in the background after the turn') +
+        `: each later request reads ${tokens(Math.max(0, context - after))} less, so it pays back after about ` +
+        `${Math.ceil(payback)} requests`,
     )
   } catch (err) {
     await setCache($, x => ({ phase: x.phase === 'acting' ? 'warm' : x.phase, plan: 'none', why: '' }))
-    $.ui.log(`smart-compact: compacting after the turn failed (${err instanceof Error ? err.message : String(err)})`)
+    // The next prompt came first (the engine compacts only between turns): a summary written ahead waits for its end.
+    if (prepared === undefined || !(await getWorld($)).isWorking) {
+      $.ui.log(`smart-compact: compacting after the turn failed (${err instanceof Error ? err.message : String(err)})`)
+    }
   } finally {
     isActing = false
     await publish($).catch(() => undefined)
+  }
+}
+
+/**
+ * smart-compact's own compaction. A summary written ahead, still fresh, is offered to the session.compact hook, which
+ * answers with it at once when the conversation still holds what it read; else the engine summarizes as /compact
+ * does. It is learned from here: the hook leaves smart-compact's own compactions to this.
+ */
+async function compactOwn($: Engine, context: number): Promise<{ r: SessionCompactResult; used?: Prepared }> {
+  isCompacting = true
+  offer = prepared !== undefined && isFresh(prepared, context) ? prepared : undefined
+  ownResult = undefined
+  try {
+    // $.session.compact runs through every hook but the caller's, so smart-compact's own session.compact hook, the one
+    // that answers with the summary written ahead, never sees it: that compaction goes through /compact, which it does.
+    const r =
+      offer === undefined
+        ? await $.session.compact(options.instructions ? { instructions: options.instructions } : {})
+        : await $.command
+            .run({ command: 'compact', args: options.instructions })
+            .then(() => ownResult ?? { skip: 'the compaction did not run' })
+    const used = usedPrepared
+    if (r.skip === undefined) await compacted($, used === undefined ? r : { usage: used.usage }, true)
+    return { r, used }
+  } finally {
+    isCompacting = false
+    offer = undefined
+    usedPrepared = undefined
   }
 }
 
@@ -494,6 +626,7 @@ export const register: Register = (on, rawOptions) => {
   evidence = undefined
   failures = 0
   retryAt = undefined
+  prepared = undefined
 
   on('session.start', async ($, e, next) => {
     await $.command.register({
@@ -532,6 +665,7 @@ export const register: Register = (on, rawOptions) => {
   }).catch(($, e, next) => next(e))
 
   on('session.end', { reason: 'clear' }, async ($, e, next) => {
+    prepared = undefined
     await setCache($, c => ({ ...INITIAL_CACHE, savedUsd: c.savedUsd, isPaused: c.isPaused }))
     return next(e)
   })
@@ -567,15 +701,45 @@ export const register: Register = (on, rawOptions) => {
     await refreshWorld($, false)
     await replan($)
     const seq = turnSeq
-    $.clock.after(AFTER_TURN_GRACE_MS, () => void afterTurn($, seq).catch(() => undefined))
+    if (options.prepare) await prepare($, seq).catch(() => undefined)
+    else $.clock.after(AFTER_TURN_GRACE_MS, () => void afterTurn($, seq).catch(() => undefined))
 
     return result
   })
 
+  // The summary written ahead stands in the conversation as a message on the person's side: drawn as one line, the way
+  // Claude Code draws its own summary, and in full under ctrl+o.
+  on('ui.render', { component: 'UserMessage' }, async ($, e, next) => {
+    if (e.props.isExpanded || !e.props.text.startsWith(SUMMARY_HEAD)) return next(e)
+    return next({ ...e, props: { ...e.props, text: SUMMARY_LINE } })
+  })
+
   on('session.compact', async ($, e, next) => {
+    // smart-compact's own compaction, offered a summary written ahead: answered with it at once when the conversation
+    // still holds every message the summary read; the messages since stay as they are.
+    const p = offer
+    if (p !== undefined && e.agentId === undefined) {
+      offer = undefined
+      const isOwn = e.trigger === 'plugin' || e.trigger === 'manual'
+      const messages = isOwn ? compactedWith(p.text, p.covered, p.mark, e.messages) : undefined
+      if (messages !== undefined) {
+        usedPrepared = p
+        ownResult = { messages }
+        return { messages }
+      }
+      // It no longer does (something else compacted, or a rewind): the engine summarizes afresh.
+      prepared = undefined
+      $.ui.log(
+        `smart-compact: the summary written ahead was not used (${
+          isOwn ? whyNotWith(p.covered, p.mark, e.messages) : `the compaction came as ${e.trigger}`
+        }); Claude Code summarizes afresh`,
+      )
+    }
     const result = await next(e)
-    if (e.agentId !== undefined || e.trigger === 'precompute' || result.skip !== undefined) return result
-    await compacted($, result)
+    if (isCompacting && e.agentId === undefined) ownResult = result
+    // smart-compact's own compactions are learned from in compactOwn; the engine's are not learned from at all.
+    if (e.agentId !== undefined || e.trigger === 'precompute' || result.skip !== undefined || isCompacting) return result
+    await compacted($, result, false)
     return result
   }).catch(($, e, next) => next(e))
 

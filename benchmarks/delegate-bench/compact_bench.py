@@ -6,6 +6,9 @@ investigated a bug without changing anything) is forked once per run. Arms:
   KEEP      fork the prepared session and run the task
   COMPACT   fork it with `/compact` (no instructions), then run the task on the compacted session
   COMPACTI  as COMPACT, with instructions: keep every decision, convention and constraint, and every finding, verbatim
+  PREP      smart-compact's summary written ahead: a fork asked smart-compact's own prompt (smart-compact/hooks/summary.ts),
+            then `/compact` answered by prep-mod as smart-compact's hook answers its own: SUMMARY_HEAD and the summary, then
+            the messages after the last on the person's side, as they are
 
 Tasks, by what they need from the session:
 
@@ -51,10 +54,11 @@ COMPACT_DIR = bench.WORK / "compact"
 RESULTS = Path(os.environ.get("BENCH_RESULTS", HERE / "results-compact.jsonl"))
 VENV_PY = bench.VENV / "bin" / "python"
 
-ARMS = ("KEEP", "COMPACT", "COMPACTI", "COMPACTH", "COMPACT3")
+ARMS = ("KEEP", "COMPACT", "COMPACTI", "COMPACTH", "COMPACT3", "PREP")
 COMPACT_ARGS = {
     "KEEP": None,
     "COMPACT": "",
+    "PREP": "",
     "COMPACTI": "Keep every decision, convention and constraint the person stated, and every finding of an investigation, verbatim with file, function and line.",
     # COMPACTH: the summary written by Haiku (the /compact step runs with --model haiku), the task on Opus.
     "COMPACTH": "",
@@ -64,6 +68,18 @@ COMPACT_ARGS = {
 }
 COMPACT_MODEL = {"COMPACTH": "haiku"}
 CYCLES = {"COMPACT3": 3}
+SUMMARY_TS = bench.PACK_ROOT / "smart-compact" / "hooks" / "summary.ts"
+PREP_MOD = HERE / "prep-mod"
+
+
+def summary_texts() -> tuple[str, str]:
+    """smart-compact's SUMMARY_PROMPT and SUMMARY_HEAD, as its summary.ts has them."""
+    src = SUMMARY_TS.read_text()
+    prompt = re.search(r"export const SUMMARY_PROMPT = `([^`]*)`", src)
+    head = re.search(r"export const SUMMARY_HEAD = `([^`]*)`", src)
+    if prompt is None or head is None:
+        sys.exit(f"SUMMARY_PROMPT or SUMMARY_HEAD not found in {SUMMARY_TS}")
+    return prompt.group(1), head.group(1)
 FILLERS = [
     "Before the next item: read src/click/core.py and src/click/parser.py again and tell me in five sentences how a command line "
     "becomes a call of the command's callback. Change nothing.",
@@ -371,22 +387,26 @@ def grade(task: str, answer: str, repo: Path) -> dict:
 # --------------------------------------------------------------------------------------------------------------------
 # claude
 # --------------------------------------------------------------------------------------------------------------------
-def settings_flags() -> list[str]:
+def settings_flags(extra_dirs: tuple[Path, ...] = (), env: dict | None = None) -> list[str]:
     """Arm Z7's plugins as bench.run_one builds an ablation arm's settings, with smart-compact's strategy off so it never compacts alone."""
-    dirs = ":".join(str(bench.PACK_ROOT / m) for m in bench.ABLATION["Z7"])
+    dirs = ":".join([str(bench.PACK_ROOT / m) for m in bench.ABLATION["Z7"]] + [str(d) for d in extra_dirs])
     off = {"options": {"strategy": "off"}}
-    return ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": dirs}, "pluginConfigs": {"smart-compact": off, "smart-compact@inline": off}})]
+    return ["--settings", json.dumps({"env": {"CLAUDE_CODE_PLUGIN_DIRS": dirs, **(env or {})}, "pluginConfigs": {"smart-compact": off, "smart-compact@inline": off}})]
 
 
-def claude(prompt: str, repo: Path, resume: str | None = None, fork: bool = False, timeout: int = 1800, model: str = "opus") -> dict:
+def claude(prompt: str, repo: Path, resume: str | None = None, fork: bool = False, timeout: int = 1800, model: str = "opus",
+           extra_dirs: tuple[Path, ...] = (), env: dict | None = None, max_turns: int | None = None) -> dict:
     cmd = ["claude", "-p", prompt, "--model", model, "--permission-mode", "auto", "--output-format", "json"]
     if resume:
         cmd += ["--resume", resume]
     if fork:
         cmd += ["--fork-session"]
-    cmd += settings_flags()
+    if max_turns is not None:
+        cmd += ["--max-turns", str(max_turns)]
+    cmd += settings_flags(extra_dirs, env)
     try:
-        p = subprocess.run(bench.neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL)
+        p = subprocess.run(bench.neutral(cmd), cwd=repo, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL,
+                           env={**os.environ, **(env or {})})
         out, err = p.stdout, p.stderr
     except subprocess.TimeoutExpired as e:
         out, err = (e.stdout.decode() if isinstance(e.stdout, bytes) else e.stdout) or "", "timeout"
@@ -488,6 +508,37 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     t0 = time.time()
     if COMPACT_ARGS[arm] is None:
         resume, fork = base_session, True
+    elif arm == "PREP":
+        # Both steps fork the prepared session, so each costs its running total less the session's.
+        base = base_running(k)
+        prompt, head = summary_texts()
+        s = claude(prompt, repo, resume=base_session, fork=True, timeout=1200, max_turns=1)
+        summary = (s.get("result") or "").strip()
+        row["summary_usd"] = (s.get("total_cost_usd") or base) - base
+        # Its price hangs on whether the slot's cache was warm (a session's own fork reads a warm one): kept to reprice.
+        row["summary_usage"] = s.get("usage")
+        if not s.get("session_id") or s.get("is_error") or not summary:
+            row |= {"is_error": True, "error": f"summary failed: {(s.get('result') or s.get('_stderr') or '')[:300]}", "wall_s": round(time.time() - t0, 1)}
+            return row
+        (HERE / "patches").mkdir(exist_ok=True)
+        first = HERE / "patches" / f"{run_id}.summary.md"
+        first.write_text(f"{head}\n\n{summary}")
+        row["summary_chars"] = len(summary)
+        c = claude("/compact", repo, resume=base_session, fork=True, timeout=1200, extra_dirs=(PREP_MOD,), env={"PREP_SUMMARY_FILE": str(first)})
+        row["install_usd"] = (c.get("total_cost_usd") or base) - base
+        row["compaction_usd"] = row["summary_usd"] + row["install_usd"]
+        if not c.get("session_id") or c.get("is_error"):
+            row |= {"is_error": True, "error": f"install failed: {(c.get('result') or c.get('_stderr') or '')[:300]}", "wall_s": round(time.time() - t0, 1)}
+            return row
+        # prep-mod answered, not the engine: the compacted transcript opens with smart-compact's head.
+        paths = glob.glob(str(bench.PROJECTS / "*" / f"{c['session_id']}.jsonl"))
+        if not paths or head[:80] not in Path(paths[0]).read_text():
+            row |= {"is_error": True, "error": "the compaction was not prep-mod's (smart-compact's head is not in the transcript)", "wall_s": round(time.time() - t0, 1)}
+            return row
+        running = c.get("total_cost_usd") or base
+        row["compact_session"] = c["session_id"]
+        row["compact_wall_s"] = round(time.time() - t0, 1)
+        resume, fork = c["session_id"], False
     else:
         session, fork, cycles = base_session, True, CYCLES.get(arm, 1)
         row["filler_usd"] = 0.0

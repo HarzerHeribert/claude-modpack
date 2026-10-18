@@ -8,24 +8,24 @@
       ],
       "claim": "Graded runs that ship with the release",
       "metric": "quality",
-      "shown": "2,448",
+      "shown": "2,484",
       "ci": null,
-      "comparison": "graded runs, 55 short of full marks",
+      "comparison": "graded runs, 61 short of full marks",
       "session": "fresh and long",
       "language": "Python, TypeScript and Go",
       "tasks": "click, chrono, PocketBase and the other benchmark sets",
-      "runs": "2,448 runs",
+      "runs": "2,484 runs",
       "model": "Opus 5.5",
       "date": [
         "2026-10-13",
-        "2026-10-16"
+        "2026-10-18"
       ],
-      "correct": "55 fell short of full marks, listed in the README",
+      "correct": "61 fell short of full marks, listed in the README",
       "allCorrect": false,
       "source": {
         "file": "README.md",
         "anchor": "questions",
-        "quote": "Of all 2,448 graded runs that ship with this release, 55 fell short"
+        "quote": "Of all 2,484 graded runs that ship with this release, 61 fell short"
       },
       "note": null,
       "data": [

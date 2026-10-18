@@ -1,0 +1,5 @@
+{
+  "name": "prep-mod",
+  "version": "0.1.0",
+  "description": "Bench only (compact_bench.py, arm PREP): answers a compaction as smart-compact answers its own with a summary written ahead."
+}

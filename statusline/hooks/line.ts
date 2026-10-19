@@ -70,20 +70,26 @@ export function tokens(n: number): string {
   return `${(n / 1_000_000).toFixed(2).replace(/0$/, '')}M`
 }
 
-/** `8:00` under ten minutes, then `44m`, then `2h14`. */
-export function duration(ms: number): string {
-  const s = Math.max(0, Math.round(ms / 1000))
-  if (s < 600) return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-  const m = Math.round(s / 60)
+/** `44m`, then `2h14`. */
+function minutes(m: number): string {
   if (m < 60) return `${m}m`
   const h = Math.floor(m / 60)
   return m % 60 === 0 ? `${h}h` : `${h}h${String(m % 60).padStart(2, '0')}`
 }
 
-/** How long until a reset: minutes and hours as `duration` says them, days past two. */
+/** `8:00` under ten minutes, then as `minutes` says it. */
+export function duration(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000))
+  return s < 600 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : minutes(Math.round(s / 60))
+}
+
+/**
+ * How long until a reset: `5m`, `44m`, `4h40`, days past two. Never seconds, which beside
+ * `12h25` read as a clock (`4:40`); rounded up, so the last minute is `1m`, not `0m`.
+ */
 export function span(ms: number): string {
   const days = ms / 86_400_000
-  return days >= 2 ? `${Math.round(days)}d` : duration(ms)
+  return days >= 2 ? `${Math.round(days)}d` : minutes(Math.max(1, Math.ceil(ms / 60_000)))
 }
 
 /**

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.2 (2026-10-19)
+
+The status line's reset countdowns read as times of their own, and the front page's panes are clear glass.
+
+- **statusline 0.2.3: a reset reads in minutes and hours, never seconds.** Under ten minutes the 5-hour window's reset showed as `↺4:40`, minutes and seconds, which beside the 7-day window's `↺12h25` reads as hours; and as the line redraws only when something else changes, it jumped (4:40, then 4:30). Both resets now read `↺5m`, `↺44m`, `↺4h40`, days from two days out, rounded up so the last minute is `1m`. smart-compact's `cold in 8:00` keeps its minutes and seconds.
+- **modpack 0.9.2**: the same eight mods.
+- **Site**: the front page's panes are clear glass after kube.io's Liquid Glass, bending the contour lines that flow below them at a rounded bevel, moving as much as the device keeps up with; without WebGPU the CSS glass stands still.
+
 ## 0.9.1 (2026-10-19)
 
 Two fixes from the first long session that compacted with a summary written ahead.

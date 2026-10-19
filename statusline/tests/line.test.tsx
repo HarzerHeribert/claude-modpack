@@ -3,7 +3,7 @@ import { describe, expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import type { StatuslineSegment, StatuslineWorld } from '../types'
-import { SEPARATOR, buildSegments, buildUncalm, condenseHint, fit, modelLabel, plain, resolvePart, rowLead } from '../hooks/line'
+import { SEPARATOR, buildSegments, buildUncalm, condenseHint, fit, modelLabel, plain, resolvePart, rowLead, span } from '../hooks/line'
 import type { Moment } from '../hooks/line'
 
 const NOW = 1_000_000_000
@@ -49,6 +49,12 @@ describe('the line', () => {
 
   test('the model and its effort, the context, the plan windows with their resets', () => {
     expect(plain(buildSegments(WORLD, [], AT), SEPARATOR)).toBe('Opus 5.5 xhigh   412k ━━━━━━──────   5h 34% ↺2h14   7d 12% ↺3d')
+  })
+
+  test('a reset reads in minutes and hours, never seconds: both windows alike', () => {
+    expect([span(20_000), span(280_000), span(40 * 60_000), span(5 * 3_600_000), span(280 * 60_000), span(745 * 60_000), span(3 * 86_400_000)]).toEqual(['1m', '5m', '40m', '5h', '4h40', '12h25', '3d'])
+    const late = { ...WORLD, limits: [{ kind: 'five_hour', percentUsed: 3, resetsAt: NOW + 280_000 }, { kind: 'seven_day', percentUsed: 82, resetsAt: NOW + 745 * 60_000 }] }
+    expect(plain(buildSegments(late, [], AT), SEPARATOR)).toContain('5h 3% ↺5m   7d 82% ↺12h25')
   })
 
   test('the plan windows show from the first reading, quiet under half, warning from 80%', () => {

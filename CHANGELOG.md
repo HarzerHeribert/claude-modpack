@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.3 (2026-10-19)
+
+smart-compact's summary keeps what still holds, at half the size, and is used only when it is one.
+
+- **smart-compact 0.3.2: the summary lets context shift.** It quoted every request whole and pasted code already on disk, and each compaction copied the last summary forward: over 12 compactions it grew to 34k characters and still carried a fact the person had called obsolete in 85% of them. Now what was superseded, closed, obsolete, one-off or finished fades to a line or goes, finished code stays on disk, an earlier summary is pruned, and every other fact the person gave stays. On ten Haiku sessions through 12 compactions (`canary2.py`, against ten with 0.3.1's prompt): buried facts after the last compaction 98% against 95%, over all compactions 99% against 99%, the summary 15k characters against 34k, the obsolete fact in 11% of summaries. On the six next-task jobs (Opus, 18 runs): the next task cost 10.2% less [−15.8%, −4.0%] and started on 30k tokens instead of 36k, at full marks in 15 of 18 runs against 16 of 18. That is one run under the bar set before the run (`PREPP-confirm.md`); it ships on the rule the pack goes by, least work and cost with no or next to no quality loss: the extra miss is a rename that left the old name in one file, as `/compact` did on that job, and no summary mentions the rename.
+- **smart-compact 0.3.2: a summary is used only when it is one.** In the canary a Haiku fork took the summary request for an injection and wrote a status note ending with the end line; it replaced the conversation and the facts in it. A summary written ahead now needs at least four of its six parts too; without them it is dropped with a line saying so, and Claude Code summarizes after the turn as `/compact` does. Across 635 earlier summaries this drops only that one.
+- **modpack 0.9.3**: the same eight mods.
+- **Benchmarks**: the canary bench (`canary.py`, `canary2.py`, their results) and the next-task runs of two shorter summaries, the prune prompt shipped here and a lean one not shipped, which lost buried facts over many compactions (75% against 95%), with what was set before each run (`PREPP-confirm.md`, `PREPL-confirm.md`).
+
 ## 0.9.2 (2026-10-19)
 
 The status line's reset countdowns read as times of their own, and the front page's panes are clear glass.

@@ -1,0 +1,43 @@
+diff --git a/CHANGES.md b/CHANGES.md
+index 3c9a94e..e1be024 100644
+--- a/CHANGES.md
++++ b/CHANGES.md
+@@ -1,3 +1,11 @@
++## Version 8.5.1
++
++Unreleased
++
++- {class}`IntRange` with `max_open=True` and `clamp=True` clamps a value
++  above the range to `max - 1` instead of `max + 1`, which was outside
++  the range.
++
+ ## Version 8.5.0
+ 
+ Released 2026-08-24
+diff --git a/src/click/types.py b/src/click/types.py
+index 1d840f8..0eb8462 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -672,7 +672,7 @@ class _NumberRangeBase(
+                 return self._clamp(min, 1, self.min_open)
+ 
+             if max is not None and gt_max:
+-                return self._clamp(max, 1, self.max_open)
++                return self._clamp(max, -1, self.max_open)
+ 
+         if lt_min or gt_max:
+             self.fail(
+diff --git a/tests/test_types.py b/tests/test_types.py
+index 63992cc..37e1b5d 100644
+--- a/tests/test_types.py
++++ b/tests/test_types.py
+@@ -23,7 +23,9 @@ from click import FileError
+         (click.IntRange(0, clamp=True), "-1", 0),
+         (click.IntRange(max=5, clamp=True), "6", 5),
+         (click.IntRange(0, min_open=True, clamp=True), "0", 1),
++        (click.IntRange(0, min_open=True, clamp=True), "-9", 1),
+         (click.IntRange(max=5, max_open=True, clamp=True), "5", 4),
++        (click.IntRange(max=5, max_open=True, clamp=True), "9", 4),
+         (click.FloatRange(0.5, 1.5), "1.2", 1.2),
+         (click.FloatRange(0.5, min_open=True), "0.51", 0.51),
+         (click.FloatRange(max=1.5, max_open=True), "1.49", 1.49),

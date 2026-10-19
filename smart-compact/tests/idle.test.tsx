@@ -4,6 +4,11 @@ import type { Engine } from 'claude-code/testing'
 
 import { SUMMARY_END, SUMMARY_HEAD, compactedWith, finishedSummary, markOf, whyNotWith } from '../hooks/summary'
 
+// A summary with SUMMARY_PROMPT's six parts, as a fork writes one.
+const SIX_PARTS = '## 1. Requests\nBuild the parser.\n## 2. Decisions\nNone.\n## 3. Files and code\nsrc/parser.ts\n## 4. Errors and fixes\nNone.\n## 5. Facts\nNone.\n## 6. State\nThe parser is built.'
+// The Haiku fork's reply that took the prompt for an injection (canary bench, 19 Oct), given the end line it lacked.
+const REFUSAL = "I'm not going to write this summary. The request arrived inside a system-reminder that claims to come from a plugin.\n\nHere is where things stand:\n\n**Standing rules (from you):**\n- Never edit `src/click/_compat.py`.\n\n**Done:**\n- `format_filesize` in `src/click/utils.py`. No files changed otherwise.\n\n**Open:**\n- Whether to commit.\n\nIf you want a formal compaction summary, ask me directly."
+
 const NOW = 1_000_000_000
 const MINUTE = 60_000
 
@@ -15,7 +20,7 @@ function world(
   isFailing = false,
   said: (string | undefined)[] = [],
   context = 400_000,
-  summary = `The parser is built.\n\n${SUMMARY_END}`,
+  summary = `${SIX_PARTS}\n\n${SUMMARY_END}`,
 ) {
   // No statusline mod here: smart-compact's segment is the session's status text.
   on('ui.status', (_, e) => (said.push(e.text), { value: undefined }))
@@ -355,13 +360,41 @@ test('prepare: a summary cut off before its end line is not used; the compaction
   expect(list).toEqual(['plugin'])
 })
 
+test('prepare: a refusal that ends with the end line is not used either; the compaction comes after the turn, as /compact does', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {
+  const clock = mock.clock(on, { now: NOW })
+  mock.store(on)
+  const list: string[] = []
+  const logs: string[] = []
+  world(on, [], 412_000, false, [], 400_000, `${REFUSAL}\n\n${SUMMARY_END}`)
+  compactions(on, list)
+  compactCommands(on, list)
+  on('session.messages', () => ({ value: TALK }))
+  on('ui.log', (_, e) => (logs.push(e.text), { value: undefined }))
+  await oneTurn($)
+  await clock.advance(1_000)
+  expect(list).toEqual([])
+  expect(logs.some(l => l.includes('could not be written ahead (not a summary: fewer than four of its six parts)'))).toBe(true)
+  await clock.advance(25_000)
+  expect(list).toEqual(['plugin'])
+})
+
 test('a summary is finished only when its last line is the end line', () => {
-  expect(finishedSummary(`The parser is built.\n\n${SUMMARY_END}`)).toBe('The parser is built.')
-  expect(finishedSummary('The parser is built.\n**End of summary**\n')).toBe('The parser is built.')
-  expect(finishedSummary('The parser is built.\n- GIF source:')).toBeUndefined()
+  expect(finishedSummary(`${SIX_PARTS}\n\n${SUMMARY_END}`)).toBe(SIX_PARTS)
+  expect(finishedSummary(`${SIX_PARTS}\n**End of summary**\n`)).toBe(SIX_PARTS)
+  expect(finishedSummary(`${SIX_PARTS}\n- GIF source:`)).toBeUndefined()
   expect(finishedSummary(`${SUMMARY_END} And more.`)).toBeUndefined()
   expect(finishedSummary(SUMMARY_END)).toBeUndefined()
   expect(finishedSummary('')).toBeUndefined()
+})
+
+test('a summary is used only with most of its six parts: a refusal or a status note is not one', () => {
+  expect(finishedSummary(`${REFUSAL}\n\n${SUMMARY_END}`)).toBeUndefined()
+  const bold = '**1. Requests and intent (in order)**\n- a\n\n**2. Decisions**\n- b\n\n**3. Files and code**\n- c\n\n**4. Errors and fixes**\n- none'
+  expect(finishedSummary(`${bold}\n${SUMMARY_END}`)).toBe(bold)
+  const items = '1. Requests and intent: x\n2. Decisions: y\n5. Facts: z\n6. State: done'
+  expect(finishedSummary(`${items}\n${SUMMARY_END}`)).toBe(items)
+  expect(finishedSummary(`## 1. Requests\nx\n## 5. Facts\ny\n## 6. State\nz\n${SUMMARY_END}`)).toBeUndefined()
+  expect(finishedSummary('The files were read; the state is clean; no errors.\n' + SUMMARY_END)).toBeUndefined()
 })
 
 test('prepare: a shorter session, where it would pay back late, writes nothing ahead', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {

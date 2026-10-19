@@ -4,17 +4,26 @@
 
 import type { SessionMessage } from 'claude-code'
 
+// Since 0.3.2 the summary lets context shift: what is superseded, closed, obsolete, one-off or finished fades to a line
+// or goes, and an earlier summary is pruned rather than copied forward. Over 12 compactions (canary2.py) it kept the
+// facts 0.3.1's prompt kept at under half the size; 0.3.1's grew to 34k characters and carried what was obsolete.
 export const SUMMARY_PROMPT = `This message is from the smart-compact plugin, not from the person. Write the summary this conversation will be compacted to: it replaces every message above, and the messages that come after this point stay as they are. Answer with the summary alone, in text; do not call any tool.
 
 Write it so that the work can go on from the summary without the conversation:
-1. Requests and intent: everything the person asked for, in order, quoting their own words for each instruction, constraint, preference and correction.
+1. Requests and intent: everything the person asked for that still holds, in order, quoting their own words for each instruction, constraint, preference and correction.
 2. Decisions: what was decided and why, and what was tried or ruled out.
-3. Files and code: each file read, created or changed that still matters, with its path, what changed, the functions or lines involved, and short exact snippets where the exact text matters.
+3. Files and code: each file that still matters, with its path, what is in it or what changed, and the functions or lines involved. Paste code only for work still in progress, or where the exact text matters and cannot be read again from disk.
 4. Errors and fixes: each error met, its cause, and how it was fixed.
-5. Facts: measurements, results, numbers, versions, names, commands, links and IDs that later work may need.
+5. Facts: measurements, results, numbers, versions, names, commands, links and IDs that later work may need, exactly.
 6. State: what is done, what is in progress, what is still to do, and the agreed next step, if any.
 
-Be specific and complete rather than brief, and leave out what was superseded.`
+Be specific and complete about what still holds. What mattered for earlier work need not stay, so let go of what no longer bears on the work:
+- superseded: a value, rule or plan replaced by a newer one: give the newer one only;
+- closed: a task, deadline, blocker or open item that is done or resolved: one line under State saying it is closed;
+- obsolete: what the person said no longer holds, such as notes they called outdated or a rule they dropped: leave out its content, at most one line saying it is gone. A file deleted or moved is not obsolete by that alone: what it said that still holds can no longer be read again here, so keep it;
+- one-off: an instruction meant for a single change: once that change is made, it is done, not a standing rule;
+- finished work: what was built and where, in a line or two, without its code.
+A summary from an earlier compaction, at the top of the conversation, is material like the rest: carry forward what still holds, not all of it. Keep every other fact the person gave, even one said in passing; when in doubt whether something still holds, keep it.`
 
 export const SUMMARY_HEAD = `This conversation was compacted by smart-compact. The summary below covers its earlier part. It was written in the background before the messages that follow it, which are kept as they were: where they differ from it, they are the newer.`
 
@@ -30,16 +39,26 @@ export function summaryPrompt(instructions: string): string {
   return `${prompt}\n\nEnd it with this line alone: ${SUMMARY_END}`
 }
 
+/** A line that opens one of SUMMARY_PROMPT's six parts, as a heading or a numbered item, by its first word. */
+export const SUMMARY_PART = /^[\s#>*_-]*(?:\d+[.)]\s*)?[*_]*(requests|decisions|files|errors|facts|state)\b/gim
+
 /**
- * The summary in a fork's reply, without its end line; undefined without one. On 19 Oct a reply stopped after 1,300
- * characters, inside the first of its six parts, and replaced 300k of conversation as if it were whole.
+ * The summary in a fork's reply, without its end line; undefined without one, or with fewer than four of the six parts.
+ * On 19 Oct a reply stopped after 1,300 characters, inside the first of its six parts, and replaced 300k of
+ * conversation as if it were whole; and in the canary bench a Haiku fork took the prompt for an injection and wrote a
+ * status note instead, which replaced its conversation and the facts in it.
  */
 export function finishedSummary(reply: string): string | undefined {
-  const lines = reply.trimEnd().split('\n')
+  if (!isEnded(reply)) return undefined
+  const text = reply.trimEnd().split('\n').slice(0, -1).join('\n').trim()
+  const parts = new Set(Array.from(text.matchAll(SUMMARY_PART), m => m[1]?.toLowerCase()))
+  return parts.size >= 4 ? text : undefined
+}
+
+/** Whether a reply's last line is the end line. */
+export function isEnded(reply: string): boolean {
   const bare = (s: string) => s.replace(/[*_`>#.\s]/g, '').toLowerCase()
-  if (bare(lines.pop() ?? '') !== bare(SUMMARY_END)) return undefined
-  const text = lines.join('\n').trim()
-  return text === '' ? undefined : text
+  return bare(reply.trimEnd().split('\n').pop() ?? '') === bare(SUMMARY_END)
 }
 
 /** The message the summary stands in as, first in the compacted conversation. */

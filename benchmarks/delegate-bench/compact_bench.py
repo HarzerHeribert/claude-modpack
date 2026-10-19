@@ -54,7 +54,7 @@ COMPACT_DIR = bench.WORK / "compact"
 RESULTS = Path(os.environ.get("BENCH_RESULTS", HERE / "results-compact.jsonl"))
 VENV_PY = bench.VENV / "bin" / "python"
 
-ARMS = ("KEEP", "COMPACT", "COMPACTI", "COMPACTH", "COMPACT3", "PREP", "PREPL")
+ARMS = ("KEEP", "COMPACT", "COMPACTI", "COMPACTH", "COMPACT3", "PREP", "PREPL", "PREPP")
 COMPACT_ARGS = {
     "KEEP": None,
     "COMPACT": "",
@@ -62,6 +62,9 @@ COMPACT_ARGS = {
     # PREPL: PREP with a lean summary prompt (LEAN_PROMPT): no message or code re-typed that can be read again, every
     # decision, constraint, name, number and open item kept. A kept token is read again by every later request.
     "PREPL": "",
+    # PREPP: PREP with the prune prompt (PRUNE2_PROMPT), sent and checked as smart-compact does (fork_prompt,
+    # finished_summary): a reply the mod would not use is an error row, not a run.
+    "PREPP": "",
     "COMPACTI": "Keep every decision, convention and constraint the person stated, and every finding of an investigation, verbatim with file, function and line.",
     # COMPACTH: the summary written by Haiku (the /compact step runs with --model haiku), the task on Opus.
     "COMPACTH": "",
@@ -88,6 +91,63 @@ Write it so that the work can go on from the summary without the conversation, a
 6. State: what is done, what is in progress, what is still to do, and the agreed next step, if any.
 
 Leave out what was superseded and what can be read again from disk, and say each thing once. Never leave out a decision, a constraint, a finding with its file, function and line, a name, a number or an open item: when in doubt, keep it."""
+
+
+# The prune variant of smart-compact's SUMMARY_PROMPT: the person's words still quoted whole, but context may shift:
+# what is superseded, closed, obsolete, one-off or finished fades to a line or goes, and the earlier summary is pruned
+# rather than copied forward. Finished code on disk is not pasted.
+PRUNE_PROMPT = """This message is from the smart-compact plugin, not from the person. Write the summary this conversation will be compacted to: it replaces every message above, and the messages that come after this point stay as they are. Answer with the summary alone, in text; do not call any tool.
+
+Write it so that the work can go on from the summary without the conversation:
+1. Requests and intent: everything the person asked for that still holds, in order, quoting their own words for each instruction, constraint, preference and correction.
+2. Decisions: what was decided and why, and what was tried or ruled out.
+3. Files and code: each file that still matters, with its path, what is in it or what changed, and the functions or lines involved. Paste code only for work still in progress, or where the exact text matters and cannot be read again from disk.
+4. Errors and fixes: each error met, its cause, and how it was fixed.
+5. Facts: measurements, results, numbers, versions, names, commands, links and IDs that later work may need, exactly.
+6. State: what is done, what is in progress, what is still to do, and the agreed next step, if any.
+
+Be specific and complete about what still holds. What mattered for earlier work need not stay, so let go of what no longer bears on the work:
+- superseded: a value, rule or plan replaced by a newer one: give the newer one only;
+- closed: a task, deadline, blocker or open item that is done or resolved: one line under State saying it is closed;
+- obsolete: what the person said is outdated, revoked or gone, such as a deleted file or a dropped rule: leave out its content, at most one line saying it is gone;
+- one-off: an instruction meant for a single change: once that change is made, it is done, not a standing rule;
+- finished work: what was built and where, in a line or two, without its code.
+A summary from an earlier compaction, at the top of the conversation, is material like the rest: carry forward what still holds, not all of it. Keep every other fact the person gave, even one said in passing; when in doubt whether something still holds, keep it."""
+# SCP's obsolete bullet named "a deleted file" as gone, and its summaries dropped what a file deleted but moved to a
+# wiki still said (canary round 2, min_python). PRUNE2 counts as obsolete only what no longer holds.
+PRUNE_OBSOLETE = "- obsolete: what the person said is outdated, revoked or gone, such as a deleted file or a dropped rule: leave out its content, at most one line saying it is gone;"
+assert PRUNE_OBSOLETE in PRUNE_PROMPT
+# smart-compact ships PRUNE2_PROMPT as its SUMMARY_PROMPT since 0.3.2, so arm PREP and canary2's SC now run it; the runs
+# in results-prep.jsonl and SC's canary runs were 0.3.1's prompt (smart-compact/hooks/summary.ts at face496).
+PRUNE2_PROMPT = PRUNE_PROMPT.replace(PRUNE_OBSOLETE, "- obsolete: what the person said no longer holds, such as notes they called outdated or a rule they dropped: leave out its content, at most one line saying it is gone. A file deleted or moved is not obsolete by that alone: what it said that still holds can no longer be read again here, so keep it;")
+
+
+# smart-compact's check on a summary written ahead (summary.ts's finishedSummary): its reply ends with the end line, and
+# at least four of the six parts open a line; else the mod compacts as /compact does.
+SUMMARY_PART = re.compile(r"^[\s#>*_-]*(?:\d+[.)]\s*)?[*_]*(requests|decisions|files|errors|facts|state)\b", re.I | re.M)
+
+
+def fork_prompt(prompt: str) -> str:
+    """The fork's prompt as smart-compact sends it (summaryPrompt with no compactInstructions): the end line asked for last."""
+    return f"{prompt}\n\nEnd it with this line alone: {summary_end()}"
+
+
+def summary_end() -> str:
+    m = re.search(r"export const SUMMARY_END = '([^']*)'", SUMMARY_TS.read_text())
+    if m is None:
+        sys.exit(f"SUMMARY_END not found in {SUMMARY_TS}")
+    return m.group(1)
+
+
+def finished_summary(reply: str) -> tuple[str | None, str]:
+    """The summary in a fork's reply without its end line, and why not when the mod would not use it."""
+    lines = reply.rstrip().split("\n")
+    bare = lambda s: re.sub(r"[*_`>#.\s]", "", s).lower()  # noqa: E731
+    if bare(lines[-1]) != bare(summary_end()):
+        return None, f"cut off after {len(reply.strip())} characters" if reply.strip() else "empty"
+    text = "\n".join(lines[:-1]).strip()
+    parts = {m.group(1).lower() for m in SUMMARY_PART.finditer(text)}
+    return (text, "") if len(parts) >= 4 else (None, "not a summary: fewer than four of its six parts")
 
 
 def summary_texts() -> tuple[str, str]:
@@ -526,14 +586,21 @@ def run_one(task: str, arm: str, rep: int) -> dict:
     t0 = time.time()
     if COMPACT_ARGS[arm] is None:
         resume, fork = base_session, True
-    elif arm in ("PREP", "PREPL"):
+    elif arm in ("PREP", "PREPL", "PREPP"):
         # Both steps fork the prepared session, so each costs its running total less the session's.
         base = base_running(k)
         prompt, head = summary_texts()
         if arm == "PREPL":
             prompt = LEAN_PROMPT
+        elif arm == "PREPP":
+            prompt = fork_prompt(PRUNE2_PROMPT)
         s = claude(prompt, repo, resume=base_session, fork=True, timeout=1200, max_turns=1)
         summary = (s.get("result") or "").strip()
+        if arm == "PREPP" and summary:
+            summary, why = finished_summary(summary)
+            if summary is None:
+                row |= {"is_error": True, "error": f"not used: {why}; smart-compact would compact as /compact does", "wall_s": round(time.time() - t0, 1)}
+                return row
         row["summary_usd"] = (s.get("total_cost_usd") or base) - base
         # Its price hangs on whether the slot's cache was warm (a session's own fork reads a warm one): kept to reprice.
         row["summary_usage"] = s.get("usage")

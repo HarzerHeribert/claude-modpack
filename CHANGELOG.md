@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.1 (2026-10-19)
+
+Two fixes from the first long session that compacted with a summary written ahead.
+
+- **smart-compact 0.3.1: a summary cut off part way is not used.** In a session of 355k tokens the summary written ahead stopped after 1,300 characters, inside the first of its six parts, and replaced the conversation as if it were whole: the messages since it stayed as they were, but the decisions, files and facts of everything before were gone. The summary now ends with a line of its own, and a reply without that line is dropped with a line saying so ("cut off after … characters"); Claude Code then summarizes 20 s after the turn, as `/compact` does.
+- **statusline 0.2.2: the gauge shows the new size right after a compaction.** It kept the size from before (355k after a compaction to 51k) until the next response: smart-compact answers its own compaction with the summary written ahead, so the statusline's compaction hook never ran, and when it did it read the last response's size again. It now measures as `/context` does after every compaction, also on Claude Code's `PostCompact`, which follows one a hook answered.
+- **modpack 0.9.1**: the same eight mods.
+
 ## 0.9.0 (2026-10-19)
 
 smart-compact's compaction after a turn is instant: its summary is written in the background before it is needed.

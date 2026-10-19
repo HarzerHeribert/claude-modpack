@@ -3,7 +3,7 @@ import type { EngineInterface, ModelUsage, PluginOptions, Register, SessionCompa
 
 import type { SmartCompactCache, SmartCompactWorld } from '../types'
 import { READY_ID, plainText, readySegment } from './line'
-import { SUMMARY_HEAD, SUMMARY_LINE, compactedWith, markOf, summaryPrompt, whyNotWith } from './summary'
+import { SUMMARY_HEAD, SUMMARY_LINE, compactedWith, finishedSummary, markOf, summaryPrompt, whyNotWith } from './summary'
 import {
   DEFAULT_LEARNED,
   TTL_5M,
@@ -403,15 +403,15 @@ async function prepare($: Engine, seq: number) {
   void $.model
     .fork({ prompt: summaryPrompt(options.instructions) })
     .then(async r => {
-      if (!r.isAnswered || r.text.trim() === '') {
-        $.ui.log(
-          `smart-compact: the summary could not be written ahead (${r.isAnswered ? 'empty' : r.reason}); ` +
-            'compacting after the turn as /compact does',
-        )
+      const text = r.isAnswered ? finishedSummary(r.text) : undefined
+      if (text === undefined || !r.isAnswered) {
+        const length = r.isAnswered ? r.text.trim().length : 0
+        const why = !r.isAnswered ? r.reason : length === 0 ? 'empty' : `cut off after ${length.toLocaleString('en-US')} characters`
+        $.ui.log(`smart-compact: the summary could not be written ahead (${why}); compacting after the turn as /compact does`)
         $.clock.after(AFTER_TURN_GRACE_MS, () => void afterTurn($, seq).catch(() => undefined))
         return
       }
-      prepared = { text: r.text.trim(), covered: last + 1, mark: markOf(mark), usage: r.usage, contextTokens: worth.context }
+      prepared = { text, covered: last + 1, mark: markOf(mark), usage: r.usage, contextTokens: worth.context }
       await install($)
     })
     .catch(() => undefined)

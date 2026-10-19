@@ -153,6 +153,28 @@ test('a main-thread response draws the model and the gauge: in the hint row in t
   await ui.unmount()
 })
 
+test('after a compaction the gauge shows its new size at once, also when another mod’s hook answered it', async ($, on) => {
+  mock.clock(on, { now: NOW })
+  mock.store(on)
+  // The last response's 412k until the next one; /context's estimate counts what the compaction left.
+  on('session.usage', () => ({
+    value: {
+      startedAt: NOW,
+      context: { window: 1_000_000, tokens: 412_000, breakdown: { totalTokens: 51_000, rawMaxTokens: 850_000, isAutoCompactEnabled: false } },
+      rateLimits: [],
+    },
+  }) as never)
+  on('classic.PostCompact', () => ({}))
+  await respond($, on)
+  const ui = await $.ui.mount({ plugin: 'statusline', surface: 'terminal', ...HINT, viewport: { columns: 160, rows: 40 } })
+  expect(lineText(await ui.drawn())).toContain('412k ')
+  await $.classic.PostCompact({ trigger: 'manual', compact_summary: '' } as never)
+  const line = lineText(await ui.drawn())
+  expect(line).toContain('51k ')
+  expect(line).not.toContain('412k')
+  await ui.unmount()
+})
+
 test('the desktop app, which draws no hint row, gets the line in the band above the prompt', async ($, on) => {
   mock.clock(on, { now: NOW })
   mock.store(on)

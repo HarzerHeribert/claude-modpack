@@ -2,13 +2,21 @@ import type { On } from 'claude-code'
 import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
-import { SUMMARY_HEAD, compactedWith, markOf, whyNotWith } from '../hooks/summary'
+import { SUMMARY_END, SUMMARY_HEAD, compactedWith, finishedSummary, markOf, whyNotWith } from '../hooks/summary'
 
 const NOW = 1_000_000_000
 const MINUTE = 60_000
 
 /** The world beneath the plugin: a subscription session, no repo, no agents. */
-function world(on: On, forks: string[], cacheRead: number, isFailing = false, said: (string | undefined)[] = [], context = 400_000) {
+function world(
+  on: On,
+  forks: string[],
+  cacheRead: number,
+  isFailing = false,
+  said: (string | undefined)[] = [],
+  context = 400_000,
+  summary = `The parser is built.\n\n${SUMMARY_END}`,
+) {
   // No statusline mod here: smart-compact's segment is the session's status text.
   on('ui.status', (_, e) => (said.push(e.text), { value: undefined }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
@@ -36,7 +44,7 @@ function world(on: On, forks: string[], cacheRead: number, isFailing = false, sa
     return {
       value: {
         isAnswered: true as const,
-        text: 'ok',
+        text: e.prompt.includes(SUMMARY_END) ? summary : 'ok',
         usage: { input_tokens: 12, cache_read_input_tokens: cacheRead, cache_creation_input_tokens: 0, output_tokens: 4 },
       },
     }
@@ -258,6 +266,7 @@ test('prepare: a fork writes the summary at the turn end, and the compaction com
   await clock.advance(1_000)
   expect(forks.length).toBe(1)
   expect(forks[0]).toContain('Write the summary this conversation will be compacted to')
+  expect(forks[0]?.trimEnd().endsWith(SUMMARY_END)).toBe(true)
   // Through /compact, not $.session.compact: a plugin's own call skips its own session.compact hook, the one that
   // answers with the summary. The kit's /compact is the stand-in above; compactedWith's tests show the answer.
   expect(list).toEqual(['/compact'])
@@ -326,6 +335,33 @@ test('prepare: a fork that fails falls back to compacting 20 s after the turn, a
   expect(logs.some(l => l.includes('could not be written ahead'))).toBe(true)
   await clock.advance(25_000)
   expect(list).toEqual(['plugin'])
+})
+
+test('prepare: a summary cut off before its end line is not used; the compaction comes 20 s after the turn, as /compact does', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {
+  const clock = mock.clock(on, { now: NOW })
+  mock.store(on)
+  const list: string[] = []
+  const logs: string[] = []
+  world(on, [], 412_000, false, [], 400_000, '**1. Requests and intent**\n- Build the parser.\n- AskUserQuestion answers:\n  - GIF source:')
+  compactions(on, list)
+  compactCommands(on, list)
+  on('session.messages', () => ({ value: TALK }))
+  on('ui.log', (_, e) => (logs.push(e.text), { value: undefined }))
+  await oneTurn($)
+  await clock.advance(1_000)
+  expect(list).toEqual([])
+  expect(logs.some(l => l.includes('could not be written ahead (cut off after'))).toBe(true)
+  await clock.advance(25_000)
+  expect(list).toEqual(['plugin'])
+})
+
+test('a summary is finished only when its last line is the end line', () => {
+  expect(finishedSummary(`The parser is built.\n\n${SUMMARY_END}`)).toBe('The parser is built.')
+  expect(finishedSummary('The parser is built.\n**End of summary**\n')).toBe('The parser is built.')
+  expect(finishedSummary('The parser is built.\n- GIF source:')).toBeUndefined()
+  expect(finishedSummary(`${SUMMARY_END} And more.`)).toBeUndefined()
+  expect(finishedSummary(SUMMARY_END)).toBeUndefined()
+  expect(finishedSummary('')).toBeUndefined()
 })
 
 test('prepare: a shorter session, where it would pay back late, writes nothing ahead', { timeoutMs: 30_000, options: { afterTurnPayback: 20 } }, async ($, on) => {

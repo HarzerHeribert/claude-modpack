@@ -1,6 +1,6 @@
 {
   "name": "modpack",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "The claude-mods modpack: statusline, smart-compact, delegate, cells, eta, seek and draft, installed together and built to work together, and route, an optional mod that needs an outside classifier, off until you turn it on.",
   "author": {
     "name": "HarzerHeribert"

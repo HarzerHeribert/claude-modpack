@@ -18,12 +18,28 @@ Be specific and complete rather than brief, and leave out what was superseded.`
 
 export const SUMMARY_HEAD = `This conversation was compacted by smart-compact. The summary below covers its earlier part. It was written in the background before the messages that follow it, which are kept as they were: where they differ from it, they are the newer.`
 
-/** The fork's prompt, with the person's compactInstructions after it. */
 /** The summary's row in the transcript, as Claude Code draws its own: one line; in full under ctrl+o. */
 export const SUMMARY_LINE = 'Compacted by smart-compact, with a summary written ahead (ctrl+o to see it)'
 
+/** The summary's last line: a reply that does not end with it was cut off, and is not used. */
+export const SUMMARY_END = 'End of summary.'
+
+/** The fork's prompt, with the person's compactInstructions after it and the end line last. */
 export function summaryPrompt(instructions: string): string {
-  return instructions.trim() === '' ? SUMMARY_PROMPT : `${SUMMARY_PROMPT}\n\nAlso keep: ${instructions.trim()}`
+  const prompt = instructions.trim() === '' ? SUMMARY_PROMPT : `${SUMMARY_PROMPT}\n\nAlso keep: ${instructions.trim()}`
+  return `${prompt}\n\nEnd it with this line alone: ${SUMMARY_END}`
+}
+
+/**
+ * The summary in a fork's reply, without its end line; undefined without one. On 19 Oct a reply stopped after 1,300
+ * characters, inside the first of its six parts, and replaced 300k of conversation as if it were whole.
+ */
+export function finishedSummary(reply: string): string | undefined {
+  const lines = reply.trimEnd().split('\n')
+  const bare = (s: string) => s.replace(/[*_`>#.\s]/g, '').toLowerCase()
+  if (bare(lines.pop() ?? '') !== bare(SUMMARY_END)) return undefined
+  const text = lines.join('\n').trim()
+  return text === '' ? undefined : text
 }
 
 /** The message the summary stands in as, first in the compacted conversation. */

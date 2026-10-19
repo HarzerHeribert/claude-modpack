@@ -1,6 +1,6 @@
 {
   "name": "statusline",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "One line under the prompt: the model and its effort, how full the context is, the plan's 5-hour and 7-day use with their resets, and what other mods put on it (smart-compact's ready or cold).",
   "author": {
     "name": "HarzerHeribert"

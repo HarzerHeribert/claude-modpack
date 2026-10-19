@@ -89,8 +89,8 @@ function isSegment(s: unknown): s is StatuslineSegment {
   )
 }
 
-async function refreshWorld($: Engine, isDeep: boolean) {
-  const usage = await $.session.usage(isDeep ? { breakdown: 'summary' } : undefined)
+async function refreshWorld($: Engine, isDeep: boolean, isAfterCompact = false) {
+  const usage = await $.session.usage(isDeep || isAfterCompact ? { breakdown: 'summary' } : undefined)
   const model = await $.session.model().catch(() => undefined)
   // Before any turn says which effort it ran at, the configured one; the same for the permission
   // mode until a hook reports it (a reload starts the module over).
@@ -103,8 +103,13 @@ async function refreshWorld($: Engine, isDeep: boolean) {
   await setWorld($, w => ({
     ...(w.model === undefined && model ? { model } : {}),
     ...(w.effort === undefined && typeof configured === 'string' ? { effort: configured } : {}),
-    // After a reload or a resume the gauge has a size before any response.
-    ...(w.contextTokens === undefined && usage.context.tokens !== undefined ? { contextTokens: usage.context.tokens } : {}),
+    // After a reload or a resume the gauge has a size before any response. After a compaction no response has measured
+    // it yet, and `usage.context.tokens` is still the last one's, from before: /context's estimate stands in.
+    ...(isAfterCompact
+      ? { contextTokens: breakdown?.totalTokens }
+      : w.contextTokens === undefined && usage.context.tokens !== undefined
+        ? { contextTokens: usage.context.tokens }
+        : {}),
     window: usage.context.window,
     limits: usage.rateLimits.map(l => ({ kind: l.kind, percentUsed: l.percentUsed, resetsAt: l.resetsAt === undefined ? undefined : Date.parse(l.resetsAt) })),
     ...(breakdown === undefined ? {} : { autoCompactAt: breakdown.isAutoCompactEnabled ? breakdown.autoCompactThreshold : undefined }),
@@ -285,10 +290,16 @@ export const register: Register = (on, rawOptions) => {
   on('session.compact', async ($, e, next) => {
     const result = await next(e)
     if (e.agentId !== undefined || e.trigger === 'precompute' || result.skip !== undefined) return result
-    await setWorld($, () => ({ contextTokens: undefined }))
     // The window was re-read: the threshold may move with it.
-    await refreshWorld($, true).catch(() => undefined)
+    await refreshWorld($, true, true).catch(() => undefined)
     return result
+  }).catch(($, e, next) => next(e))
+
+  // A compaction another mod's hook answered before this one's ran (smart-compact's, with a summary written ahead)
+  // never reaches the hook above; PostCompact follows every compaction, answered by a hook or not.
+  on('classic.PostCompact', async ($, e, next) => {
+    if ((e as { agent_id?: string }).agent_id === undefined) await refreshWorld($, true, true).catch(() => undefined)
+    return next(e)
   }).catch(($, e, next) => next(e))
 
   on('tool.call', { tool: 'Artifact' }, async ($, e, next) => {

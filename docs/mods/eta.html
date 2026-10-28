@@ -69,7 +69,7 @@
   <h2 id="without">Without eta</h2>
   <p>The job is a black box. Is it a tenth done, or nearly finished? Will it be done before your coffee?</p>
   <h2 id="with">With eta</h2>
-  <p>Background jobs show above the prompt as soon as Claude starts one. When Claude asks eta to track a job, eta reads its output live and adds a bar, a percentage and an estimated finish time. Until the progress can be read, Claude’s own guess stands in, marked as a guess. A finished job leaves; a failure stays until you write again.</p>
+  <p>Background jobs show above the prompt as soon as Claude starts one. When Claude asks eta to track a job, eta reads its output live and adds a bar, a percentage and an estimated finish time. Until the progress can be read, Claude’s own guess stands in, marked as a guess. A finished job leaves; a failure stays until you write again, or for 10 minutes.</p>
   <p>Press play to run a job, sped up.</p>
   <figure class="widget" data-widget="eta">
   <div class="w-bar"><fieldset class="seg"><legend class="seg-l">The job</legend><div class="seg-row"><label><input type="radio" name="end-9" data-in="end" value="pass" checked><span>passes</span></label><label><input type="radio" name="end-9" data-in="end" value="fail"><span>fails</span></label></div></fieldset><button type="button" class="btn play" data-act="play"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M4.5 3v10l8-5z" fill="currentColor"/></svg><span>Run the job</span></button></div>
@@ -86,7 +86,7 @@
   <p>It can only show progress that the job prints: a count it can match, a progress line, or one of the common progress bars.</p>
 
   <h2 id="switch">Turn it on or off</h2>
-  <p><code>/mods eta off</code> turns it off. Every option is in <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">the README</a>; the code is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/eta">eta/</a>.</p>
+  <p><code>/mods eta off</code> turns it off. Every option is in <a href="https://github.com/HarzerHeribert/claude-modpack#the-mods-in-depth">the README</a> and <a href="https://github.com/HarzerHeribert/claude-modpack/blob/main/SETUP.md">SETUP.md</a>; the code is in <a href="https://github.com/HarzerHeribert/claude-modpack/tree/main/eta">eta/</a>.</p>
   <h2 id="session">In a real session</h2><figure class="rec">
   <a class="rec-play" href="../assets/demo-band.gif" data-gif="../assets/demo-band.gif" title="An animated recording, 0.5 MB">
     <img src="../assets/posters/demo-band.webp" alt="A real Claude Code session: Claude starts the stress tests in the background; above the prompt a row shows them with a bar, a percentage and a finish time, climbing to the end." width="1200" height="750" loading="lazy" decoding="async">

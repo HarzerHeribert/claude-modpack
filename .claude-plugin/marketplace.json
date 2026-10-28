@@ -8,7 +8,7 @@
     {
       "name": "modpack",
       "source": "./modpack",
-      "description": "The modpack: statusline, smart-compact, delegate, lsp-plus, cells, eta and seek, installed together and built to work together, and route, off until you turn it on."
+      "description": "The claude-mods modpack: statusline, smart-compact, delegate, cells, eta, seek and draft, installed together and built to work together, and route, an optional mod that needs an outside classifier, off until you turn it on."
     },
     {
       "name": "statusline",
@@ -23,7 +23,7 @@
     {
       "name": "delegate",
       "source": "./delegate",
-      "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back."
+      "description": "A hand_off tool: Claude gives a self-contained task to a cheaper worker model (Haiku for lookups and mechanical changes, Sonnet for build work) that stays warm between tasks, with where the change reaches from the language server, the diff and a check run by the tool as evidence, a review by the main model, and a log of what it saved and how often the work came back."
     },
     {
       "name": "cells",

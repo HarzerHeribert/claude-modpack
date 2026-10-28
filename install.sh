@@ -12,7 +12,7 @@
 shopt -s extglob   # before the functions below are read: they use *([0-9;]) patterns
 
 MIN_VERSION=2.1.287     # the first Claude Code that runs mods at all
-TESTED_VERSION=2.1.296  # the pack was tested on 2.1.296 to 2.1.301
+TESTED_VERSION=2.1.296  # the pack was tested on 2.1.296 to 2.1.312
 NODE_MIN=22.13          # cells runs its cells with Node
 REPO=HarzerHeribert/claude-modpack
 MARKET=claude-modpack

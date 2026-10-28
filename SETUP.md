@@ -128,7 +128,7 @@ cells decides at session start: restart Claude Code after a fix.
 
 **Check**: the line `cells is off: …` no longer appears at the start of a session. Ask Claude to "run a cell that returns 1". Its report reads `cell · 0 calls · 0.1 s`, then `## Output` and `1`; under Node's sandbox alone the first line ends with `· Node's sandbox only: signals open`.
 
-**Options**: `mode` (`cells`; `nudge` gives the guidance and notes without the tool; `off`), `nudges`, `visuals`.
+**Options**: `mode` (`cells`; `nudge` gives the guidance and notes without the tool; `off`), `nudges`, `visuals`, `subagents` (the chaining guidance in a subagent's task; on), `autoModeLine` (one line in auto mode's note on shell edits; on).
 
 ## 6. Language servers, if you want them, for cells and delegate
 
@@ -169,7 +169,7 @@ Nothing to install. It starts its worker (Haiku for read and mechanical work, So
 
 Nothing to install, and nothing leaves your machine. Every request re-reads the whole conversation, and whatever Claude reads stays in it, re-read by every later request until a compaction. So beside your prompt seek adds your setting to look around in few, lean steps: the searches and reads Claude can already name in one command, definitions or line ranges rather than whole files, and nothing read again that the session already holds. It comes with the first prompt of a session (20 characters or more, not a slash command), and again after a compaction or once the context has grown by another 150k tokens.
 
-**Check**: send a question about your project of 20 characters or more and, in the same prompt, ask Claude whether seek's setting came with it. It reads `The person's setting for looking around in this session: … So look around in few, lean steps: …`.
+**Check**: send a question about your project of 20 characters or more and, in the same prompt, ask Claude whether seek's setting came with it. It reads `The person's setting for looking around in this session (about …k tokens of context so far): … So look around in few, lean steps: …`.
 
 **If not**: `/mods` shows `seek: off`; `order` is off; `orderFrom` is above the session's context; or it already came earlier in this session (it comes again only after a compaction or another 150k tokens).
 
@@ -200,7 +200,7 @@ route is an optional mod, off until you turn it on, and the only one that needs 
 
 **Check**: send a real feature or test request of at least 40 characters, and ask Claude whether route's order came with it. The order reads `This prompt is feature work, and the person's setting for feature work is: implement it through the hand_off tool (kind build). …`. A question ("where is X defined?") gets none.
 
-**If no order arrives**: route is off; no key is set (`claude plugin configure route@claude-modpack` lists which options are set and never prints a key); delegate is off or its `framing` is `capability`; the prompt was under 40 characters; the classifier scored it under `minScore` (0.7); or it answered after `timeoutMs` (3 s). A wrong key fails silently. To test the key itself, this sends one test sentence to the service and prints its answer, never the key (paste the key and press Enter; nothing shows; both checked with real keys on 16 Oct 2026):
+**If no order arrives**: route is off; no key is set (`claude plugin configure route@claude-modpack` lists which options are set and never prints a key); delegate is off or its `framing` is `capability`; the prompt was under 40 characters; the classifier scored it under its threshold (0.95 for Jev, 0.7 for ScaleDown, or `minScore` where you set one); or it answered after `timeoutMs` (3 s). A wrong key fails silently. To test the key itself, this sends one test sentence to the service and prints its answer, never the key (paste the key and press Enter; nothing shows; both checked with real keys on 16 Oct 2026):
 
 ```sh
 # Jev: the answer should hold "choice":"feature"

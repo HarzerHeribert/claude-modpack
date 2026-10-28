@@ -39,7 +39,7 @@
     "autoModeLine": {
       "type": "boolean",
       "title": "A line in auto mode's note",
-      "description": "Auto mode tells Claude to make small file changes with sed, heredocs or short scripts. Add one line to that note: several edits and their check go through run_cell, by the Edit tool, so each diff shows and /rewind can restore it.",
+      "description": "Auto mode tells Claude to make small file changes with sed, heredocs or short scripts. Add one line to that note: several edits and their check go through run_cell, by the Edit tool, so each diff shows and /rewind can restore it, and a single small mechanical change by the shell. Main session only.",
       "default": true
     },
     "subagents": {

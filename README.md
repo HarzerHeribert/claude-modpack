@@ -17,7 +17,7 @@ Prefer doing it by hand? [SETUP.md](SETUP.md) has every step.
 
 <br>
 
-[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296](https://img.shields.io/badge/Claude%20Code-2.1.296-D97757?style=flat-square) [![Quality: no loss seen](https://img.shields.io/badge/quality-no%20loss%20seen-0ca30c?style=flat-square)](#will-claudes-work-get-worse) [![8 mods](https://img.shields.io/badge/mods-8-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-16-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
+[![Release](https://img.shields.io/github/v/release/HarzerHeribert/claude-modpack?style=flat-square&color=2a78d6&label=release)](https://github.com/HarzerHeribert/claude-modpack/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6?style=flat-square)](LICENSE) ![Claude Code 2.1.296 or later](https://img.shields.io/badge/Claude%20Code-2.1.296%2B-D97757?style=flat-square) [![Quality: no loss seen](https://img.shields.io/badge/quality-no%20loss%20seen-0ca30c?style=flat-square)](#will-claudes-work-get-worse) [![8 mods](https://img.shields.io/badge/mods-8-555555?style=flat-square)](#the-mods-in-depth) [![Lab notes](https://img.shields.io/badge/lab%20notes-16-D97757?style=flat-square)](https://harzerheribert.github.io/claude-modpack/notes.html)
 
 ### Claude Code with fewer wasted steps, and a clear view of what it's doing.
 
@@ -86,7 +86,7 @@ That's the **draft** mod.
 
 ### You stay in control
 
-`/mods` lists the eight and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer).
+`/mods` lists the eight and turns any of them on or off, right away, with a click or by typing, such as `/mods statusline off`. When something can't fully work on your computer, the pack tells you once, with the command that fixes it. When another plugin's permission or notification hook hangs (Warp's does outside the Warp terminal), the pack stops waiting for it after 10 seconds, so Claude Code can't freeze, and tells you which one it was. It keeps itself up to date (or only lets you know, if you prefer). On Claude Code 2.1.312 or later, a pack older than 0.9.4 cannot: update it once by hand with `claude plugin marketplace update claude-modpack && claude plugin update modpack@claude-modpack`.
 
 That's the **modpack** plugin, which installs the other eight.
 
@@ -174,7 +174,7 @@ It left the pack in 0.7.0. Measured twice, 120 runs on renames and traces in cli
 It's open source (MIT), so every line is here to read. Code that Claude runs inside a cell runs in a sandbox with no network access. Edits go through Claude Code's own edit tool, so your usual permission prompts and `/rewind` still apply. The pack sends nothing anywhere except a once-a-day check on GitHub for a new release, which you can turn off, and, only if you turn route on, the start of each prompt to the classifier you chose (TypeSafe or ScaleDown).
 
 **Does the pack add anything to my prompts?**
-Your prompt itself is never changed. Beside it, Claude can get a short note in your name: seek's setting to look around in few, lean steps (with the first prompt of a session, and again after a compaction), and, only if you turn route on, the order to hand feature or test work to the worker; delegate gives the same order when you approve a plan of 20 lines or more. A subagent Claude starts gets cells' and seek's settings at the end of its task, since your prompts never reach it. `/mods seek off` and `/mods route off` stop theirs; `subagents: false` in cells or seek stops theirs for subagents.
+Your prompt itself is never changed. Beside it, Claude can get a short note in your name: seek's setting to look around in few, lean steps (with the first prompt of a session, and again after a compaction), draft's setting when your prompt sets a word limit, and, only if you turn route on, the order to hand feature or test work to the worker; delegate gives the same order when you approve a plan of 20 lines or more. In auto mode, cells adds one line to Claude Code's own note on shell edits. A subagent Claude starts gets cells' and seek's settings at the end of its task, since your prompts never reach it. `/mods seek off`, `/mods draft off` and `/mods route off` stop theirs, `autoModeLine: false` in cells stops its line, and `subagents: false` in cells or seek stops theirs for subagents.
 
 **I'm on a Pro or Max plan. Does this help me?**
 You don't pay per job, but every step counts against your 5-hour and weekly limits. We measured cost at API prices, not plan usage, so we can't promise a number. Fewer, lighter steps should leave more of your limits, and the status line shows exactly where you stand.
@@ -303,7 +303,7 @@ Measured on 120 Opus runs, all correct: a feature or tests cost 23–35% less ha
 Opus does not hand work off on its own (4 times in 70 hand-offs in the author's sessions; never in our runs without an order), and on small work a hand-off costs more than it saves, so the question is when to tell it to. route asks, for each prompt you send (typed, from the phone, or `claude -p`; not a slash command or a reply under 40 characters):
 
 1. **The classifier.** TypeSafe's Jev or ScaleDown's Classify, with seven labels (lookup, explain, small edit, rename, feature, tests, other) and a one-line rubric each. On 25 prompts, ours and everyday ones, two rounds: both 50 of 50 right; Jev 0.25 s median, ScaleDown 1.15 s, each about $0.00002–0.00003 a prompt. On a long, detailed feature spec ScaleDown was unsure (0.66, under the 0.7 threshold, so no order); Jev was certain. `auto` takes Jev when its key is set. Only the first 8,000 characters of a prompt are sent.
-2. **The order.** Only for feature or test work with a score of at least 0.7: beside your prompt, the order to hand it to the worker before reading the code (the worker reads it), with the project's whole test suite as the check, and to report on a Verified result without running anything again. Anything else, an answer slower than 3 s, or no delegate loaded: nothing, and without delegate nothing is sent.
+2. **The order.** Only for feature or test work the classifier is sure of (a score of 0.95 with Jev, 0.7 with ScaleDown; `minScore` sets another): beside your prompt, the order to hand it to the worker before reading the code (the worker reads it), with the project's whole test suite as the check, and to report on a Verified result without running anything again. Anything else, an answer slower than 3 s, or no delegate loaded: nothing, and without delegate nothing is sent.
 
 Measured, all correct:
 - **click, eight jobs** (route 0.1, Claude looking around first): the order on all 8 feature and test prompts and on none of the 24 others; −14% over the pack on all eight, −19% against plain Claude Code.
@@ -400,7 +400,8 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 - **Background.** `run_cell({ code, background: true })` returns at once and the report arrives as a message when the cell ends; ctrl+enter on a running cell moves it to the background the same way, Esc stops it after the call that is running. Inside a cell, `sh(command, { background: true })` starts Claude Code's own background task.
 - **The chaining guidance**, a system-prompt section: what you already need in one call, known edits in one response with their check after them. In a [pilot](benchmarks/cells-pilot/) it cut Haiku's requests by 18% on small tasks.
 - **Subagents get it too** (new in 0.4.3). A subagent Claude starts has a system prompt of its own, which the guidance never reaches; so cells adds a short form of it to the subagent's task, in your name, under "The person's settings for this work:" (not to a fork, a teammate or delegate's worker). Subagents get the settings too: −17.6% [−21.0, −14.0] on a task handed to one general-purpose subagent, 5 tasks × 4 runs per arm, Opus; subagent requests 10.0 → 6.9; chained Bash 88% → 99%.
-- **Notes after the fact.** When a request did no more than a check right after edits, a second single edit in a row, or the same command again, the tool result gets one line: what the request re-read and how to save it. At most four per kind, spaced apart. Nothing is blocked.
+- **Notes after the fact.** When a request did no more than a check right after edits, a second single edit in a row, or the same command again, the tool result gets one line: what the request re-read and how to save it; at most four per kind, spaced apart. A script that rewrote files around the Edit tool gets a line pointing to run_cell, at most three a session, and none for a script that works only in `/tmp` or a session's scratch folder, where there is no diff to show. Nothing is blocked.
+- **One instruction in auto mode.** In auto mode on Opus, Claude Code tells Claude to make small file changes with sed, heredocs or short scripts, and cells tells it to put edits through run_cell. cells adds one line to auto mode's own note so they say one thing: several edits and their check through run_cell, a single small change by the shell. On eight edit tasks (48 runs): the same cost, +0.1% [−7.3%, +7.9%], and files changed by a shell script 16% of changes instead of 28% (`autoModeLine`).
 - **Where it runs.** A cell acts only through Claude Code's tools, which your permissions and auto mode judge one call at a time; its runner is shut in so it has no other way out. On macOS that is Seatbelt, on Linux bubblewrap, and anywhere else Node 25 or later, whose permission model closes the network by itself (signals stay open there, and each cell's report says so on its first line). Where none of them is there, Linux on Node 22 without bubblewrap for one, cells does not run: you see a line saying why and what would fix it, Claude is told to offer the fix once, and `/cells:setup` does it with you. Tested on macOS and in Linux containers (bubblewrap on Node 22; Node 25 without it); Windows is untested.
 
 | Option | Default | |
@@ -410,6 +411,7 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 | `nudges` | `true` | The notes. |
 | `visuals` | `true` | Cells drawn as live cards. |
 | `subagents` | `true` | A subagent Claude starts gets the chaining guidance with its task. Not a fork, a teammate or delegate's worker. |
+| `autoModeLine` | `true` | One line added to auto mode's note on shell edits: several edits and their check through run_cell. |
 
 </details>
 
@@ -419,7 +421,7 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 
 - **Background shell jobs** show above the prompt with how long they have run, as soon as Claude starts one.
 - **`track_progress`** adds a percentage and an estimated finish time, read live from the job's output: a pattern counted against a total, a progress line, or the common progress output (tqdm, pytest, cargo, git, rsync, wget, curl, pip, Keras, `[3/10]`, `123/456 files`) without one. Before the progress is measurable, Claude's own guess stands in, marked as such.
-- **What has run is done with.** A finished job shows its full gauge for a beat and leaves; a failure stays in red until you write again. Columns keep their widths while the numbers change.
+- **What has run is done with.** A finished job shows its full gauge for a beat and leaves; a failure stays in red until you write again, or for 10 minutes. Columns keep their widths while the numbers change.
 - **Phone and IDE** get the same news as status text, and the tool's reply stays readable there. A terminal session watched over Remote Control (`/rc`) shows only that reply, as of Claude Code 2.1.296.
 
 </details>
@@ -465,7 +467,7 @@ Optional. delegate (to see where a change reaches) and cells (`refs()`, `defn()`
 
 ## Developing
 
-Each mod is a folder: `.claude-plugin/plugin.json`, `hooks/hooks.json` and a hooks module (`hooks/register.tsx`). Run Claude Code with one loaded from its folder, or list folders in `CLAUDE_CODE_PLUGIN_DIRS` (separated by `:`) so a saved edit reloads in a running session:
+Each mod is a folder: `.claude-plugin/plugin.json`, `hooks/hooks.json` and a hooks module (`hooks/register.tsx` or `.ts`). Run Claude Code with one loaded from its folder, or list folders in `CLAUDE_CODE_PLUGIN_DIRS` (separated by `:`) so a saved edit reloads in a running session:
 
 ```sh
 claude --plugin-dir ./cells

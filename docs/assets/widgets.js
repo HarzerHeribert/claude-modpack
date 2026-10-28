@@ -274,7 +274,7 @@
           clearInterval(timer)
           timer = null
           draw({ state: 'failed', now: now, start: start })
-          out.textContent = 'A failure stays above the prompt, in red, until you write again.'
+          out.textContent = 'A failure stays above the prompt, in red, until you write again or a while has passed.'
           return
         }
         if (frac >= 1) {

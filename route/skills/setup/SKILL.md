@@ -14,7 +14,7 @@ Set up the route mod with the person. route is optional, and the one mod of the 
 
 ## 1. Check what is there
 
-- `claude --version`: tested on 2.1.296 to 2.1.301; older versions are untested.
+- `claude --version`: tested on 2.1.296 to 2.1.312; older versions are untested.
 - `claude plugin list`: `route@claude-modpack` and `delegate@claude-modpack`, both `✔ enabled`.
 - Your tool list has `hand_off` (from the delegate mod). route looks for exactly that tool: with delegate off, or delegate's `framing` set to `capability` (its tool is then `implement_spec`), route sends nothing and does nothing. If delegate was never checked here, run its setup first (`/delegate:setup`), including its one read hand-off.
 - Where the person works: in the desktop app's auto mode delegate cannot start workers, so route's order would only be refused there. Ask; if that is where they work, suggest leaving route off.

@@ -635,11 +635,14 @@ export const register: Register = (on, rawOptions) => {
   prepared = undefined
 
   on('session.start', async ($, e, next) => {
-    await $.command.register({
-      name: 'cache',
-      description: 'Prompt cache: what idling costs, and what smart-compact will do about it',
-      argumentHint: '[pause | resume | keepalive]',
-    })
+    // A name Claude Code takes for a built-in is refused; the cache keeps being looked after without the command.
+    await $.command
+      .register({
+        name: 'cache',
+        description: 'Prompt cache: what idling costs, and what smart-compact will do about it',
+        argumentHint: '[pause | resume | keepalive]',
+      })
+      .catch(err => $.ui.log(`smart-compact: /cache is not available here: ${err instanceof Error ? err.message : String(err)}`))
 
     await load($)
     // A reload mid-action leaves no action running.

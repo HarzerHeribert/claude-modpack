@@ -8,7 +8,7 @@ Set up the seek mod with the person. Every model request re-reads the whole conv
 
 ## 1. Check what is there
 
-- `claude --version`: tested on 2.1.296 to 2.1.301; older versions are untested.
+- `claude --version`: tested on 2.1.296 to 2.1.312; older versions are untested.
 - `claude plugin list`: `seek@claude-modpack`, `✔ enabled`. seek adds no tool, so your tool list does not show it; `/mods` does (`seek: on`).
 
 ## 2. Steps

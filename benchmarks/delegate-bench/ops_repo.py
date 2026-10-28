@@ -743,8 +743,10 @@ def config_port(repo: Path):
 
 @contextlib.contextmanager
 def serve(repo: Path):
-    """Starts the server of `repo` in a new session; yields its /health (None if it did not answer within 10 s);
-    the process group is killed on the way out."""
+    """Starts the server of `repo` in a new session; yields its /health (None if it did not answer within 45 s);
+    the process group is killed on the way out. Python's HTTP server looks up the host's name as it binds: behind a
+    VPN's name servers that took 35 s on 28 Oct, and a 10 s wait graded every working fix as a server that never
+    started."""
     port = config_port(repo) or PORT
     (repo / "logs").mkdir(exist_ok=True)
     out = open(repo / "logs/server.log", "ab")
@@ -752,7 +754,7 @@ def serve(repo: Path):
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     health = None
     try:
-        deadline = time.time() + 10
+        deadline = time.time() + 45
         while time.time() < deadline and proc.poll() is None:
             try:
                 health = json.load(opener.open(f"http://127.0.0.1:{port}/health", timeout=2))

@@ -1,6 +1,6 @@
 {
   "name": "cells",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Lets Claude make several edits and their check, or a language-server lookup or rename, in one step through the real tools; guidance on chaining, which a subagent's task carries too; and a short note when a step cost a model request of its own for nothing.",
   "author": {
     "name": "HarzerHeribert"
@@ -34,6 +34,12 @@
       "type": "boolean",
       "title": "Point out avoidable requests",
       "description": "After a model request that did no more than a step needing no judgment (a check right after edits, one more single edit, the same command again) or a script that rewrote files around the Edit tool, add a short note on how to save it. Never blocks.",
+      "default": true
+    },
+    "autoModeLine": {
+      "type": "boolean",
+      "title": "A line in auto mode's note",
+      "description": "Auto mode tells Claude to make small file changes with sed, heredocs or short scripts. Add one line to that note: several edits and their check go through run_cell, by the Edit tool, so each diff shows and /rewind can restore it.",
       "default": true
     },
     "subagents": {

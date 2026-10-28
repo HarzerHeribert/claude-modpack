@@ -13,7 +13,7 @@ Without a word limit in the prompt it does nothing. Measured on six writing task
 
 ## 1. Check what is there
 
-- `claude --version`: tested on 2.1.296 to 2.1.301; older versions are untested.
+- `claude --version`: tested on 2.1.296 to 2.1.312; older versions are untested.
 - `claude plugin list`: `draft@claude-modpack`, `✔ enabled`. draft adds no tool; `/mods` shows `draft: on`.
 
 ## 2. Steps

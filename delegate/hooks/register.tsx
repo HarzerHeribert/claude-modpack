@@ -35,7 +35,7 @@ import {
 } from './plan'
 import type { Anchor, HandOff, Kind, Mode, Place, Reach, Usage } from './plan'
 import type { DelegateJob } from '../types'
-import { FRAME_MS, actionLabel, jobCard, pane, startingLine, usd, verb } from './view'
+import { FRAME_MS, actionLabel, jobCard, pane, startingLine, usd, verb, waitingLine } from './view'
 import type { Elements } from './view'
 
 type Engine = EngineInterface
@@ -823,7 +823,10 @@ export const register: Register = (on, options) => {
     }
     if (framing === 'capability') await $.tool.register({ name: CAPABILITY, description: describeCapability(), inputSchema: CAPABILITY_SCHEMA, isDeferred: false })
     else await $.tool.register({ name: TOOL, description: describe(wait), inputSchema: INPUT_SCHEMA, isDeferred: false })
-    await $.command.register({ name: 'delegate', description: 'What hand-offs to the worker model cost and saved, and how often their work came back' })
+    // A name Claude Code takes for a built-in is refused; hand_off works without the command.
+    await $.command
+      .register({ name: 'delegate', description: 'What hand-offs to the worker model cost and saved, and how often their work came back' })
+      .catch(err => $.ui.log(`delegate: /delegate is not available here: ${err instanceof Error ? err.message : String(err)}`))
     await reconcile($)
     return next(e)
   })
@@ -970,7 +973,8 @@ export const register: Register = (on, options) => {
       // Before the worker starts, one line instead of the call's whole input; a call that ended without a worker
       // (refused, not handed off) draws as Claude Code draws it.
       const line = e.props.isRunning && !e.props.isErrored ? startingLine(e.props.input, e.viewport?.columns ?? 100) : undefined
-      if (line === undefined) return next(e)
+      // ctrl+o and --verbose draw rows in full: the call's whole input there.
+      if (line === undefined || e.props.isExpanded) return next(e)
       const { Text } = $.ui.resolve(e) as unknown as Elements
       return <Text color="subtle">{line}</Text>
     }
@@ -978,6 +982,15 @@ export const register: Register = (on, options) => {
     const open = () => void openPane($, job.toolUseId).catch(() => undefined)
     return jobCard($.ui.resolve(e) as unknown as Elements, job, now, e.viewport?.columns ?? 100, open)
   })
+
+  // The line closing a turn that waits on delegate's workers alone says which hand-off and how far it is.
+  on('ui.render', { component: 'TurnDuration' }, async ($, e, next) => {
+    if (e.props.isExpanded || e.props.waitingFor === undefined) return next(e)
+    const line = waitingLine(await read($, VIEW), e.props.waitingFor, await $.clock.now())
+    if (line === undefined) return next(e)
+    const { Text } = $.ui.resolve(e) as unknown as Elements
+    return <Text color="subtle">{line}</Text>
+  }).catch(($, e, next) => next(e))
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const now = await $.clock.now()
@@ -987,7 +1000,7 @@ export const register: Register = (on, options) => {
 
   // The card says it all: the tool's own result ("the worker is on it") draws nothing under it.
   for (const tool of HAND_OFF_TOOLS) on('ui.render', { component: 'ToolResult', props: { tool } }, async ($, e, next) => {
-    if ((await read($, VIEW)).every(j => j.toolUseId !== e.requestId) || e.props.isErrored) return next(e)
+    if ((await read($, VIEW)).every(j => j.toolUseId !== e.requestId) || e.props.isErrored || e.props.isExpanded) return next(e)
     const { Box } = $.ui.resolve(e)
     return <Box />
   })

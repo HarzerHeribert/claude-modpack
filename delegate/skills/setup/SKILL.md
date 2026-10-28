@@ -9,7 +9,7 @@ Set up the delegate mod with the person. It gives Claude a `hand_off` tool: a ta
 ## 1. Check what is there
 
 Run these and read the answers before suggesting anything:
-- `claude --version`: tested on 2.1.296 to 2.1.301; older versions are untested.
+- `claude --version`: tested on 2.1.296 to 2.1.312; older versions are untested.
 - `claude plugin list`: `delegate@claude-modpack`, `✔ enabled`. Your tool list has `hand_off` (from the delegate mod). With `framing: capability` the same tool is called `implement_spec` instead.
 - `git --version`, and in the project `git rev-parse --is-inside-work-tree` (prints `true`). An edit hand-off diffs against a git snapshot taken at its start; outside a repository the diff covers only the files the worker changed through Edit and Write.
 - Where the person runs Claude Code, and in which permission mode. Ask if you do not know:

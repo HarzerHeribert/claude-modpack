@@ -37,7 +37,7 @@ const TOOL_DESCRIPTION = `Shows the person a job's progress as a percentage and 
 Call it in the same response as your other tool calls, right after starting a job that runs for minutes and prints countable progress: a background command (pass its task id), or anything else that writes a log (pass a short name and the file). Say how progress shows:
 - done_pattern and total: every output line the pattern matches is one unit of total (for example "^  \\S+ (RESOLVED|no) " with total 90).
 - or progress_pattern: a line holding the progress, with groups (done)(total) or one group with a percentage.
-Common progress bars (tqdm, pytest, cargo, "[3/10]", "step 3 of 10") are read without a pattern. Add expected_minutes when you can estimate the whole job's length; for a job already running, started_minutes_ago.`
+Common progress output (tqdm, pytest, cargo, git, rsync, wget, curl, pip, Keras, "[3/10]", "step 3 of 10", "123/456 files") is read without a pattern. Add expected_minutes when you can estimate the whole job's length; for a job already running, started_minutes_ago.`
 
 let ticker: Timer | undefined
 let busy = false
@@ -325,7 +325,8 @@ export const register: Register = (on, options) => {
   on('ui.render', { component: 'ToolUse', props: { tool: `mcp__eta__${TOOL}` } }, async ($, e, next) => {
     const i = (e.props.input ?? {}) as TrackInput
     const task = str(i.task)
-    if (!task) return next(e)
+    // ctrl+o and --verbose draw rows in full: the call as Claude Code draws it there.
+    if (!task || e.props.isExpanded) return next(e)
     const { Box, Text } = $.ui.resolve(e)
     const file = str(i.file)?.split('/').pop()
     const total = num(i.total)
@@ -341,7 +342,7 @@ export const register: Register = (on, options) => {
   }).catch(($, e, next) => next(e))
 
   on('ui.render', { component: 'ToolResult', props: { tool: `mcp__eta__${TOOL}` } }, async ($, e, next) => {
-    if (e.props.isErrored || (e.surface !== 'terminal' && e.surface !== 'desktop')) return next(e)
+    if (e.props.isErrored || e.props.isExpanded || (e.surface !== 'terminal' && e.surface !== 'desktop')) return next(e)
     const text = typeof e.props.output === 'string' ? e.props.output : ''
     // A reply that is not the usual "Showing … to the person" (a bad pattern, no file) stays readable.
     if (text !== '' && !/^(Showing|Stopped showing)/.test(text)) return next(e)

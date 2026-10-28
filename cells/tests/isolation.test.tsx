@@ -1,5 +1,6 @@
 import type { On } from 'claude-code'
 import { describe, expect, test } from 'claude-code/testing'
+import type { TestBody } from 'claude-code/testing'
 
 import { bwrapArgv, choose, major, nodeArgv, parseProbe, runnerArgv, seatbeltArgv, weakness } from '../hooks/isolation'
 
@@ -141,5 +142,35 @@ describe('what the person and Claude hear', () => {
     await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
     expect(m.registered).toEqual(['run_cell'])
     expect(m.logged).toEqual([])
+  })
+})
+
+// Auto mode's note as Claude Code 2.1.312 words it.
+const AUTO_NOTE = 'While auto mode is active:\n\nYou can do much of your work through the Bash tool when it is the simpler route: read files with cat, head, or sed -n, search with grep and find, and make small, mechanical file changes with sed, heredocs, or short scripts instead of the dedicated Read, Edit, or Write tools. The choice is yours: prefer Edit or Write when a shell edit would be fragile, such as exact or multi-line replacements.'
+const autoNote = ($: Parameters<TestBody>[0]) =>
+  $.prompt.attachment({ type: 'auto_mode', text: AUTO_NOTE, origin: { kind: 'engine' } } as never) as Promise<{ text: string | null }>
+
+describe("auto mode's note on shell edits", () => {
+  test('gets one line on run_cell where the tool is there', async ($, on) => {
+    machine(on, ['/opt/homebrew/bin/node', 'darwin', '22.22.3', '/var/folders/x/T'], 'missing')
+    on('prompt.attachment', (_$, e) => ({ text: e.text }))
+    await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
+    const r = await autoNote($)
+    expect(r.text?.startsWith(AUTO_NOTE)).toBe(true)
+    expect(r.text?.endsWith('use it for edits of that kind, and the shell for a single small mechanical change.')).toBe(true)
+  })
+
+  test('stays as Claude Code wrote it with the option off', { options: { autoModeLine: false } }, async ($, on) => {
+    machine(on, ['/opt/homebrew/bin/node', 'darwin', '22.22.3', '/var/folders/x/T'], 'missing')
+    on('prompt.attachment', (_$, e) => ({ text: e.text }))
+    await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
+    expect((await autoNote($)).text).toBe(AUTO_NOTE)
+  })
+
+  test('stays as it is where run_cell is not there', async ($, on) => {
+    machine(on, ['/usr/bin/node', 'linux', '22.13.0', '/tmp'], 'missing')
+    on('prompt.attachment', (_$, e) => ({ text: e.text }))
+    await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
+    expect((await autoNote($)).text).toBe(AUTO_NOTE)
   })
 })

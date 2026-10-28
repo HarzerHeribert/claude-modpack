@@ -8,7 +8,7 @@ You type the commands shown as `/...` into Claude Code's prompt; the others go i
 
 | | Needed for | Check | Expect |
 | --- | --- | --- | --- |
-| Claude Code 2.1.296 or later | everything | `claude --version` | `2.1.296 (Claude Code)` or higher. Tested on 2.1.296 to 2.1.302. Older: `claude update`. |
+| Claude Code 2.1.296 or later | everything | `claude --version` | `2.1.296 (Claude Code)` or higher. Tested on 2.1.296 to 2.1.312. Older: `claude update`. |
 | macOS or Linux | everything | `uname -s` | `Darwin` or `Linux`. Windows is untested. |
 | git | delegate's diffs | `git --version` | any recent version; your project is a git repository with at least one commit |
 | Node 22.13 or later | cells; language servers installed with npm, if you want them | `node --version` | `v22.13.0` or higher. On Linux without bubblewrap, `v25` or higher (see step 5). |
@@ -216,7 +216,7 @@ read -rs K; printf 'x-api-key: %s\n' "$K" | curl -s -H @- -H 'content-type: appl
 
 | Option | Default | |
 | --- | --- | --- |
-| `updates` | `auto` | Once a day the pack asks GitHub for a new release and installs it in the background; it loads at the next start. `notify`: only say one is out. `off`: no network request. `/modpack:update` updates now. |
+| `updates` | `auto` | Once a day the pack asks GitHub for a new release and installs it in the background; it loads at the next start. `notify`: only say one is out. `off`: no network request. `/modpack-update` updates now. |
 | `hookGuard` | `true` | Another plugin's permission or notification hook that runs over 10 s no longer freezes Claude Code. Turn it off if a hook of yours waits for you on purpose, such as approving from your phone. |
 
 Set them with `/plugin configure modpack@claude-modpack` or `/config modpack.updates=notify`.

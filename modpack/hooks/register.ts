@@ -148,6 +148,14 @@ export function releaseVersion(json: unknown): string | undefined {
 
 const url = (latest: string) => `https://github.com/${REPO}/releases/tag/v${latest}`
 
+/** The slash command that updates the pack now. Commands a mod registers are not namespaced: `/update` is Claude Code's own. */
+export const UPDATE = 'modpack-update'
+
+const COMMANDS = [
+  { name: UPDATE, description: 'Update claude-modpack and its mods to the newest release' },
+  { name: 'mods', description: "See the pack's mods, and turn each on or off", argumentHint: '[mod] [on|off]' },
+]
+
 async function claude($: Engine, args: string[]) {
   return $.process.run(['claude', ...args], { timeoutMs: 120_000 }).catch(() => undefined)
 }
@@ -170,7 +178,7 @@ async function install($: Engine, latest: string, current: string): Promise<stri
 }
 
 const failed = (latest: string, stderr: string | undefined) =>
-  `claude-modpack ${latest} is out, but the update failed: ${firstLine(stderr)}. /modpack:update tries again.`
+  `claude-modpack ${latest} is out, but the update failed: ${firstLine(stderr)}. /${UPDATE} tries again.`
 
 /** The line the person reads when a retired mod was removed. */
 export function retiredLine(r: { name: string; release: string; why: string }): string {
@@ -186,14 +194,26 @@ async function retire($: Engine): Promise<string[]> {
   const record = `${home}/.claude/mods/modpack/retired.json`
   const done = await $.fs.read(record).then(t => JSON.parse(t) as string[]).catch(() => [] as string[])
   const enabled = ((await $.settings.read().catch(() => ({}))) as { enabledPlugins?: Record<string, unknown> }).enabledPlugins ?? {}
+  // Claude Code's own record of what is installed, and in which scope: a name in enabledPlugins may be one left
+  // behind, and an install outside the user scope is removed only with its scope named.
+  const installed = await $.fs
+    .read(`${home}/.claude/plugins/installed_plugins.json`)
+    .then(t => (JSON.parse(t) as { plugins?: Record<string, { scope?: string }[]> }).plugins)
+    .catch(() => undefined)
   const lines: string[] = []
   const now = [...done]
   for (const r of RETIRED) {
     const id = `${r.name}@${MARKETPLACE}`
-    if (done.includes(id) || !(id in enabled)) continue
-    const res = await claude($, ['plugin', 'uninstall', id])
+    if (done.includes(id)) continue
+    const scopes = installed !== undefined ? [...new Set((installed[id] ?? []).map(i => i.scope ?? 'user'))] : id in enabled ? ['user'] : []
+    if (scopes.length === 0) continue
+    let failed: string | undefined
+    for (const scope of scopes) {
+      const res = await claude($, ['plugin', 'uninstall', id, '--scope', scope])
+      if (res === undefined || res.exitCode !== 0) failed ??= firstLine(res?.stderr)
+    }
     now.push(id)
-    lines.push(res !== undefined && res.exitCode === 0 ? retiredLine(r) : `claude-modpack ${r.release} retired ${r.name}, but removing it failed: ${firstLine(res?.stderr)}. /plugin uninstall ${id} removes it.`)
+    lines.push(failed === undefined ? retiredLine(r) : `claude-modpack ${r.release} retired ${r.name}, but removing it failed: ${failed}. /plugin uninstall ${id} removes it.`)
   }
   if (now.length !== done.length) await $.fs.write(record, JSON.stringify(now)).catch(() => undefined)
   return lines
@@ -223,7 +243,7 @@ async function check($: Engine, force: boolean, doInstall: boolean): Promise<Out
   let text: string | undefined
   if (newer(current, latest)) {
     if (doInstall) text = await install($, latest, current)
-    else text = `claude-modpack ${latest} is out (you have ${current}): /modpack:update installs it. What's new: ${url(latest)}`
+    else text = `claude-modpack ${latest} is out (you have ${current}): /${UPDATE} installs it. What's new: ${url(latest)}`
   }
   await $.fs.write(statePath, JSON.stringify({ checkedAt: now, latest })).catch(() => undefined)
   return { text, current, latest, root }
@@ -267,8 +287,9 @@ export const register: Register = (on, options) => {
   mode = u === 'notify' || u === 'off' ? u : 'auto'
 
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'update', description: 'Update claude-modpack and its mods to the newest release' })
-    await $.command.register({ name: 'mods', description: "See the pack's mods, and turn each on or off", argumentHint: '[mod] [on|off]' })
+    // Each on its own: a name Claude Code takes for a built-in is refused (2.1.312 made /update the built-in /restart),
+    // and one refusal must not keep the other command, the retirements or the update check from running.
+    for (const spec of COMMANDS) await $.command.register(spec).catch(err => $.ui.log(`modpack: /${spec.name} is not available here: ${err instanceof Error ? err.message : String(err)}`))
     // Retired mods go whatever the update setting: this modpack is already the release that retired them.
     $.clock.after(0, () => {
       void retire($).then(lines => {
@@ -285,7 +306,7 @@ export const register: Register = (on, options) => {
     return next(e)
   })
 
-  on('command.run', { command: 'update' }, async $ => {
+  on('command.run', { command: UPDATE }, async $ => {
     const o = await check($, true, true)
     if (o.folder) return { text: `claude-modpack is loaded from ${o.root}: update it there (git pull); a folder copy reloads by itself.` }
     if (o.latest === undefined) return { text: 'Could not reach GitHub to look for a new release. Try again later.' }

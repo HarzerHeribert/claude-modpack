@@ -8,7 +8,7 @@ Set up the eta mod with the person. Every background shell job Claude starts get
 
 ## 1. Check what is there
 
-- `claude --version`: tested on 2.1.296 to 2.1.301; older versions are untested.
+- `claude --version`: tested on 2.1.296 to 2.1.312; older versions are untested.
 - `claude plugin list`: `eta@claude-modpack`, `✔ enabled`.
 - Your tool list has `track_progress` (from the eta mod). If it does not, the mod is off or not loaded.
 - Where the person works: in the terminal and the desktop app the rows sit above the prompt; on the phone or in an IDE hosting the session the same news is the status text; a terminal session watched over Remote Control (`/rc`) shows only the tool's reply, as of Claude Code 2.1.296.

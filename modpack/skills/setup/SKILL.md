@@ -18,7 +18,7 @@ Set up the claude-modpack with the person. The pack is the `modpack` plugin (it 
 
 Run these and read the answers:
 
-- `claude --version`: for example `2.1.301 (Claude Code)`. The pack was tested on 2.1.296 to 2.1.301. Claude Code's docs give 2.1.287 as the first version that runs mods at all; anything older than 2.1.296 is untested. If it is older, suggest `claude update` first.
+- `claude --version`: for example `2.1.312 (Claude Code)`. The pack was tested on 2.1.296 to 2.1.312. Claude Code's docs give 2.1.287 as the first version that runs mods at all; anything older than 2.1.296 is untested. If it is older, suggest `claude update` first.
 - `uname -s`: `Darwin` (macOS) or `Linux`. On Windows say plainly that the pack is untested there, and go on only if the person wants to.
 - `node --version`: cells needs 22.13 or later on the `PATH` Claude Code starts with (or 25 or later on Linux without bubblewrap).
 - `git --version`, then in the project `git rev-parse --is-inside-work-tree` (`true`) and `git log -1 --oneline` (a commit). delegate diffs against git.
@@ -33,7 +33,7 @@ Run these and read the answers:
 - **lsp-plus still installed** (`lsp-plus@claude-modpack`): it left the pack in 0.7.0, and the modpack removes it once at its first start. If it is still there, the person installed it again on purpose; leave it unless they want it gone (`claude plugin uninstall lsp-plus@claude-modpack`).
 - **A mod disabled**: `claude plugin enable <name>@claude-modpack`.
 - **A copy loaded from a folder** (`<name>@inline`, scope `session`, from `--plugin-dir` or `CLAUDE_CODE_PLUGIN_DIRS`): it takes the installed one's place in that session, and its options live under `pluginConfigs["<name>"]` instead. Fine for developing a mod; say so and use the folder as its `installPath`.
-- **The newest release**: the person can type `/modpack:update`; it installs a newer release if there is one (loaded at the next start).
+- **The newest release**: the person can type `/modpack-update`; it installs a newer release if there is one (loaded at the next start).
 
 The person can also type `/mods`: it lists the eight with `on`, `off` or `not installed`. `route: off` is expected: route is off until they turn it on.
 

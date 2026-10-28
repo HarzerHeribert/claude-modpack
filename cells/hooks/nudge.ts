@@ -36,6 +36,32 @@ export function rewritesText(command: string): boolean {
   return REWRITES.test(command)
 }
 
+/** Scratch space: /tmp (a session's scratch folder lives there) and the system's temporary folders. */
+const TEMP = /^(\/private)?\/tmp\/|^(\/private)?\/var\/folders\//
+/** Folders a script reads from or runs, never the project: an interpreter, /dev/null, Claude Code's own data. */
+const SYSTEM = /^\/(dev|usr|bin|sbin|opt|System|Library)\/|^~\/(\.claude|Library)\//
+const ABSOLUTE = /(?<![\w.$}-])~?\/[\w.@+-]+(?:\/[\w.@+-]*)+/g
+/** A file of the project named relative to the working folder (src/app.py, ./x.ts, notes.md). */
+const RELATIVE_FILE = /(?<![\w/.$-])(?:\.\.?\/)?[\w-]+(?:\/[\w.-]+)*\.(?:py|ts|tsx|js|jsx|mjs|cjs|md|json|ya?ml|toml|go|rs|rb|java|kt|swift|c|h|cc|cpp|css|scss|html|sh|sql|txt)\b/
+
+/**
+ * Whether a command works in scratch space alone, where there is no diff for the person to see and nothing for
+ * /rewind to restore: it goes into a temporary folder first, or every path it names is a temporary or system one.
+ * Variables the command sets to a path (`S=/tmp/x; … $S/a.py`) count as that path.
+ */
+export function inTemp(command: string): boolean {
+  let text = command
+  for (const m of command.matchAll(/(?:^|[\s;&(])(\w+)=(["']?)(\/[^\s;&|'"]+)\2/g)) {
+    text = text.replace(new RegExp(`\\$\\{?${m[1]}\\}?(?!\\w)`, 'g'), m[3] as string)
+  }
+  const paths = text.match(ABSOLUTE) ?? []
+  const elsewhere = paths.some(p => !TEMP.test(p) && !SYSTEM.test(p))
+  if (elsewhere) return false
+  const cd = /^\s*(?:\w+=\S+\s*;\s*)*cd\s+(["']?)([^"'\s;&|]+)\1/.exec(text)
+  if (cd) return TEMP.test(cd[2] as string)
+  return paths.some(p => TEMP.test(p)) && !RELATIVE_FILE.test(text.replace(ABSOLUTE, ' '))
+}
+
 /** One model request of the main loop, as far as the notes need it. */
 export type Step = {
   turnId: string
@@ -59,7 +85,7 @@ const normal = (command: string | undefined) => (command ?? '').replace(/\s+/g, 
  * turn, as seen from `mine`, one of its calls; undefined when it was none.
  */
 export function missed(previous: Step | undefined, current: Step, mine: Step['calls'][number], cells: boolean): Pattern | undefined {
-  if (cells && mine.kind === 'script-edit' && rewritesText(mine.command ?? '')) return 'script-edit'
+  if (cells && mine.kind === 'script-edit' && rewritesText(mine.command ?? '') && !inTemp(mine.command ?? '')) return 'script-edit'
   const before =
     previous !== undefined && previous.turnId === current.turnId && previous.index === current.index - 1 && previous.calls.length > 0
       ? previous

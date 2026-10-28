@@ -8,7 +8,7 @@ Set up the statusline mod with the person. It draws one line under the prompt: t
 
 ## 1. Check what is there
 
-- `claude --version`: the pack was tested on 2.1.296 to 2.1.301. Older versions are untested; Claude Code's docs give 2.1.287 as the first that runs mods at all.
+- `claude --version`: the pack was tested on 2.1.296 to 2.1.312. Older versions are untested; Claude Code's docs give 2.1.287 as the first that runs mods at all.
 - `claude plugin list`: `statusline@claude-modpack` with `Status: ✔ enabled`. A copy loaded from a folder shows as `statusline@inline` instead; its options then live under `pluginConfigs["statusline"]` (or `["statusline@inline"]`), not under the marketplace id.
 - Where the person uses Claude Code. Ask if you do not know. The line depends on it:
   - **Terminal**: one line under the prompt, sharing Claude Code's hint row (the mode indicator stays on the left).

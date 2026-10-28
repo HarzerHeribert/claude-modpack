@@ -16,6 +16,13 @@ export const NUDGE_CELLS = `${NUDGE}
 
 run_cell chains real tool calls where one response can't: edits you would otherwise script in Python or sed (it keeps the Edit tool's diff and /rewind), the language server's references, definitions and renames without loading the LSP tool, and steps that branch on results without your judgment.`
 
+/**
+ * Appended to auto mode's own note, which tells Claude to make small file changes with sed, heredocs or short scripts
+ * and to prefer Edit where a shell edit would be fragile: the two say one thing where run_cell is there.
+ */
+export const AUTO_MODE_LINE =
+  'With run_cell, several edits and their check are one step through the Edit tool, so the person sees each diff and /rewind can restore it: use it for edits of that kind, and the shell for a single small mechanical change.'
+
 export const TOOL_NAME = 'run_cell'
 
 export const TOOL_DESCRIPTION = `Run a short JavaScript program (a cell) that chains real tool calls in one step. Each call inside is a normal Read, Edit, Write, Bash or LSP call with the usual permissions; edits show as diffs and can be rewound.

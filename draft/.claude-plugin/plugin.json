@@ -1,6 +1,6 @@
 {
   "name": "draft",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Writing to a length in one draft and cuts, not rewrites. When your prompt sets a word limit, it carries your setting to plan each part's share and land the length in one draft, or one more write; each write of a document then shows its words as wc -w counts them, and when it is well over, each section's target. Silent without a limit. Nothing leaves your machine.",
   "author": {
     "name": "HarzerHeribert"

@@ -889,7 +889,7 @@ if [ "$SETUP" = quick ] && [ "$DRY_RUN" = 0 ]; then
 fi
 L[${#L[@]}]=""
 L[${#L[@]}]="In Claude Code, type:"
-for c in "/mods|turn mods on or off" "/modpack:setup|set them up (again)" "/modpack:update|get the newest release"; do
+for c in "/mods|turn mods on or off" "/modpack:setup|set them up (again)" "/modpack-update|get the newest release"; do
   if [ "$W" -ge 46 ]; then   # two columns where they fit, else the words under the command
     printf -v pad '%-17s' "${c%%|*}"
     L[${#L[@]}]="  $ACC${pad%% *}$R${pad#"${c%%|*}"}"$'\t'"${c#*|}"

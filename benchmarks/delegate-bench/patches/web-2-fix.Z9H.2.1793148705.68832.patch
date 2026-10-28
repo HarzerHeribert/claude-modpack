@@ -1,0 +1,75 @@
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..fba638f 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,11 @@
++import {
++  createComment,
++  createUser as generateUser,
++} from '@/testing/data-generators';
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+@@ -81,3 +86,44 @@ test('should not view protected resource if policy check fails and show fallback
+ 
+   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
+ });
++
++describe('comment:delete policy', () => {
++  const createPolicyUser = (
++    overrides: Pick<User, 'role'> & Partial<User>,
++  ): User => ({ ...generateUser(), ...overrides });
++
++  const createCommentBy = (author: User): Comment => ({
++    ...createComment(),
++    discussionId: 'discussion-id',
++    author,
++  });
++
++  test('should allow a user to delete their own comment', () => {
++    const user = createPolicyUser({ role: ROLES.USER });
++
++    expect(POLICIES['comment:delete'](user, createCommentBy(user))).toBe(true);
++  });
++
++  test('should not allow a user to delete a comment by someone else', () => {
++    const user = createPolicyUser({ role: ROLES.USER });
++    // a teammate whose user id happens to equal the user's team id
++    const otherUser = createPolicyUser({
++      id: user.teamId,
++      role: ROLES.USER,
++      teamId: user.teamId,
++    });
++
++    expect(POLICIES['comment:delete'](user, createCommentBy(otherUser))).toBe(
++      false,
++    );
++  });
++
++  test('should allow an admin to delete any comment', () => {
++    const admin = createPolicyUser({ role: ROLES.ADMIN });
++    const otherUser = createPolicyUser({ role: ROLES.USER });
++
++    expect(POLICIES['comment:delete'](admin, createCommentBy(otherUser))).toBe(
++      true,
++    );
++  });
++});
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 

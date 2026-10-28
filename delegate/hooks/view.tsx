@@ -62,6 +62,24 @@ export function headline(j: DelegateJob, now: number): string {
   return `hand-off ${j.n} · ${j.mode} · ${workerName(j)} · ${time} · ${req} · ${cost}${saved}`
 }
 
+/** What the line closing a turn waits on, as Claude Code 2.1.312 tells it (TurnDuration's `waitingFor`). */
+export type WaitingFor = { agents: ReadonlyArray<{ id: string; agentType: string; tool_use_id?: string }>; workflows: number }
+
+/**
+ * The line that closes a turn while it waits on delegate's workers alone: which hand-off, how far, at what cost, in
+ * place of "Waiting for 1 background agent to finish". Undefined when it waits on anything else.
+ */
+export function waitingLine(jobs: readonly DelegateJob[], w: WaitingFor | undefined, now: number): string | undefined {
+  if (w === undefined || w.workflows !== 0 || w.agents.length === 0) return undefined
+  const mine = w.agents.map(a =>
+    a.agentType.startsWith('delegate:') ? jobs.find(j => j.state === 'running' && (j.toolUseId === a.tool_use_id || j.agentId === a.id)) : undefined,
+  )
+  if (mine.some(j => j === undefined)) return undefined
+  const running = mine as DelegateJob[]
+  if (running.length === 1) return `Waiting for ${headline(running[0] as DelegateJob, now)}`
+  return `Waiting for ${running.length} hand-offs: ${running.map(j => `${j.n} (${j.mode}, ${workerName(j)})`).join(', ')}`
+}
+
 /** The outcome line under a finished card: what changed and whether the check held. */
 export function outcome(j: DelegateJob): string | undefined {
   if (j.state === 'running') return undefined

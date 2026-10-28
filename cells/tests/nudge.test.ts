@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'claude-code/testing'
 import type { Engine, TestBody } from 'claude-code/testing'
 
-import { Budget, costOf, kindOf, missed, noteFor } from '../hooks/nudge'
+import { Budget, costOf, inTemp, kindOf, missed, noteFor } from '../hooks/nudge'
 import type { Step } from '../hooks/nudge'
 
 const NOW = 1_000_000_000
@@ -63,6 +63,20 @@ describe('which steps were avoidable', () => {
     expect(missed(undefined, step(0, [script]), script, false)).toBeUndefined()
     const created = bash("cat > notes.md <<'EOF'\nhello\nEOF")
     expect(missed(undefined, step(0, [created]), created, true)).toBeUndefined()
+  })
+
+  test('a script in scratch space is no edit around the Edit tool: nothing there to diff or rewind', () => {
+    const S = '/tmp/claude-1000/home-a-proj/abc/scratch'
+    const scratch = bash(`cd ${S}; cat > fix.py <<'EOF'\ns=open(p).read().replace(a,b); open(p,'w').write(s)\nEOF\npython3 fix.py`)
+    expect(missed(undefined, step(0, [scratch]), scratch, true)).toBeUndefined()
+    expect(inTemp(`S=${S}; python3 - > $S/out.json <<'EOF'\nopen("$S/a.py","w")\nEOF`)).toBe(true)
+    expect(inTemp(`python3 ${S}/fix.py && cat ${S}/out.txt`)).toBe(true)
+    // A script kept in /tmp that rewrites a file of the project is one.
+    const project = bash("cat > /tmp/fix.py <<'EOF'\ns=open('src/a.py').read().replace(a,b); open('src/a.py','w').write(s)\nEOF\npython3 /tmp/fix.py")
+    expect(missed(undefined, step(0, [project]), project, true)).toBe('script-edit')
+    expect(inTemp(`cd ${S} && sed -i '' s/a/b/ /home/a/proj/src/x.ts`)).toBe(false)
+    expect(inTemp(`cd ${S} && sed -i '' s/a/b/ ~/proj/src/x.ts`)).toBe(false)
+    expect(inTemp("cd /home/a/proj && python3 - <<'EOF'\nopen('a.py','w')\nEOF")).toBe(false)
   })
 })
 

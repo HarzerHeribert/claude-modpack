@@ -1,6 +1,6 @@
 import { describe as group, expect, test } from 'claude-code/testing'
 
-import { bar, clock, commandLabel, describe, estimate, feed } from '../hooks/estimate'
+import { bar, clock, commandLabel, describe, estimate, feed, readAuto } from '../hooks/estimate'
 import type { Job } from '../types'
 
 const MIN = 60_000
@@ -90,4 +90,47 @@ group('commandLabel', () => {
     expect(commandLabel('/usr/local/bin/ffmpeg -i in.mov out.gif').startsWith('ffmpeg -i')).toBe(true)
     expect(commandLabel('x '.repeat(60)).length).toBeLessThanOrEqual(48)
   })
+})
+
+
+// Progress lines as common tools print them, and what each shows; read with no pattern from Claude.
+const SHOWN: [string, string, number][] = [
+  ['tqdm', ' 45%|████▌     | 45/100 [00:10<00:12,  4.50it/s]', 0.45],
+  ['pytest', 'tests/test_core.py ........                [ 42%]', 0.42],
+  ['CMake', '[ 45%] Building C object src/CMakeFiles/app.dir/main.c.o', 0.45],
+  ['apt', 'Progress: [ 60%] [###############.........]', 0.6],
+  ['cargo', '    Building [=======>     ] 120/300: serde, tokio', 0.4],
+  ['ninja', '[12/48] Building CXX object foo.o', 0.25],
+  ['docker', '#7 [3/6] RUN apt-get update', 0.5],
+  ['git', 'Receiving objects:  45% (4500/10000), 12.30 MiB | 4.50 MiB/s', 0.45],
+  ['rsync', '  1,234,567,890  45%   12.34MB/s    0:01:23 (xfr#1234, to-chk=7500/10000)', 0.25],
+  ['wget', 'big.iso            45%[========>          ] 450.12M  12.3MB/s    eta 40s', 0.45],
+  ['curl -#', '########################                                  42.5%', 0.425],
+  ['Keras', '125/500 [======>.......................] - ETA: 1:23 - loss: 0.3', 0.25],
+  ['pip', '   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.2/100.0 MB 12.3 MB/s eta 0:00:05', 0.452],
+  ['files', 'Processed 123/492 files', 0.25],
+  ['tests', 'ran 12 of 48 tests', 0.25],
+  ['epoch', 'Epoch 3/10', 0.3],
+  ['rows', 'migrated 1200 of 4800', 0.25],
+  ['downloading', 'Downloading model weights: 45%', 0.45],
+  ['progress', 'progress: 72.5%', 0.725],
+]
+// Lines that show no progress, though they hold numbers, slashes or a percentage.
+const NOT_SHOWN = [
+  '2026-10-28 01:23:45 INFO server started on :8080',
+  'GET /api/v1/items/12/34 HTTP/1.1 200 1532',
+  'TOTAL                                1234     56    95%',
+  'Using 45% of the available memory',
+  'Date: 10/28/2026',
+  'src/a/b/c.py:12:4: error: name is not defined',
+  'CPU 45%  mem 12%',
+]
+
+test('a common tool\'s progress line reads without a pattern', () => {
+  const wrong = SHOWN.filter(([, line, want]) => Math.abs((readAuto(line) ?? -1) - want) > 1e-9).map(([tool, line]) => `${tool}: ${line} → ${readAuto(line)}`)
+  expect(wrong).toEqual([])
+})
+
+test('a line that shows no progress reads as none', () => {
+  expect(NOT_SHOWN.filter(line => readAuto(line) !== undefined).map(line => `${line} → ${readAuto(line)}`)).toEqual([])
 })

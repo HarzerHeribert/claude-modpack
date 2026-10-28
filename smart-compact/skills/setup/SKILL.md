@@ -8,7 +8,7 @@ Set up the smart-compact mod with the person. When a session sits idle, its prom
 
 ## 1. Check what is there
 
-- `claude --version`: tested on 2.1.296 to 2.1.301; older versions are untested.
+- `claude --version`: tested on 2.1.296 to 2.1.312; older versions are untested.
 - `claude plugin list`: `smart-compact@claude-modpack` and `statusline@claude-modpack` (its dependency, which draws its segment), both `✔ enabled`. Without statusline it still works and says the same in Claude Code's own status text.
 - How the person pays: a subscription (Pro, Max) or an API key. smart-compact learns the cache's lifetime itself, but the person should know that on a subscription its keep-alives are requests that count against the plan's limits, and that its prices are list prices: API-equivalent estimates there, not a bill.
 

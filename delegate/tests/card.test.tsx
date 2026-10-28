@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 
 import type { DelegateJob } from '../types'
-import { jobCard, type Elements } from '../hooks/view'
+import { jobCard, waitingLine, type Elements } from '../hooks/view'
 
 const NOW = 1_000_000_000
 
@@ -39,6 +39,26 @@ const job: DelegateJob = {
     { tool: 'Bash', label: 'git grep foldLabel', state: 'running', startedAt: NOW - 2_500 },
   ],
 }
+
+describe('the line closing a turn that waits on workers', () => {
+  const agent = { id: 'task-1', agentType: 'delegate:reader', tool_use_id: 'toolu_run' }
+
+  test('names the hand-off, its worker, how long, what it cost', () => {
+    expect(waitingLine([job], { agents: [agent], workflows: 0 }, NOW)).toBe('Waiting for hand-off 3 · explore · haiku · 5s · 2 req · $0.0020')
+    expect(waitingLine([job, { ...job, n: 4, toolUseId: 'toolu_two', agentId: 'a2', mode: 'edit', model: 'sonnet', effort: 'medium' }], {
+      agents: [agent, { id: 'a2', agentType: 'delegate:builder' }],
+      workflows: 0,
+    }, NOW)).toBe('Waiting for 2 hand-offs: 3 (explore, haiku), 4 (edit, sonnet medium)')
+  })
+
+  test("leaves the line to Claude Code where it waits on anything else", () => {
+    expect(waitingLine([job], undefined, NOW)).toBe(undefined)
+    expect(waitingLine([job], { agents: [agent], workflows: 1 }, NOW)).toBe(undefined)
+    expect(waitingLine([job], { agents: [agent, { id: 'x', agentType: 'general-purpose' }], workflows: 0 }, NOW)).toBe(undefined)
+    expect(waitingLine([{ ...job, state: 'reported', endedAt: NOW }], { agents: [agent], workflows: 0 }, NOW)).toBe(undefined)
+    expect(waitingLine([job], { agents: [{ id: 'other', agentType: 'delegate:reader', tool_use_id: 'toolu_other' }], workflows: 0 }, NOW)).toBe(undefined)
+  })
+})
 
 describe('the card is a cell', () => {
   test('running: the task, a row per action with its time, the state and the button', () => {

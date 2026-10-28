@@ -6,7 +6,7 @@ import { applyFixes } from '../runner/repair.mjs'
 import type { CellsLive } from '../types'
 import { MAX_IN_FLIGHT, absolute, exitCode, labelOf, lines, report, tidy } from './bridge'
 import type { CallRecord, Done, Need, Reply } from './bridge'
-import { NUDGE, NUDGE_CELLS, TOOL_DESCRIPTION, TOOL_NAME } from './guide'
+import { AUTO_MODE_LINE, NUDGE, NUDGE_CELLS, TOOL_DESCRIPTION, TOOL_NAME } from './guide'
 import { PROBE_SCRIPT, bwrapArgv, choose, offLine, offNote, parseProbe, runnerArgv, weakness } from './isolation'
 import type { Bwrap, Isolation } from './isolation'
 import { Budget, costOf, kindOf, missed, noteFor } from './nudge'
@@ -25,6 +25,8 @@ let visuals = true
 let nudging = true
 // Whether a subagent's task carries the chaining guidance (its own system prompt never has it).
 let subagents = true
+// Whether auto mode's note on shell edits gets a line on where run_cell fits beside it.
+let autoModeLine = true
 // The cells running now, and those the model is still writing, for the redraw that animates them.
 const running = new Set<string>()
 const writing = new Set<string>()
@@ -55,6 +57,7 @@ function readOptions(o: PluginOptions) {
   visuals = o.visuals !== false
   nudging = o.nudges !== false
   subagents = o.subagents !== false
+  autoModeLine = o.autoModeLine !== false
 }
 
 /** Redraws at 8 fps while a cell is written or runs; at rest nothing moves. */
@@ -522,6 +525,14 @@ export const register: Register = (on, options) => {
     return { sections: [...composed.sections, { id: 'cells-chaining', text, scope: 'session' as const }, ...offSection] }
   }).catch(($, e, next) => next(e))
 
+  // Auto mode's own note sends small file changes to the shell and fragile ones to Edit; where run_cell is there, one
+  // line says it is the step for several edits and their check, so the note and the chaining guidance agree.
+  on('prompt.attachment', { type: 'auto_mode' }, async ($, e, next) => {
+    const r = await next(e)
+    if (!autoModeLine || !cellsOn() || e.agentId !== undefined || typeof r.text !== 'string' || !/\bsed\b/.test(r.text)) return r
+    return { ...r, text: `${r.text}\n\n${AUTO_MODE_LINE}` }
+  }).catch(($, e, next) => next(e))
+
   // A subagent's task: the guidance, in the person's name, since the system prompt above never reaches it; run_cell
   // named only where the session has it.
   on('agent.spawn', async ($, e, next) => {
@@ -639,6 +650,7 @@ export const register: Register = (on, options) => {
     // A fix or a repair sends no code: the program the cell runs is in its live state.
     const code = live?.code ?? (typeof input?.code === 'string' ? input.code : '')
     const width = e.viewport?.columns ?? 100
+    const full = e.props.isExpanded === true
     const frame = Math.floor(now / FRAME_MS)
     const report = outputText(e.props.output)
     let card: Card
@@ -650,14 +662,14 @@ export const register: Register = (on, options) => {
       const summary = going
         ? `${live.calls.length} call${live.calls.length === 1 ? '' : 's'} · ${seconds(now - live.startedAt)}`
         : (parsed?.summary ?? '')
-      card = { state, code, calls: live.calls, now, frame, width, summary }
+      card = { state, code, calls: live.calls, now, frame, width, summary, full }
     } else if (report) {
       const parsed = parseReport(report)
-      card = { state: parsed.state, code, calls: parsed.calls, now, frame, width, summary: parsed.summary }
+      card = { state: parsed.state, code, calls: parsed.calls, now, frame, width, summary: parsed.summary, full }
     } else {
       // No result and not running: the model is still writing the program, or the call waits its turn.
       const waiting = !e.props.isRunning && !e.props.isErrored && !e.props.isInterrupted
-      card = { state: e.props.isRunning ? 'running' : waiting ? 'writing' : 'ran', code, calls: [], now, frame, width, summary: '' }
+      card = { state: e.props.isRunning ? 'running' : waiting ? 'writing' : 'ran', code, calls: [], now, frame, width, summary: '', full }
     }
     return cellCard($.ui.resolve(e), card)
   })
@@ -665,6 +677,6 @@ export const register: Register = (on, options) => {
   on('ui.render', { component: 'ToolResult', props: { tool: 'mcp__cells__run_cell' } }, async ($, e, next) => {
     const report = outputText(e.props.output)
     if (!visuals || e.props.isErrored || report === undefined) return next(e)
-    return resultBody($.ui.resolve(e), report) ?? next(e)
+    return resultBody($.ui.resolve(e), report, 14, e.props.isExpanded === true) ?? next(e)
   })
 }

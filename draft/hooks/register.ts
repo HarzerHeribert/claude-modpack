@@ -6,7 +6,6 @@ type Engine = EngineInterface
 
 /** The person's own prompts: typed, from the phone, or a `claude -p` turn. */
 const PERSON = new Set(['composer', 'bridge', 'sdk'])
-const WRITES = ['Write', 'Edit', 'MultiEdit'] as const
 
 // The last word limit the person set in this session: a later prompt with a limit replaces it.
 let limit: number | undefined
@@ -41,13 +40,11 @@ export const register: Register = (on, options) => {
   }).catch(($, e, next) => next(e))
 
   // A write of a prose file, once a limit is set: its words, and by section when over. The tool's result is unchanged.
-  for (const tool of WRITES) {
-    on('tool.call', { tool }, async ($, e, next) => {
-      const r = (await next(e)) as Result
-      const path = (e as unknown as { file_path?: unknown }).file_path
-      if (!gauging || r.deny !== undefined || r.isError || typeof path !== 'string') return r as never
-      const note = await gauge($, path).catch(() => undefined)
-      return (note === undefined ? r : { ...r, context: [...(r.context ?? []), note] }) as never
-    }).catch(($, e, next) => next(e))
-  }
+  on('tool.call', { tool: /^(Write|Edit)$/ }, async ($, e, next) => {
+    const r = (await next(e)) as Result
+    const path = (e as unknown as { file_path?: unknown }).file_path
+    if (!gauging || r.deny !== undefined || r.isError || typeof path !== 'string') return r as never
+    const note = await gauge($, path).catch(() => undefined)
+    return (note === undefined ? r : { ...r, context: [...(r.context ?? []), note] }) as never
+  }).catch(($, e, next) => next(e))
 }

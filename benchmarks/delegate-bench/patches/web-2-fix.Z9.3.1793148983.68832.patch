@@ -1,0 +1,73 @@
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..150f390 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,54 @@
++import {
++  createComment,
++  createUser as generateUser,
++} from '@/testing/data-generators';
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
++
++const buildUser = (role: User['role'], overrides?: Partial<User>): User => ({
++  ...generateUser(),
++  role,
++  ...overrides,
++});
++
++const buildComment = (author: User): Comment => ({
++  ...createComment(),
++  discussionId: 'discussion-1',
++  author,
++});
++
++describe('comment:delete policy', () => {
++  test('should allow an admin to delete any comment', () => {
++    const admin = buildUser(ROLES.ADMIN);
++    const comment = buildComment(buildUser(ROLES.USER));
++
++    expect(POLICIES['comment:delete'](admin, comment)).toBe(true);
++  });
++
++  test('should allow a user to delete their own comment', () => {
++    const user = buildUser(ROLES.USER);
++    const comment = buildComment(user);
++
++    expect(POLICIES['comment:delete'](user, comment)).toBe(true);
++  });
++
++  test('should not allow a user to delete a comment by another user on the same team', () => {
++    const user = buildUser(ROLES.USER);
++    const teammate = buildUser(ROLES.USER, { teamId: user.teamId });
++    const comment = buildComment(teammate);
++
++    expect(POLICIES['comment:delete'](user, comment)).toBe(false);
++  });
++
++  test('should not allow a user to delete a comment whose author id matches their team id', () => {
++    const user = buildUser(ROLES.USER);
++    const comment = buildComment(buildUser(ROLES.USER, { id: user.teamId }));
++
++    expect(POLICIES['comment:delete'](user, comment)).toBe(false);
++  });
++});
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 

@@ -20,6 +20,8 @@ export type Card = {
   frame: number
   width: number
   summary: string
+  /** The view draws rows in full (ctrl+o, --verbose): every line of the program, none cut at the width. */
+  full?: boolean
 }
 
 /** How wide the scanner is, and its two-cell head sweeping out and back. */
@@ -60,7 +62,7 @@ export function cellCard({ Box, Text }: Elements, c: Card): RenderElement {
   const program = c.code.replace(/\s+$/, '')
   const lines = program === '' ? [] : program.split('\n')
   const moving = c.state === 'running' || c.state === 'writing' || c.state === 'background'
-  const shown = lines.slice(0, CODE_LINES)
+  const shown = c.full ? lines : lines.slice(0, CODE_LINES)
 
   const footer = (
     <Box flexDirection="row" gap={1}>
@@ -81,11 +83,11 @@ export function cellCard({ Box, Text }: Elements, c: Card): RenderElement {
   const code = lines.length === 0 ? null : (
     <Box flexDirection="column" paddingLeft={2}>
       {shown.map(line => (
-        <Text color="subtle" wrap="truncate-end">
-          {line.length > inner ? `${line.slice(0, inner - 1)}…` : line || ' '}
+        <Text color="subtle" wrap={c.full ? 'wrap' : 'truncate-end'}>
+          {!c.full && line.length > inner ? `${line.slice(0, inner - 1)}…` : line || ' '}
         </Text>
       ))}
-      {lines.length > CODE_LINES ? <Text color="inactive">{`… ${lines.length - CODE_LINES} more lines`}</Text> : null}
+      {shown.length < lines.length ? <Text color="inactive">{`… ${lines.length - CODE_LINES} more lines`}</Text> : null}
     </Box>
   )
 
@@ -170,8 +172,11 @@ const SECTION_TONE: Record<string, string> = { error: 'error', repair: 'warning'
 const SECTION_CAP: Record<string, number> = { error: 8, repair: 8, fix: 2, notes: 4 }
 const PRIORITY = ['error', 'repair', 'fix', 'notes', 'output', 'log', 'handles']
 
-/** The part of the report after the call rows: each section under its heading, its lines coloured by what they say, about `room` lines in all. */
-export function resultBody({ Box, Text }: Elements, text: string, room = 14): RenderElement | undefined {
+/**
+ * The part of the report after the call rows: each section under its heading, its lines coloured by what they say,
+ * about `room` lines in all; `full` (ctrl+o, --verbose) shows every line, none cut at the width.
+ */
+export function resultBody({ Box, Text }: Elements, text: string, room = 14, full = false): RenderElement | undefined {
   const all = text.split('\n')
   const start = all.findIndex(l => l.startsWith('## '))
   if (start < 0) return undefined
@@ -187,7 +192,7 @@ export function resultBody({ Box, Text }: Elements, text: string, room = 14): Re
   const order = [...sections].sort((a, b) => (PRIORITY.indexOf(a.name) + 1 || 99) - (PRIORITY.indexOf(b.name) + 1 || 99))
   for (const s of order) {
     const want = Math.min(s.lines.length, SECTION_CAP[s.name] ?? s.lines.length)
-    const n = Math.min(s.lines.length, Math.max(Math.min(want, left), 2))
+    const n = full ? s.lines.length : Math.min(s.lines.length, Math.max(Math.min(want, left), 2))
     take.set(s, n)
     left = Math.max(0, left - n)
   }
@@ -203,13 +208,13 @@ export function resultBody({ Box, Text }: Elements, text: string, room = 14): Re
     const place = splitLocation(line)
     if (place === undefined) {
       return (
-        <Text wrap="truncate-end" color={tone}>
+        <Text wrap={full ? 'wrap' : 'truncate-end'} color={tone}>
           {line || ' '}
         </Text>
       )
     }
     return (
-      <Text wrap="truncate-end">
+      <Text wrap={full ? 'wrap' : 'truncate-end'}>
         {place.indent}
         <Text color="suggestion">{place.at}</Text>
         <Text color={tone}>{place.rest}</Text>

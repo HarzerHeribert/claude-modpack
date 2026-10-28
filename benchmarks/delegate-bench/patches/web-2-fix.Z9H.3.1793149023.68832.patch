@@ -1,0 +1,77 @@
+diff --git a/src/lib/__tests__/authorization.test.tsx b/src/lib/__tests__/authorization.test.tsx
+index fdaef13..f5a1a05 100644
+--- a/src/lib/__tests__/authorization.test.tsx
++++ b/src/lib/__tests__/authorization.test.tsx
+@@ -1,6 +1,7 @@
+ import { createUser, renderApp, screen } from '@/testing/test-utils';
++import { Comment, User } from '@/types/api';
+ 
+-import { Authorization, ROLES } from '../authorization';
++import { Authorization, POLICIES, ROLES } from '../authorization';
+ 
+ test('should view protected resource if user role is matching', async () => {
+   const user = await createUser({
+@@ -81,3 +82,50 @@ test('should not view protected resource if policy check fails and show fallback
+ 
+   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
+ });
++
++describe('comment:delete policy', () => {
++  const buildUser = (overrides: Partial<User>): User => ({
++    id: 'user-id',
++    createdAt: Date.now(),
++    firstName: 'First',
++    lastName: 'Last',
++    email: 'user@example.com',
++    role: 'USER',
++    teamId: 'team-id',
++    bio: '',
++    ...overrides,
++  });
++
++  const buildComment = (author: User): Comment => ({
++    id: 'comment-id',
++    createdAt: Date.now(),
++    body: 'comment body',
++    discussionId: 'discussion-id',
++    author,
++  });
++
++  const user = buildUser({ id: 'user-1', teamId: 'team-1', role: 'USER' });
++  const teammate = buildUser({ id: 'user-2', teamId: 'team-1', role: 'USER' });
++  const admin = buildUser({ id: 'admin-1', teamId: 'team-1', role: 'ADMIN' });
++
++  test('allows a user to delete their own comment', () => {
++    expect(POLICIES['comment:delete'](user, buildComment(user))).toBe(true);
++  });
++
++  test("does not allow a user to delete someone else's comment", () => {
++    expect(POLICIES['comment:delete'](user, buildComment(teammate))).toBe(
++      false,
++    );
++    expect(POLICIES['comment:delete'](user, buildComment(admin))).toBe(false);
++  });
++
++  test("does not allow a user to delete a comment whose author id matches the user's team id", () => {
++    const author = buildUser({ id: user.teamId });
++    expect(POLICIES['comment:delete'](user, buildComment(author))).toBe(false);
++  });
++
++  test('allows an admin to delete any comment', () => {
++    expect(POLICIES['comment:delete'](admin, buildComment(admin))).toBe(true);
++    expect(POLICIES['comment:delete'](admin, buildComment(user))).toBe(true);
++  });
++});
+diff --git a/src/lib/authorization.tsx b/src/lib/authorization.tsx
+index 0e50f4d..563fca3 100644
+--- a/src/lib/authorization.tsx
++++ b/src/lib/authorization.tsx
+@@ -17,7 +17,7 @@ export const POLICIES = {
+       return true;
+     }
+ 
+-    if (user.role === 'USER' && comment.author?.id === user.teamId) {
++    if (user.role === 'USER' && comment.author?.id === user.id) {
+       return true;
+     }
+ 

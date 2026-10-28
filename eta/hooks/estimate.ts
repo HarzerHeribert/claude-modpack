@@ -2,15 +2,41 @@ import type { Job } from '../types'
 
 export type { Job }
 
-/** Progress lines common tools print, tried when Claude named no pattern. */
+/** What a count of things is in: "123/456 files", "12 of 50 tests". */
+const UNITS =
+  'files?|items?|tests?|steps?|tasks?|rows?|records?|pages?|modules?|packages?|chunks?|batches?|docs?|documents?|urls?|requests?|images?|samples?|objects?|commits?|entries|repos?|targets?|jobs?|cases?|queries|examples?|questions?|prompts?|shards?|epochs?'
+/** What a tool says it is doing beside a percentage: "Downloading: 45%". */
+const DOING =
+  'downloading|uploading|installing|building|compiling|indexing|processing|extracting|copying|syncing|loading|training|encoding|transcoding|rendering|exporting|importing|migrating|scanning|pushing|pulling|fetching|cloning|converting|analy[sz]ing|generating|verifying|unpacking'
+
+/** Progress lines common tools print, tried in order when Claude named no pattern; the first that reads wins. */
 const AUTO: { re: RegExp; read: (m: RegExpMatchArray) => number | undefined }[] = [
   { re: /(\d{1,3}(?:\.\d+)?)%\|/, read: m => pct(m[1]) },                                  // tqdm
-  { re: /\[\s*(\d{1,3})%\]/, read: m => pct(m[1]) },                                        // pytest
+  { re: /\[\s*(\d{1,3})%\]/, read: m => pct(m[1]) },                                        // pytest, CMake, apt
   { re: /Building \[[^\]]*\]\s*(\d+)\/(\d+)/, read: m => ratio(m[1], m[2]) },              // cargo
-  { re: /\[(\d+)\/(\d+)\]/, read: m => ratio(m[1], m[2]) },                                 // ninja, [3/10]
+  { re: /\[(\d+)\/(\d+)\]/, read: m => ratio(m[1], m[2]) },                                 // ninja, docker, [3/10]
+  { re: /:\s+\d{1,3}% \((\d+)\/(\d+)\)/, read: m => ratio(m[1], m[2]) },                    // git: "Receiving objects:  45% (4500/10000)"
+  { re: /to-chk=(\d+)\/(\d+)/, read: m => ratio(String(Number(m[2]) - Number(m[1])), m[2]) }, // rsync --info=progress2
+  { re: /\b(\d+)\/(\d+)\s*\[[=>.#\-━─ ]*\]/, read: m => ratio(m[1], m[2]) },                // Keras: "125/500 [=====>....]"
+  { re: /[━─■█#=]{3,}\s*(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)\s*[kKMGT]?i?B\b/, read: m => ratio(m[1], m[2]) }, // pip, rich
+  { re: /(\d{1,3}(?:\.\d+)?)%\s*(?:\[[=>#\- ]*\]|[\d.,]+\s*[kKMGT]?i?B(?:\/s)?\b)/, read: m => pct(m[1]) }, // wget, rsync: a bar or a size beside it
+  { re: /#{4,}\s*(\d{1,3}(?:\.\d+)?)%/, read: m => pct(m[1]) },                              // curl -#, Homebrew
+  { re: new RegExp(`\\b(\\d+)\\s*(?:\\/|of)\\s*(\\d+)\\s+(?:${UNITS})\\b`, 'i'), read: m => ratio(m[1], m[2]) },
   { re: /\b(?:step|task|test|file|item|batch|epoch|attempt|block|run|job|shard|chunk|page)s?\s*:?\s*(\d+)\s*(?:\/|of)\s*(\d+)/i, read: m => ratio(m[1], m[2]) },
+  { re: /\b(?:processed|downloaded|uploaded|indexed|scanned|copied|converted|migrated|imported|exported|fetched|checked)\s+(\d+)\s*(?:\/|of)\s*(\d+)/i, read: m => ratio(m[1], m[2]) },
   { re: /\b(?:progress|done|completed?)\b\D{0,12}(\d{1,3}(?:\.\d+)?)\s*%/i, read: m => pct(m[1]) },
+  { re: new RegExp(`\\b(?:${DOING})\\b[^\\d%]{0,20}(\\d{1,3}(?:\\.\\d+)?)\\s*%`, 'i'), read: m => pct(m[1]) },
 ]
+
+/** The progress a line shows by itself, as a fraction, when it is one a common tool prints. */
+export function readAuto(line: string): number | undefined {
+  for (const { re, read } of AUTO) {
+    const m = line.match(re)
+    const v = m ? read(m) : undefined
+    if (v !== undefined) return v
+  }
+  return undefined
+}
 
 function pct(s: string | undefined) {
   const v = Number(s)
@@ -66,14 +92,8 @@ export function feed(job: Job, text: string, now: number): Job {
       const v = m ? readPattern(m) : undefined
       if (v !== undefined) frac = v
     } else if (!done) {
-      for (const { re, read } of AUTO) {
-        const m = line.match(re)
-        const v = m ? read(m) : undefined
-        if (v !== undefined) {
-          frac = v
-          break
-        }
-      }
+      const v = readAuto(line)
+      if (v !== undefined) frac = v
     }
     if (line !== carry && finished?.test(line)) ended = true
   }

@@ -1,6 +1,6 @@
 {
   "name": "smart-compact",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Keeps an idle session's prompt cache warm, or compacts it just before it expires, whichever is cheaper, and says on the status line whether the next prompt is ready or cold.",
   "author": {
     "name": "HarzerHeribert"

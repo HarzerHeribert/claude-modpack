@@ -185,6 +185,14 @@ ABLATION["Z7W"] = ABLATION["Z6N"] + ("draft",)
 # checked against what was observed; steps that pay with the pack's tools). Z8SX: the same with seek's and draft's
 # orders beside the prompt off, so the system prompt carries that guidance alone.
 ABLATION["Z8S"] = ABLATION["Z8SX"] = ABLATION["Z7W"] + ("steer",)
+# 28 Oct (Claude Code 2.1.312): auto mode, on Opus, tells Claude to make small file changes with sed, heredocs or short
+# scripts; cells says to prefer run_cell. Z9: the pack as 0.9 ships it (Z7W), cells' notes kept out of scratch space.
+# Z9H: the same with cells' autoModeLine, one line in auto mode's own note: several edits and their check through
+# run_cell, a single small change by the shell. Against Z9: does one instruction instead of two pay?
+ABLATION["Z9"] = ABLATION["Z9H"] = ABLATION["Z7W"]
+# Z9L: Z9 with lean (lab), the skill listing cut to each skill's first sentence and the clause saying when to use it
+# (19.5k characters to 6.0k in the person's setup), on small fresh tasks where the listing is a large share. Against Z9.
+ABLATION["Z9L"] = ABLATION["Z7W"] + ("lean",)
 # The prompt's fixed lead in those arms, so that every run goes through a subagent and the grading still holds (the answer
 # is the main's final message, the edits are on disk).
 VIA_SUBAGENT = ("Hand this whole task to one general-purpose subagent with the Agent tool (subagent_type \"general-purpose\"): "
@@ -818,6 +826,9 @@ def _run_one(task: str, arm: str, rep: int) -> dict:
             worker = WORKER_ARMS[arm]
             options = {"options": {"readWorker": worker, "mechanicalWorker": worker, "buildWorker": worker}}
             settings["pluginConfigs"] = {"delegate": options, "delegate@inline": options}
+        if arm == "Z9H":
+            line = {"options": {"autoModeLine": True}}
+            settings["pluginConfigs"] = {"cells": line, "cells@inline": line}
         if arm == "Z8SX":
             off = {"options": {"order": False}}
             settings["pluginConfigs"] = {f"{m}{s}": off for m in ("seek", "draft") for s in ("", "@inline")}

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.4 (2026-10-28)
+
+The pack on Claude Code 2.1.312: its commands and its updates work again, auto mode and cells give one instruction instead of two, and ctrl+o shows the mods' rows whole.
+
+**Update by hand once if you are on Claude Code 2.1.312 or later:** `claude plugin marketplace update claude-modpack && claude plugin update modpack@claude-modpack`, then restart. On 2.1.312 the 0.9.3 pack cannot update itself (below).
+
+- **modpack 0.9.4: `/update` is Claude Code's own now, so the pack's command is `/modpack-update`.** Claude Code 2.1.312 made `/update` a built-in (it restarts Claude Code), and refused the pack's command of that name. That refusal was the first thing the pack did at the start of a session, so nothing after it ran: no `/mods`, no removal of a retired mod and no daily check for a new release. Each command now registers on its own, and one Claude Code refuses is named in one line; smart-compact's `/cache` and delegate's `/delegate` the same. (The docs said `/modpack:update`; a mod's own commands carry no plugin prefix, so that name never ran.) A retired mod is now removed in the scope it was installed in, and only where Claude Code still has it installed.
+- **cells 0.4.4: one instruction for edits in auto mode.** In auto mode on Opus, Claude Code tells Claude to make small file changes with sed, heredocs or short scripts, and cells tells it to put several edits and their check through run_cell; Claude did both by turns. cells now adds one line to auto mode's own note: several edits and their check through run_cell, a single small change by the shell (`autoModeLine`, on). On eight edit tasks in auto mode (48 Opus runs): the same cost, +0.1% [−7.3%, +7.9%]; files changed by a shell script, which leaves no diff and nothing for `/rewind`, 16% of changes instead of 28%. Marks 0.998 against 1.000: one brief left out a follow-up, a miss that task has had before with and without the pack.
+- **cells 0.4.4: no note about scripts in scratch space.** cells points out a script that rewrote files around the Edit tool; a third of those notes (41 of 129 in the author's sessions) were about scripts in a session's scratch folder or `/tmp`, where there is no diff to show. Those are left alone now. Where the note is right, it works: in the five file changes after one, script edits fell from 61% to 34%.
+- **ctrl+o shows the mods' rows whole** (Claude Code 2.1.312 tells a mod when a row is drawn in full): a cell's whole program and report, and delegate's and eta's calls as Claude Code draws them.
+- **delegate 0.4.5**: the line closing a turn that waits only on delegate's workers names them: `Waiting for hand-off 3 · explore · haiku · 5s · 2 req · $0.0020`.
+- **eta 0.2.4**: progress read with no pattern from git, rsync, wget, curl, pip, Keras and lines like `123/456 files` too: 19 of 19 common formats against 9, and none of 7 lines that only look like progress.
+- **smart-compact 0.3.3, draft 0.1.4**: smart-compact's `/cache` registers as above; draft counts words after Write and Edit with one matcher (it named MultiEdit, which is no tool of Claude Code's).
+- **modpack 0.9.4**: the same eight mods.
+- **Benchmarks**: the auto-mode line (`results-automode.jsonl`, `automode_report.py`). The ops grader waits 45 s for the service to start: behind a VPN's name servers, Python's HTTP server took 35 s to look up the host's name, and 10 s graded working fixes as failures.
+
 ## 0.9.3 (2026-10-19)
 
 smart-compact's summary keeps what still holds, at half the size, and is used only when it is one.

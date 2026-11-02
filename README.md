@@ -422,6 +422,7 @@ Built from 240 of the author's own Claude Code sessions (32,202 model requests).
 - **Background shell jobs** show above the prompt with how long they have run, as soon as Claude starts one.
 - **`track_progress`** adds a percentage and an estimated finish time, read live from the job's output: a pattern counted against a total, a progress line, or the common progress output (tqdm, pytest, cargo, git, rsync, wget, curl, pip, Keras, `[3/10]`, `123/456 files`) without one. Before the progress is measurable, Claude's own guess stands in, marked as such.
 - **What has run is done with.** A finished job shows its full gauge for a beat and leaves; a failure stays in red until you write again, or for 10 minutes. Columns keep their widths while the numbers change.
+- **A wait that would never end is refused.** Before a Bash command runs, eta checks its `pgrep -f` wait loop against the background tasks running in the session: if the loop would find a task whose own loop finds it, each would wait for the other, so eta refuses it and names the task. Hiding a row with `stop` ends nothing, and the reply says so: the task runs on until it ends or TaskStop ends it.
 - **Phone and IDE** get the same news as status text, and the tool's reply stays readable there. A terminal session watched over Remote Control (`/rc`) shows only that reply, as of Claude Code 2.1.296.
 
 </details>

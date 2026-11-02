@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.5 (2026-11-02)
+
+eta refuses a wait that would never end, and no longer lets a hidden row pass for a finished job.
+
+- **eta 0.2.5: a wait that would never end is refused before it starts.** Claude often waits for a job with a loop such as `until ! pgrep -f 'review.last.md'; do sleep 30; done`. `pgrep` skips its own shell but not another waiter's: a second waiter whose command line holds the same text finds the first while the first finds it, and neither ever ends. In one of the author's sessions six such waiters ran for over 8 hours, three of them held the session for their whole 10-minute timeout first, and Claude, seeing their rows still running, took them for stale. eta now checks a Bash command's `pgrep -f` loop against the background tasks running in the session and refuses one that would wait on a task that waits on it, naming that task. Replayed over every Bash call of that session, it refuses the four waiters that hung and nothing else; counts (`$(pgrep -f … | wc -l)`), lists, one-off checks and here-documents are left alone.
+- **eta 0.2.5: hiding a row ends nothing, and the reply says so.** `track_progress` with `stop` on a task that still runs now answers that the task runs on and that TaskStop ends it; Claude had reported waiters as cleared that were still running. A name eta does not show is answered with the ones it does.
+- **modpack 0.9.5**: the same eight mods.
+
 ## 0.9.4 (2026-10-28)
 
 The pack on Claude Code 2.1.312: its commands and its updates work again, auto mode and cells give one instruction instead of two, and ctrl+o shows the mods' rows whole.

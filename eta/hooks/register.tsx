@@ -4,6 +4,7 @@ import type { Color, EngineInterface, Register, Timer } from 'claude-code'
 import { commandLabel, compile, describe, feed } from './estimate'
 import { BEAT_MS, table } from './table'
 import type { Tone } from './table'
+import { mutualWait } from './waits'
 import type { Job } from '../types'
 
 const jobs = atom({ plugin: 'eta', key: 'jobs' } as const, [] as Job[])
@@ -184,6 +185,9 @@ function writerOf(list: readonly Job[], file: string): Job | undefined {
 }
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : undefined)
 
+const deadlock = (c: { id: string; pattern: string }) =>
+  `Not run: its \`pgrep -f '${c.pattern}'\` also finds the shell of background task ${c.id}, whose command holds that text, and ${c.id}'s own pgrep finds this command the same way. Each would wait for the other, and neither would ever end. Wait for ${c.id}'s notification instead, or end it with TaskStop and start one waiter; a pgrep pattern must match only the process waited for.`
+
 async function track($: EngineInterface, i: TrackInput): Promise<string> {
   const id = str(i.task)
   if (!id) return 'track_progress needs `task`: a background task id, or a short name for the job.'
@@ -191,9 +195,15 @@ async function track($: EngineInterface, i: TrackInput): Promise<string> {
   const list = await read($, jobs)
   const named = list.find(j => j.id === id)
   if (i.stop === true) {
+    if (!named) {
+      const shown = list.filter(j => j.status === 'running').map(j => `${j.id} (${j.label})`)
+      return shown.length > 0 ? `Nothing is shown as ${id}. Shown now: ${shown.join(', ')}.` : `Nothing is shown as ${id}, and no job is shown now.`
+    }
     await update($, jobs, cur => cur.filter(c => c.id !== id))
     void tick($).catch(() => undefined)
-    return `Stopped showing ${id}.`
+    // Hiding the row ends nothing: a background task runs on until it ends or TaskStop ends it.
+    const runs = named.status === 'running' && named.source === 'background'
+    return `Stopped showing ${id}.${runs ? ` The task itself still runs: TaskStop ${id} ends it.` : ''}`
   }
   for (const key of ['done_pattern', 'progress_pattern', 'finished_pattern'] as const) {
     if (str(i[key]) && !compile(str(i[key]))) return `${key} is not a valid regular expression.`
@@ -262,7 +272,7 @@ export const register: Register = (on, options) => {
           expected_minutes: { type: 'number', description: 'Your estimate of the whole job’s duration, shown until progress is measurable.' },
           started_minutes_ago: { type: 'number', description: 'For a job already running: how long ago it started.' },
           status_line: { type: 'boolean', description: "Show the file's last line beside the job: for jobs that write their state rather than countable progress." },
-          stop: { type: 'boolean', description: 'Stop showing this job.' },
+          stop: { type: 'boolean', description: 'Stop showing this job; a background task runs on (TaskStop ends it).' },
         },
         required: ['task'],
       },
@@ -280,6 +290,12 @@ export const register: Register = (on, options) => {
     if (e.tool.endsWith(`__${TOOL}`)) {
       if (fromSubagent) return { result: 'track_progress shows jobs to the person from the main conversation only; nothing is shown for a subagent\'s job.' }
       return { result: await track($, e as TrackInput) }
+    }
+    // A pgrep waiter that a running waiter finds, and that finds it: refused before it hangs for good.
+    if (e.tool === 'Bash') {
+      const command = str((e as { command?: unknown }).command)
+      const clash = command?.includes('pgrep') ? mutualWait(command, (await read($, jobs)).filter(j => j.status === 'running' && j.source === 'background')) : undefined
+      if (clash) return { deny: deadlock(clash) }
     }
     const r = await next(e)
     if (r.deny !== undefined) return r

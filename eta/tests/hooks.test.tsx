@@ -30,10 +30,14 @@ function host(on: On, surfaces: string[]) {
     return <Text>{String(e.props.output ?? '')}</Text>
   })
   on('prompt.submit', ($, e) => ({ text: e.text }))
-  on('tool.call', { tool: 'Bash' }, () => ({
-    result: { stdout: '', stderr: '', interrupted: false, backgroundTaskId: 'bg1' },
-    text: 'Command running in background with ID: bg1. Output is being written to: /tmp/t/bg1.output.',
-  }) as never)
+  let n = 0
+  on('tool.call', { tool: 'Bash' }, () => {
+    const id = `bg${++n}`
+    return {
+      result: { stdout: '', stderr: '', interrupted: false, backgroundTaskId: id },
+      text: `Command running in background with ID: ${id}. Output is being written to: /tmp/t/${id}.output.`,
+    } as never
+  })
   return { clock, status: () => status }
 }
 
@@ -194,4 +198,25 @@ test('a job with progress and no growth for 20 minutes fails; one without progre
   expect(await ui.find({ type: 'Text', text: /failed/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /plainjob/ })).toBeDefined()
   await ui.unmount()
+})
+
+test('a pgrep waiter that a running waiter finds, and that finds it, is refused before it runs', async ($, on) => {
+  host(on, ['terminal'])
+  await $.tool.call({ tool: 'Bash', command: 'codex exec -o /s/A.last.md - < /s/A.prompt.txt', run_in_background: true, description: 'codex A' } as never)
+  const first = await $.tool.call({ tool: 'Bash', command: "sleep 3; until ! pgrep -f 'A.last.md' >/dev/null; do sleep 30; done; echo done", run_in_background: true, description: 'wait A' } as never)
+  expect(first.deny).toBe(undefined)
+  const twin = await $.tool.call({ tool: 'Bash', command: "until ! pgrep -f 'A.last.md' >/dev/null; do sleep 20; done; head -c 5000 /s/A.last.md" } as never)
+  expect(twin.deny).toContain("pgrep -f 'A.last.md'")
+  expect(twin.deny).toContain('background task bg2')
+  const other = await $.tool.call({ tool: 'Bash', command: "until ! pgrep -f 'B.last.md' >/dev/null; do sleep 20; done" } as never)
+  expect(other.deny).toBe(undefined)
+})
+
+test('stopping a row whose task still runs says the task runs on; an unknown name lists the rows shown', async ($, on) => {
+  host(on, ['terminal'])
+  await $.tool.call({ tool: 'Bash', command: 'sleep 100', run_in_background: true, description: 'nap' } as never)
+  const unknown = await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'list-active', stop: true } as never)
+  expect(String(unknown.result)).toBe('Nothing is shown as list-active. Shown now: bg1 (nap).')
+  const r = await $.tool.call({ tool: 'mcp__eta__track_progress', task: 'bg1', stop: true } as never)
+  expect(String(r.result)).toBe('Stopped showing bg1. The task itself still runs: TaskStop bg1 ends it.')
 })
